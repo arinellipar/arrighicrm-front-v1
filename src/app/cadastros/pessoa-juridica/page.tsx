@@ -1,10 +1,10 @@
-// src/app/cadastros/pessoa-fisica/page.tsx
+// src/app/cadastros/pessoa-juridica/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Users,
+  Building2,
   Plus,
   Search,
   Filter,
@@ -15,9 +15,9 @@ import {
   Loader2,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
-import PessoaFisicaForm from "@/components/forms/PessoaFisicaForm";
+import { usePessoaJuridica } from "@/hooks/usePessoaJuridica";
 import { usePessoaFisica } from "@/hooks/usePessoaFisica";
-import { PessoaFisica } from "@/types/api";
+import { PessoaJuridica, ResponsavelTecnicoOption } from "@/types/api";
 import { cn } from "@/lib/utils";
 
 function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
@@ -73,7 +73,7 @@ function ErrorMessage({
   );
 }
 
-export default function PessoaFisicaPage() {
+export default function PessoaJuridicaPage() {
   const {
     pessoas,
     loading,
@@ -86,21 +86,39 @@ export default function PessoaFisicaPage() {
     updatePessoa,
     deletePessoa,
     clearError,
-  } = usePessoaFisica();
+  } = usePessoaJuridica();
+
+  const { fetchResponsaveisTecnicos } = usePessoaFisica();
 
   const [showForm, setShowForm] = useState(false);
-  const [editingPessoa, setEditingPessoa] = useState<PessoaFisica | null>(null);
+  const [editingPessoa, setEditingPessoa] = useState<PessoaJuridica | null>(
+    null
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
     null
   );
+  const [responsaveisTecnicos, setResponsaveisTecnicos] = useState<
+    ResponsavelTecnicoOption[]
+  >([]);
+
+  // Carregar responsáveis técnicos
+  useEffect(() => {
+    const loadResponsaveis = async () => {
+      const responsaveis = await fetchResponsaveisTecnicos();
+      setResponsaveisTecnicos(responsaveis);
+    };
+    loadResponsaveis();
+  }, [fetchResponsaveisTecnicos]);
 
   // Filtrar pessoas por termo de busca
   const filteredPessoas = pessoas.filter(
     (pessoa) =>
-      pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pessoa.cpf.includes(searchTerm) ||
-      pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
+      pessoa.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pessoa.cnpj.includes(searchTerm) ||
+      pessoa.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (pessoa.nomeFantasia &&
+        pessoa.nomeFantasia.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleCreateOrUpdate = async (data: any) => {
@@ -111,7 +129,7 @@ export default function PessoaFisicaPage() {
     }
   };
 
-  const handleEdit = (pessoa: PessoaFisica) => {
+  const handleEdit = (pessoa: PessoaJuridica) => {
     setEditingPessoa(pessoa);
     setShowForm(true);
   };
@@ -155,15 +173,15 @@ export default function PessoaFisicaPage() {
           className="flex items-center justify-between"
         >
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl text-white">
-              <Users className="w-8 h-8" />
+            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white">
+              <Building2 className="w-8 h-8" />
             </div>
             <div>
               <h1 className="text-3xl font-bold gradient-text">
-                Pessoas Físicas
+                Pessoas Jurídicas
               </h1>
               <p className="text-secondary-600">
-                Gerenciar cadastros de clientes pessoa física
+                Gerenciar cadastros de empresas e organizações
               </p>
             </div>
           </div>
@@ -171,34 +189,45 @@ export default function PessoaFisicaPage() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setShowForm(true)}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+            onClick={() => {
+              if (responsaveisTecnicos.length === 0) {
+                alert(
+                  "É necessário cadastrar pelo menos uma pessoa física como responsável técnico antes de criar uma pessoa jurídica."
+                );
+                return;
+              }
+              setShowForm(true);
+            }}
+            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
-            <span>Novo Cliente</span>
+            <span>Nova Empresa</span>
           </motion.button>
         </motion.div>
 
-        {/* Formulário Modal */}
-        <AnimatePresence>
-          {showForm && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            >
-              <div className="w-full max-w-4xl max-h-screen overflow-y-auto">
-                <PessoaFisicaForm
-                  initialData={editingPessoa}
-                  onSubmit={handleCreateOrUpdate}
-                  onCancel={handleCloseForm}
-                  loading={creating || updating}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Aviso se não há responsáveis técnicos */}
+        {responsaveisTecnicos.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-yellow-50 border border-yellow-200 rounded-xl p-4"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <p className="text-yellow-800">
+                <strong>Atenção:</strong> É necessário ter pelo menos uma pessoa
+                física cadastrada para ser responsável técnico antes de criar
+                pessoas jurídicas.{" "}
+                <a
+                  href="/cadastros/pessoa-fisica"
+                  className="underline hover:no-underline font-medium"
+                >
+                  Cadastrar pessoa física
+                </a>
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Filtros e Busca */}
         <motion.div
@@ -212,7 +241,7 @@ export default function PessoaFisicaPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Buscar por nome, CPF ou email..."
+                placeholder="Buscar por razão social, CNPJ ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
@@ -240,14 +269,14 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Total de Clientes
+                  Total de Empresas
                 </p>
                 <p className="text-3xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-green-100 rounded-xl">
+                <Building2 className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
@@ -256,14 +285,14 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Clientes Ativos
+                  Empresas Ativas
                 </p>
                 <p className="text-3xl font-bold text-green-600">
                   {stats.ativos}
                 </p>
               </div>
               <div className="p-3 bg-green-100 rounded-xl">
-                <Users className="w-6 h-6 text-green-600" />
+                <Building2 className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
@@ -272,7 +301,7 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Novos este mês
+                  Novas este mês
                 </p>
                 <p className="text-3xl font-bold text-accent-600">
                   {stats.novosEstemês}
@@ -299,22 +328,24 @@ export default function PessoaFisicaPage() {
           >
             <div className="px-6 py-4 border-b border-secondary-200/50">
               <h3 className="text-lg font-semibold text-secondary-900">
-                Lista de Clientes ({filteredPessoas.length} registros)
+                Lista de Empresas ({filteredPessoas.length} registros)
               </h3>
             </div>
 
             {filteredPessoas.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
+                <Building2 className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-secondary-900 mb-2">
                   {searchTerm
                     ? "Nenhum resultado encontrado"
-                    : "Nenhum cliente cadastrado"}
+                    : "Nenhuma empresa cadastrada"}
                 </h3>
                 <p className="text-secondary-600">
                   {searchTerm
                     ? "Tente ajustar o termo de busca"
-                    : "Clique em 'Novo Cliente' para começar"}
+                    : responsaveisTecnicos.length === 0
+                    ? "Cadastre primeiro uma pessoa física como responsável técnico"
+                    : "Clique em 'Nova Empresa' para começar"}
                 </p>
               </div>
             ) : (
@@ -323,10 +354,13 @@ export default function PessoaFisicaPage() {
                   <thead className="bg-secondary-50/50">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Cliente
+                        Empresa
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        CPF
+                        CNPJ
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        Responsável Técnico
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         Contato
@@ -353,25 +387,33 @@ export default function PessoaFisicaPage() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
                               <span className="text-sm font-bold text-white">
-                                {pessoa.nome.charAt(0)}
+                                {pessoa.razaoSocial.charAt(0)}
                               </span>
                             </div>
                             <div>
                               <div className="text-sm font-medium text-secondary-900">
-                                {pessoa.nome}
+                                {pessoa.razaoSocial}
                               </div>
-                              {pessoa.codinome && (
+                              {pessoa.nomeFantasia && (
                                 <div className="text-sm text-secondary-500">
-                                  {pessoa.codinome}
+                                  {pessoa.nomeFantasia}
                                 </div>
                               )}
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
-                          {pessoa.cpf}
+                          {pessoa.cnpj}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-secondary-900">
+                            {pessoa.responsavelTecnico.nome}
+                          </div>
+                          <div className="text-sm text-secondary-500">
+                            {pessoa.responsavelTecnico.cpf}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-secondary-900">
@@ -478,7 +520,7 @@ export default function PessoaFisicaPage() {
                   </h3>
                 </div>
                 <p className="text-secondary-600 mb-6">
-                  Tem certeza que deseja excluir este cliente? Esta ação não
+                  Tem certeza que deseja excluir esta empresa? Esta ação não
                   pode ser desfeita.
                 </p>
                 <div className="flex justify-end space-x-3">

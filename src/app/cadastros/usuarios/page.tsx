@@ -1,10 +1,10 @@
-// src/app/cadastros/pessoa-fisica/page.tsx
+// src/app/cadastros/usuarios/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Users,
+  UserCog,
   Plus,
   Search,
   Filter,
@@ -15,22 +15,20 @@ import {
   Loader2,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
-import PessoaFisicaForm from "@/components/forms/PessoaFisicaForm";
-import { usePessoaFisica } from "@/hooks/usePessoaFisica";
-import { PessoaFisica } from "@/types/api";
+import UsuarioForm from "@/components/forms/UsuarioForm";
+import { useUsuario } from "@/hooks/useUsuario";
+import { Usuario, PessoaFisicaOption, PessoaJuridicaOption } from "@/types/api";
 import { cn } from "@/lib/utils";
 
-function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
+function StatusBadge({ status }: { status: boolean }) {
   return (
     <span
       className={cn(
         "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-        status === "ativo"
-          ? "bg-green-100 text-green-800"
-          : "bg-red-100 text-red-800"
+        status ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
       )}
     >
-      {status === "ativo" ? "Ativo" : "Inativo"}
+      {status ? "Ativo" : "Inativo"}
     </span>
   );
 }
@@ -73,51 +71,80 @@ function ErrorMessage({
   );
 }
 
-export default function PessoaFisicaPage() {
+export default function UsuariosPage() {
   const {
-    pessoas,
+    usuarios,
     loading,
     error,
     creating,
     updating,
     deleting,
-    fetchPessoas,
-    createPessoa,
-    updatePessoa,
-    deletePessoa,
+    fetchUsuarios,
+    createUsuario,
+    updateUsuario,
+    deleteUsuario,
+    fetchPessoasFisicas,
+    fetchPessoasJuridicas,
     clearError,
-  } = usePessoaFisica();
+  } = useUsuario();
 
   const [showForm, setShowForm] = useState(false);
-  const [editingPessoa, setEditingPessoa] = useState<PessoaFisica | null>(null);
+  const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
     null
   );
+  const [pessoasFisicas, setPessoasFisicas] = useState<PessoaFisicaOption[]>(
+    []
+  );
+  const [pessoasJuridicas, setPessoasJuridicas] = useState<
+    PessoaJuridicaOption[]
+  >([]);
 
-  // Filtrar pessoas por termo de busca
-  const filteredPessoas = pessoas.filter(
-    (pessoa) =>
-      pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pessoa.cpf.includes(searchTerm) ||
-      pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
+  // Carregar pessoas físicas e jurídicas
+  useEffect(() => {
+    const loadPessoas = async () => {
+      const [pf, pj] = await Promise.all([
+        fetchPessoasFisicas(),
+        fetchPessoasJuridicas(),
+      ]);
+      setPessoasFisicas(pf);
+      setPessoasJuridicas(pj);
+    };
+    loadPessoas();
+  }, [fetchPessoasFisicas, fetchPessoasJuridicas]);
+
+  // Filtrar usuários por termo de busca
+  const filteredUsuarios = usuarios.filter(
+    (usuario) =>
+      usuario.login.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      usuario.grupoAcesso.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (usuario.pessoaFisica &&
+        usuario.pessoaFisica.nome
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (usuario.pessoaJuridica &&
+        usuario.pessoaJuridica.razaoSocial
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()))
   );
 
   const handleCreateOrUpdate = async (data: any) => {
-    if (editingPessoa) {
-      return await updatePessoa(editingPessoa.id, data);
+    if (editingUsuario) {
+      return await updateUsuario(editingUsuario.id, data);
     } else {
-      return await createPessoa(data);
+      return await createUsuario(data);
     }
   };
 
-  const handleEdit = (pessoa: PessoaFisica) => {
-    setEditingPessoa(pessoa);
+  const handleEdit = (usuario: Usuario) => {
+    setEditingUsuario(usuario);
     setShowForm(true);
   };
 
   const handleDelete = async (id: number) => {
-    const success = await deletePessoa(id);
+    const success = await deleteUsuario(id);
     if (success) {
       setShowDeleteConfirm(null);
     }
@@ -125,7 +152,7 @@ export default function PessoaFisicaPage() {
 
   const handleCloseForm = () => {
     setShowForm(false);
-    setEditingPessoa(null);
+    setEditingUsuario(null);
     clearError();
   };
 
@@ -133,16 +160,22 @@ export default function PessoaFisicaPage() {
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
+  const getUsuarioNome = (usuario: Usuario) => {
+    if (usuario.pessoaFisica) {
+      return usuario.pessoaFisica.nome;
+    }
+    if (usuario.pessoaJuridica) {
+      return usuario.pessoaJuridica.razaoSocial;
+    }
+    return usuario.login;
+  };
+
   // Estatísticas calculadas
   const stats = {
-    total: pessoas.length,
-    ativos: pessoas.length, // Assumindo que todos estão ativos por enquanto
-    novosEstemês: pessoas.filter((p) => {
-      const cadastro = new Date(p.dataCadastro);
-      const hoje = new Date();
-      const mesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      return cadastro >= mesAtual;
-    }).length,
+    total: usuarios.length,
+    ativos: usuarios.filter((u) => u.ativo).length,
+    inativos: usuarios.filter((u) => !u.ativo).length,
+    admins: usuarios.filter((u) => u.grupoAcesso === "Administrador").length,
   };
 
   return (
@@ -155,15 +188,15 @@ export default function PessoaFisicaPage() {
           className="flex items-center justify-between"
         >
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl text-white">
-              <Users className="w-8 h-8" />
+            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white">
+              <UserCog className="w-8 h-8" />
             </div>
             <div>
               <h1 className="text-3xl font-bold gradient-text">
-                Pessoas Físicas
+                Usuários do Sistema
               </h1>
               <p className="text-secondary-600">
-                Gerenciar cadastros de clientes pessoa física
+                Gerenciar usuários e permissões de acesso
               </p>
             </div>
           </div>
@@ -171,11 +204,22 @@ export default function PessoaFisicaPage() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setShowForm(true)}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+            onClick={() => {
+              if (
+                pessoasFisicas.length === 0 &&
+                pessoasJuridicas.length === 0
+              ) {
+                alert(
+                  "É necessário cadastrar pelo menos uma pessoa física ou jurídica antes de criar um usuário."
+                );
+                return;
+              }
+              setShowForm(true);
+            }}
+            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
-            <span>Novo Cliente</span>
+            <span>Novo Usuário</span>
           </motion.button>
         </motion.div>
 
@@ -189,8 +233,10 @@ export default function PessoaFisicaPage() {
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             >
               <div className="w-full max-w-4xl max-h-screen overflow-y-auto">
-                <PessoaFisicaForm
-                  initialData={editingPessoa}
+                <UsuarioForm
+                  initialData={editingUsuario}
+                  pessoasFisicas={pessoasFisicas}
+                  pessoasJuridicas={pessoasJuridicas}
                   onSubmit={handleCreateOrUpdate}
                   onCancel={handleCloseForm}
                   loading={creating || updating}
@@ -199,6 +245,36 @@ export default function PessoaFisicaPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Aviso se não há pessoas cadastradas */}
+        {pessoasFisicas.length === 0 && pessoasJuridicas.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-yellow-50 border border-yellow-200 rounded-xl p-4"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <p className="text-yellow-800">
+                <strong>Atenção:</strong> É necessário ter pelo menos uma pessoa
+                física ou jurídica cadastrada para criar usuários.{" "}
+                <a
+                  href="/cadastros/pessoa-fisica"
+                  className="underline hover:no-underline font-medium"
+                >
+                  Cadastrar pessoa física
+                </a>
+                {" ou "}
+                <a
+                  href="/cadastros/pessoa-juridica"
+                  className="underline hover:no-underline font-medium"
+                >
+                  Cadastrar pessoa jurídica
+                </a>
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Filtros e Busca */}
         <motion.div
@@ -212,7 +288,7 @@ export default function PessoaFisicaPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Buscar por nome, CPF ou email..."
+                placeholder="Buscar por login, email ou nome..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
@@ -234,20 +310,20 @@ export default function PessoaFisicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-4 gap-6"
         >
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Total de Clientes
+                  Total de Usuários
                 </p>
                 <p className="text-3xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-purple-100 rounded-xl">
+                <UserCog className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>
@@ -256,14 +332,14 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Clientes Ativos
+                  Usuários Ativos
                 </p>
                 <p className="text-3xl font-bold text-green-600">
                   {stats.ativos}
                 </p>
               </div>
               <div className="p-3 bg-green-100 rounded-xl">
-                <Users className="w-6 h-6 text-green-600" />
+                <UserCog className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
@@ -272,14 +348,30 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Novos este mês
+                  Usuários Inativos
+                </p>
+                <p className="text-3xl font-bold text-red-600">
+                  {stats.inativos}
+                </p>
+              </div>
+              <div className="p-3 bg-red-100 rounded-xl">
+                <UserCog className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-secondary-600 text-sm font-medium">
+                  Administradores
                 </p>
                 <p className="text-3xl font-bold text-accent-600">
-                  {stats.novosEstemês}
+                  {stats.admins}
                 </p>
               </div>
               <div className="p-3 bg-accent-100 rounded-xl">
-                <Plus className="w-6 h-6 text-accent-600" />
+                <UserCog className="w-6 h-6 text-accent-600" />
               </div>
             </div>
           </div>
@@ -287,7 +379,7 @@ export default function PessoaFisicaPage() {
 
         {/* Tabela ou Estados de Loading/Error */}
         {error ? (
-          <ErrorMessage message={error} onRetry={fetchPessoas} />
+          <ErrorMessage message={error} onRetry={fetchUsuarios} />
         ) : loading ? (
           <LoadingSpinner />
         ) : (
@@ -299,22 +391,25 @@ export default function PessoaFisicaPage() {
           >
             <div className="px-6 py-4 border-b border-secondary-200/50">
               <h3 className="text-lg font-semibold text-secondary-900">
-                Lista de Clientes ({filteredPessoas.length} registros)
+                Lista de Usuários ({filteredUsuarios.length} registros)
               </h3>
             </div>
 
-            {filteredPessoas.length === 0 ? (
+            {filteredUsuarios.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
+                <UserCog className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-secondary-900 mb-2">
                   {searchTerm
                     ? "Nenhum resultado encontrado"
-                    : "Nenhum cliente cadastrado"}
+                    : "Nenhum usuário cadastrado"}
                 </h3>
                 <p className="text-secondary-600">
                   {searchTerm
                     ? "Tente ajustar o termo de busca"
-                    : "Clique em 'Novo Cliente' para começar"}
+                    : pessoasFisicas.length === 0 &&
+                      pessoasJuridicas.length === 0
+                    ? "Cadastre primeiro uma pessoa física ou jurídica"
+                    : "Clique em 'Novo Usuário' para começar"}
                 </p>
               </div>
             ) : (
@@ -323,13 +418,16 @@ export default function PessoaFisicaPage() {
                   <thead className="bg-secondary-50/50">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Cliente
+                        Usuário
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        CPF
+                        Login
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Contato
+                        Grupo de Acesso
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                        Tipo
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         Status
@@ -343,9 +441,9 @@ export default function PessoaFisicaPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-200/50">
-                    {filteredPessoas.map((pessoa, index) => (
+                    {filteredUsuarios.map((usuario, index) => (
                       <motion.tr
-                        key={pessoa.id}
+                        key={usuario.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 + index * 0.05 }}
@@ -353,39 +451,49 @@ export default function PessoaFisicaPage() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
                               <span className="text-sm font-bold text-white">
-                                {pessoa.nome.charAt(0)}
+                                {getUsuarioNome(usuario).charAt(0)}
                               </span>
                             </div>
                             <div>
                               <div className="text-sm font-medium text-secondary-900">
-                                {pessoa.nome}
+                                {getUsuarioNome(usuario)}
                               </div>
-                              {pessoa.codinome && (
-                                <div className="text-sm text-secondary-500">
-                                  {pessoa.codinome}
-                                </div>
-                              )}
+                              <div className="text-sm text-secondary-500">
+                                {usuario.email}
+                              </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
-                          {pessoa.cpf}
+                          {usuario.login}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-secondary-900">
-                            {pessoa.email}
-                          </div>
-                          <div className="text-sm text-secondary-500">
-                            {pessoa.telefone1}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <StatusBadge status="ativo" />
+                          <span
+                            className={cn(
+                              "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+                              usuario.grupoAcesso === "Administrador" &&
+                                "bg-red-100 text-red-800",
+                              usuario.grupoAcesso === "Usuario" &&
+                                "bg-blue-100 text-blue-800",
+                              usuario.grupoAcesso === "Visualizador" &&
+                                "bg-gray-100 text-gray-800"
+                            )}
+                          >
+                            {usuario.grupoAcesso}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
-                          {formatDate(pessoa.dataCadastro)}
+                          {usuario.tipoPessoa === "Fisica"
+                            ? "Pessoa Física"
+                            : "Pessoa Jurídica"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <StatusBadge status={usuario.ativo} />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
+                          {formatDate(usuario.dataCadastro)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end space-x-2">
@@ -400,7 +508,7 @@ export default function PessoaFisicaPage() {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => handleEdit(pessoa)}
+                              onClick={() => handleEdit(usuario)}
                               className="p-2 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
                               title="Editar"
                             >
@@ -409,7 +517,7 @@ export default function PessoaFisicaPage() {
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              onClick={() => setShowDeleteConfirm(pessoa.id)}
+                              onClick={() => setShowDeleteConfirm(usuario.id)}
                               className="p-2 text-secondary-400 hover:text-red-600 transition-colors duration-200"
                               title="Excluir"
                             >
@@ -425,11 +533,11 @@ export default function PessoaFisicaPage() {
             )}
 
             {/* Paginação */}
-            {filteredPessoas.length > 0 && (
+            {filteredUsuarios.length > 0 && (
               <div className="px-6 py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-secondary-500">
-                    Mostrando {filteredPessoas.length} de {pessoas.length}{" "}
+                    Mostrando {filteredUsuarios.length} de {usuarios.length}{" "}
                     registros
                   </div>
                   <div className="flex items-center space-x-2">
@@ -478,7 +586,7 @@ export default function PessoaFisicaPage() {
                   </h3>
                 </div>
                 <p className="text-secondary-600 mb-6">
-                  Tem certeza que deseja excluir este cliente? Esta ação não
+                  Tem certeza que deseja excluir este usuário? Esta ação não
                   pode ser desfeita.
                 </p>
                 <div className="flex justify-end space-x-3">

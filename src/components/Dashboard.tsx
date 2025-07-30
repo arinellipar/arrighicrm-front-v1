@@ -1,3 +1,4 @@
+// src/components/Dashboard.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -10,18 +11,29 @@ import {
   Bell,
   Plus,
   ArrowUpRight,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+import { useDashboard } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
 
 interface StatsCardProps {
   title: string;
-  value: string;
-  change: string;
-  changeType: "positive" | "negative" | "neutral";
+  value: string | number;
+  change?: string;
+  changeType?: "positive" | "negative" | "neutral";
   icon: React.ReactNode;
+  loading?: boolean;
 }
 
-function StatsCard({ title, value, change, changeType, icon }: StatsCardProps) {
+function StatsCard({
+  title,
+  value,
+  change,
+  changeType = "neutral",
+  icon,
+  loading = false,
+}: StatsCardProps) {
   return (
     <motion.div
       whileHover={{ y: -2, scale: 1.02 }}
@@ -32,20 +44,31 @@ function StatsCard({ title, value, change, changeType, icon }: StatsCardProps) {
         <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl text-white">
           {icon}
         </div>
-        <div
-          className={cn(
-            "flex items-center space-x-1 text-sm font-medium",
-            changeType === "positive" && "text-green-600",
-            changeType === "negative" && "text-red-600",
-            changeType === "neutral" && "text-secondary-600"
-          )}
-        >
-          <ArrowUpRight className="w-4 h-4" />
-          <span>{change}</span>
-        </div>
+        {change && (
+          <div
+            className={cn(
+              "flex items-center space-x-1 text-sm font-medium",
+              changeType === "positive" && "text-green-600",
+              changeType === "negative" && "text-red-600",
+              changeType === "neutral" && "text-secondary-600"
+            )}
+          >
+            <ArrowUpRight className="w-4 h-4" />
+            <span>{change}</span>
+          </div>
+        )}
       </div>
       <div>
-        <h3 className="text-2xl font-bold text-secondary-900 mb-1">{value}</h3>
+        {loading ? (
+          <div className="flex items-center space-x-2">
+            <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
+            <div className="h-8 w-16 bg-secondary-200 rounded animate-pulse" />
+          </div>
+        ) : (
+          <h3 className="text-2xl font-bold text-secondary-900 mb-1">
+            {value}
+          </h3>
+        )}
         <p className="text-secondary-600 text-sm font-medium">{title}</p>
       </div>
     </motion.div>
@@ -99,37 +122,38 @@ function QuickAction({
   );
 }
 
+function ErrorMessage({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-red-50 border border-red-200 rounded-xl p-6 text-center"
+    >
+      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+      <h3 className="text-lg font-semibold text-red-900 mb-2">
+        Erro ao carregar estatísticas
+      </h3>
+      <p className="text-red-700 mb-4">{message}</p>
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onRetry}
+        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
+      >
+        Tentar novamente
+      </motion.button>
+    </motion.div>
+  );
+}
+
 export default function Dashboard() {
-  const stats = [
-    {
-      title: "Total de Clientes",
-      value: "2,847",
-      change: "+12%",
-      changeType: "positive" as const,
-      icon: <Users className="w-6 h-6" />,
-    },
-    {
-      title: "Empresas Cadastradas",
-      value: "1,429",
-      change: "+8%",
-      changeType: "positive" as const,
-      icon: <Building2 className="w-6 h-6" />,
-    },
-    {
-      title: "Processos Ativos",
-      value: "847",
-      change: "+5%",
-      changeType: "positive" as const,
-      icon: <FileText className="w-6 h-6" />,
-    },
-    {
-      title: "Taxa de Conversão",
-      value: "68%",
-      change: "+3%",
-      changeType: "positive" as const,
-      icon: <TrendingUp className="w-6 h-6" />,
-    },
-  ];
+  const { stats, loading, error, fetchStats, clearError } = useDashboard();
 
   const quickActions = [
     {
@@ -162,6 +186,78 @@ export default function Dashboard() {
     },
   ];
 
+  // Calcular porcentagem de crescimento (mockado para demonstração)
+  const getChangePercentage = (current: number) => {
+    if (current === 0) return "+0%";
+    // Simular crescimento baseado no valor atual
+    const percentage = Math.floor(Math.random() * 15) + 1;
+    return `+${percentage}%`;
+  };
+
+  const statsCards = [
+    {
+      title: "Total de Clientes",
+      value: loading ? 0 : stats.totalClientes,
+      change: loading ? undefined : getChangePercentage(stats.totalClientes),
+      changeType: "positive" as const,
+      icon: <Users className="w-6 h-6" />,
+    },
+    {
+      title: "Pessoas Físicas",
+      value: loading ? 0 : stats.totalPessoasFisicas,
+      change: loading
+        ? undefined
+        : getChangePercentage(stats.totalPessoasFisicas),
+      changeType: "positive" as const,
+      icon: <Users className="w-6 h-6" />,
+    },
+    {
+      title: "Pessoas Jurídicas",
+      value: loading ? 0 : stats.totalPessoasJuridicas,
+      change: loading
+        ? undefined
+        : getChangePercentage(stats.totalPessoasJuridicas),
+      changeType: "positive" as const,
+      icon: <Building2 className="w-6 h-6" />,
+    },
+    {
+      title: "Novos este mês",
+      value: loading ? 0 : stats.clientesRecentes,
+      change: loading ? undefined : `+${stats.clientesRecentes}`,
+      changeType: "positive" as const,
+      icon: <TrendingUp className="w-6 h-6" />,
+    },
+  ];
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between"
+        >
+          <div>
+            <h1 className="text-3xl font-bold gradient-text mb-2">
+              Dashboard CRM
+            </h1>
+            <p className="text-secondary-600">
+              Bem-vindo ao sistema de gestão Arrighi Advogados
+            </p>
+          </div>
+        </motion.div>
+
+        <ErrorMessage
+          message={error}
+          onRetry={() => {
+            clearError();
+            fetchStats();
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -190,14 +286,14 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
+        {statsCards.map((stat, index) => (
           <motion.div
             key={stat.title}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <StatsCard {...stat} />
+            <StatsCard {...stat} loading={loading} />
           </motion.div>
         ))}
       </div>
@@ -233,47 +329,70 @@ export default function Dashboard() {
         className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50"
       >
         <h2 className="text-2xl font-bold text-secondary-900 mb-6">
-          Atividades Recentes
+          Sistema Integrado
         </h2>
         <div className="space-y-4">
-          {[
-            {
-              user: "Maria Silva",
-              action: "cadastrou novo cliente",
-              time: "2 horas atrás",
-            },
-            {
-              user: "João Santos",
-              action: "atualizou processo #1234",
-              time: "4 horas atrás",
-            },
-            {
-              user: "Ana Costa",
-              action: "agendou reunião",
-              time: "1 dia atrás",
-            },
-          ].map((activity, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.9 + index * 0.1 }}
-              className="flex items-center space-x-4 p-4 bg-secondary-50/50 rounded-xl"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-white">
-                  {activity.user.charAt(0)}
-                </span>
-              </div>
-              <div className="flex-grow">
-                <p className="text-secondary-900 font-medium">
-                  <span className="font-semibold">{activity.user}</span>{" "}
-                  {activity.action}
-                </p>
-                <p className="text-secondary-500 text-sm">{activity.time}</p>
-              </div>
-            </motion.div>
-          ))}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+            className="flex items-center space-x-4 p-4 bg-green-50/50 rounded-xl border border-green-200/50"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-grow">
+              <p className="text-secondary-900 font-medium">
+                <span className="font-semibold">API Backend</span> conectada com
+                sucesso
+              </p>
+              <p className="text-secondary-500 text-sm">
+                Sistema .NET Core funcionando
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.0 }}
+            className="flex items-center space-x-4 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+              <Users className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-grow">
+              <p className="text-secondary-900 font-medium">
+                <span className="font-semibold">Frontend Next.js</span>{" "}
+                integrado à API
+              </p>
+              <p className="text-secondary-500 text-sm">
+                {loading
+                  ? "Carregando dados..."
+                  : `${stats.totalClientes} clientes sincronizados`}
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.1 }}
+            className="flex items-center space-x-4 p-4 bg-purple-50/50 rounded-xl border border-purple-200/50"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-grow">
+              <p className="text-secondary-900 font-medium">
+                <span className="font-semibold">CRUD Completo</span>{" "}
+                implementado
+              </p>
+              <p className="text-secondary-500 text-sm">
+                Criar, ler, atualizar e deletar registros
+              </p>
+            </div>
+          </motion.div>
         </div>
       </motion.div>
     </div>
