@@ -65,12 +65,31 @@ export default function Header() {
 
             {/* Navegação principal */}
             <nav className="flex items-center space-x-1">
+              {/* Link Início */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+              >
+                <Link
+                  href="/"
+                  className={cn(
+                    "flex items-center space-x-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                    "text-white hover:bg-white/10 hover:text-accent-300",
+                    "focus:outline-none focus:ring-2 focus:ring-accent-400/50"
+                  )}
+                >
+                  <span>Início</span>
+                </Link>
+              </motion.div>
+
+              {/* Menu Cadastros Gerais */}
               {menuItems.map((group, index) => (
                 <div key={group.label} className="relative">
                   <motion.button
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: (index + 1) * 0.1 }}
                     onClick={() => handleDropdownToggle(group.label)}
                     className={cn(
                       "flex items-center space-x-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200",

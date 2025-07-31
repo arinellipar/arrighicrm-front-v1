@@ -85,6 +85,21 @@ const config: Config = {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "Consolas", "Monaco", "monospace"],
       },
+      fontSize: {
+        xs: ["13px", { lineHeight: "18px" }], // 12px → 13px
+        sm: ["15px", { lineHeight: "22px" }], // 14px → 15px
+        base: ["17px", { lineHeight: "26px" }], // 16px → 17px
+        lg: ["19px", { lineHeight: "28px" }], // 18px → 19px
+        xl: ["21px", { lineHeight: "30px" }], // 20px → 21px
+        "2xl": ["25px", { lineHeight: "32px" }], // 24px → 25px
+        "3xl": ["31px", { lineHeight: "36px" }], // 30px → 31px
+        "4xl": ["37px", { lineHeight: "40px" }], // 36px → 37px
+        "5xl": ["45px", { lineHeight: "48px" }], // 44px → 45px
+        "6xl": ["57px", { lineHeight: "60px" }], // 56px → 57px
+        "7xl": ["72px", { lineHeight: "76px" }], // 71px → 72px
+        "8xl": ["96px", { lineHeight: "100px" }], // 95px → 96px
+        "9xl": ["128px", { lineHeight: "132px" }], // 127px → 128px
+      },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
         "slide-up": "slideUp 0.3s ease-out",

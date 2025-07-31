@@ -19,6 +19,7 @@ import PessoaFisicaForm from "@/components/forms/PessoaFisicaForm";
 import { usePessoaFisica } from "@/hooks/usePessoaFisica";
 import { PessoaFisica } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { useForm } from "@/contexts/FormContext";
 
 function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
   return (
@@ -88,6 +89,8 @@ export default function PessoaFisicaPage() {
     clearError,
   } = usePessoaFisica();
 
+  const { openForm, closeForm } = useForm();
+
   const [showForm, setShowForm] = useState(false);
   const [editingPessoa, setEditingPessoa] = useState<PessoaFisica | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -114,6 +117,7 @@ export default function PessoaFisicaPage() {
   const handleEdit = (pessoa: PessoaFisica) => {
     setEditingPessoa(pessoa);
     setShowForm(true);
+    openForm();
   };
 
   const handleDelete = async (id: number) => {
@@ -127,6 +131,12 @@ export default function PessoaFisicaPage() {
     setShowForm(false);
     setEditingPessoa(null);
     clearError();
+    closeForm();
+  };
+
+  const handleOpenForm = () => {
+    setShowForm(true);
+    openForm();
   };
 
   const formatDate = (dateString: string) => {
@@ -155,7 +165,7 @@ export default function PessoaFisicaPage() {
           className="flex items-center justify-between"
         >
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl text-white">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white">
               <Users className="w-8 h-8" />
             </div>
             <div>
@@ -163,7 +173,7 @@ export default function PessoaFisicaPage() {
                 Pessoas Físicas
               </h1>
               <p className="text-secondary-600">
-                Gerenciar cadastros de clientes pessoa física
+                Gerenciar cadastros de pessoas físicas
               </p>
             </div>
           </div>
@@ -171,34 +181,13 @@ export default function PessoaFisicaPage() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setShowForm(true)}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+            onClick={handleOpenForm}
+            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
-            <span>Novo Cliente</span>
+            <span>Nova Pessoa</span>
           </motion.button>
         </motion.div>
-
-        {/* Formulário Modal */}
-        <AnimatePresence>
-          {showForm && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            >
-              <div className="w-full max-w-4xl max-h-screen overflow-y-auto">
-                <PessoaFisicaForm
-                  initialData={editingPessoa}
-                  onSubmit={handleCreateOrUpdate}
-                  onCancel={handleCloseForm}
-                  loading={creating || updating}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Filtros e Busca */}
         <motion.div
@@ -240,7 +229,7 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Total de Clientes
+                  Total de Pessoas
                 </p>
                 <p className="text-3xl font-bold text-secondary-900">
                   {stats.total}
@@ -256,14 +245,14 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Clientes Ativos
+                  Pessoas Ativas
                 </p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-3xl font-bold text-blue-600">
                   {stats.ativos}
                 </p>
               </div>
-              <div className="p-3 bg-green-100 rounded-xl">
-                <Users className="w-6 h-6 text-green-600" />
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <Users className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -272,7 +261,7 @@ export default function PessoaFisicaPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
-                  Novos este mês
+                  Novas este mês
                 </p>
                 <p className="text-3xl font-bold text-accent-600">
                   {stats.novosEstemês}
@@ -299,7 +288,7 @@ export default function PessoaFisicaPage() {
           >
             <div className="px-6 py-4 border-b border-secondary-200/50">
               <h3 className="text-lg font-semibold text-secondary-900">
-                Lista de Clientes ({filteredPessoas.length} registros)
+                Lista de Pessoas ({filteredPessoas.length} registros)
               </h3>
             </div>
 
@@ -309,12 +298,12 @@ export default function PessoaFisicaPage() {
                 <h3 className="text-lg font-semibold text-secondary-900 mb-2">
                   {searchTerm
                     ? "Nenhum resultado encontrado"
-                    : "Nenhum cliente cadastrado"}
+                    : "Nenhuma pessoa cadastrada"}
                 </h3>
                 <p className="text-secondary-600">
                   {searchTerm
                     ? "Tente ajustar o termo de busca"
-                    : "Clique em 'Novo Cliente' para começar"}
+                    : "Clique em 'Nova Pessoa' para começar"}
                 </p>
               </div>
             ) : (
@@ -323,7 +312,7 @@ export default function PessoaFisicaPage() {
                   <thead className="bg-secondary-50/50">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Cliente
+                        Pessoa
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         CPF
@@ -353,7 +342,7 @@ export default function PessoaFisicaPage() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                               <span className="text-sm font-bold text-white">
                                 {pessoa.nome.charAt(0)}
                               </span>
@@ -362,11 +351,9 @@ export default function PessoaFisicaPage() {
                               <div className="text-sm font-medium text-secondary-900">
                                 {pessoa.nome}
                               </div>
-                              {pessoa.codinome && (
-                                <div className="text-sm text-secondary-500">
-                                  {pessoa.codinome}
-                                </div>
-                              )}
+                              <div className="text-sm text-secondary-500">
+                                {pessoa.email}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -454,6 +441,27 @@ export default function PessoaFisicaPage() {
           </motion.div>
         )}
 
+        {/* Formulário Modal */}
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            >
+              <div className="w-full max-w-4xl max-h-screen overflow-y-auto">
+                <PessoaFisicaForm
+                  initialData={editingPessoa}
+                  onSubmit={handleCreateOrUpdate}
+                  onCancel={handleCloseForm}
+                  loading={creating || updating}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Modal de Confirmação de Exclusão */}
         <AnimatePresence>
           {showDeleteConfirm !== null && (
@@ -478,8 +486,8 @@ export default function PessoaFisicaPage() {
                   </h3>
                 </div>
                 <p className="text-secondary-600 mb-6">
-                  Tem certeza que deseja excluir este cliente? Esta ação não
-                  pode ser desfeita.
+                  Tem certeza que deseja excluir esta pessoa? Esta ação não pode
+                  ser desfeita.
                 </p>
                 <div className="flex justify-end space-x-3">
                   <motion.button

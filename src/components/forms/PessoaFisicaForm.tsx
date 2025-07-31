@@ -1,8 +1,26 @@
 "use client";
 
 import { useState, useEffect, useCallback, memo, useRef } from "react";
-import { motion } from "framer-motion";
-import { Save, X, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Save,
+  X,
+  Loader2,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  CreditCard,
+  MapPin,
+  Shield,
+  ChevronRight,
+  CheckCircle2,
+  AlertCircle,
+  Home,
+  Hash,
+  Building,
+  Navigation,
+} from "lucide-react";
 import {
   CreatePessoaFisicaDTO,
   UpdatePessoaFisicaDTO,
@@ -51,6 +69,8 @@ interface InputFieldProps {
   isEndereco?: boolean;
   options?: readonly { readonly value: string; readonly label: string }[];
   formatter?: (value: string) => string;
+  icon?: React.ReactNode;
+  placeholder?: string;
 }
 
 const initialFormData: FormData = {
@@ -75,7 +95,7 @@ const initialFormData: FormData = {
   },
 };
 
-// Componente InputField separado e memoizado
+// Componente InputField redesenhado
 const InputField = memo(
   ({
     label,
@@ -88,6 +108,8 @@ const InputField = memo(
     onChange,
     error,
     formatter,
+    icon,
+    placeholder,
   }: InputFieldProps & {
     value: string;
     onChange: (value: string) => void;
@@ -95,6 +117,7 @@ const InputField = memo(
   }) => {
     const fieldId = isEndereco ? `endereco-${name}` : name;
     const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
+    const [isFocused, setIsFocused] = useState(false);
 
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -104,66 +127,161 @@ const InputField = memo(
     );
 
     return (
-      <div className="space-y-2">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="relative group"
+      >
         <label
           htmlFor={fieldId}
-          className="text-sm font-medium text-secondary-900"
+          className={cn(
+            "absolute left-4 transition-all duration-300 pointer-events-none z-10",
+            "text-sm font-medium",
+            isFocused || value
+              ? "-top-2 text-xs bg-white px-2 rounded-full"
+              : "top-4 text-secondary-500",
+            isFocused ? "text-primary-600" : "text-secondary-500",
+            error && "text-red-500"
+          )}
         >
           {label} {required && <span className="text-red-500">*</span>}
         </label>
-        {options ? (
-          <select
-            ref={inputRef as React.RefObject<HTMLSelectElement>}
-            id={fieldId}
-            name={name}
-            value={value}
-            onChange={handleChange}
-            className={cn(
-              "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
-              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-              "transition-all duration-200",
-              error && "border-red-500 focus:ring-red-500"
-            )}
-            required={required}
-          >
-            <option value="">Selecione...</option>
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <input
-            ref={inputRef as React.RefObject<HTMLInputElement>}
-            id={fieldId}
-            name={name}
-            type={type}
-            value={value}
-            onChange={handleChange}
-            className={cn(
-              "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
-              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-              "transition-all duration-200",
-              error && "border-red-500 focus:ring-red-500"
-            )}
-            required={required}
-            autoComplete={
-              type === "email" ? "email" : type === "tel" ? "tel" : "off"
-            }
-          />
-        )}
-        {error && (
-          <p className="text-sm text-red-600" role="alert">
-            {error}
-          </p>
-        )}
-      </div>
+
+        <div className="relative">
+          {icon && (
+            <div
+              className={cn(
+                "absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300",
+                isFocused ? "text-primary-600" : "text-secondary-400",
+                error && "text-red-500"
+              )}
+            >
+              {icon}
+            </div>
+          )}
+
+          {options ? (
+            <select
+              ref={inputRef as React.RefObject<HTMLSelectElement>}
+              id={fieldId}
+              name={name}
+              value={value}
+              onChange={handleChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              className={cn(
+                "w-full h-14 px-4 bg-white/80 backdrop-blur-sm rounded-2xl",
+                "border-2 transition-all duration-300",
+                "focus:outline-none focus:ring-4",
+                icon && "pl-12",
+                isFocused
+                  ? "border-primary-500 ring-primary-500/20 shadow-lg shadow-primary-500/10"
+                  : "border-secondary-200 hover:border-secondary-300",
+                error && "border-red-500 focus:ring-red-500/20",
+                "appearance-none cursor-pointer"
+              )}
+              required={required}
+            >
+              <option value="">Selecione...</option>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              ref={inputRef as React.RefObject<HTMLInputElement>}
+              id={fieldId}
+              name={name}
+              type={type}
+              value={value}
+              onChange={handleChange}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder={placeholder}
+              className={cn(
+                "w-full h-14 px-4 bg-white/80 backdrop-blur-sm rounded-2xl",
+                "border-2 transition-all duration-300",
+                "focus:outline-none focus:ring-4",
+                "placeholder:text-transparent",
+                icon && "pl-12",
+                isFocused
+                  ? "border-primary-500 ring-primary-500/20 shadow-lg shadow-primary-500/10"
+                  : "border-secondary-200 hover:border-secondary-300",
+                error && "border-red-500 focus:ring-red-500/20"
+              )}
+              required={required}
+              autoComplete={
+                type === "email" ? "email" : type === "tel" ? "tel" : "off"
+              }
+            />
+          )}
+
+          {/* Ícone de sucesso quando há valor e não há erro */}
+          {value && !error && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="absolute right-4 top-1/2 -translate-y-1/2"
+            >
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+            </motion.div>
+          )}
+        </div>
+
+        {/* Mensagem de erro */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="flex items-center gap-2 mt-2 px-4"
+            >
+              <AlertCircle className="w-4 h-4 text-red-500" />
+              <p className="text-sm text-red-600">{error}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     );
   }
 );
 
 InputField.displayName = "InputField";
+
+// Componente de seção do formulário
+const FormSection = ({
+  title,
+  icon,
+  children,
+  delay = 0,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  delay?: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay }}
+    className="relative"
+  >
+    <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-accent-500/5 rounded-3xl blur-xl" />
+    <div className="relative bg-white/70 backdrop-blur-xl rounded-3xl p-8 border border-white/50 shadow-xl">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl text-white shadow-lg shadow-primary-500/30">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold text-secondary-900">{title}</h3>
+      </div>
+      <div className="space-y-6">{children}</div>
+    </div>
+  </motion.div>
+);
 
 export default function PessoaFisicaForm({
   initialData,
@@ -173,6 +291,7 @@ export default function PessoaFisicaForm({
 }: PessoaFisicaFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [currentStep, setCurrentStep] = useState(0);
 
   // Inicializar dados se for edição
   useEffect(() => {
@@ -243,7 +362,6 @@ export default function PessoaFisicaForm({
       return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(
         6
       )}`;
-    // Permitir 11 dígitos (com DDD)
     return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
       7,
       11
@@ -340,40 +458,93 @@ export default function PessoaFisicaForm({
     }
   };
 
+  // Indicador de progresso
+  const ProgressIndicator = () => (
+    <div className="flex items-center justify-center mb-8">
+      <div className="flex items-center gap-4">
+        {["Dados Pessoais", "Documentos", "Contato", "Endereço"].map(
+          (step, index) => (
+            <div key={step} className="flex items-center">
+              <motion.div
+                initial={{ scale: 0.8 }}
+                animate={{
+                  scale: currentStep >= index ? 1 : 0.8,
+                  backgroundColor: currentStep >= index ? "#0ea5e9" : "#e2e8f0",
+                }}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-lg"
+              >
+                {index + 1}
+              </motion.div>
+              {index < 3 && (
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: currentStep > index ? 1 : 0 }}
+                  className="w-16 h-1 bg-primary-500 origin-left"
+                />
+              )}
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-sm border border-secondary-200/50"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="bg-gradient-to-br from-secondary-50 via-white to-primary-50 rounded-3xl p-8 shadow-2xl backdrop-blur-xl"
     >
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold gradient-text">
-          {initialData ? "Editar Pessoa Física" : "Nova Pessoa Física"}
-        </h2>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex items-center gap-4"
+        >
+          <div className="p-4 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl text-white shadow-xl shadow-primary-500/30">
+            <User className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+              {initialData ? "Editar Pessoa Física" : "Nova Pessoa Física"}
+            </h2>
+            <p className="text-secondary-600 mt-1">
+              Preencha os dados do cliente com atenção
+            </p>
+          </div>
+        </motion.div>
+
         <motion.button
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           onClick={onCancel}
-          className="p-2 text-secondary-400 hover:text-red-600 transition-colors duration-200"
+          className="p-3 text-secondary-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all duration-300"
         >
           <X className="w-6 h-6" />
         </motion.button>
       </div>
 
+      {/* Progress Indicator */}
+      <ProgressIndicator />
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Dados Pessoais */}
-        <div>
-          <h3 className="text-lg font-semibold text-secondary-900 mb-4">
-            Dados Pessoais
-          </h3>
+        <FormSection
+          title="Dados Pessoais"
+          icon={<User className="w-6 h-6" />}
+          delay={0.1}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
-              label="Nome"
+              label="Nome Completo"
               name="nome"
               required
               value={formData.nome}
               onChange={(value) => handleFieldChange("nome", value)}
               error={errors.nome}
+              icon={<User className="w-5 h-5" />}
             />
             <InputField
               label="E-mail"
@@ -383,13 +554,15 @@ export default function PessoaFisicaForm({
               value={formData.email}
               onChange={(value) => handleFieldChange("email", value)}
               error={errors.email}
+              icon={<Mail className="w-5 h-5" />}
             />
             <InputField
-              label="Codinome"
+              label="Apelido/Codinome"
               name="codinome"
               value={formData.codinome}
               onChange={(value) => handleFieldChange("codinome", value)}
               error={errors.codinome}
+              icon={<User className="w-5 h-5" />}
             />
             <InputField
               label="Sexo"
@@ -399,6 +572,7 @@ export default function PessoaFisicaForm({
               value={formData.sexo}
               onChange={(value) => handleFieldChange("sexo", value)}
               error={errors.sexo}
+              icon={<User className="w-5 h-5" />}
             />
             <InputField
               label="Data de Nascimento"
@@ -408,6 +582,7 @@ export default function PessoaFisicaForm({
               value={formData.dataNascimento}
               onChange={(value) => handleFieldChange("dataNascimento", value)}
               error={errors.dataNascimento}
+              icon={<Calendar className="w-5 h-5" />}
             />
             <InputField
               label="Estado Civil"
@@ -417,15 +592,17 @@ export default function PessoaFisicaForm({
               value={formData.estadoCivil}
               onChange={(value) => handleFieldChange("estadoCivil", value)}
               error={errors.estadoCivil}
+              icon={<User className="w-5 h-5" />}
             />
           </div>
-        </div>
+        </FormSection>
 
         {/* Documentos */}
-        <div>
-          <h3 className="text-lg font-semibold text-secondary-900 mb-4">
-            Documentos
-          </h3>
+        <FormSection
+          title="Documentos"
+          icon={<CreditCard className="w-6 h-6" />}
+          delay={0.2}
+        >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <InputField
               label="CPF"
@@ -434,6 +611,8 @@ export default function PessoaFisicaForm({
               value={formData.cpf}
               onChange={(value) => handleFieldChange("cpf", value)}
               error={errors.cpf}
+              icon={<CreditCard className="w-5 h-5" />}
+              placeholder="000.000.000-00"
             />
             <InputField
               label="RG"
@@ -441,6 +620,7 @@ export default function PessoaFisicaForm({
               value={formData.rg}
               onChange={(value) => handleFieldChange("rg", value)}
               error={errors.rg}
+              icon={<CreditCard className="w-5 h-5" />}
             />
             <InputField
               label="CNH"
@@ -448,15 +628,17 @@ export default function PessoaFisicaForm({
               value={formData.cnh}
               onChange={(value) => handleFieldChange("cnh", value)}
               error={errors.cnh}
+              icon={<CreditCard className="w-5 h-5" />}
             />
           </div>
-        </div>
+        </FormSection>
 
         {/* Contato */}
-        <div>
-          <h3 className="text-lg font-semibold text-secondary-900 mb-4">
-            Contato
-          </h3>
+        <FormSection
+          title="Informações de Contato"
+          icon={<Phone className="w-6 h-6" />}
+          delay={0.3}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
               label="Telefone Principal"
@@ -467,6 +649,8 @@ export default function PessoaFisicaForm({
               onChange={(value) => handleFieldChange("telefone1", value)}
               error={errors.telefone1}
               formatter={formatTelefone}
+              icon={<Phone className="w-5 h-5" />}
+              placeholder="(00) 00000-0000"
             />
             <InputField
               label="Telefone Secundário"
@@ -476,15 +660,18 @@ export default function PessoaFisicaForm({
               onChange={(value) => handleFieldChange("telefone2", value)}
               error={errors.telefone2}
               formatter={formatTelefone}
+              icon={<Phone className="w-5 h-5" />}
+              placeholder="(00) 00000-0000"
             />
           </div>
-        </div>
+        </FormSection>
 
         {/* Endereço */}
-        <div>
-          <h3 className="text-lg font-semibold text-secondary-900 mb-4">
-            Endereço
-          </h3>
+        <FormSection
+          title="Endereço"
+          icon={<MapPin className="w-6 h-6" />}
+          delay={0.4}
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
               label="CEP"
@@ -494,6 +681,8 @@ export default function PessoaFisicaForm({
               value={formData.endereco.cep}
               onChange={(value) => handleFieldChange("cep", value, true)}
               error={errors["endereco.cep"]}
+              icon={<MapPin className="w-5 h-5" />}
+              placeholder="00000-000"
             />
             <InputField
               label="Logradouro"
@@ -503,6 +692,7 @@ export default function PessoaFisicaForm({
               value={formData.endereco.logradouro}
               onChange={(value) => handleFieldChange("logradouro", value, true)}
               error={errors["endereco.logradouro"]}
+              icon={<Home className="w-5 h-5" />}
             />
             <InputField
               label="Número"
@@ -512,6 +702,7 @@ export default function PessoaFisicaForm({
               value={formData.endereco.numero}
               onChange={(value) => handleFieldChange("numero", value, true)}
               error={errors["endereco.numero"]}
+              icon={<Hash className="w-5 h-5" />}
             />
             <InputField
               label="Complemento"
@@ -522,6 +713,7 @@ export default function PessoaFisicaForm({
                 handleFieldChange("complemento", value, true)
               }
               error={errors["endereco.complemento"]}
+              icon={<Home className="w-5 h-5" />}
             />
             <InputField
               label="Bairro"
@@ -531,6 +723,7 @@ export default function PessoaFisicaForm({
               value={formData.endereco.bairro}
               onChange={(value) => handleFieldChange("bairro", value, true)}
               error={errors["endereco.bairro"]}
+              icon={<Navigation className="w-5 h-5" />}
             />
             <InputField
               label="Cidade"
@@ -540,36 +733,53 @@ export default function PessoaFisicaForm({
               value={formData.endereco.cidade}
               onChange={(value) => handleFieldChange("cidade", value, true)}
               error={errors["endereco.cidade"]}
+              icon={<Building className="w-5 h-5" />}
             />
           </div>
-        </div>
+        </FormSection>
 
         {/* Botões */}
-        <div className="flex justify-end space-x-4 pt-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="flex justify-end gap-4 pt-8"
+        >
           <motion.button
             type="button"
             onClick={onCancel}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 text-secondary-600 border border-secondary-300 rounded-xl hover:bg-secondary-50 transition-colors duration-200"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="px-8 py-4 text-secondary-700 bg-white border-2 border-secondary-300 rounded-2xl hover:bg-secondary-50 hover:border-secondary-400 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
           >
             Cancelar
           </motion.button>
           <motion.button
             type="submit"
             disabled={loading}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={cn(
+              "px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-2xl",
+              "hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed",
+              "transition-all duration-300 font-semibold shadow-xl hover:shadow-2xl",
+              "flex items-center gap-3"
+            )}
           >
             {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Salvando...</span>
+              </>
             ) : (
-              <Save className="w-4 h-4" />
+              <>
+                <Save className="w-5 h-5" />
+                <span>{initialData ? "Atualizar" : "Salvar"}</span>
+                <ChevronRight className="w-5 h-5" />
+              </>
             )}
-            <span>{initialData ? "Atualizar" : "Salvar"}</span>
           </motion.button>
-        </div>
+        </motion.div>
       </form>
     </motion.div>
   );

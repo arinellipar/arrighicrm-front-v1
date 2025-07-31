@@ -42,7 +42,7 @@ function StatsCard({
       className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50 hover:shadow-lg transition-all duration-300"
     >
       <div className="flex items-center justify-between mb-4">
-        <div className="p-3 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl text-white">
+        <div className="p-3 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white">
           {icon}
         </div>
         {change && (
