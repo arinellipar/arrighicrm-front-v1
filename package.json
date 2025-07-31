@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:debug": "NODE_ENV=development NEXT_PUBLIC_ENVIRONMENT=development next dev",
     "build": "next build",
+    "build:prod": "NODE_ENV=production NEXT_PUBLIC_ENVIRONMENT=production next build",
     "start": "next start",
-    "lint": "next lint"
+    "start:prod": "NODE_ENV=production next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "clsx": "^2.1.1",

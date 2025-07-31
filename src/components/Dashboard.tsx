@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface StatsCardProps {
   title: string;
@@ -101,24 +102,27 @@ function QuickAction({
   };
 
   return (
-    <motion.a
-      href={href}
+    <motion.div
       whileHover={{ y: -2, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={cn(
-        "block p-6 bg-gradient-to-br text-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300",
-        colorClasses[color]
-      )}
     >
-      <div className="flex items-center space-x-4">
-        <div className="flex-shrink-0">{icon}</div>
-        <div>
-          <h3 className="font-semibold text-lg mb-1">{title}</h3>
-          <p className="text-white/90 text-sm">{description}</p>
+      <Link
+        href={href}
+        className={cn(
+          "block p-6 bg-gradient-to-br text-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300",
+          colorClasses[color]
+        )}
+      >
+        <div className="flex items-center space-x-4">
+          <div className="flex-shrink-0">{icon}</div>
+          <div>
+            <h3 className="font-semibold text-lg mb-1">{title}</h3>
+            <p className="text-white/90 text-sm">{description}</p>
+          </div>
         </div>
-      </div>
-    </motion.a>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -170,20 +174,6 @@ export default function Dashboard() {
       href: "/cadastros/pessoa-juridica",
       color: "green" as const,
     },
-    {
-      title: "Novo Usuário",
-      description: "Adicionar usuário ao sistema",
-      icon: <Plus className="w-8 h-8" />,
-      href: "/cadastros/usuarios",
-      color: "purple" as const,
-    },
-    {
-      title: "Agenda",
-      description: "Visualizar compromissos",
-      icon: <Calendar className="w-8 h-8" />,
-      href: "/agenda",
-      color: "orange" as const,
-    },
   ];
 
   // Calcular porcentagem de crescimento (mockado para demonstração)
@@ -195,13 +185,6 @@ export default function Dashboard() {
   };
 
   const statsCards = [
-    {
-      title: "Total de Clientes",
-      value: loading ? 0 : stats.totalClientes,
-      change: loading ? undefined : getChangePercentage(stats.totalClientes),
-      changeType: "positive" as const,
-      icon: <Users className="w-6 h-6" />,
-    },
     {
       title: "Pessoas Físicas",
       value: loading ? 0 : stats.totalPessoasFisicas,
@@ -219,13 +202,6 @@ export default function Dashboard() {
         : getChangePercentage(stats.totalPessoasJuridicas),
       changeType: "positive" as const,
       icon: <Building2 className="w-6 h-6" />,
-    },
-    {
-      title: "Novos este mês",
-      value: loading ? 0 : stats.clientesRecentes,
-      change: loading ? undefined : `+${stats.clientesRecentes}`,
-      changeType: "positive" as const,
-      icon: <TrendingUp className="w-6 h-6" />,
     },
   ];
 
@@ -285,7 +261,7 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {statsCards.map((stat, index) => (
           <motion.div
             key={stat.title}
@@ -307,7 +283,7 @@ export default function Dashboard() {
         <h2 className="text-2xl font-bold text-secondary-900 mb-6">
           Ações Rápidas
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {quickActions.map((action, index) => (
             <motion.div
               key={action.title}
@@ -369,7 +345,9 @@ export default function Dashboard() {
               <p className="text-secondary-500 text-sm">
                 {loading
                   ? "Carregando dados..."
-                  : `${stats.totalClientes} clientes sincronizados`}
+                  : `${
+                      stats.totalPessoasFisicas + stats.totalPessoasJuridicas
+                    } registros sincronizados`}
               </p>
             </div>
           </motion.div>

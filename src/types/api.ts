@@ -90,44 +90,19 @@ export interface UpdatePessoaJuridicaDTO extends CreatePessoaJuridicaDTO {
   enderecoId: number;
 }
 
-export interface Usuario {
-  id: number;
-  login: string;
-  email: string;
-  senha: string;
-  grupoAcesso: string;
-  tipoPessoa: "Fisica" | "Juridica";
-  pessoaFisicaId?: number;
-  pessoaFisica?: PessoaFisica;
-  pessoaJuridicaId?: number;
-  pessoaJuridica?: PessoaJuridica;
-  ativo: boolean;
-  dataCadastro: string;
-  dataAtualizacao?: string;
-  ultimoAcesso?: string;
-}
-
-export interface CreateUsuarioDTO {
-  login: string;
-  email: string;
-  senha: string;
-  grupoAcesso: string;
-  tipoPessoa: "Fisica" | "Juridica";
-  pessoaFisicaId?: number;
-  pessoaJuridicaId?: number;
-  ativo: boolean;
-}
-
-export interface UpdateUsuarioDTO extends CreateUsuarioDTO {
-  id: number;
-}
-
 // Tipos para options de select
 export interface ResponsavelTecnicoOption {
   id: number;
   nome: string;
   cpf: string;
   email: string;
+  sexo: string;
+  dataNascimento: string;
+  estadoCivil: string;
+  telefone1: string;
+  telefone2?: string;
+  enderecoId: number;
+  endereco: Endereco;
 }
 
 export interface PessoaFisicaOption {

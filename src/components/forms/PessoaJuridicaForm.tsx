@@ -1,7 +1,7 @@
 // src/components/forms/PessoaJuridicaForm.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
 import { motion } from "framer-motion";
 import { Save, X, Loader2 } from "lucide-react";
 import {
@@ -68,6 +68,97 @@ const initialFormData: FormData = {
   },
 };
 
+// Componente InputField separado e memoizado
+const InputField = memo(
+  ({
+    label,
+    name,
+    type = "text",
+    required = false,
+    isEndereco = false,
+    options = undefined,
+    formatter = undefined,
+    value,
+    onChange,
+    error,
+  }: InputFieldProps & {
+    value: string;
+    onChange: (value: string) => void;
+    error?: string;
+  }) => {
+    const fieldId = isEndereco ? `endereco-${name}` : name;
+    const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
+
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const value = formatter ? formatter(e.target.value) : e.target.value;
+        onChange(value);
+      },
+      [onChange, formatter]
+    );
+
+    return (
+      <div className="space-y-2">
+        <label
+          htmlFor={fieldId}
+          className="text-sm font-medium text-secondary-900"
+        >
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        {options ? (
+          <select
+            ref={inputRef as React.RefObject<HTMLSelectElement>}
+            id={fieldId}
+            name={name}
+            value={value}
+            onChange={handleChange}
+            className={cn(
+              "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
+              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
+              "transition-all duration-200",
+              error && "border-red-500 focus:ring-red-500"
+            )}
+            required={required}
+          >
+            <option value="">Selecione...</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            ref={inputRef as React.RefObject<HTMLInputElement>}
+            id={fieldId}
+            name={name}
+            type={type}
+            value={value}
+            onChange={handleChange}
+            className={cn(
+              "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
+              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
+              "transition-all duration-200",
+              error && "border-red-500 focus:ring-red-500"
+            )}
+            required={required}
+            autoComplete={
+              type === "email" ? "email" : type === "tel" ? "tel" : "off"
+            }
+          />
+        )}
+        {error && (
+          <p className="text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
+
+InputField.displayName = "InputField";
+
 export default function PessoaJuridicaForm({
   initialData,
   responsaveisTecnicos,
@@ -78,7 +169,7 @@ export default function PessoaJuridicaForm({
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Preencher formulário com dados iniciais se fornecidos
+  // Inicializar dados se for edição
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -101,78 +192,118 @@ export default function PessoaJuridicaForm({
     }
   }, [initialData]);
 
-  const handleInputChange = (
-    field: string,
-    value: string,
-    isEndereco = false
-  ) => {
-    if (isEndereco) {
-      setFormData((prev) => ({
-        ...prev,
-        endereco: {
-          ...prev.endereco,
-          [field]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    }
+  const handleFieldChange = useCallback(
+    (field: string, value: string, isEndereco = false) => {
+      setFormData((prev) => {
+        if (isEndereco) {
+          return {
+            ...prev,
+            endereco: {
+              ...prev.endereco,
+              [field]: value,
+            },
+          };
+        } else {
+          return {
+            ...prev,
+            [field]: value,
+          };
+        }
+      });
 
-    // Limpar erro do campo quando começar a digitar
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
-    }
-  };
+      // Limpar erro do campo
+      const errorKey = isEndereco ? `endereco.${field}` : field;
+      if (errors[errorKey]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[errorKey];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
 
+  // Funções de formatação
   const formatCNPJ = (value: string) => {
-    // Remove tudo que não é dígito
-    const onlyNumbers = value.replace(/\D/g, "");
-
-    // Aplica a máscara
-    return onlyNumbers
-      .substring(0, 14)
-      .replace(/^(\d{2})(\d)/, "$1.$2")
-      .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-      .replace(/\.(\d{3})(\d)/, ".$1/$2")
-      .replace(/(\d{4})(\d)/, "$1-$2");
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 6)
+      return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
+    if (numbers.length <= 9)
+      return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(
+        5
+      )}`;
+    if (numbers.length <= 13)
+      return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(
+        5,
+        8
+      )}/${numbers.slice(8)}`;
+    // Formato correto: XX.XXX.XXX/XXXX-XX
+    return `${numbers.slice(0, 2)}.${numbers.slice(2, 5)}.${numbers.slice(
+      5,
+      8
+    )}/${numbers.slice(8, 12)}-${numbers.slice(12, 14)}`;
   };
 
   const formatCEP = (value: string) => {
-    const onlyNumbers = value.replace(/\D/g, "");
-    return onlyNumbers.substring(0, 8).replace(/^(\d{5})(\d)/, "$1-$2");
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 5) return numbers;
+    return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
   };
 
   const formatTelefone = (value: string) => {
-    const onlyNumbers = value.replace(/\D/g, "");
-    if (onlyNumbers.length <= 10) {
-      return onlyNumbers.replace(/^(\d{2})(\d{4})(\d)/, "($1) $2-$3");
-    } else {
-      return onlyNumbers
-        .substring(0, 11)
-        .replace(/^(\d{2})(\d{5})(\d)/, "($1) $2-$3");
-    }
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 6)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (numbers.length <= 10)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(
+        6
+      )}`;
+    // Permitir 11 dígitos (com DDD)
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
+      7,
+      11
+    )}`;
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Validações obrigatórias
+    // Validações básicas
     if (!formData.razaoSocial.trim())
       newErrors.razaoSocial = "Razão social é obrigatória";
-    if (!formData.cnpj.trim()) newErrors.cnpj = "CNPJ é obrigatório";
+
+    // Validação de CNPJ
+    if (!formData.cnpj.trim()) {
+      newErrors.cnpj = "CNPJ é obrigatório";
+    } else {
+      const cnpjNumeros = formData.cnpj.replace(/\D/g, "");
+      if (cnpjNumeros.length < 14) {
+        newErrors.cnpj = "CNPJ deve ter pelo menos 14 dígitos numéricos";
+      } else if (cnpjNumeros.length > 14) {
+        newErrors.cnpj = "CNPJ deve ter no máximo 14 dígitos numéricos";
+      }
+    }
+
     if (!formData.responsavelTecnicoId)
       newErrors.responsavelTecnicoId = "Responsável técnico é obrigatório";
     if (!formData.email.trim()) newErrors.email = "E-mail é obrigatório";
-    if (!formData.telefone1.trim())
-      newErrors.telefone1 = "Telefone principal é obrigatório";
 
-    // Validações do endereço
+    // Validação de telefone
+    if (!formData.telefone1.trim()) {
+      newErrors.telefone1 = "Telefone é obrigatório";
+    } else {
+      const telefoneNumeros = formData.telefone1.replace(/\D/g, "");
+      if (telefoneNumeros.length < 10) {
+        newErrors.telefone1 = "Telefone deve ter pelo menos 10 dígitos";
+      } else if (telefoneNumeros.length > 11) {
+        newErrors.telefone1 = "Telefone deve ter no máximo 11 dígitos";
+      }
+    }
+
+    // Validações de endereço
     if (!formData.endereco.cidade.trim())
       newErrors["endereco.cidade"] = "Cidade é obrigatória";
     if (!formData.endereco.bairro.trim())
@@ -183,18 +314,6 @@ export default function PessoaJuridicaForm({
       newErrors["endereco.cep"] = "CEP é obrigatório";
     if (!formData.endereco.numero.trim())
       newErrors["endereco.numero"] = "Número é obrigatório";
-
-    // Validação de e-mail
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (formData.email && !emailRegex.test(formData.email)) {
-      newErrors.email = "E-mail inválido";
-    }
-
-    // Validação de CNPJ (básica)
-    const cnpjNumbers = formData.cnpj.replace(/\D/g, "");
-    if (formData.cnpj && cnpjNumbers.length !== 14) {
-      newErrors.cnpj = "CNPJ deve ter 14 dígitos";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -207,11 +326,38 @@ export default function PessoaJuridicaForm({
       return;
     }
 
+    // Encontrar o responsável técnico selecionado
+    const responsavelTecnico = responsaveisTecnicos.find(
+      (resp) => resp.id.toString() === formData.responsavelTecnicoId
+    );
+
+    if (!responsavelTecnico) {
+      setErrors({ responsavelTecnicoId: "Responsável técnico inválido" });
+      return;
+    }
+
+    // Validar CNPJ antes de enviar
+    const cnpjNumeros = formData.cnpj.replace(/\D/g, "");
+    if (cnpjNumeros.length < 14) {
+      setErrors({ cnpj: "CNPJ deve ter pelo menos 14 dígitos numéricos" });
+      return;
+    } else if (cnpjNumeros.length > 14) {
+      setErrors({ cnpj: "CNPJ deve ter no máximo 14 dígitos numéricos" });
+      return;
+    }
+
+    // Garantir que o CNPJ esteja formatado corretamente antes de enviar
+    const cnpjFormatado = formatCNPJ(cnpjNumeros);
+    if (cnpjFormatado.length !== 18) {
+      setErrors({ cnpj: "CNPJ deve estar formatado como XX.XXX.XXX/XXXX-XX" });
+      return;
+    }
+
     const submitData = {
       razaoSocial: formData.razaoSocial,
       nomeFantasia: formData.nomeFantasia || undefined,
-      cnpj: formData.cnpj,
-      responsavelTecnicoId: parseInt(formData.responsavelTecnicoId),
+      cnpj: cnpjFormatado,
+      responsavelTecnicoId: responsavelTecnico.id,
       email: formData.email,
       telefone1: formData.telefone1,
       telefone2: formData.telefone2 || undefined,
@@ -245,76 +391,11 @@ export default function PessoaJuridicaForm({
     }
   };
 
-  const InputField = ({
-    label,
-    name,
-    type = "text",
-    required = false,
-    isEndereco = false,
-    options = undefined,
-    formatter = undefined,
-  }: InputFieldProps) => (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-secondary-900">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {options ? (
-        <select
-          value={
-            isEndereco
-              ? (formData.endereco[
-                  name as keyof typeof formData.endereco
-                ] as string)
-              : (formData[name as keyof FormData] as string)
-          }
-          onChange={(e) => handleInputChange(name, e.target.value, isEndereco)}
-          className={cn(
-            "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-            "transition-all duration-200",
-            errors[isEndereco ? `endereco.${name}` : name] &&
-              "border-red-500 focus:ring-red-500"
-          )}
-        >
-          <option value="">Selecione...</option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          value={
-            isEndereco
-              ? (formData.endereco[
-                  name as keyof typeof formData.endereco
-                ] as string)
-              : (formData[name as keyof FormData] as string)
-          }
-          onChange={(e) => {
-            const value = formatter
-              ? formatter(e.target.value)
-              : e.target.value;
-            handleInputChange(name, value, isEndereco);
-          }}
-          className={cn(
-            "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-            "transition-all duration-200",
-            errors[isEndereco ? `endereco.${name}` : name] &&
-              "border-red-500 focus:ring-red-500"
-          )}
-        />
-      )}
-      {errors[isEndereco ? `endereco.${name}` : name] && (
-        <p className="text-sm text-red-600">
-          {errors[isEndereco ? `endereco.${name}` : name]}
-        </p>
-      )}
-    </div>
-  );
+  // Converter responsáveis técnicos para formato de opções
+  const responsavelOptions = responsaveisTecnicos.map((resp) => ({
+    value: resp.id.toString(),
+    label: resp.nome,
+  }));
 
   return (
     <motion.div
@@ -343,22 +424,40 @@ export default function PessoaJuridicaForm({
             Dados da Empresa
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField label="Razão Social" name="razaoSocial" required />
-            <InputField label="Nome Fantasia" name="nomeFantasia" />
+            <InputField
+              label="Razão Social"
+              name="razaoSocial"
+              required
+              value={formData.razaoSocial}
+              onChange={(value) => handleFieldChange("razaoSocial", value)}
+              error={errors.razaoSocial}
+            />
+            <InputField
+              label="Nome Fantasia"
+              name="nomeFantasia"
+              value={formData.nomeFantasia}
+              onChange={(value) => handleFieldChange("nomeFantasia", value)}
+              error={errors.nomeFantasia}
+            />
             <InputField
               label="CNPJ"
               name="cnpj"
               required
+              value={formData.cnpj}
+              onChange={(value) => handleFieldChange("cnpj", value)}
+              error={errors.cnpj}
               formatter={formatCNPJ}
             />
             <InputField
               label="Responsável Técnico"
               name="responsavelTecnicoId"
+              options={responsavelOptions}
               required
-              options={responsaveisTecnicos.map((rt) => ({
-                value: rt.id.toString(),
-                label: `${rt.nome} - ${rt.cpf}`,
-              }))}
+              value={formData.responsavelTecnicoId}
+              onChange={(value) =>
+                handleFieldChange("responsavelTecnicoId", value)
+              }
+              error={errors.responsavelTecnicoId}
             />
           </div>
         </div>
@@ -368,17 +467,33 @@ export default function PessoaJuridicaForm({
           <h3 className="text-lg font-semibold text-secondary-900 mb-4">
             Contato
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <InputField label="E-mail" name="email" type="email" required />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InputField
+              label="E-mail"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={(value) => handleFieldChange("email", value)}
+              error={errors.email}
+            />
             <InputField
               label="Telefone Principal"
               name="telefone1"
+              type="tel"
               required
+              value={formData.telefone1}
+              onChange={(value) => handleFieldChange("telefone1", value)}
+              error={errors.telefone1}
               formatter={formatTelefone}
             />
             <InputField
               label="Telefone Secundário"
               name="telefone2"
+              type="tel"
+              value={formData.telefone2}
+              onChange={(value) => handleFieldChange("telefone2", value)}
+              error={errors.telefone2}
               formatter={formatTelefone}
             />
           </div>
@@ -390,50 +505,89 @@ export default function PessoaJuridicaForm({
             Endereço
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField label="Cidade" name="cidade" isEndereco required />
-            <InputField label="Bairro" name="bairro" isEndereco required />
-            <InputField
-              label="Logradouro"
-              name="logradouro"
-              isEndereco
-              required
-            />
             <InputField
               label="CEP"
               name="cep"
               isEndereco
               required
+              value={formData.endereco.cep}
+              onChange={(value) => handleFieldChange("cep", value, true)}
+              error={errors["endereco.cep"]}
               formatter={formatCEP}
             />
-            <InputField label="Número" name="numero" isEndereco required />
-            <InputField label="Complemento" name="complemento" isEndereco />
+            <InputField
+              label="Logradouro"
+              name="logradouro"
+              isEndereco
+              required
+              value={formData.endereco.logradouro}
+              onChange={(value) => handleFieldChange("logradouro", value, true)}
+              error={errors["endereco.logradouro"]}
+            />
+            <InputField
+              label="Número"
+              name="numero"
+              isEndereco
+              required
+              value={formData.endereco.numero}
+              onChange={(value) => handleFieldChange("numero", value, true)}
+              error={errors["endereco.numero"]}
+            />
+            <InputField
+              label="Complemento"
+              name="complemento"
+              isEndereco
+              value={formData.endereco.complemento}
+              onChange={(value) =>
+                handleFieldChange("complemento", value, true)
+              }
+              error={errors["endereco.complemento"]}
+            />
+            <InputField
+              label="Bairro"
+              name="bairro"
+              isEndereco
+              required
+              value={formData.endereco.bairro}
+              onChange={(value) => handleFieldChange("bairro", value, true)}
+              error={errors["endereco.bairro"]}
+            />
+            <InputField
+              label="Cidade"
+              name="cidade"
+              isEndereco
+              required
+              value={formData.endereco.cidade}
+              onChange={(value) => handleFieldChange("cidade", value, true)}
+              error={errors["endereco.cidade"]}
+            />
           </div>
         </div>
 
         {/* Botões */}
-        <div className="flex justify-end space-x-4 pt-6 border-t border-secondary-200">
+        <div className="flex justify-end space-x-4 pt-6">
           <motion.button
             type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             onClick={onCancel}
-            className="px-6 py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-xl font-medium transition-all duration-200"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 text-secondary-600 border border-secondary-300 rounded-xl hover:bg-secondary-50 transition-colors duration-200"
           >
             Cancelar
           </motion.button>
           <motion.button
             type="submit"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             disabled={loading}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Save className="w-5 h-5" />
+              <Save className="w-4 h-4" />
             )}
-            <span>{loading ? "Salvando..." : "Salvar"}</span>
+            <span>{initialData ? "Atualizar" : "Salvar"}</span>
           </motion.button>
         </div>
       </form>

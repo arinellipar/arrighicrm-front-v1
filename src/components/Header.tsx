@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Users, Building2, UserCog, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface MenuItem {
   label: string;
@@ -29,11 +30,6 @@ const menuItems: MenuGroup[] = [
         label: "Pessoa Jurídica",
         href: "/cadastros/pessoa-juridica",
         icon: <Building2 className="w-4 h-4" />,
-      },
-      {
-        label: "Usuários",
-        href: "/cadastros/usuarios",
-        icon: <UserCog className="w-4 h-4" />,
       },
     ],
   },
@@ -107,24 +103,27 @@ export default function Header() {
                       >
                         <div className="p-2">
                           {group.items.map((item, itemIndex) => (
-                            <motion.a
+                            <motion.div
                               key={item.href}
-                              href={item.href}
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: itemIndex * 0.05 }}
-                              className={cn(
-                                "flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium",
-                                "text-secondary-700 hover:bg-primary-50 hover:text-primary-700",
-                                "transition-all duration-200 group"
-                              )}
-                              onClick={() => setActiveDropdown(null)}
                             >
-                              <div className="flex-shrink-0 text-secondary-500 group-hover:text-primary-600">
-                                {item.icon}
-                              </div>
-                              <span className="flex-grow">{item.label}</span>
-                            </motion.a>
+                              <Link
+                                href={item.href}
+                                className={cn(
+                                  "flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium",
+                                  "text-secondary-700 hover:bg-primary-50 hover:text-primary-700",
+                                  "transition-all duration-200 group"
+                                )}
+                                onClick={() => setActiveDropdown(null)}
+                              >
+                                <div className="flex-shrink-0 text-secondary-500 group-hover:text-primary-600">
+                                  {item.icon}
+                                </div>
+                                <span className="flex-grow">{item.label}</span>
+                              </Link>
+                            </motion.div>
                           ))}
                         </div>
                       </motion.div>

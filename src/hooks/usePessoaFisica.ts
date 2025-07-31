@@ -194,7 +194,7 @@ export function usePessoaFisica() {
   // Carregar dados iniciais
   useEffect(() => {
     fetchPessoas();
-  }, [fetchPessoas]);
+  }, []); // Remover fetchPessoas da dependência para evitar loops
 
   return {
     ...state,

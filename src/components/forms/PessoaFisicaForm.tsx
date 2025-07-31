@@ -1,7 +1,6 @@
-// src/components/forms/PessoaFisicaForm.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo, useRef } from "react";
 import { motion } from "framer-motion";
 import { Save, X, Loader2 } from "lucide-react";
 import {
@@ -51,6 +50,7 @@ interface InputFieldProps {
   required?: boolean;
   isEndereco?: boolean;
   options?: readonly { readonly value: string; readonly label: string }[];
+  formatter?: (value: string) => string;
 }
 
 const initialFormData: FormData = {
@@ -75,6 +75,96 @@ const initialFormData: FormData = {
   },
 };
 
+// Componente InputField separado e memoizado
+const InputField = memo(
+  ({
+    label,
+    name,
+    type = "text",
+    required = false,
+    isEndereco = false,
+    options = undefined,
+    value,
+    onChange,
+    error,
+    formatter,
+  }: InputFieldProps & {
+    value: string;
+    onChange: (value: string) => void;
+    error?: string;
+  }) => {
+    const fieldId = isEndereco ? `endereco-${name}` : name;
+    const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
+
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        onChange(e.target.value);
+      },
+      [onChange]
+    );
+
+    return (
+      <div className="space-y-2">
+        <label
+          htmlFor={fieldId}
+          className="text-sm font-medium text-secondary-900"
+        >
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        {options ? (
+          <select
+            ref={inputRef as React.RefObject<HTMLSelectElement>}
+            id={fieldId}
+            name={name}
+            value={value}
+            onChange={handleChange}
+            className={cn(
+              "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
+              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
+              "transition-all duration-200",
+              error && "border-red-500 focus:ring-red-500"
+            )}
+            required={required}
+          >
+            <option value="">Selecione...</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            ref={inputRef as React.RefObject<HTMLInputElement>}
+            id={fieldId}
+            name={name}
+            type={type}
+            value={value}
+            onChange={handleChange}
+            className={cn(
+              "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
+              "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
+              "transition-all duration-200",
+              error && "border-red-500 focus:ring-red-500"
+            )}
+            required={required}
+            autoComplete={
+              type === "email" ? "email" : type === "tel" ? "tel" : "off"
+            }
+          />
+        )}
+        {error && (
+          <p className="text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
+
+InputField.displayName = "InputField";
+
 export default function PessoaFisicaForm({
   initialData,
   onSubmit,
@@ -84,7 +174,7 @@ export default function PessoaFisicaForm({
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Preencher formulário com dados iniciais se fornecidos
+  // Inicializar dados se for edição
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -92,7 +182,7 @@ export default function PessoaFisicaForm({
         email: initialData.email,
         codinome: initialData.codinome || "",
         sexo: initialData.sexo,
-        dataNascimento: initialData.dataNascimento.split("T")[0], // Formato YYYY-MM-DD
+        dataNascimento: initialData.dataNascimento,
         estadoCivil: initialData.estadoCivil,
         cpf: initialData.cpf,
         rg: initialData.rg || "",
@@ -111,39 +201,59 @@ export default function PessoaFisicaForm({
     }
   }, [initialData]);
 
-  const handleInputChange = (
-    field: string,
-    value: string,
-    isEndereco = false
-  ) => {
-    if (isEndereco) {
-      setFormData((prev) => ({
-        ...prev,
-        endereco: {
-          ...prev.endereco,
-          [field]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
-    }
+  const handleFieldChange = useCallback(
+    (field: string, value: string, isEndereco = false) => {
+      setFormData((prev) => {
+        if (isEndereco) {
+          return {
+            ...prev,
+            endereco: {
+              ...prev.endereco,
+              [field]: value,
+            },
+          };
+        } else {
+          return {
+            ...prev,
+            [field]: value,
+          };
+        }
+      });
 
-    // Limpar erro do campo quando começar a digitar
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
-    }
+      // Limpar erro do campo
+      const errorKey = isEndereco ? `endereco.${field}` : field;
+      if (errors[errorKey]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[errorKey];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
+
+  // Funções de formatação
+  const formatTelefone = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 6)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (numbers.length <= 10)
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(
+        6
+      )}`;
+    // Permitir 11 dígitos (com DDD)
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
+      7,
+      11
+    )}`;
   };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Validações obrigatórias
+    // Validações básicas
     if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório";
     if (!formData.email.trim()) newErrors.email = "E-mail é obrigatório";
     if (!formData.sexo) newErrors.sexo = "Sexo é obrigatório";
@@ -152,10 +262,20 @@ export default function PessoaFisicaForm({
     if (!formData.estadoCivil)
       newErrors.estadoCivil = "Estado civil é obrigatório";
     if (!formData.cpf.trim()) newErrors.cpf = "CPF é obrigatório";
-    if (!formData.telefone1.trim())
-      newErrors.telefone1 = "Telefone principal é obrigatório";
 
-    // Validações do endereço
+    // Validação de telefone
+    if (!formData.telefone1.trim()) {
+      newErrors.telefone1 = "Telefone é obrigatório";
+    } else {
+      const telefoneNumeros = formData.telefone1.replace(/\D/g, "");
+      if (telefoneNumeros.length < 10) {
+        newErrors.telefone1 = "Telefone deve ter pelo menos 10 dígitos";
+      } else if (telefoneNumeros.length > 11) {
+        newErrors.telefone1 = "Telefone deve ter no máximo 11 dígitos";
+      }
+    }
+
+    // Validações de endereço
     if (!formData.endereco.cidade.trim())
       newErrors["endereco.cidade"] = "Cidade é obrigatória";
     if (!formData.endereco.bairro.trim())
@@ -166,12 +286,6 @@ export default function PessoaFisicaForm({
       newErrors["endereco.cep"] = "CEP é obrigatório";
     if (!formData.endereco.numero.trim())
       newErrors["endereco.numero"] = "Número é obrigatório";
-
-    // Validação de e-mail
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (formData.email && !emailRegex.test(formData.email)) {
-      newErrors.email = "E-mail inválido";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -185,13 +299,23 @@ export default function PessoaFisicaForm({
     }
 
     const submitData = {
-      ...formData,
+      nome: formData.nome,
+      email: formData.email,
       codinome: formData.codinome || undefined,
+      sexo: formData.sexo,
+      dataNascimento: formData.dataNascimento,
+      estadoCivil: formData.estadoCivil,
+      cpf: formData.cpf,
       rg: formData.rg || undefined,
       cnh: formData.cnh || undefined,
+      telefone1: formData.telefone1,
       telefone2: formData.telefone2 || undefined,
       endereco: {
-        ...formData.endereco,
+        cidade: formData.endereco.cidade,
+        bairro: formData.endereco.bairro,
+        logradouro: formData.endereco.logradouro,
+        cep: formData.endereco.cep,
+        numero: formData.endereco.numero,
         complemento: formData.endereco.complemento || undefined,
       },
     };
@@ -215,71 +339,6 @@ export default function PessoaFisicaForm({
       }
     }
   };
-
-  const InputField = ({
-    label,
-    name,
-    type = "text",
-    required = false,
-    isEndereco = false,
-    options = undefined,
-  }: InputFieldProps) => (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-secondary-900">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {options ? (
-        <select
-          value={
-            isEndereco
-              ? (formData.endereco[
-                  name as keyof typeof formData.endereco
-                ] as string)
-              : (formData[name as keyof FormData] as string)
-          }
-          onChange={(e) => handleInputChange(name, e.target.value, isEndereco)}
-          className={cn(
-            "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-            "transition-all duration-200",
-            errors[isEndereco ? `endereco.${name}` : name] &&
-              "border-red-500 focus:ring-red-500"
-          )}
-        >
-          <option value="">Selecione...</option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          type={type}
-          value={
-            isEndereco
-              ? (formData.endereco[
-                  name as keyof typeof formData.endereco
-                ] as string)
-              : (formData[name as keyof FormData] as string)
-          }
-          onChange={(e) => handleInputChange(name, e.target.value, isEndereco)}
-          className={cn(
-            "w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-            "transition-all duration-200",
-            errors[isEndereco ? `endereco.${name}` : name] &&
-              "border-red-500 focus:ring-red-500"
-          )}
-        />
-      )}
-      {errors[isEndereco ? `endereco.${name}` : name] && (
-        <p className="text-sm text-red-600">
-          {errors[isEndereco ? `endereco.${name}` : name]}
-        </p>
-      )}
-    </div>
-  );
 
   return (
     <motion.div
@@ -308,26 +367,56 @@ export default function PessoaFisicaForm({
             Dados Pessoais
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField label="Nome" name="nome" required />
-            <InputField label="E-mail" name="email" type="email" required />
-            <InputField label="Codinome" name="codinome" />
+            <InputField
+              label="Nome"
+              name="nome"
+              required
+              value={formData.nome}
+              onChange={(value) => handleFieldChange("nome", value)}
+              error={errors.nome}
+            />
+            <InputField
+              label="E-mail"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={(value) => handleFieldChange("email", value)}
+              error={errors.email}
+            />
+            <InputField
+              label="Codinome"
+              name="codinome"
+              value={formData.codinome}
+              onChange={(value) => handleFieldChange("codinome", value)}
+              error={errors.codinome}
+            />
             <InputField
               label="Sexo"
               name="sexo"
               options={SexoOptions}
               required
+              value={formData.sexo}
+              onChange={(value) => handleFieldChange("sexo", value)}
+              error={errors.sexo}
             />
             <InputField
               label="Data de Nascimento"
               name="dataNascimento"
               type="date"
               required
+              value={formData.dataNascimento}
+              onChange={(value) => handleFieldChange("dataNascimento", value)}
+              error={errors.dataNascimento}
             />
             <InputField
               label="Estado Civil"
               name="estadoCivil"
               options={EstadoCivilOptions}
               required
+              value={formData.estadoCivil}
+              onChange={(value) => handleFieldChange("estadoCivil", value)}
+              error={errors.estadoCivil}
             />
           </div>
         </div>
@@ -338,9 +427,28 @@ export default function PessoaFisicaForm({
             Documentos
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <InputField label="CPF" name="cpf" required />
-            <InputField label="RG" name="rg" />
-            <InputField label="CNH" name="cnh" />
+            <InputField
+              label="CPF"
+              name="cpf"
+              required
+              value={formData.cpf}
+              onChange={(value) => handleFieldChange("cpf", value)}
+              error={errors.cpf}
+            />
+            <InputField
+              label="RG"
+              name="rg"
+              value={formData.rg}
+              onChange={(value) => handleFieldChange("rg", value)}
+              error={errors.rg}
+            />
+            <InputField
+              label="CNH"
+              name="cnh"
+              value={formData.cnh}
+              onChange={(value) => handleFieldChange("cnh", value)}
+              error={errors.cnh}
+            />
           </div>
         </div>
 
@@ -350,8 +458,25 @@ export default function PessoaFisicaForm({
             Contato
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField label="Telefone Principal" name="telefone1" required />
-            <InputField label="Telefone Secundário" name="telefone2" />
+            <InputField
+              label="Telefone Principal"
+              name="telefone1"
+              type="tel"
+              required
+              value={formData.telefone1}
+              onChange={(value) => handleFieldChange("telefone1", value)}
+              error={errors.telefone1}
+              formatter={formatTelefone}
+            />
+            <InputField
+              label="Telefone Secundário"
+              name="telefone2"
+              type="tel"
+              value={formData.telefone2}
+              onChange={(value) => handleFieldChange("telefone2", value)}
+              error={errors.telefone2}
+              formatter={formatTelefone}
+            />
           </div>
         </div>
 
@@ -361,44 +486,88 @@ export default function PessoaFisicaForm({
             Endereço
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField label="Cidade" name="cidade" isEndereco required />
-            <InputField label="Bairro" name="bairro" isEndereco required />
+            <InputField
+              label="CEP"
+              name="cep"
+              isEndereco
+              required
+              value={formData.endereco.cep}
+              onChange={(value) => handleFieldChange("cep", value, true)}
+              error={errors["endereco.cep"]}
+            />
             <InputField
               label="Logradouro"
               name="logradouro"
               isEndereco
               required
+              value={formData.endereco.logradouro}
+              onChange={(value) => handleFieldChange("logradouro", value, true)}
+              error={errors["endereco.logradouro"]}
             />
-            <InputField label="CEP" name="cep" isEndereco required />
-            <InputField label="Número" name="numero" isEndereco required />
-            <InputField label="Complemento" name="complemento" isEndereco />
+            <InputField
+              label="Número"
+              name="numero"
+              isEndereco
+              required
+              value={formData.endereco.numero}
+              onChange={(value) => handleFieldChange("numero", value, true)}
+              error={errors["endereco.numero"]}
+            />
+            <InputField
+              label="Complemento"
+              name="complemento"
+              isEndereco
+              value={formData.endereco.complemento}
+              onChange={(value) =>
+                handleFieldChange("complemento", value, true)
+              }
+              error={errors["endereco.complemento"]}
+            />
+            <InputField
+              label="Bairro"
+              name="bairro"
+              isEndereco
+              required
+              value={formData.endereco.bairro}
+              onChange={(value) => handleFieldChange("bairro", value, true)}
+              error={errors["endereco.bairro"]}
+            />
+            <InputField
+              label="Cidade"
+              name="cidade"
+              isEndereco
+              required
+              value={formData.endereco.cidade}
+              onChange={(value) => handleFieldChange("cidade", value, true)}
+              error={errors["endereco.cidade"]}
+            />
           </div>
         </div>
 
         {/* Botões */}
-        <div className="flex justify-end space-x-4 pt-6 border-t border-secondary-200">
+        <div className="flex justify-end space-x-4 pt-6">
           <motion.button
             type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             onClick={onCancel}
-            className="px-6 py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-xl font-medium transition-all duration-200"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 text-secondary-600 border border-secondary-300 rounded-xl hover:bg-secondary-50 transition-colors duration-200"
           >
             Cancelar
           </motion.button>
           <motion.button
             type="submit"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             disabled={loading}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
           >
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Save className="w-5 h-5" />
+              <Save className="w-4 h-4" />
             )}
-            <span>{loading ? "Salvando..." : "Salvar"}</span>
+            <span>{initialData ? "Atualizar" : "Salvar"}</span>
           </motion.button>
         </div>
       </form>

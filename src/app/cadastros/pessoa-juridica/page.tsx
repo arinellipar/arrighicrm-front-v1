@@ -15,10 +15,12 @@ import {
   Loader2,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
+import PessoaJuridicaForm from "@/components/forms/PessoaJuridicaForm";
 import { usePessoaJuridica } from "@/hooks/usePessoaJuridica";
 import { usePessoaFisica } from "@/hooks/usePessoaFisica";
 import { PessoaJuridica, ResponsavelTecnicoOption } from "@/types/api";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
   return (
@@ -218,12 +220,12 @@ export default function PessoaJuridicaPage() {
                 <strong>Atenção:</strong> É necessário ter pelo menos uma pessoa
                 física cadastrada para ser responsável técnico antes de criar
                 pessoas jurídicas.{" "}
-                <a
+                <Link
                   href="/cadastros/pessoa-fisica"
                   className="underline hover:no-underline font-medium"
                 >
                   Cadastrar pessoa física
-                </a>
+                </Link>
               </p>
             </div>
           </motion.div>
@@ -495,6 +497,28 @@ export default function PessoaJuridicaPage() {
             )}
           </motion.div>
         )}
+
+        {/* Formulário Modal */}
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            >
+              <div className="w-full max-w-4xl max-h-screen overflow-y-auto">
+                <PessoaJuridicaForm
+                  initialData={editingPessoa}
+                  responsaveisTecnicos={responsaveisTecnicos}
+                  onSubmit={handleCreateOrUpdate}
+                  onCancel={handleCloseForm}
+                  loading={creating || updating}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Modal de Confirmação de Exclusão */}
         <AnimatePresence>

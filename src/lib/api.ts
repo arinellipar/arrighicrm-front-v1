@@ -1,6 +1,7 @@
 // src/lib/api.ts
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101/api";
+import { getApiUrl, isDevelopment } from "../../env.config";
+
+const API_BASE_URL = getApiUrl();
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -29,10 +30,23 @@ class ApiClient {
         ...options,
       };
 
+      // Adiciona timeout para requisições
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      config.signal = controller.signal;
+
       const response = await fetch(url, config);
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
+
+        // Log de erro em desenvolvimento
+        if (isDevelopment()) {
+          console.error(`API Error: ${response.status} - ${errorText}`);
+        }
+
         return {
           error: errorText || `HTTP error! status: ${response.status}`,
           status: response.status,
@@ -40,11 +54,26 @@ class ApiClient {
       }
 
       const data = await response.json();
+
+      // Log de sucesso em desenvolvimento
+      if (isDevelopment()) {
+        console.log(`API Success: ${response.status} - ${endpoint}`);
+      }
+
       return {
         data,
         status: response.status,
       };
     } catch (error) {
+      // Log de erro em desenvolvimento
+      if (isDevelopment()) {
+        console.error(
+          `Network Error: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
+      }
+
       return {
         error: error instanceof Error ? error.message : "Network error",
         status: 0,
