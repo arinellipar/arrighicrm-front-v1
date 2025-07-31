@@ -25,11 +25,23 @@ export const config = {
 
 // Função para obter a URL da API baseada no ambiente
 export const getApiUrl = (): string => {
+  console.log("🔍 Debug getApiUrl:");
+  console.log(
+    "process.env.NEXT_PUBLIC_API_URL:",
+    process.env.NEXT_PUBLIC_API_URL
+  );
+  console.log("process.env.NODE_ENV:", process.env.NODE_ENV);
+
   if (process.env.NEXT_PUBLIC_API_URL) {
+    console.log(
+      "✅ Usando NEXT_PUBLIC_API_URL:",
+      process.env.NEXT_PUBLIC_API_URL
+    );
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
   // Fallback para desenvolvimento
+  console.log("⚠️ Usando fallback localhost");
   return "http://localhost:5000/api";
 };
 

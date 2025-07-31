@@ -135,7 +135,7 @@ export default function Header() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-secondary-200/20 overflow-hidden"
+                        className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-secondary-200/20 overflow-hidden z-50"
                       >
                         <div className="p-2">
                           {group.items.map((item, itemIndex) => (
@@ -150,9 +150,15 @@ export default function Header() {
                                 className={cn(
                                   "flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium",
                                   "text-secondary-700 hover:bg-primary-50 hover:text-primary-700",
-                                  "transition-all duration-200 group"
+                                  "transition-all duration-200 group cursor-pointer"
                                 )}
-                                onClick={() => setActiveDropdown(null)}
+                                onClick={() => {
+                                  console.log(
+                                    `🔗 Navegando para: ${item.href}`
+                                  );
+                                  setActiveDropdown(null);
+                                }}
+                                style={{ pointerEvents: "auto" }}
                               >
                                 <div className="flex-shrink-0 text-secondary-500 group-hover:text-primary-600">
                                   {item.icon}
