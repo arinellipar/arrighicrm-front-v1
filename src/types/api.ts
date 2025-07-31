@@ -1,4 +1,4 @@
-// src/types/api.ts
+// src/types/api.ts - Adicionar os tipos de Usuario
 
 export interface Endereco {
   id: number;
@@ -90,6 +90,39 @@ export interface UpdatePessoaJuridicaDTO extends CreatePessoaJuridicaDTO {
   enderecoId: number;
 }
 
+// Tipos de Usuario - NOVOS
+export interface Usuario {
+  id: number;
+  login: string;
+  email: string;
+  senha: string;
+  grupoAcesso: string;
+  tipoPessoa: string; // "Fisica" ou "Juridica"
+  pessoaFisicaId?: number;
+  pessoaFisica?: PessoaFisica;
+  pessoaJuridicaId?: number;
+  pessoaJuridica?: PessoaJuridica;
+  ativo: boolean;
+  dataCadastro: string;
+  dataAtualizacao?: string;
+  ultimoAcesso?: string;
+}
+
+export interface CreateUsuarioDTO {
+  login: string;
+  email: string;
+  senha: string;
+  grupoAcesso: string;
+  tipoPessoa: string;
+  pessoaFisicaId?: number;
+  pessoaJuridicaId?: number;
+  ativo?: boolean;
+}
+
+export interface UpdateUsuarioDTO extends CreateUsuarioDTO {
+  id: number;
+}
+
 // Tipos para options de select
 export interface ResponsavelTecnicoOption {
   id: number;
@@ -140,4 +173,9 @@ export const GrupoAcessoOptions = [
   { value: "Administrador", label: "Administrador" },
   { value: "Usuario", label: "Usuário" },
   { value: "Visualizador", label: "Visualizador" },
+] as const;
+
+export const TipoPessoaOptions = [
+  { value: "Fisica", label: "Pessoa Física" },
+  { value: "Juridica", label: "Pessoa Jurídica" },
 ] as const;

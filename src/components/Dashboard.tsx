@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   Loader2,
   AlertCircle,
+  UserCheck,
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
@@ -174,6 +175,13 @@ export default function Dashboard() {
       href: "/cadastros/pessoa-juridica",
       color: "green" as const,
     },
+    {
+      title: "Novo Usuário",
+      description: "Cadastrar usuário do sistema",
+      icon: <UserCheck className="w-8 h-8" />,
+      href: "/usuarios",
+      color: "purple" as const,
+    },
   ];
 
   // Calcular porcentagem de crescimento (mockado para demonstração)
@@ -202,6 +210,13 @@ export default function Dashboard() {
         : getChangePercentage(stats.totalPessoasJuridicas),
       changeType: "positive" as const,
       icon: <Building2 className="w-6 h-6" />,
+    },
+    {
+      title: "Usuários do Sistema",
+      value: loading ? 0 : stats.totalUsuarios,
+      change: loading ? undefined : getChangePercentage(stats.totalUsuarios),
+      changeType: "positive" as const,
+      icon: <UserCheck className="w-6 h-6" />,
     },
   ];
 
@@ -261,7 +276,7 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {statsCards.map((stat, index) => (
           <motion.div
             key={stat.title}
@@ -283,7 +298,7 @@ export default function Dashboard() {
         <h2 className="text-2xl font-bold text-secondary-900 mb-6">
           Ações Rápidas
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {quickActions.map((action, index) => (
             <motion.div
               key={action.title}
@@ -346,7 +361,9 @@ export default function Dashboard() {
                 {loading
                   ? "Carregando dados..."
                   : `${
-                      stats.totalPessoasFisicas + stats.totalPessoasJuridicas
+                      stats.totalPessoasFisicas +
+                      stats.totalPessoasJuridicas +
+                      stats.totalUsuarios
                     } registros sincronizados`}
               </p>
             </div>
@@ -359,6 +376,26 @@ export default function Dashboard() {
             className="flex items-center space-x-4 p-4 bg-purple-50/50 rounded-xl border border-purple-200/50"
           >
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
+              <UserCheck className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-grow">
+              <p className="text-secondary-900 font-medium">
+                <span className="font-semibold">Gestão de Usuários</span>{" "}
+                implementada
+              </p>
+              <p className="text-secondary-500 text-sm">
+                Sistema completo de autenticação e permissões
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.2 }}
+            className="flex items-center space-x-4 p-4 bg-orange-50/50 rounded-xl border border-orange-200/50"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
               <FileText className="w-5 h-5 text-white" />
             </div>
             <div className="flex-grow">

@@ -1,11 +1,12 @@
 // src/hooks/useDashboard.ts
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api";
-import { PessoaFisica, PessoaJuridica } from "@/types/api";
+import { PessoaFisica, PessoaJuridica, Usuario } from "@/types/api";
 
 interface DashboardStats {
   totalPessoasFisicas: number;
   totalPessoasJuridicas: number;
+  totalUsuarios: number;
 }
 
 interface UseDashboardState {
@@ -19,6 +20,7 @@ export function useDashboard() {
     stats: {
       totalPessoasFisicas: 0,
       totalPessoasJuridicas: 0,
+      totalUsuarios: 0,
     },
     loading: false,
     error: null,
@@ -42,12 +44,16 @@ export function useDashboard() {
     setError(null);
 
     try {
-      // Fazer requisições paralelas para pessoas físicas e jurídicas
-      const [pessoasFisicasResponse, pessoasJuridicasResponse] =
-        await Promise.all([
-          apiClient.get<PessoaFisica[]>("/PessoaFisica"),
-          apiClient.get<PessoaJuridica[]>("/PessoaJuridica"),
-        ]);
+      // Fazer requisições paralelas para pessoas físicas, jurídicas e usuários
+      const [
+        pessoasFisicasResponse,
+        pessoasJuridicasResponse,
+        usuariosResponse,
+      ] = await Promise.all([
+        apiClient.get<PessoaFisica[]>("/PessoaFisica"),
+        apiClient.get<PessoaJuridica[]>("/PessoaJuridica"),
+        apiClient.get<Usuario[]>("/Usuario"),
+      ]);
 
       // Verificar se há erros
       if (pessoasFisicasResponse.error) {
@@ -60,17 +66,23 @@ export function useDashboard() {
           `Erro ao carregar pessoas jurídicas: ${pessoasJuridicasResponse.error}`
         );
       }
+      if (usuariosResponse.error) {
+        throw new Error(`Erro ao carregar usuários: ${usuariosResponse.error}`);
+      }
 
       const pessoasFisicas = pessoasFisicasResponse.data || [];
       const pessoasJuridicas = pessoasJuridicasResponse.data || [];
+      const usuarios = usuariosResponse.data || [];
 
       // Calcular estatísticas
       const totalPessoasFisicas = pessoasFisicas.length;
       const totalPessoasJuridicas = pessoasJuridicas.length;
+      const totalUsuarios = usuarios.length;
 
       const stats: DashboardStats = {
         totalPessoasFisicas,
         totalPessoasJuridicas,
+        totalUsuarios,
       };
 
       setStats(stats);

@@ -20,7 +20,7 @@ export const config = {
   corsOrigins:
     process.env.NODE_ENV === "development"
       ? ["http://localhost:3000", "http://localhost:3001"]
-      : ["https://seu-dominio.com"],
+      : ["https://arrighicrm-front-v1.vercel.app"],
 };
 
 // Função para obter a URL da API baseada no ambiente

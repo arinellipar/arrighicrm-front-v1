@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Users, Building2, UserCog, Scale } from "lucide-react";
+import {
+  ChevronDown,
+  Users,
+  Building2,
+  UserCog,
+  Scale,
+  UserCheck,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -30,6 +37,16 @@ const menuItems: MenuGroup[] = [
         label: "Pessoa Jurídica",
         href: "/cadastros/pessoa-juridica",
         icon: <Building2 className="w-4 h-4" />,
+      },
+    ],
+  },
+  {
+    label: "Gestão de Usuários",
+    items: [
+      {
+        label: "Usuários",
+        href: "/usuarios",
+        icon: <UserCheck className="w-4 h-4" />,
       },
     ],
   },
@@ -83,7 +100,7 @@ export default function Header() {
                 </Link>
               </motion.div>
 
-              {/* Menu Cadastros Gerais */}
+              {/* Menus com Dropdown */}
               {menuItems.map((group, index) => (
                 <div key={group.label} className="relative">
                   <motion.button
