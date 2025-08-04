@@ -20,9 +20,9 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    try {
-      const url = `${this.baseUrl}${endpoint}`;
+    const url = `${this.baseUrl}${endpoint}`;
 
+    try {
       // Log da URL em desenvolvimento
       if (isDevelopment()) {
         console.log(`🌐 Making request to: ${url}`);

@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { cep: string } }
+  { params }: { params: Promise<{ cep: string }> }
 ) {
   try {
-    const { cep } = params;
+    const { cep } = await params;
 
     // Remove caracteres não numéricos
     const cleanCep = cep.replace(/\D/g, "");
