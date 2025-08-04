@@ -30,6 +30,7 @@ import {
   ResponsavelTecnicoOption,
 } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { consultarCep, CepData } from "@/lib/cep";
 
 interface PessoaJuridicaFormProps {
   initialData?: PessoaJuridica | null;
@@ -181,7 +182,7 @@ const InputField = memo(
                 )}
                 required={required}
               >
-                <option value="">Selecione...</option>
+                <option value=""></option>
                 {options.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -200,13 +201,14 @@ const InputField = memo(
               onChange={handleChange}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder={placeholder}
+              placeholder={type === "date" ? "" : placeholder}
               className={cn(
                 "w-full h-14 px-4 bg-white/80 backdrop-blur-sm rounded-2xl",
                 "border-2 transition-all duration-300",
                 "focus:outline-none focus:ring-4",
                 "placeholder:text-transparent",
                 icon && "pl-12",
+
                 isFocused
                   ? "border-green-500 ring-green-500/20 shadow-lg shadow-green-500/10"
                   : "border-secondary-200 hover:border-secondary-300 hover:shadow-md",
@@ -442,6 +444,36 @@ export default function PessoaJuridicaForm({
       7,
       11
     )}`;
+  };
+
+  const handleCepChange = async (value: string) => {
+    // Atualiza o CEP no formulário
+    handleFieldChange("cep", value, true);
+
+    // Se o CEP tem 8 dígitos, consulta a API
+    const cleanCep = value.replace(/\D/g, "");
+    if (cleanCep.length === 8) {
+      try {
+        const cepData = await consultarCep(value);
+        if (cepData) {
+          // Auto-preenche os campos de endereço
+          setFormData((prev) => ({
+            ...prev,
+            endereco: {
+              ...prev.endereco,
+              cep: cepData.cep,
+              logradouro: cepData.logradouro,
+              bairro: cepData.bairro,
+              cidade: cepData.cidade,
+              numero: prev.endereco.numero,
+              complemento: cepData.complemento || prev.endereco.complemento,
+            },
+          }));
+        }
+      } catch (error) {
+        console.error("Erro ao consultar CEP:", error);
+      }
+    }
   };
 
   const validateForm = (): boolean => {
@@ -736,7 +768,7 @@ export default function PessoaJuridicaForm({
               isEndereco
               required
               value={formData.endereco.cep}
-              onChange={(value) => handleFieldChange("cep", value, true)}
+              onChange={handleCepChange}
               error={errors["endereco.cep"]}
               formatter={formatCEP}
               icon={<MapPin className="w-5 h-5" />}

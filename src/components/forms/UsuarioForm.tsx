@@ -189,7 +189,7 @@ const InputField = memo(
                   )}
                   required={required}
                 >
-                  <option value="">Selecione...</option>
+                  <option value=""></option>
                   {options.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -206,7 +206,7 @@ const InputField = memo(
                   onChange={handleChange}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
-                  placeholder={placeholder}
+                  placeholder={type === "date" ? "" : placeholder}
                   disabled={disabled}
                   className={cn(
                     "w-full h-14 px-4 bg-white/80 backdrop-blur-sm rounded-2xl",
@@ -215,6 +215,7 @@ const InputField = memo(
                     "placeholder:text-transparent",
                     icon && "pl-12",
                     isPasswordField && "pr-12",
+
                     isFocused
                       ? "border-primary-500 ring-primary-500/20 shadow-lg shadow-primary-500/10"
                       : "border-secondary-200 hover:border-secondary-300",

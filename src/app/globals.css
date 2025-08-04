@@ -57,10 +57,29 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Melhorias específicas para Chrome em dispositivos móveis */
+  @media screen and (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
+  /* Correção para Chrome no MacBook Air */
+  @media screen and (min-width: 1280px) and (max-width: 1440px) {
+    .container {
+      max-width: 1200px;
+    }
   }
 }
 

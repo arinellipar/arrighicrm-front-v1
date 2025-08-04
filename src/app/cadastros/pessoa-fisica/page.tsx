@@ -98,13 +98,15 @@ export default function PessoaFisicaPage() {
     null
   );
 
-  // Filtrar pessoas por termo de busca
-  const filteredPessoas = pessoas.filter(
-    (pessoa) =>
-      pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pessoa.cpf.includes(searchTerm) ||
-      pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtrar pessoas por termo de busca e ordenar alfabeticamente
+  const filteredPessoas = pessoas
+    .filter(
+      (pessoa) =>
+        pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pessoa.cpf.includes(searchTerm) ||
+        pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingPessoa) {
@@ -162,17 +164,17 @@ export default function PessoaFisicaPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white">
-              <Users className="w-8 h-8" />
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white">
+              <Users className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold gradient-text">
+              <h1 className="text-2xl sm:text-3xl font-bold gradient-text">
                 Pessoas Físicas
               </h1>
-              <p className="text-secondary-600">
+              <p className="text-sm sm:text-base text-secondary-600">
                 Gerenciar cadastros de pessoas físicas
               </p>
             </div>
@@ -182,9 +184,9 @@ export default function PessoaFisicaPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+            className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200 text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Nova Pessoa</span>
           </motion.button>
         </motion.div>
@@ -194,25 +196,25 @@ export default function PessoaFisicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50"
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm border border-secondary-200/50"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 placeholder="Buscar por nome, CPF ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-8 sm:pl-10 pr-4 py-2 sm:py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
               />
             </div>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center space-x-2 px-6 py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-xl font-medium transition-all duration-200"
+              className="flex items-center justify-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-xl font-medium transition-all duration-200 text-sm sm:text-base"
             >
-              <Filter className="w-5 h-5" />
+              <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Filtros</span>
             </motion.button>
           </div>
@@ -223,20 +225,20 @@ export default function PessoaFisicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
                   Total de Pessoas
                 </p>
-                <p className="text-3xl font-bold text-secondary-900">
+                <p className="text-2xl sm:text-3xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="p-2 sm:p-3 bg-blue-100 rounded-xl">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
             </div>
           </div>

@@ -39,7 +39,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`container mx-auto px-6 ${isFormOpen ? 'py-4' : 'py-8'}`}
+          className={`container mx-auto px-4 sm:px-6 ${isFormOpen ? 'py-2 sm:py-4' : 'py-4 sm:py-8'}`}
         >
           {children}
         </motion.div>

@@ -22,6 +22,11 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     try {
       const url = `${this.baseUrl}${endpoint}`;
+
+      // Log da URL em desenvolvimento
+      if (isDevelopment()) {
+        console.log(`🌐 Making request to: ${url}`);
+      }
       const config: RequestInit = {
         headers: {
           "Content-Type": "application/json",
@@ -32,7 +37,12 @@ class ApiClient {
 
       // Adiciona timeout para requisições
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        if (isDevelopment()) {
+          console.error(`Request timeout after 15 seconds: ${url}`);
+        }
+      }, 15000);
 
       config.signal = controller.signal;
 
@@ -72,6 +82,11 @@ class ApiClient {
             error instanceof Error ? error.message : "Unknown error"
           }`
         );
+
+        // Log específico para abort signals
+        if (error instanceof Error && error.name === "AbortError") {
+          console.error(`Request was aborted: ${url}`);
+        }
       }
 
       return {

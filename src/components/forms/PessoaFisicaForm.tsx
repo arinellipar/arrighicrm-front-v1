@@ -29,6 +29,7 @@ import {
   EstadoCivilOptions,
 } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { consultarCep, CepData } from "@/lib/cep";
 
 interface PessoaFisicaFormProps {
   initialData?: PessoaFisica | null;
@@ -121,9 +122,11 @@ const InputField = memo(
 
     const handleChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        onChange(e.target.value);
+        const rawValue = e.target.value;
+        const formattedValue = formatter ? formatter(rawValue) : rawValue;
+        onChange(formattedValue);
       },
-      [onChange]
+      [onChange, formatter]
     );
 
     return (
@@ -183,7 +186,7 @@ const InputField = memo(
               )}
               required={required}
             >
-              <option value="">Selecione...</option>
+              <option value=""></option>
               {options.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -200,13 +203,14 @@ const InputField = memo(
               onChange={handleChange}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder={placeholder}
+              placeholder={type === "date" ? "" : placeholder}
               className={cn(
                 "w-full h-14 px-4 bg-white/80 backdrop-blur-sm rounded-2xl",
                 "border-2 transition-all duration-300",
                 "focus:outline-none focus:ring-4",
                 "placeholder:text-transparent",
                 icon && "pl-12",
+
                 isFocused
                   ? "border-primary-500 ring-primary-500/20 shadow-lg shadow-primary-500/10"
                   : "border-secondary-200 hover:border-secondary-300",
@@ -368,6 +372,96 @@ export default function PessoaFisicaForm({
     )}`;
   };
 
+  const formatData = (value: string) => {
+    // Remove tudo que não é dígito
+    const numbers = value.replace(/\D/g, "");
+
+    // Limita a 8 dígitos (dd/mm/aaaa)
+    const limitedNumbers = numbers.slice(0, 8);
+
+    // Aplica a máscara dd/mm/aaaa
+    if (limitedNumbers.length <= 2) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 4) {
+      return `${limitedNumbers.slice(0, 2)}/${limitedNumbers.slice(2)}`;
+    } else {
+      return `${limitedNumbers.slice(0, 2)}/${limitedNumbers.slice(
+        2,
+        4
+      )}/${limitedNumbers.slice(4)}`;
+    }
+  };
+
+  const formatCPF = (value: string) => {
+    // Remove tudo que não é dígito
+    const numbers = value.replace(/\D/g, "");
+
+    // Limita a 11 dígitos (XXX.XXX.XXX-XX)
+    const limitedNumbers = numbers.slice(0, 11);
+
+    // Aplica a máscara XXX.XXX.XXX-XX
+    if (limitedNumbers.length <= 3) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 6) {
+      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(3)}`;
+    } else if (limitedNumbers.length <= 9) {
+      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(
+        3,
+        6
+      )}.${limitedNumbers.slice(6)}`;
+    } else {
+      return `${limitedNumbers.slice(0, 3)}.${limitedNumbers.slice(
+        3,
+        6
+      )}.${limitedNumbers.slice(6, 9)}-${limitedNumbers.slice(9)}`;
+    }
+  };
+
+  const formatCEP = (value: string) => {
+    // Remove tudo que não é dígito
+    const numbers = value.replace(/\D/g, "");
+
+    // Limita a 8 dígitos (00000-000)
+    const limitedNumbers = numbers.slice(0, 8);
+
+    // Aplica a máscara 00000-000
+    if (limitedNumbers.length <= 5) {
+      return limitedNumbers;
+    } else {
+      return `${limitedNumbers.slice(0, 5)}-${limitedNumbers.slice(5)}`;
+    }
+  };
+
+  const handleCepChange = async (value: string) => {
+    // Atualiza o CEP no formulário
+    handleFieldChange("cep", value, true);
+
+    // Se o CEP tem 8 dígitos, consulta a API
+    const cleanCep = value.replace(/\D/g, "");
+    if (cleanCep.length === 8) {
+      try {
+        const cepData = await consultarCep(value);
+        if (cepData) {
+          // Auto-preenche os campos de endereço
+          setFormData((prev) => ({
+            ...prev,
+            endereco: {
+              ...prev.endereco,
+              cep: cepData.cep,
+              logradouro: cepData.logradouro,
+              bairro: cepData.bairro,
+              cidade: cepData.cidade,
+              numero: prev.endereco.numero,
+              complemento: cepData.complemento || prev.endereco.complemento,
+            },
+          }));
+        }
+      } catch (error) {
+        console.error("Erro ao consultar CEP:", error);
+      }
+    }
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -416,12 +510,17 @@ export default function PessoaFisicaForm({
       return;
     }
 
-    const submitData = {
+    // Converte a data de dd/mm/aaaa para aaaa-mm-dd
+    const dataNascimento = formData.dataNascimento
+      ? formData.dataNascimento.split("/").reverse().join("-")
+      : "";
+
+    const submitData: CreatePessoaFisicaDTO = {
       nome: formData.nome,
       email: formData.email,
       codinome: formData.codinome || undefined,
       sexo: formData.sexo,
-      dataNascimento: formData.dataNascimento,
+      dataNascimento: dataNascimento,
       estadoCivil: formData.estadoCivil,
       cpf: formData.cpf,
       rg: formData.rg || undefined,
@@ -577,12 +676,14 @@ export default function PessoaFisicaForm({
             <InputField
               label="Data de Nascimento"
               name="dataNascimento"
-              type="date"
+              type="text"
               required
               value={formData.dataNascimento}
               onChange={(value) => handleFieldChange("dataNascimento", value)}
               error={errors.dataNascimento}
+              formatter={formatData}
               icon={<Calendar className="w-5 h-5" />}
+              placeholder="dd/mm/aaaa"
             />
             <InputField
               label="Estado Civil"
@@ -611,6 +712,7 @@ export default function PessoaFisicaForm({
               value={formData.cpf}
               onChange={(value) => handleFieldChange("cpf", value)}
               error={errors.cpf}
+              formatter={formatCPF}
               icon={<CreditCard className="w-5 h-5" />}
               placeholder="000.000.000-00"
             />
@@ -679,8 +781,9 @@ export default function PessoaFisicaForm({
               isEndereco
               required
               value={formData.endereco.cep}
-              onChange={(value) => handleFieldChange("cep", value, true)}
+              onChange={handleCepChange}
               error={errors["endereco.cep"]}
+              formatter={formatCEP}
               icon={<MapPin className="w-5 h-5" />}
               placeholder="00000-000"
             />

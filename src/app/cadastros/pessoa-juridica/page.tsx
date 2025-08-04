@@ -115,15 +115,17 @@ export default function PessoaJuridicaPage() {
     loadResponsaveis();
   }, [fetchResponsaveisTecnicos]);
 
-  // Filtrar pessoas por termo de busca
-  const filteredPessoas = pessoas.filter(
-    (pessoa) =>
-      pessoa.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pessoa.cnpj.includes(searchTerm) ||
-      pessoa.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (pessoa.nomeFantasia &&
-        pessoa.nomeFantasia.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Filtrar pessoas por termo de busca e ordenar alfabeticamente
+  const filteredPessoas = pessoas
+    .filter(
+      (pessoa) =>
+        pessoa.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pessoa.cnpj.includes(searchTerm) ||
+        pessoa.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (pessoa.nomeFantasia &&
+          pessoa.nomeFantasia.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+    .sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial, 'pt-BR'));
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingPessoa) {
@@ -187,17 +189,17 @@ export default function PessoaJuridicaPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white">
-              <Building2 className="w-8 h-8" />
+          <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white">
+              <Building2 className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold gradient-text">
+              <h1 className="text-2xl sm:text-3xl font-bold gradient-text">
                 Pessoas Jurídicas
               </h1>
-              <p className="text-secondary-600">
+              <p className="text-sm sm:text-base text-secondary-600">
                 Gerenciar cadastros de empresas e organizações
               </p>
             </div>
@@ -207,9 +209,9 @@ export default function PessoaJuridicaPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+            className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200 text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Nova Empresa</span>
           </motion.button>
         </motion.div>
