@@ -63,11 +63,20 @@ class ApiClient {
         };
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        // Se não conseguir fazer parse do JSON, pode ser uma resposta vazia
+        if (isDevelopment()) {
+          console.warn(`JSON parse error for ${endpoint}:`, jsonError);
+        }
+        data = null;
+      }
 
       // Log de sucesso em desenvolvimento
       if (isDevelopment()) {
-        console.log(`API Success: ${response.status} - ${endpoint}`);
+        console.log(`API Success: ${response.status} - ${endpoint}`, data);
       }
 
       return {

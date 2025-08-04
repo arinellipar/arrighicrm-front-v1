@@ -41,18 +41,26 @@ export function usePessoaFisica() {
 
   // Listar todas as pessoas físicas
   const fetchPessoas = useCallback(async () => {
+    console.log("🔄 Iniciando fetchPessoas");
     setLoading(true);
     setError(null);
 
     try {
       const response = await apiClient.get<PessoaFisica[]>("/PessoaFisica");
+      console.log("📡 Resposta fetchPessoas:", response);
 
       if (response.error) {
+        console.error("❌ Erro em fetchPessoas:", response.error);
         setError(response.error);
+      } else if (!response.data) {
+        console.warn("⚠️ fetchPessoas: dados vazios ou nulos");
+        setPessoas([]);
       } else {
-        setPessoas(response.data || []);
+        console.log("✅ fetchPessoas bem-sucedido, dados:", response.data.length);
+        setPessoas(response.data);
       }
     } catch (error) {
+      console.error("💥 Erro em fetchPessoas:", error);
       setError("Erro ao carregar pessoas físicas");
     } finally {
       setLoading(false);
@@ -167,9 +175,15 @@ export function usePessoaFisica() {
           return false;
         }
 
-        console.log("✅ Exclusão bem-sucedida");
+        console.log("✅ Exclusão bem-sucedida, recarregando lista...");
         // Recarregar a lista após deletar
-        await fetchPessoas();
+        try {
+          await fetchPessoas();
+          console.log("✅ Lista recarregada com sucesso");
+        } catch (fetchError) {
+          console.error("❌ Erro ao recarregar lista:", fetchError);
+          setError("Pessoa excluída, mas erro ao atualizar lista");
+        }
         return true;
       } catch (error) {
         console.error("💥 Erro na exclusão:", error);
