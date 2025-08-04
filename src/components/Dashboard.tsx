@@ -400,7 +400,7 @@ export default function Dashboard() {
             </div>
             <div className="flex-grow">
               <p className="text-secondary-900 font-medium">
-                <span className="font-semibold">CRUD Completo.</span>{" "}
+                <span className="font-semibold">CRUD Completo</span>{" "}
                 implementado
               </p>
               <p className="text-secondary-500 text-sm">
