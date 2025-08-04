@@ -106,7 +106,7 @@ export default function PessoaFisicaPage() {
         pessoa.cpf.includes(searchTerm) ||
         pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
     )
-    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingPessoa) {

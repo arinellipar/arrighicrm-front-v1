@@ -150,7 +150,12 @@ export function usePessoaFisica() {
         const response = await apiClient.delete(`/PessoaFisica/${id}`);
 
         if (response.error) {
-          setError(response.error);
+          // Se for erro 400, pode ser uma validação de negócio (ex: responsável técnico)
+          if (response.status === 400) {
+            setError(response.error);
+          } else {
+            setError("Erro ao excluir pessoa física");
+          }
           return false;
         }
 
