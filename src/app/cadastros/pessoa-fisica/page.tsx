@@ -124,9 +124,11 @@ export default function PessoaFisicaPage() {
 
   const handleDelete = async (id: number) => {
     const success = await deletePessoa(id);
-    if (success) {
-      setShowDeleteConfirm(null);
-    }
+    // Sempre fechar o modal, independente do resultado
+    setShowDeleteConfirm(null);
+
+    // Se não foi bem-sucedido, o erro já foi definido no hook
+    // e será exibido na interface
   };
 
   const handleCloseForm = () => {
@@ -472,12 +474,14 @@ export default function PessoaFisicaPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onClick={() => setShowDeleteConfirm(null)}
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+                onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-2 bg-red-100 rounded-full">

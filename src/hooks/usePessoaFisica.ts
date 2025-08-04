@@ -144,12 +144,20 @@ export function usePessoaFisica() {
   // Deletar pessoa física
   const deletePessoa = useCallback(
     async (id: number): Promise<boolean> => {
+      console.log("🗑️ Iniciando exclusão da pessoa física ID:", id);
       setState((prev) => ({ ...prev, deleting: true, error: null }));
 
       try {
         const response = await apiClient.delete(`/PessoaFisica/${id}`);
+        console.log("📡 Resposta da API:", response);
 
         if (response.error) {
+          console.error(
+            "❌ Erro na exclusão:",
+            response.error,
+            "Status:",
+            response.status
+          );
           // Se for erro 400, pode ser uma validação de negócio (ex: responsável técnico)
           if (response.status === 400) {
             setError(response.error);
@@ -159,10 +167,12 @@ export function usePessoaFisica() {
           return false;
         }
 
+        console.log("✅ Exclusão bem-sucedida");
         // Recarregar a lista após deletar
         await fetchPessoas();
         return true;
       } catch (error) {
+        console.error("💥 Erro na exclusão:", error);
         setError("Erro ao deletar pessoa física");
         return false;
       } finally {
