@@ -86,19 +86,19 @@ const config: Config = {
         mono: ["var(--font-geist-mono)", "Consolas", "Monaco", "monospace"],
       },
       fontSize: {
-        xs: ["13px", { lineHeight: "18px" }], // 12px → 13px
-        sm: ["15px", { lineHeight: "22px" }], // 14px → 15px
-        base: ["17px", { lineHeight: "26px" }], // 16px → 17px
-        lg: ["19px", { lineHeight: "28px" }], // 18px → 19px
-        xl: ["21px", { lineHeight: "30px" }], // 20px → 21px
-        "2xl": ["25px", { lineHeight: "32px" }], // 24px → 25px
-        "3xl": ["31px", { lineHeight: "36px" }], // 30px → 31px
-        "4xl": ["37px", { lineHeight: "40px" }], // 36px → 37px
-        "5xl": ["45px", { lineHeight: "48px" }], // 44px → 45px
-        "6xl": ["57px", { lineHeight: "60px" }], // 56px → 57px
-        "7xl": ["72px", { lineHeight: "76px" }], // 71px → 72px
-        "8xl": ["96px", { lineHeight: "100px" }], // 95px → 96px
-        "9xl": ["128px", { lineHeight: "132px" }], // 127px → 128px
+        xs: ["0.75rem", { lineHeight: "1rem" }], // 12px
+        sm: ["0.875rem", { lineHeight: "1.25rem" }], // 14px
+        base: ["1rem", { lineHeight: "1.5rem" }], // 16px
+        lg: ["1.125rem", { lineHeight: "1.75rem" }], // 18px
+        xl: ["1.25rem", { lineHeight: "1.75rem" }], // 20px
+        "2xl": ["1.5rem", { lineHeight: "2rem" }], // 24px
+        "3xl": ["1.875rem", { lineHeight: "2.25rem" }], // 30px
+        "4xl": ["2.25rem", { lineHeight: "2.5rem" }], // 36px
+        "5xl": ["3rem", { lineHeight: "1" }], // 48px
+        "6xl": ["3.75rem", { lineHeight: "1" }], // 60px
+        "7xl": ["4.5rem", { lineHeight: "1" }], // 72px
+        "8xl": ["6rem", { lineHeight: "1" }], // 96px
+        "9xl": ["8rem", { lineHeight: "1" }], // 128px
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
