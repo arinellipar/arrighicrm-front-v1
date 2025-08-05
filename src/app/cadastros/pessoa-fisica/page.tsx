@@ -161,7 +161,7 @@ export default function PessoaFisicaPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -173,10 +173,10 @@ export default function PessoaFisicaPage() {
               <Users className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold gradient-text">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold gradient-text">
                 Pessoas Físicas
               </h1>
-              <p className="text-xs sm:text-sm lg:text-base text-secondary-600">
+              <p className="text-xs sm:text-sm text-secondary-600">
                 Gerenciar cadastros de pessoas físicas
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function PessoaFisicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-sm border border-secondary-200/50"
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-secondary-200/50"
         >
           <div className="flex flex-col md:flex-row gap-2 sm:gap-3 lg:gap-4">
             <div className="flex-1 relative">
@@ -229,13 +229,13 @@ export default function PessoaFisicaPage() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-xs sm:text-sm font-medium">
                   Total de Pessoas
                 </p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-secondary-900">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
               </div>
@@ -245,13 +245,13 @@ export default function PessoaFisicaPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-xs sm:text-sm font-medium">
                   Pessoas Ativas
                 </p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
                   {stats.ativos}
                 </p>
               </div>
@@ -261,13 +261,13 @@ export default function PessoaFisicaPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-xs sm:text-sm font-medium">
                   Novas este mês
                 </p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-accent-600">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-accent-600">
                   {stats.novosEstemês}
                 </p>
               </div>
@@ -290,8 +290,8 @@ export default function PessoaFisicaPage() {
             transition={{ delay: 0.3 }}
             className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden w-full"
           >
-            <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-secondary-200/50">
-              <h3 className="text-base sm:text-lg font-semibold text-secondary-900">
+            <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-secondary-200/50">
+              <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-secondary-900">
                 Lista de Pessoas ({filteredPessoas.length} registros)
               </h3>
             </div>
@@ -315,22 +315,22 @@ export default function PessoaFisicaPage() {
                 <table className="w-full min-w-[600px] sm:min-w-[700px] lg:min-w-[800px]">
                   <thead className="bg-secondary-50/50">
                     <tr>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         Pessoa
                       </th>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
+                      <th className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
                         CPF
                       </th>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
+                      <th className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
                         Contato
                       </th>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
+                      <th className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
                         Status
                       </th>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
+                      <th className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
                         Data Cadastro
                       </th>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 text-right text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -344,7 +344,7 @@ export default function PessoaFisicaPage() {
                         transition={{ delay: 0.4 + index * 0.05 }}
                         className="hover:bg-secondary-50/50 transition-colors duration-200"
                       >
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                        <td className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-2 sm:space-x-3">
                             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                               <span className="text-xs sm:text-sm font-bold text-white">
@@ -361,10 +361,10 @@ export default function PessoaFisicaPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden sm:table-cell">
+                        <td className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden sm:table-cell">
                           {pessoa.cpf}
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap hidden md:table-cell">
+                        <td className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 whitespace-nowrap hidden md:table-cell">
                           <div className="text-xs sm:text-sm text-secondary-900 truncate">
                             {pessoa.email}
                           </div>
@@ -372,13 +372,13 @@ export default function PessoaFisicaPage() {
                             {pessoa.telefone1}
                           </div>
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap hidden lg:table-cell">
+                        <td className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 whitespace-nowrap hidden lg:table-cell">
                           <StatusBadge status="ativo" />
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden xl:table-cell">
+                        <td className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden xl:table-cell">
                           {formatDate(pessoa.dataCadastro)}
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
+                        <td className="px-2.5 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 whitespace-nowrap text-right">
                           <div className="flex items-center justify-end space-x-1 sm:space-x-2">
                             <motion.button
                               whileHover={{ scale: 1.1 }}
@@ -417,7 +417,7 @@ export default function PessoaFisicaPage() {
 
             {/* Paginação */}
             {filteredPessoas.length > 0 && (
-              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
+              <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                   <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
                     Mostrando {filteredPessoas.length} de {pessoas.length}{" "}
