@@ -120,10 +120,37 @@
     }
   }
 
+  /* Ajustes específicos para tabelas em telas muito grandes */
+  @media screen and (min-width: 1536px) {
+    .container {
+      max-width: 1200px;
+    }
+  }
+
   /* Correções específicas para tabelas */
   .table-responsive {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  /* Estilização da scrollbar para webkit */
+  .table-responsive::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgb(203 213 225);
+    border-radius: 3px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(148 163 184);
   }
 
   /* Ajustes para botões em dispositivos móveis */
@@ -131,6 +158,34 @@
     .btn-mobile {
       padding: 0.5rem 1rem;
       font-size: 0.875rem;
+    }
+  }
+
+  /* Garantir que tabelas não sejam cortadas */
+  .table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  /* Forçar largura total em produção */
+  @media screen and (min-width: 768px) {
+    .table-container {
+      min-width: 100%;
+      width: 100%;
+    }
+  }
+
+  /* Garantir que o container principal não corte conteúdo */
+  .container {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* Ajustes específicos para telas médias */
+  @media screen and (min-width: 640px) {
+    .container {
+      max-width: 100%;
     }
   }
 }

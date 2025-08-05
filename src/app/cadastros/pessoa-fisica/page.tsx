@@ -288,7 +288,7 @@ export default function PessoaFisicaPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden"
+            className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden w-full"
           >
             <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-secondary-200/50">
               <h3 className="text-base sm:text-lg font-semibold text-secondary-900">
@@ -311,8 +311,8 @@ export default function PessoaFisicaPage() {
                 </p>
               </div>
             ) : (
-              <div className="table-responsive">
-                <table className="w-full min-w-[800px]">
+              <div className="table-responsive table-container">
+                <table className="w-full min-w-[600px] sm:min-w-[700px] lg:min-w-[800px]">
                   <thead className="bg-secondary-50/50">
                     <tr>
                       <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
