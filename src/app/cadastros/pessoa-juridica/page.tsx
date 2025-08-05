@@ -27,7 +27,7 @@ function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium",
         status === "ativo"
           ? "bg-green-100 text-green-800"
           : "bg-red-100 text-red-800"
@@ -125,7 +125,7 @@ export default function PessoaJuridicaPage() {
         (pessoa.nomeFantasia &&
           pessoa.nomeFantasia.toLowerCase().includes(searchTerm.toLowerCase()))
     )
-    .sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial, 'pt-BR'));
+    .sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial, "pt-BR"));
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingPessoa) {
@@ -184,22 +184,22 @@ export default function PessoaJuridicaPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
         >
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            <div className="p-2 sm:p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white">
-              <Building2 className="w-6 h-6 sm:w-8 sm:h-8" />
+          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+            <div className="p-1.5 sm:p-2 lg:p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-lg sm:rounded-xl text-white">
+              <Building2 className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold gradient-text">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold gradient-text">
                 Pessoas Jurídicas
               </h1>
-              <p className="text-sm sm:text-base text-secondary-600">
+              <p className="text-xs sm:text-sm text-secondary-600">
                 Gerenciar cadastros de empresas e organizações
               </p>
             </div>
@@ -209,9 +209,9 @@ export default function PessoaJuridicaPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200 text-sm sm:text-base"
+            className="btn-mobile flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 text-xs sm:text-sm lg:text-base"
           >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
             <span>Nova Empresa</span>
           </motion.button>
         </motion.div>
@@ -245,25 +245,25 @@ export default function PessoaJuridicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50"
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-secondary-200/50"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-2 sm:gap-3 lg:gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <input
                 type="text"
                 placeholder="Buscar por razão social, CNPJ ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-xs sm:text-sm lg:text-base"
               />
             </div>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center space-x-2 px-6 py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-xl font-medium transition-all duration-200"
+              className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-xs sm:text-sm lg:text-base"
             >
-              <Filter className="w-5 h-5" />
+              <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <span>Filtros</span>
             </motion.button>
           </div>
@@ -274,52 +274,52 @@ export default function PessoaJuridicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
                   Total de Empresas
                 </p>
-                <p className="text-3xl font-bold text-secondary-900">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
               </div>
-              <div className="p-3 bg-green-100 rounded-xl">
-                <Building2 className="w-6 h-6 text-green-600" />
+              <div className="p-1.5 sm:p-2 lg:p-3 bg-green-100 rounded-lg sm:rounded-xl">
+                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
                   Empresas Ativas
                 </p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
                   {stats.ativos}
                 </p>
               </div>
-              <div className="p-3 bg-green-100 rounded-xl">
-                <Building2 className="w-6 h-6 text-green-600" />
+              <div className="p-1.5 sm:p-2 lg:p-3 bg-green-100 rounded-lg sm:rounded-xl">
+                <Building2 className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
                   Novas este mês
                 </p>
-                <p className="text-3xl font-bold text-accent-600">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-accent-600">
                   {stats.novosEstemês}
                 </p>
               </div>
-              <div className="p-3 bg-accent-100 rounded-xl">
-                <Plus className="w-6 h-6 text-accent-600" />
+              <div className="p-1.5 sm:p-2 lg:p-3 bg-accent-100 rounded-lg sm:rounded-xl">
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-accent-600" />
               </div>
             </div>
           </div>
@@ -335,10 +335,10 @@ export default function PessoaJuridicaPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden"
+            className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden w-full"
           >
-            <div className="px-6 py-4 border-b border-secondary-200/50">
-              <h3 className="text-lg font-semibold text-secondary-900">
+            <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-secondary-200/50">
+              <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-secondary-900">
                 Lista de Empresas ({filteredPessoas.length} registros)
               </h3>
             </div>
@@ -360,29 +360,29 @@ export default function PessoaJuridicaPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="table-responsive table-container">
+                <table className="w-full min-w-[500px] sm:min-w-[600px] lg:min-w-[700px]">
                   <thead className="bg-secondary-50/50">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         Empresa
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
                         CNPJ
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
                         Responsável Técnico
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
                         Contato
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
                         Status
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
                         Data Cadastro
                       </th>
-                      <th className="px-6 py-4 text-right text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -396,77 +396,77 @@ export default function PessoaJuridicaPage() {
                         transition={{ delay: 0.4 + index * 0.05 }}
                         className="hover:bg-secondary-50/50 transition-colors duration-200"
                       >
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-                              <span className="text-sm font-bold text-white">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
+                          <div className="flex items-center space-x-1.5 sm:space-x-2">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                              <span className="text-xs font-bold text-white">
                                 {pessoa.razaoSocial.charAt(0)}
                               </span>
                             </div>
-                            <div>
-                              <div className="text-sm font-medium text-secondary-900">
+                            <div className="min-w-0 flex-1">
+                              <div className="text-xs sm:text-sm font-medium text-secondary-900 truncate">
                                 {pessoa.razaoSocial}
                               </div>
                               {pessoa.nomeFantasia && (
-                                <div className="text-sm text-secondary-500">
+                                <div className="text-xs text-secondary-500 truncate">
                                   {pessoa.nomeFantasia}
                                 </div>
                               )}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden sm:table-cell">
                           {pessoa.cnpj}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-secondary-900">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden md:table-cell">
+                          <div className="text-xs sm:text-sm text-secondary-900 truncate">
                             {pessoa.responsavelTecnico.nome}
                           </div>
-                          <div className="text-sm text-secondary-500">
+                          <div className="text-xs sm:text-sm text-secondary-500 truncate">
                             {pessoa.responsavelTecnico.cpf}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-secondary-900">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden lg:table-cell">
+                          <div className="text-xs sm:text-sm text-secondary-900 truncate">
                             {pessoa.email}
                           </div>
-                          <div className="text-sm text-secondary-500">
+                          <div className="text-xs sm:text-sm text-secondary-500 truncate">
                             {pessoa.telefone1}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden xl:table-cell">
                           <StatusBadge status="ativo" />
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden xl:table-cell">
                           {formatDate(pessoa.dataCadastro)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex items-center justify-end space-x-2">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
+                          <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-2 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
+                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
                               title="Visualizar"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             </motion.button>
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => handleEdit(pessoa)}
-                              className="p-2 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
+                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
                               title="Editar"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             </motion.button>
                             <motion.button
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => setShowDeleteConfirm(pessoa.id)}
-                              className="p-2 text-secondary-400 hover:text-red-600 transition-colors duration-200"
+                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
                               title="Excluir"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             </motion.button>
                           </div>
                         </td>
@@ -479,24 +479,24 @@ export default function PessoaJuridicaPage() {
 
             {/* Paginação */}
             {filteredPessoas.length > 0 && (
-              <div className="px-6 py-4 bg-secondary-50/30 border-t border-secondary-200/50">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-secondary-500">
+              <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+                  <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
                     Mostrando {filteredPessoas.length} de {pessoas.length}{" "}
                     registros
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 transition-colors duration-200"
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 transition-colors duration-200"
                     >
                       Anterior
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 transition-colors duration-200"
                     >
                       Próximo
                     </motion.button>
