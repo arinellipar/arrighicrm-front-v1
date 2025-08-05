@@ -158,6 +158,18 @@
     }
   }
 
+  /* Tabela mais compacta para evitar scroll horizontal */
+  .table-responsive {
+    max-width: 100%;
+  }
+
+  /* Garantir que a tabela não exceda a largura da tela */
+  @media screen and (max-width: 1024px) {
+    .table-responsive table {
+      min-width: auto !important;
+    }
+  }
+
   /* Garantir que o container principal não corte conteúdo */
   .container {
     /* Usar configuração padrão do Tailwind */
