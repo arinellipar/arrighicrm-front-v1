@@ -71,13 +71,18 @@ export default function Header() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center space-x-2 sm:space-x-3"
             >
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
+              <Link
+                href="/"
+                className="flex items-center space-x-1.5 sm:space-x-2 hover:opacity-80 transition-opacity duration-200 cursor-pointer"
+              >
                 <Scale className="w-6 h-6 sm:w-8 sm:h-8 text-accent-400" />
                 <div>
-                  <h1 className="text-lg sm:text-xl font-bold text-white">Arrighi</h1>
+                  <h1 className="text-lg sm:text-xl font-bold text-white">
+                    Arrighi
+                  </h1>
                   <p className="text-xs text-primary-200 -mt-1">Advogados</p>
                 </div>
-              </div>
+              </Link>
             </motion.div>
 
             {/* Navegação principal */}
@@ -117,7 +122,9 @@ export default function Header() {
                     )}
                   >
                     <span className="hidden sm:inline">{group.label}</span>
-                    <span className="sm:hidden">{group.label.split(' ')[0]}</span>
+                    <span className="sm:hidden">
+                      {group.label.split(" ")[0]}
+                    </span>
                     <motion.div
                       animate={{
                         rotate: activeDropdown === group.label ? 180 : 0,
@@ -183,11 +190,15 @@ export default function Header() {
               className="flex items-center space-x-2 sm:space-x-4"
             >
               <div className="text-right hidden sm:block">
-                <p className="text-xs sm:text-sm font-medium text-white">Usuário Admin</p>
+                <p className="text-xs sm:text-sm font-medium text-white">
+                  Usuário Admin
+                </p>
                 <p className="text-xs text-primary-200">Sistema CRM</p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center">
-                <span className="text-xs sm:text-sm font-bold text-white">A</span>
+                <span className="text-xs sm:text-sm font-bold text-white">
+                  A
+                </span>
               </div>
             </motion.div>
           </div>
