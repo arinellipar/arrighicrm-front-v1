@@ -81,6 +81,58 @@
       max-width: 1200px;
     }
   }
+
+  /* Melhorias de responsividade para produção */
+  @media screen and (max-width: 640px) {
+    .text-2xl {
+      font-size: 1.25rem;
+    }
+    .text-3xl {
+      font-size: 1.5rem;
+    }
+    .text-lg {
+      font-size: 1rem;
+    }
+    .p-6 {
+      padding: 1rem;
+    }
+    .px-6 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .py-4 {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+  }
+
+  /* Ajustes para telas médias */
+  @media screen and (min-width: 641px) and (max-width: 1024px) {
+    .container {
+      max-width: 95%;
+    }
+  }
+
+  /* Ajustes para telas grandes */
+  @media screen and (min-width: 1025px) {
+    .container {
+      max-width: 1400px;
+    }
+  }
+
+  /* Correções específicas para tabelas */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ajustes para botões em dispositivos móveis */
+  @media screen and (max-width: 640px) {
+    .btn-mobile {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+  }
 }
 
 /* Scrollbar personalizada */

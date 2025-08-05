@@ -39,7 +39,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`container mx-auto px-4 sm:px-6 ${isFormOpen ? 'py-2 sm:py-4' : 'py-4 sm:py-8'}`}
+          className={`container mx-auto px-3 sm:px-4 lg:px-6 ${isFormOpen ? 'py-2 sm:py-4' : 'py-3 sm:py-4 lg:py-8'}`}
         >
           {children}
         </motion.div>
@@ -54,12 +54,12 @@ export default function MainLayout({ children }: MainLayoutProps) {
             transition={{ duration: 0.3 }}
           >
             <footer className="relative z-10 mt-auto border-t border-secondary-200 bg-white/80 backdrop-blur-sm">
-              <div className="container mx-auto px-6 py-6">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-secondary-600">
+              <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
+                  <div className="text-xs sm:text-sm text-secondary-600 text-center sm:text-left">
                     © 2025 Arrighi Advogados. Todos os direitos reservados.
                   </div>
-                  <div className="text-sm text-secondary-500">CRM v1.0</div>
+                  <div className="text-xs sm:text-sm text-secondary-500">CRM v1.0</div>
                 </div>
               </div>
             </footer>

@@ -64,17 +64,17 @@ export default function Header() {
       {/* Barra principal */}
       <div className="bg-gradient-to-r from-primary-800 via-primary-700 to-primary-600 shadow-lg border-b border-primary-600/20">
         <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center space-x-3"
+              className="flex items-center space-x-2 sm:space-x-3"
             >
-              <div className="flex items-center space-x-2">
-                <Scale className="w-8 h-8 text-accent-400" />
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                <Scale className="w-6 h-6 sm:w-8 sm:h-8 text-accent-400" />
                 <div>
-                  <h1 className="text-xl font-bold text-white">Arrighi</h1>
+                  <h1 className="text-lg sm:text-xl font-bold text-white">Arrighi</h1>
                   <p className="text-xs text-primary-200 -mt-1">Advogados</p>
                 </div>
               </div>
@@ -91,7 +91,7 @@ export default function Header() {
                 <Link
                   href="/"
                   className={cn(
-                    "flex items-center space-x-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                    "flex items-center space-x-1 sm:space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
                     "text-white hover:bg-white/10 hover:text-accent-300",
                     "focus:outline-none focus:ring-2 focus:ring-accent-400/50"
                   )}
@@ -109,21 +109,22 @@ export default function Header() {
                     transition={{ delay: (index + 1) * 0.1 }}
                     onClick={() => handleDropdownToggle(group.label)}
                     className={cn(
-                      "flex items-center space-x-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200",
+                      "flex items-center space-x-1 sm:space-x-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
                       "text-white hover:bg-white/10 hover:text-accent-300",
                       "focus:outline-none focus:ring-2 focus:ring-accent-400/50",
                       activeDropdown === group.label &&
                         "bg-white/10 text-accent-300"
                     )}
                   >
-                    <span>{group.label}</span>
+                    <span className="hidden sm:inline">{group.label}</span>
+                    <span className="sm:hidden">{group.label.split(' ')[0]}</span>
                     <motion.div
                       animate={{
                         rotate: activeDropdown === group.label ? 180 : 0,
                       }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />
                     </motion.div>
                   </motion.button>
 
@@ -179,14 +180,14 @@ export default function Header() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center space-x-4"
+              className="flex items-center space-x-2 sm:space-x-4"
             >
-              <div className="text-right">
-                <p className="text-sm font-medium text-white">Usuário Admin</p>
+              <div className="text-right hidden sm:block">
+                <p className="text-xs sm:text-sm font-medium text-white">Usuário Admin</p>
                 <p className="text-xs text-primary-200">Sistema CRM</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-white">A</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center">
+                <span className="text-xs sm:text-sm font-bold text-white">A</span>
               </div>
             </motion.div>
           </div>
