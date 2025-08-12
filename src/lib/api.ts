@@ -14,6 +14,7 @@ class ApiClient {
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+    console.log("🔧 ApiClient: Base URL configurada como:", this.baseUrl);
   }
 
   private async request<T>(
@@ -21,6 +22,10 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
+
+    console.log("🔧 ApiClient: Fazendo requisição para:", url);
+    console.log("🔧 ApiClient: Método:", options.method || "GET");
+    console.log("🔧 ApiClient: Headers:", options.headers);
 
     try {
       // Log da URL em desenvolvimento
@@ -48,11 +53,18 @@ class ApiClient {
 
       config.signal = controller.signal;
 
+      console.log("🔧 ApiClient: Iniciando fetch...");
       const response = await fetch(url, config);
       clearTimeout(timeoutId);
 
+      console.log("🔧 ApiClient: Resposta recebida:");
+      console.log("Status:", response.status);
+      console.log("Status Text:", response.statusText);
+      console.log("Headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("🔧 ApiClient: Erro na resposta:", errorText);
 
         // Log de erro em desenvolvimento
         if (isDevelopment()) {
@@ -67,6 +79,8 @@ class ApiClient {
 
       // Verificar se a resposta é JSON
       const contentType = response.headers.get("content-type");
+      console.log("🔧 ApiClient: Content-Type:", contentType);
+
       if (!contentType || !contentType.includes("application/json")) {
         const responseText = await response.text();
         console.error(
@@ -82,8 +96,10 @@ class ApiClient {
       let data;
       try {
         data = await response.json();
+        console.log("🔧 ApiClient: Dados JSON parseados:", data);
       } catch (jsonError) {
         // Se não conseguir fazer parse do JSON, pode ser uma resposta vazia
+        console.error("🔧 ApiClient: Erro ao fazer parse do JSON:", jsonError);
         if (isDevelopment()) {
           console.warn(`JSON parse error for ${endpoint}:`, jsonError);
         }
@@ -100,6 +116,8 @@ class ApiClient {
         status: response.status,
       };
     } catch (error) {
+      console.error("🔧 ApiClient: Erro na requisição:", error);
+
       // Log de erro em desenvolvimento
       if (isDevelopment()) {
         console.error(
