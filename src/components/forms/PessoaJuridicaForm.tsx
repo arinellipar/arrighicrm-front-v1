@@ -575,11 +575,15 @@ export default function PessoaJuridicaForm({
     }
   };
 
-  // Converter responsáveis técnicos para formato de opções
-  const responsavelOptions = responsaveisTecnicos.map((resp) => ({
-    value: resp.id.toString(),
-    label: resp.nome,
-  }));
+  // Converter responsáveis técnicos para formato de opções (ordenado alfabeticamente)
+  const responsavelOptions = [...responsaveisTecnicos]
+    .sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+    )
+    .map((resp) => ({
+      value: resp.id.toString(),
+      label: resp.nome,
+    }));
 
   // Barra de progresso animada
   const ProgressBar = () => (
