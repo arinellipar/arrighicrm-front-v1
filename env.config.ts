@@ -29,19 +29,33 @@ export const config = {
 
 // Função para obter a URL da API baseada no ambiente
 export const getApiUrl = (): string => {
+  console.log("🔧 getApiUrl: NODE_ENV =", process.env.NODE_ENV);
+  console.log(
+    "🔧 getApiUrl: NEXT_PUBLIC_API_URL =",
+    process.env.NEXT_PUBLIC_API_URL
+  );
+
   // Prefer explicit public URL if provided
   if (process.env.NEXT_PUBLIC_API_URL) {
+    console.log(
+      "🔧 getApiUrl: Usando NEXT_PUBLIC_API_URL:",
+      process.env.NEXT_PUBLIC_API_URL
+    );
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
   // In production, use the backend URL directly
   if (process.env.NODE_ENV === "production") {
-    // Default to a common backend URL - should be overridden with NEXT_PUBLIC_API_URL
-    return "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
+    const productionUrl =
+      "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
+    console.log("🔧 getApiUrl: Usando URL de produção:", productionUrl);
+    return productionUrl;
   }
 
   // Development fallback
-  return "http://localhost:5000/api";
+  const devUrl = "http://localhost:5000/api";
+  console.log("🔧 getApiUrl: Usando URL de desenvolvimento:", devUrl);
+  return devUrl;
 };
 
 // Função para verificar se está em desenvolvimento
