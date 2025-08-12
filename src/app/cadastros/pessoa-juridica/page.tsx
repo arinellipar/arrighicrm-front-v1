@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useForm } from "@/contexts/FormContext";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
+import { Pagination } from "@/components/Pagination";
 
 function StatusBadge({
   status,
@@ -131,6 +132,8 @@ export default function PessoaJuridicaPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
     null
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 70;
   const [responsaveisTecnicos, setResponsaveisTecnicos] = useState<
     ResponsavelTecnicoOption[]
   >([]);
@@ -179,16 +182,35 @@ export default function PessoaJuridicaPage() {
   }, [searchTerm]);
 
   // Filtrar pessoas por termo de busca e ordenar alfabeticamente
-  const filteredPessoas = pessoas
-    .filter(
-      (pessoa) =>
-        pessoa.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pessoa.cnpj.includes(searchTerm) ||
-        pessoa.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (pessoa.nomeFantasia &&
-          pessoa.nomeFantasia.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    .sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial, "pt-BR"));
+  const filteredPessoas = useMemo(() => {
+    let filtered = pessoas.filter((pessoa) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        pessoa.razaoSocial.toLowerCase().includes(searchLower) ||
+        pessoa.cnpj
+          .replace(/\D/g, "")
+          .includes(searchTerm.replace(/\D/g, "")) ||
+        pessoa.email.toLowerCase().includes(searchLower)
+      );
+    });
+
+    // Ordenar alfabeticamente por razão social
+    filtered.sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial));
+
+    return filtered;
+  }, [pessoas, searchTerm]);
+
+  // Calcular dados de paginação
+  const totalItems = filteredPessoas.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedPessoas = filteredPessoas.slice(startIndex, endIndex);
+
+  // Resetar página quando a busca mudar
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingPessoa) {
@@ -344,7 +366,7 @@ export default function PessoaJuridicaPage() {
               <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <input
                 type="text"
-                placeholder="Buscar por razão social, CNPJ ou email..."
+                placeholder="Buscar por razão social, CNPJ ou email... ou clique para selecionar item da tabela, podendo Verificar Informações, Editar ou Excluir."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
@@ -565,7 +587,7 @@ export default function PessoaJuridicaPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-secondary-200/50">
-                        {filteredPessoas.map((pessoa, index) => (
+                        {paginatedPessoas.map((pessoa, index) => (
                           <motion.tr
                             key={pessoa.id}
                             initial={{ opacity: 0, y: 10 }}
@@ -723,25 +745,16 @@ export default function PessoaJuridicaPage() {
               <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                   <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
-                    Mostrando {filteredPessoas.length} de {pessoas.length}{" "}
+                    Mostrando {paginatedPessoas.length} de {totalItems}{" "}
                     registros
                   </div>
-                  <div className="flex items-center space-x-1 sm:space-x-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 transition-colors duration-200"
-                    >
-                      Anterior
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 transition-colors duration-200"
-                    >
-                      Próximo
-                    </motion.button>
-                  </div>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setCurrentPage(page)}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                  />
                 </div>
               </div>
             )}

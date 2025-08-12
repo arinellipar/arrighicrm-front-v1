@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 import { TableNavigation } from "@/components/TableNavigation";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
+import { Pagination } from "@/components/Pagination";
 
 function StatusBadge({
   status,
@@ -207,10 +208,12 @@ export default function UsuariosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGrupo, setFilterGrupo] = useState("");
   const [filterTipo, setFilterTipo] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
     null
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 70;
+  const [filterStatus, setFilterStatus] = useState("");
   const [pessoasFisicas, setPessoasFisicas] = useState<PessoaFisicaOption[]>(
     []
   );
@@ -235,28 +238,56 @@ export default function UsuariosPage() {
     loadAuxData();
   }, [fetchPessoasFisicas, fetchPessoasJuridicas]);
 
-  // Filtrar usuários
-  const filteredUsuarios = usuarios.filter((usuario) => {
-    const matchesSearch =
-      usuario.login.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (usuario.pessoaFisica &&
-        usuario.pessoaFisica.nome
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())) ||
-      (usuario.pessoaJuridica &&
-        usuario.pessoaJuridica.razaoSocial
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()));
+  // Filtrar usuários por termo de busca e ordenar alfabeticamente
+  const filteredUsuarios = useMemo(() => {
+    let filtered = usuarios.filter((usuario) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        usuario.login.toLowerCase().includes(searchLower) ||
+        usuario.email.toLowerCase().includes(searchLower) ||
+        (usuario.pessoaFisica?.nome &&
+          usuario.pessoaFisica.nome.toLowerCase().includes(searchLower)) ||
+        (usuario.pessoaJuridica?.razaoSocial &&
+          usuario.pessoaJuridica.razaoSocial
+            .toLowerCase()
+            .includes(searchLower))
+      );
+    });
 
-    const matchesGrupo = !filterGrupo || usuario.grupoAcesso === filterGrupo;
-    const matchesTipo = !filterTipo || usuario.tipoPessoa === filterTipo;
-    const matchesStatus =
-      !filterStatus ||
-      (filterStatus === "ativo" ? usuario.ativo : !usuario.ativo);
+    // Aplicar filtros se selecionados
+    if (filterStatus) {
+      filtered = filtered.filter(
+        (usuario) => usuario.ativo === (filterStatus === "ativo")
+      );
+    }
+    if (filterGrupo) {
+      filtered = filtered.filter(
+        (usuario) => usuario.grupoAcesso === filterGrupo
+      );
+    }
+    if (filterTipo) {
+      filtered = filtered.filter(
+        (usuario) => usuario.tipoPessoa === filterTipo
+      );
+    }
 
-    return matchesSearch && matchesGrupo && matchesTipo && matchesStatus;
-  });
+    // Ordenar alfabeticamente por login
+    filtered.sort((a, b) => a.login.localeCompare(b.login));
+
+    return filtered;
+  }, [usuarios, searchTerm, filterStatus, filterGrupo, filterTipo]);
+
+  // Calcular dados de paginação
+  const totalItems = filteredUsuarios.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsuarios = filteredUsuarios.slice(startIndex, endIndex);
+
+  // Resetar página quando a busca ou filtros mudarem
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus, filterGrupo, filterTipo]);
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingUsuario) {
@@ -544,7 +575,7 @@ export default function UsuariosPage() {
               </h3>
             </div>
 
-            {filteredUsuarios.length === 0 ? (
+            {paginatedUsuarios.length === 0 ? (
               <div className="text-center py-12">
                 <UserCheck className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-secondary-900 mb-2">
@@ -650,7 +681,7 @@ export default function UsuariosPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-secondary-200/50">
-                        {filteredUsuarios.map((usuario, index) => (
+                        {paginatedUsuarios.map((usuario, index) => (
                           <motion.tr
                             key={usuario.id}
                             initial={{ opacity: 0, y: 10 }}
@@ -857,25 +888,16 @@ export default function UsuariosPage() {
               <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                   <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
-                    Mostrando {filteredUsuarios.length} de {usuarios.length}{" "}
+                    Mostrando {paginatedUsuarios.length} de {totalItems}{" "}
                     registros
                   </div>
-                  <div className="flex items-center space-x-1 sm:space-x-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 transition-colors duration-200"
-                    >
-                      Anterior
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 transition-colors duration-200"
-                    >
-                      Próximo
-                    </motion.button>
-                  </div>
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) => setCurrentPage(page)}
+                    totalItems={totalItems}
+                    itemsPerPage={itemsPerPage}
+                  />
                 </div>
               </div>
             )}
