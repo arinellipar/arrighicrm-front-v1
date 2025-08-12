@@ -14,10 +14,12 @@ import {
   Loader2,
   AlertCircle,
   UserCheck,
+  Bug,
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { testDashboardApis } from "@/lib/debug-env";
 
 interface StatsCardProps {
   title: string;
@@ -160,6 +162,11 @@ function ErrorMessage({
 export default function Dashboard() {
   const { stats, loading, error, fetchStats, clearError } = useDashboard();
 
+  const handleDebugTest = async () => {
+    console.log("🔧 Iniciando teste de debug...");
+    await testDashboardApis();
+  };
+
   const quickActions = [
     {
       title: "Nova Pessoa Física",
@@ -265,14 +272,26 @@ export default function Dashboard() {
             Bem-vindo ao sistema de gestão Arrighi Advogados
           </p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="relative p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-secondary-200/50 hover:shadow-lg transition-all duration-300"
-        >
-          <Bell className="w-6 h-6 text-secondary-600" />
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-        </motion.button>
+        <div className="flex items-center space-x-2">
+          {/* Debug button - temporary */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleDebugTest}
+            className="relative p-3 bg-yellow-500/80 backdrop-blur-sm rounded-xl shadow-sm border border-yellow-400/50 hover:shadow-lg transition-all duration-300"
+            title="Testar APIs (Debug)"
+          >
+            <Bug className="w-6 h-6 text-yellow-800" />
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-secondary-200/50 hover:shadow-lg transition-all duration-300"
+          >
+            <Bell className="w-6 h-6 text-secondary-600" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+          </motion.button>
+        </div>
       </motion.div>
 
       {/* Stats Grid */}

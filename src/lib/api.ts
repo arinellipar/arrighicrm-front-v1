@@ -27,9 +27,11 @@ class ApiClient {
       if (isDevelopment()) {
         console.log(`🌐 Making request to: ${url}`);
       }
+
       const config: RequestInit = {
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
           ...options.headers,
         },
         ...options,
@@ -59,6 +61,20 @@ class ApiClient {
 
         return {
           error: errorText || `HTTP error! status: ${response.status}`,
+          status: response.status,
+        };
+      }
+
+      // Verificar se a resposta é JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const responseText = await response.text();
+        console.error(
+          `Non-JSON response received: ${contentType}`,
+          responseText
+        );
+        return {
+          error: `Expected JSON response but got ${contentType}`,
           status: response.status,
         };
       }

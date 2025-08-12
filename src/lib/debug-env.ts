@@ -21,7 +21,50 @@ export const testApiUrl = async () => {
   try {
     const response = await fetch(`${apiUrl}/PessoaFisica`);
     console.log("✅ API respondendo:", response.status);
+    console.log("Content-Type:", response.headers.get("content-type"));
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("✅ Dados recebidos:", data.length, "registros");
+    } else {
+      const errorText = await response.text();
+      console.error("❌ Erro na resposta:", errorText);
+    }
   } catch (error) {
     console.error("❌ Erro ao conectar com API:", error);
+  }
+};
+
+// Função para testar todas as APIs do dashboard
+export const testDashboardApis = async () => {
+  const { getApiUrl } = require("../../env.config");
+  const apiUrl = getApiUrl();
+
+  console.log("🧪 Testando APIs do Dashboard:", apiUrl);
+
+  const endpoints = ["/PessoaFisica", "/PessoaJuridica", "/Usuario"];
+
+  for (const endpoint of endpoints) {
+    try {
+      console.log(`\n📡 Testando ${endpoint}...`);
+      const response = await fetch(`${apiUrl}${endpoint}`);
+
+      console.log(`Status: ${response.status}`);
+      console.log(`Content-Type: ${response.headers.get("content-type")}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(
+          `✅ ${endpoint}: ${
+            Array.isArray(data) ? data.length : "OK"
+          } registros`
+        );
+      } else {
+        const errorText = await response.text();
+        console.error(`❌ ${endpoint}: ${errorText}`);
+      }
+    } catch (error) {
+      console.error(`❌ ${endpoint}: ${error}`);
+    }
   }
 };
