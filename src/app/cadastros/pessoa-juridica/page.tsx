@@ -371,12 +371,9 @@ export default function PessoaJuridicaPage() {
                         CNPJ
                       </th>
                       <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
-                        Responsável Técnico
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
                         Contato
                       </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
                         Status
                       </th>
                       <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
@@ -408,7 +405,7 @@ export default function PessoaJuridicaPage() {
                                 {pessoa.razaoSocial}
                               </div>
                               {pessoa.nomeFantasia && (
-                                <div className="text-xs text-secondary-500 truncate">
+                                <div className="text-xs text-secondary-500 truncate hidden sm:block">
                                   {pessoa.nomeFantasia}
                                 </div>
                               )}
@@ -420,21 +417,13 @@ export default function PessoaJuridicaPage() {
                         </td>
                         <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden md:table-cell">
                           <div className="text-xs sm:text-sm text-secondary-900 truncate">
-                            {pessoa.responsavelTecnico.nome}
-                          </div>
-                          <div className="text-xs sm:text-sm text-secondary-500 truncate">
-                            {pessoa.responsavelTecnico.cpf}
-                          </div>
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden lg:table-cell">
-                          <div className="text-xs sm:text-sm text-secondary-900 truncate">
                             {pessoa.email}
                           </div>
                           <div className="text-xs sm:text-sm text-secondary-500 truncate">
                             {pessoa.telefone1}
                           </div>
                         </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden xl:table-cell">
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden lg:table-cell">
                           <StatusBadge status="ativo" />
                         </td>
                         <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden xl:table-cell">
