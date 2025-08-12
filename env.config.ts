@@ -37,11 +37,13 @@ export const getApiUrl = (): string => {
 
   // Prefer explicit public URL if provided
   if (process.env.NEXT_PUBLIC_API_URL) {
-    console.log(
-      "🔧 getApiUrl: Usando NEXT_PUBLIC_API_URL:",
-      process.env.NEXT_PUBLIC_API_URL
-    );
-    return process.env.NEXT_PUBLIC_API_URL;
+    // Garantir que é uma URL absoluta
+    let url = process.env.NEXT_PUBLIC_API_URL;
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = `https://${url}`;
+    }
+    console.log("🔧 getApiUrl: Usando NEXT_PUBLIC_API_URL:", url);
+    return url;
   }
 
   // In production, use the backend URL directly
