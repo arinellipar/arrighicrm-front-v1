@@ -338,13 +338,20 @@ export default function PessoaJuridicaForm({
         email: initialData.email,
         telefone1: initialData.telefone1,
         telefone2: initialData.telefone2 || "",
-        endereco: {
-          cidade: initialData.endereco.cidade,
-          bairro: initialData.endereco.bairro,
-          logradouro: initialData.endereco.logradouro,
-          cep: initialData.endereco.cep,
-          numero: initialData.endereco.numero,
+        endereco: initialData.endereco ? {
+          cidade: initialData.endereco.cidade || "",
+          bairro: initialData.endereco.bairro || "",
+          logradouro: initialData.endereco.logradouro || "",
+          cep: initialData.endereco.cep || "",
+          numero: initialData.endereco.numero || "",
           complemento: initialData.endereco.complemento || "",
+        } : {
+          cidade: "",
+          bairro: "",
+          logradouro: "",
+          cep: "",
+          numero: "",
+          complemento: "",
         },
       });
     }

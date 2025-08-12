@@ -29,7 +29,6 @@ import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 import { TableNavigation } from "@/components/TableNavigation";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
-import { Pagination } from "@/components/Pagination";
 
 function StatusBadge({
   status,
@@ -208,12 +207,12 @@ export default function UsuariosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterGrupo, setFilterGrupo] = useState("");
   const [filterTipo, setFilterTipo] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
     null
   );
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 70;
-  const [filterStatus, setFilterStatus] = useState("");
   const [pessoasFisicas, setPessoasFisicas] = useState<PessoaFisicaOption[]>(
     []
   );
@@ -238,56 +237,39 @@ export default function UsuariosPage() {
     loadAuxData();
   }, [fetchPessoasFisicas, fetchPessoasJuridicas]);
 
-  // Filtrar usuários por termo de busca e ordenar alfabeticamente
-  const filteredUsuarios = useMemo(() => {
-    let filtered = usuarios.filter((usuario) => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        usuario.login.toLowerCase().includes(searchLower) ||
-        usuario.email.toLowerCase().includes(searchLower) ||
-        (usuario.pessoaFisica?.nome &&
-          usuario.pessoaFisica.nome.toLowerCase().includes(searchLower)) ||
-        (usuario.pessoaJuridica?.razaoSocial &&
-          usuario.pessoaJuridica.razaoSocial
-            .toLowerCase()
-            .includes(searchLower))
-      );
-    });
+  // Filtrar usuários
+  const filteredUsuarios = usuarios.filter((usuario) => {
+    const matchesSearch =
+      usuario.login.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (usuario.pessoaFisica &&
+        usuario.pessoaFisica.nome
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (usuario.pessoaJuridica &&
+        usuario.pessoaJuridica.razaoSocial
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()));
 
-    // Aplicar filtros se selecionados
-    if (filterStatus) {
-      filtered = filtered.filter(
-        (usuario) => usuario.ativo === (filterStatus === "ativo")
-      );
-    }
-    if (filterGrupo) {
-      filtered = filtered.filter(
-        (usuario) => usuario.grupoAcesso === filterGrupo
-      );
-    }
-    if (filterTipo) {
-      filtered = filtered.filter(
-        (usuario) => usuario.tipoPessoa === filterTipo
-      );
-    }
+    const matchesGrupo = !filterGrupo || usuario.grupoAcesso === filterGrupo;
+    const matchesTipo = !filterTipo || usuario.tipoPessoa === filterTipo;
+    const matchesStatus =
+      !filterStatus ||
+      (filterStatus === "ativo" ? usuario.ativo : !usuario.ativo);
 
-    // Ordenar alfabeticamente por login
-    filtered.sort((a, b) => a.login.localeCompare(b.login));
+    return matchesSearch && matchesGrupo && matchesTipo && matchesStatus;
+  });
 
-    return filtered;
-  }, [usuarios, searchTerm, filterStatus, filterGrupo, filterTipo]);
-
-  // Calcular dados de paginação
-  const totalItems = filteredUsuarios.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  // Calcular paginação
+  const totalPages = Math.ceil(filteredUsuarios.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedUsuarios = filteredUsuarios.slice(startIndex, endIndex);
 
-  // Resetar página quando a busca ou filtros mudarem
+  // Resetar página quando os filtros mudarem
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, filterStatus, filterGrupo, filterTipo]);
+  }, [searchTerm, filterGrupo, filterTipo, filterStatus]);
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingUsuario) {
@@ -315,6 +297,22 @@ export default function UsuariosPage() {
     setEditingUsuario(null);
     clearError();
     closeForm();
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      handlePageChange(currentPage + 1);
+    }
   };
 
   const handleOpenForm = () => {
@@ -575,7 +573,7 @@ export default function UsuariosPage() {
               </h3>
             </div>
 
-            {paginatedUsuarios.length === 0 ? (
+            {filteredUsuarios.length === 0 ? (
               <div className="text-center py-12">
                 <UserCheck className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-secondary-900 mb-2">
@@ -888,16 +886,68 @@ export default function UsuariosPage() {
               <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                   <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
-                    Mostrando {paginatedUsuarios.length} de {totalItems}{" "}
-                    registros
+                    Mostrando {startIndex + 1}-
+                    {Math.min(endIndex, filteredUsuarios.length)} de{" "}
+                    {filteredUsuarios.length} registros
+                    {filteredUsuarios.length !== usuarios.length &&
+                      ` (filtrados de ${usuarios.length} total)`}
                   </div>
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={(page) => setCurrentPage(page)}
-                    totalItems={totalItems}
-                    itemsPerPage={itemsPerPage}
-                  />
+                  <div className="flex items-center space-x-1 sm:space-x-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    >
+                      Anterior
+                    </motion.button>
+
+                    {/* Números das páginas */}
+                    <div className="flex items-center space-x-1">
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          let pageNumber: number;
+                          if (totalPages <= 5) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNumber = totalPages - 4 + i;
+                          } else {
+                            pageNumber = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <motion.button
+                              key={pageNumber}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handlePageChange(pageNumber)}
+                              className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors duration-200 ${
+                                currentPage === pageNumber
+                                  ? "bg-primary-600 text-white"
+                                  : "bg-white text-secondary-700 border border-secondary-300 hover:bg-secondary-50"
+                              }`}
+                            >
+                              {pageNumber}
+                            </motion.button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    >
+                      Próximo
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             )}

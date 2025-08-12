@@ -27,7 +27,6 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useForm } from "@/contexts/FormContext";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
-import { Pagination } from "@/components/Pagination";
 
 function StatusBadge({
   status,
@@ -182,32 +181,24 @@ export default function PessoaJuridicaPage() {
   }, [searchTerm]);
 
   // Filtrar pessoas por termo de busca e ordenar alfabeticamente
-  const filteredPessoas = useMemo(() => {
-    let filtered = pessoas.filter((pessoa) => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        pessoa.razaoSocial.toLowerCase().includes(searchLower) ||
-        pessoa.cnpj
-          .replace(/\D/g, "")
-          .includes(searchTerm.replace(/\D/g, "")) ||
-        pessoa.email.toLowerCase().includes(searchLower)
-      );
-    });
+  const filteredPessoas = pessoas
+    .filter(
+      (pessoa) =>
+        pessoa.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        pessoa.cnpj.includes(searchTerm) ||
+        pessoa.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (pessoa.nomeFantasia &&
+          pessoa.nomeFantasia.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+    .sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial, "pt-BR"));
 
-    // Ordenar alfabeticamente por razão social
-    filtered.sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial));
-
-    return filtered;
-  }, [pessoas, searchTerm]);
-
-  // Calcular dados de paginação
-  const totalItems = filteredPessoas.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  // Calcular paginação
+  const totalPages = Math.ceil(filteredPessoas.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedPessoas = filteredPessoas.slice(startIndex, endIndex);
 
-  // Resetar página quando a busca mudar
+  // Resetar página quando o filtro mudar
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -266,6 +257,23 @@ export default function PessoaJuridicaPage() {
   const handleDeleteSelected = () => {
     if (selectedCompanyId) {
       setShowDeleteConfirm(selectedCompanyId);
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedCompanyId(null); // Limpar seleção ao mudar de página
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      handlePageChange(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      handlePageChange(currentPage + 1);
     }
   };
 
@@ -366,7 +374,7 @@ export default function PessoaJuridicaPage() {
               <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <input
                 type="text"
-                placeholder="Buscar por razão social, CNPJ ou email... ou clique para selecionar item da tabela, podendo Verificar Informações, Editar ou Excluir."
+                placeholder="Buscar por razão social, CNPJ ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
@@ -745,16 +753,68 @@ export default function PessoaJuridicaPage() {
               <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                   <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
-                    Mostrando {paginatedPessoas.length} de {totalItems}{" "}
-                    registros
+                    Mostrando {startIndex + 1}-
+                    {Math.min(endIndex, filteredPessoas.length)} de{" "}
+                    {filteredPessoas.length} registros
+                    {filteredPessoas.length !== pessoas.length &&
+                      ` (filtrados de ${pessoas.length} total)`}
                   </div>
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={(page) => setCurrentPage(page)}
-                    totalItems={totalItems}
-                    itemsPerPage={itemsPerPage}
-                  />
+                  <div className="flex items-center space-x-1 sm:space-x-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    >
+                      Anterior
+                    </motion.button>
+
+                    {/* Números das páginas */}
+                    <div className="flex items-center space-x-1">
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          let pageNumber: number;
+                          if (totalPages <= 5) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNumber = totalPages - 4 + i;
+                          } else {
+                            pageNumber = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <motion.button
+                              key={pageNumber}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handlePageChange(pageNumber)}
+                              className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors duration-200 ${
+                                currentPage === pageNumber
+                                  ? "bg-primary-600 text-white"
+                                  : "bg-white text-secondary-700 border border-secondary-300 hover:bg-secondary-50"
+                              }`}
+                            >
+                              {pageNumber}
+                            </motion.button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    >
+                      Próximo
+                    </motion.button>
+                  </div>
                 </div>
               </div>
             )}
