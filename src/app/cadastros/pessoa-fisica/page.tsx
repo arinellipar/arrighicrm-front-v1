@@ -127,8 +127,6 @@ export default function PessoaFisicaPage() {
     null
   );
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 70;
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -144,17 +142,6 @@ export default function PessoaFisicaPage() {
         pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-
-  // Calcular paginação
-  const totalPages = Math.ceil(filteredPessoas.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedPessoas = filteredPessoas.slice(startIndex, endIndex);
-
-  // Resetar página quando o filtro mudar
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
 
   const handleCreateOrUpdate = async (
     data: CreatePessoaFisicaDTO | UpdatePessoaFisicaDTO
@@ -195,23 +182,6 @@ export default function PessoaFisicaPage() {
   const handleDeleteSelected = () => {
     if (selectedPersonId) {
       setShowDeleteConfirm(selectedPersonId);
-    }
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    setSelectedPersonId(null); // Limpar seleção ao mudar de página
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      handlePageChange(currentPage - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      handlePageChange(currentPage + 1);
     }
   };
 
@@ -557,7 +527,7 @@ export default function PessoaFisicaPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-secondary-200/50">
-                        {paginatedPessoas.map((pessoa, index) => (
+                        {filteredPessoas.map((pessoa, index) => (
                           <motion.tr
                             key={pessoa.id}
                             initial={{ opacity: 0, y: 10 }}
@@ -694,64 +664,21 @@ export default function PessoaFisicaPage() {
               <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                   <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
-                    Mostrando {startIndex + 1}-
-                    {Math.min(endIndex, filteredPessoas.length)} de{" "}
-                    {filteredPessoas.length} registros
-                    {filteredPessoas.length !== pessoas.length &&
-                      ` (filtrados de ${pessoas.length} total)`}
+                    Mostrando {filteredPessoas.length} de {pessoas.length}{" "}
+                    registros
                   </div>
                   <div className="flex items-center space-x-1 sm:space-x-2">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={handlePreviousPage}
-                      disabled={currentPage === 1}
-                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 transition-colors duration-200"
                     >
                       Anterior
                     </motion.button>
-
-                    {/* Números das páginas */}
-                    <div className="flex items-center space-x-1">
-                      {Array.from(
-                        { length: Math.min(5, totalPages) },
-                        (_, i) => {
-                          let pageNumber: number;
-                          if (totalPages <= 5) {
-                            pageNumber = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNumber = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNumber = totalPages - 4 + i;
-                          } else {
-                            pageNumber = currentPage - 2 + i;
-                          }
-
-                          return (
-                            <motion.button
-                              key={pageNumber}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => handlePageChange(pageNumber)}
-                              className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-colors duration-200 ${
-                                currentPage === pageNumber
-                                  ? "bg-primary-600 text-white"
-                                  : "bg-white text-secondary-700 border border-secondary-300 hover:bg-secondary-50"
-                              }`}
-                            >
-                              {pageNumber}
-                            </motion.button>
-                          );
-                        }
-                      )}
-                    </div>
-
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={handleNextPage}
-                      disabled={currentPage === totalPages}
-                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                      className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 transition-colors duration-200"
                     >
                       Próximo
                     </motion.button>
