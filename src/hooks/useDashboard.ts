@@ -41,15 +41,10 @@ export function useDashboard() {
 
   // Calcular estatísticas com base nos dados das APIs
   const fetchStats = useCallback(async () => {
-    console.log("🔍 useDashboard: Iniciando fetchStats");
-    console.log("🔍 useDashboard: API URL:", getApiUrl());
-
     setLoading(true);
     setError(null);
 
     try {
-      console.log("🔍 useDashboard: Fazendo requisições paralelas...");
-
       // Fazer requisições paralelas para pessoas físicas, jurídicas e usuários
       const [
         pessoasFisicasResponse,
@@ -60,11 +55,6 @@ export function useDashboard() {
         apiClient.get<PessoaJuridica[]>("/PessoaJuridica"),
         apiClient.get<Usuario[]>("/Usuario"),
       ]);
-
-      console.log("🔍 useDashboard: Respostas recebidas:");
-      console.log("PessoasFisicas:", pessoasFisicasResponse);
-      console.log("PessoasJuridicas:", pessoasJuridicasResponse);
-      console.log("Usuarios:", usuariosResponse);
 
       // Verificar se há erros
       if (pessoasFisicasResponse.error) {
@@ -94,11 +84,6 @@ export function useDashboard() {
       const pessoasJuridicas = pessoasJuridicasResponse.data || [];
       const usuarios = usuariosResponse.data || [];
 
-      console.log("🔍 useDashboard: Dados processados:");
-      console.log("PessoasFisicas count:", pessoasFisicas.length);
-      console.log("PessoasJuridicas count:", pessoasJuridicas.length);
-      console.log("Usuarios count:", usuarios.length);
-
       // Calcular estatísticas
       const totalPessoasFisicas = pessoasFisicas.length;
       const totalPessoasJuridicas = pessoasJuridicas.length;
@@ -110,7 +95,6 @@ export function useDashboard() {
         totalUsuarios,
       };
 
-      console.log("🔍 useDashboard: Stats calculadas:", stats);
       setStats(stats);
     } catch (error) {
       console.error("❌ useDashboard: Erro capturado:", error);
@@ -118,17 +102,14 @@ export function useDashboard() {
         error instanceof Error
           ? error.message
           : "Erro ao carregar estatísticas";
-      console.error("❌ useDashboard: Mensagem de erro:", errorMessage);
       setError(errorMessage);
     } finally {
-      console.log("🔍 useDashboard: Finalizando fetchStats");
       setLoading(false);
     }
   }, []);
 
   // Carregar estatísticas iniciais
   useEffect(() => {
-    console.log("🔍 useDashboard: useEffect executado");
     fetchStats();
   }, [fetchStats]);
 

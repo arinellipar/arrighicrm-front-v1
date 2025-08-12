@@ -23,10 +23,6 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    console.log("🔧 ApiClient: Fazendo requisição para:", url);
-    console.log("🔧 ApiClient: Método:", options.method || "GET");
-    console.log("🔧 ApiClient: Headers:", options.headers);
-
     try {
       // Log da URL em desenvolvimento
       if (isDevelopment()) {
@@ -53,14 +49,8 @@ class ApiClient {
 
       config.signal = controller.signal;
 
-      console.log("🔧 ApiClient: Iniciando fetch...");
       const response = await fetch(url, config);
       clearTimeout(timeoutId);
-
-      console.log("🔧 ApiClient: Resposta recebida:");
-      console.log("Status:", response.status);
-      console.log("Status Text:", response.statusText);
-      console.log("Headers:", Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -79,7 +69,6 @@ class ApiClient {
 
       // Verificar se a resposta é JSON
       const contentType = response.headers.get("content-type");
-      console.log("🔧 ApiClient: Content-Type:", contentType);
 
       if (!contentType || !contentType.includes("application/json")) {
         const responseText = await response.text();
@@ -96,7 +85,6 @@ class ApiClient {
       let data;
       try {
         data = await response.json();
-        console.log("🔧 ApiClient: Dados JSON parseados:", data);
       } catch (jsonError) {
         // Se não conseguir fazer parse do JSON, pode ser uma resposta vazia
         console.error("🔧 ApiClient: Erro ao fazer parse do JSON:", jsonError);
