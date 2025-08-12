@@ -26,7 +26,6 @@ import { PessoaJuridica, ResponsavelTecnicoOption } from "@/types/api";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useForm } from "@/contexts/FormContext";
-import { TableNavigation } from "@/components/TableNavigation";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
 
 function StatusBadge({
@@ -129,13 +128,14 @@ export default function PessoaJuridicaPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
     null
   );
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(
+    null
+  );
   const [responsaveisTecnicos, setResponsaveisTecnicos] = useState<
     ResponsavelTecnicoOption[]
   >([]);
   const [filterStatus, setFilterStatus] = useState("");
   const [filterResponsavel, setFilterResponsavel] = useState("");
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
   const [isTableCompact, setIsTableCompact] = useState(false);
 
@@ -155,6 +155,28 @@ export default function PessoaJuridicaPage() {
 
     loadResponsaveisTecnicos();
   }, []);
+
+  // Fechar menu quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // This useEffect is no longer needed as the three-dot menu state is removed.
+      // Keeping it for now in case it's re-introduced or if there's a different
+      // logic for closing menus in the future.
+      // if (openMenuId !== null) {
+      //   setOpenMenuId(null);
+      // }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []); // Removed openMenuId from dependency array
+
+  // Limpar seleção quando a busca mudar
+  useEffect(() => {
+    setSelectedCompanyId(null);
+  }, [searchTerm]);
 
   // Filtrar pessoas por termo de busca e ordenar alfabeticamente
   const filteredPessoas = pessoas
@@ -196,6 +218,35 @@ export default function PessoaJuridicaPage() {
     closeForm();
   };
 
+  const handleSelectCompany = (companyId: number) => {
+    setSelectedCompanyId(selectedCompanyId === companyId ? null : companyId);
+  };
+
+  const handleViewCompany = () => {
+    if (selectedCompanyId) {
+      const company = pessoas.find((p) => p.id === selectedCompanyId);
+      if (company) {
+        // Aqui você pode implementar a visualização detalhada
+        alert(`Visualizando: ${company.razaoSocial}`);
+      }
+    }
+  };
+
+  const handleEditSelected = () => {
+    if (selectedCompanyId) {
+      const company = pessoas.find((p) => p.id === selectedCompanyId);
+      if (company) {
+        handleEdit(company);
+      }
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedCompanyId) {
+      setShowDeleteConfirm(selectedCompanyId);
+    }
+  };
+
   const handleOpenForm = () => {
     if (responsaveisTecnicos.length === 0) {
       alert(
@@ -222,43 +273,6 @@ export default function PessoaJuridicaPage() {
       return cadastro >= mesAtual;
     }).length,
   };
-
-  const handleScrollLeft = () => {
-    if (tableRef.current) {
-      tableRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
-  };
-
-  const handleScrollRight = () => {
-    if (tableRef.current) {
-      tableRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
-
-  const checkScrollPosition = () => {
-    if (tableRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = tableRef.current;
-      const hasHorizontalScroll = scrollWidth > clientWidth;
-
-      setCanScrollLeft(hasHorizontalScroll && scrollLeft > 0);
-      setCanScrollRight(
-        hasHorizontalScroll && scrollLeft < scrollWidth - clientWidth - 1
-      );
-    }
-  };
-
-  useEffect(() => {
-    const tableElement = tableRef.current;
-    if (tableElement) {
-      tableElement.addEventListener("scroll", checkScrollPosition);
-      // Verificar posição inicial
-      setTimeout(checkScrollPosition, 100);
-
-      return () => {
-        tableElement.removeEventListener("scroll", checkScrollPosition);
-      };
-    }
-  }, [pessoas]);
 
   return (
     <MainLayout>
@@ -335,15 +349,49 @@ export default function PessoaJuridicaPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
               />
+              {selectedCompanyId && (
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  <div className="bg-accent-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="text-xs font-bold">✓</span>
+                  </div>
+                </div>
+              )}
             </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
-            >
-              <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-              <span>Filtros</span>
-            </motion.button>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleViewCompany}
+                disabled={!selectedCompanyId}
+                className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-secondary-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+                title="Visualizar empresa selecionada"
+              >
+                <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+                <span>Visualizar</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleEditSelected}
+                disabled={!selectedCompanyId}
+                className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-accent-100 hover:bg-accent-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-accent-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+                title="Editar empresa selecionada"
+              >
+                <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+                <span>Editar</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleDeleteSelected}
+                disabled={!selectedCompanyId}
+                className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-red-100 hover:bg-red-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-red-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+                title="Excluir empresa selecionada"
+              >
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+                <span>Excluir</span>
+              </motion.button>
+            </div>
           </div>
         </motion.div>
 
@@ -451,7 +499,7 @@ export default function PessoaJuridicaPage() {
                 <div className="w-full overflow-x-auto">
                   <div
                     ref={tableRef}
-                    className="table-responsive table-container overflow-x-auto min-w-full"
+                    className="table-responsive table-container overflow-x-auto min-w-full relative"
                   >
                     <table
                       className={`w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px] ${
@@ -514,15 +562,6 @@ export default function PessoaJuridicaPage() {
                           >
                             Data Cadastro
                           </th>
-                          <th
-                            className={`px-4 sm:px-5 lg:px-6 pl-0 sm:pl-0 lg:pl-0 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 text-right font-medium text-secondary-500 uppercase tracking-wider ${
-                              isTableCompact
-                                ? "text-[9px] sm:text-[10px]"
-                                : "text-[10px] sm:text-xs"
-                            }`}
-                          >
-                            Ações
-                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-secondary-200/50">
@@ -532,7 +571,12 @@ export default function PessoaJuridicaPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 + index * 0.05 }}
-                            className="hover:bg-secondary-50/50 transition-colors duration-200"
+                            onClick={() => handleSelectCompany(pessoa.id)}
+                            className={`transition-colors duration-200 cursor-pointer ${
+                              selectedCompanyId === pessoa.id
+                                ? "bg-secondary-200 hover:bg-secondary-200 border-l-4 border-accent-500"
+                                : "hover:bg-secondary-50/50"
+                            }`}
                           >
                             <td
                               className={`px-6 sm:px-7 lg:px-8 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap ${
@@ -665,72 +709,11 @@ export default function PessoaJuridicaPage() {
                             >
                               {formatDate(pessoa.dataCadastro)}
                             </td>
-                            <td
-                              className={`px-4 sm:px-5 lg:px-6 pl-0 sm:pl-0 lg:pl-0 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right ${
-                                isTableCompact ? "py-1 sm:py-1.5" : ""
-                              }`}
-                            >
-                              <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
-                                  title="Visualizar"
-                                >
-                                  <Eye
-                                    className={
-                                      isTableCompact
-                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
-                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
-                                    }
-                                  />
-                                </motion.button>
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => handleEdit(pessoa)}
-                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
-                                  title="Editar"
-                                >
-                                  <Edit
-                                    className={
-                                      isTableCompact
-                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
-                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
-                                    }
-                                  />
-                                </motion.button>
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() =>
-                                    setShowDeleteConfirm(pessoa.id)
-                                  }
-                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
-                                  title="Excluir"
-                                >
-                                  <Trash2
-                                    className={
-                                      isTableCompact
-                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
-                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
-                                    }
-                                  />
-                                </motion.button>
-                              </div>
-                            </td>
                           </motion.tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                  <TableNavigation
-                    onScrollLeft={handleScrollLeft}
-                    onScrollRight={handleScrollRight}
-                    canScrollLeft={canScrollLeft}
-                    canScrollRight={canScrollRight}
-                    pageId="pessoa-juridica"
-                  />
                 </div>
               </div>
             )}
