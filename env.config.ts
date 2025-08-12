@@ -1,7 +1,7 @@
 // Configuração de ambiente para o frontend
 export const config = {
   // URL da API - pode ser configurada via variável de ambiente
-  apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
+  apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101/api",
 
   // Ambiente atual
   environment: process.env.NEXT_PUBLIC_ENVIRONMENT || "development",
@@ -35,8 +35,16 @@ export const getApiUrl = (): string => {
     process.env.NEXT_PUBLIC_API_URL
   );
 
-  // Prefer explicit public URL if provided
-  if (process.env.NEXT_PUBLIC_API_URL) {
+  // In production, always use the production URL
+  if (process.env.NODE_ENV === "production") {
+    const productionUrl =
+      "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
+    console.log("🔧 getApiUrl: Usando URL de produção:", productionUrl);
+    return productionUrl;
+  }
+
+  // In development, prefer explicit public URL if provided
+  if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== "undefined") {
     // Garantir que é uma URL absoluta
     let url = process.env.NEXT_PUBLIC_API_URL;
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -46,16 +54,8 @@ export const getApiUrl = (): string => {
     return url;
   }
 
-  // In production, use the backend URL directly
-  if (process.env.NODE_ENV === "production") {
-    const productionUrl =
-      "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
-    console.log("🔧 getApiUrl: Usando URL de produção:", productionUrl);
-    return productionUrl;
-  }
-
   // Development fallback
-  const devUrl = "http://localhost:5000/api";
+  const devUrl = "http://localhost:5101/api";
   console.log("🔧 getApiUrl: Usando URL de desenvolvimento:", devUrl);
   return devUrl;
 };

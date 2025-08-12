@@ -15,6 +15,12 @@ class ApiClient {
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
     console.log("🔧 ApiClient: Base URL configurada como:", this.baseUrl);
+
+    // Verificação adicional para garantir que a URL está correta
+    if (!this.baseUrl || this.baseUrl === "undefined") {
+      console.error("🔧 ApiClient: ERRO - Base URL está undefined ou vazia!");
+      throw new Error("API Base URL não foi configurada corretamente");
+    }
   }
 
   private async request<T>(
@@ -97,6 +103,17 @@ class ApiClient {
       // Log de sucesso em desenvolvimento
       if (isDevelopment()) {
         console.log(`API Success: ${response.status} - ${endpoint}`, data);
+      }
+
+      // Log adicional para debug em desenvolvimento
+      if (isDevelopment()) {
+        console.log(`🔧 ApiClient: Resposta para ${endpoint}:`, {
+          status: response.status,
+          data: data,
+          hasData: !!data,
+          dataType: typeof data,
+          isArray: Array.isArray(data),
+        });
       }
 
       return {
