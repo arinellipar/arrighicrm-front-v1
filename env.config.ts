@@ -34,9 +34,10 @@ export const getApiUrl = (): string => {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
-  // In production, default to Next's own API proxy path
+  // In production, use the backend URL directly
   if (process.env.NODE_ENV === "production") {
-    return "/api";
+    // Default to a common backend URL - should be overridden with NEXT_PUBLIC_API_URL
+    return "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
   }
 
   // Development fallback
