@@ -177,10 +177,29 @@
     }
   }
 
+  /* Garantir que a tabela tenha scroll horizontal adequado */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Garantir que o container da tabela não corte conteúdo */
+  .table-container {
+    overflow-x: auto !important;
+    max-width: 100%;
+  }
+
   /* Garantir que o texto seja truncado corretamente */
   .table-responsive .truncate {
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  /* Garantir que as colunas da tabela tenham larguras adequadas */
+  .table-responsive td,
+  .table-responsive th {
     white-space: nowrap;
   }
 
