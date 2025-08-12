@@ -30,68 +30,116 @@ import { useForm } from "@/contexts/FormContext";
 import { TableNavigation } from "@/components/TableNavigation";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
 
-function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
+function StatusBadge({
+  status,
+  isCompact = false,
+}: {
+  status: "ativo" | "inativo";
+  isCompact?: boolean;
+}) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium",
+        "inline-flex items-center rounded-full font-medium",
+        isCompact
+          ? "px-1 py-0.5 text-[8px] sm:text-[9px]"
+          : "px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-xs",
         status === "ativo"
           ? "bg-green-100 text-green-800 border border-green-200"
           : "bg-red-100 text-red-800 border border-red-200"
       )}
     >
       {status === "ativo" ? (
-        <CheckCircle className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
+        <CheckCircle
+          className={
+            isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+          }
+        />
       ) : (
-        <XCircle className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
+        <XCircle
+          className={
+            isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+          }
+        />
       )}
       {status === "ativo" ? "Ativo" : "Inativo"}
     </span>
   );
 }
 
-function TipoPessoaBadge({ tipo }: { tipo: string }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium",
-        tipo === "Fisica"
-          ? "bg-blue-100 text-blue-800"
-          : "bg-purple-100 text-purple-800"
-      )}
-    >
-      {tipo === "Fisica" ? (
-        <User className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
-      ) : (
-        <Building2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
-      )}
-      {tipo === "Fisica" ? "Pessoa Física" : "Pessoa Jurídica"}
-    </span>
-  );
-}
-
-function GrupoAcessoBadge({ grupo }: { grupo: string }) {
-  const getColor = (grupo: string) => {
-    switch (grupo) {
-      case "Administrador":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "Usuario":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "Visualizador":
-        return "bg-gray-100 text-gray-800 border-gray-200";
+function TipoPessoaBadge({
+  tipo,
+  isCompact = false,
+}: {
+  tipo: string;
+  isCompact?: boolean;
+}) {
+  const getTipoColor = (tipo: string) => {
+    switch (tipo.toLowerCase()) {
+      case "fisica":
+        return "bg-blue-100 text-blue-800 border border-blue-200";
+      case "juridica":
+        return "bg-purple-100 text-purple-800 border border-purple-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-gray-100 text-gray-800 border border-gray-200";
     }
   };
 
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium border",
-        getColor(grupo)
+        "inline-flex items-center rounded-full font-medium",
+        isCompact
+          ? "px-1 py-0.5 text-[8px] sm:text-[9px]"
+          : "px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-xs",
+        getTipoColor(tipo)
       )}
     >
-      <Shield className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
+      <UserCheck
+        className={
+          isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+        }
+      />
+      {tipo === "fisica" ? "Física" : tipo === "juridica" ? "Jurídica" : tipo}
+    </span>
+  );
+}
+
+function GrupoAcessoBadge({
+  grupo,
+  isCompact = false,
+}: {
+  grupo: string;
+  isCompact?: boolean;
+}) {
+  const getGrupoColor = (grupo: string) => {
+    switch (grupo.toLowerCase()) {
+      case "admin":
+        return "bg-red-100 text-red-800 border border-red-200";
+      case "gerente":
+        return "bg-blue-100 text-blue-800 border border-blue-200";
+      case "usuario":
+        return "bg-green-100 text-green-800 border border-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 border border-gray-200";
+    }
+  };
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full font-medium",
+        isCompact
+          ? "px-1 py-0.5 text-[8px] sm:text-[9px]"
+          : "px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-xs",
+        getGrupoColor(grupo)
+      )}
+    >
+      <Shield
+        className={
+          isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+        }
+      />
       {grupo}
     </span>
   );
