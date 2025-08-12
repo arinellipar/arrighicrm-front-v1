@@ -262,7 +262,7 @@ export default function PessoaJuridicaPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-4 sm:space-y-5 lg:space-y-6 w-full max-w-none">
+      <div className="space-y-4 sm:space-y-5 lg:space-y-6 w-full max-w-none -mx-2.5 sm:-mx-2.5 lg:-mx-2.5 px-2.5 sm:px-2.5 lg:px-2.5">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -461,7 +461,7 @@ export default function PessoaJuridicaPage() {
                       <thead className="bg-secondary-50/50">
                         <tr>
                           <th
-                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider ${
+                            className={`px-6 sm:px-7 lg:px-8 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -470,7 +470,7 @@ export default function PessoaJuridicaPage() {
                             Empresa
                           </th>
                           <th
-                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                            className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -479,7 +479,7 @@ export default function PessoaJuridicaPage() {
                             CNPJ
                           </th>
                           <th
-                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                            className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -488,7 +488,7 @@ export default function PessoaJuridicaPage() {
                             Responsável Técnico
                           </th>
                           <th
-                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                            className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -497,7 +497,7 @@ export default function PessoaJuridicaPage() {
                             Contato
                           </th>
                           <th
-                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                            className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -506,7 +506,7 @@ export default function PessoaJuridicaPage() {
                             Status
                           </th>
                           <th
-                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                            className={`px-4 sm:px-5 lg:px-6 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -515,7 +515,7 @@ export default function PessoaJuridicaPage() {
                             Data Cadastro
                           </th>
                           <th
-                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right font-medium text-secondary-500 uppercase tracking-wider ${
+                            className={`px-4 sm:px-5 lg:px-6 pl-0 sm:pl-0 lg:pl-0 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 text-right font-medium text-secondary-500 uppercase tracking-wider ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -535,7 +535,7 @@ export default function PessoaJuridicaPage() {
                             className="hover:bg-secondary-50/50 transition-colors duration-200"
                           >
                             <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap ${
+                              className={`px-6 sm:px-7 lg:px-8 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap ${
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
@@ -590,7 +590,7 @@ export default function PessoaJuridicaPage() {
                               </div>
                             </td>
                             <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
+                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
                                 isTableCompact
                                   ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
                                   : "text-[10px] sm:text-xs lg:text-sm"
@@ -599,7 +599,7 @@ export default function PessoaJuridicaPage() {
                               {pessoa.cnpj}
                             </td>
                             <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
@@ -623,7 +623,7 @@ export default function PessoaJuridicaPage() {
                               </div>
                             </td>
                             <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
@@ -647,7 +647,7 @@ export default function PessoaJuridicaPage() {
                               </div>
                             </td>
                             <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
@@ -657,7 +657,7 @@ export default function PessoaJuridicaPage() {
                               />
                             </td>
                             <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
+                              className={`px-4 sm:px-5 lg:px-6 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
                                 isTableCompact
                                   ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
                                   : "text-[10px] sm:text-xs lg:text-sm"
@@ -666,7 +666,7 @@ export default function PessoaJuridicaPage() {
                               {formatDate(pessoa.dataCadastro)}
                             </td>
                             <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right ${
+                              className={`px-4 sm:px-5 lg:px-6 pl-0 sm:pl-0 lg:pl-0 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right ${
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
