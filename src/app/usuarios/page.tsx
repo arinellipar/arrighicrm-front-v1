@@ -31,16 +31,16 @@ function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium",
         status === "ativo"
           ? "bg-green-100 text-green-800 border border-green-200"
           : "bg-red-100 text-red-800 border border-red-200"
       )}
     >
       {status === "ativo" ? (
-        <CheckCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+        <CheckCircle className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
       ) : (
-        <XCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+        <XCircle className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
       )}
       {status === "ativo" ? "Ativo" : "Inativo"}
     </span>
@@ -51,16 +51,16 @@ function TipoPessoaBadge({ tipo }: { tipo: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium",
         tipo === "Fisica"
           ? "bg-blue-100 text-blue-800"
           : "bg-purple-100 text-purple-800"
       )}
     >
       {tipo === "Fisica" ? (
-        <User className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+        <User className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
       ) : (
-        <Building2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+        <Building2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
       )}
       {tipo === "Fisica" ? "Pessoa Física" : "Pessoa Jurídica"}
     </span>
@@ -84,11 +84,11 @@ function GrupoAcessoBadge({ grupo }: { grupo: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium border",
+        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium border",
         getColor(grupo)
       )}
     >
-      <Shield className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+      <Shield className="w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5" />
       {grupo}
     </span>
   );
@@ -261,20 +261,22 @@ export default function UsuariosPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5 lg:space-y-6 w-full max-w-none">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full"
         >
           <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
             <div className="p-1.5 sm:p-2 lg:p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl text-white">
               <UserCheck className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold gradient-text">Usuários</h1>
-              <p className="text-xs sm:text-sm text-secondary-600">
+              <h1 className="text-base sm:text-lg lg:text-xl font-bold gradient-text">
+                Usuários
+              </h1>
+              <p className="text-[10px] sm:text-xs text-secondary-600">
                 Gerenciar usuários do sistema
               </p>
             </div>
@@ -284,7 +286,7 @@ export default function UsuariosPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="btn-mobile flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 text-xs sm:text-sm lg:text-base"
+            className="btn-mobile flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
           >
             <Plus className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
             <span>Novo Usuário</span>
@@ -300,7 +302,7 @@ export default function UsuariosPage() {
           >
             <div className="flex items-center space-x-3">
               <AlertCircle className="w-5 h-5 text-yellow-600" />
-              <p className="text-yellow-800">
+              <p className="text-yellow-800 text-[11px] sm:text-xs">
                 <strong>Atenção:</strong> É necessário ter pelo menos uma pessoa
                 física ou jurídica cadastrada para criar usuários.
               </p>
@@ -313,9 +315,9 @@ export default function UsuariosPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-secondary-200/50"
+          className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 w-full">
             <div className="sm:col-span-2 relative">
               <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <input
@@ -323,14 +325,14 @@ export default function UsuariosPage() {
                 placeholder="Buscar por login, email ou pessoa..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-xs sm:text-sm lg:text-base"
+                className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
               />
             </div>
 
             <select
               value={filterGrupo}
               onChange={(e) => setFilterGrupo(e.target.value)}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-xs sm:text-sm lg:text-base"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
             >
               <option value="">Todos os grupos</option>
               <option value="Administrador">Administrador</option>
@@ -341,7 +343,7 @@ export default function UsuariosPage() {
             <select
               value={filterTipo}
               onChange={(e) => setFilterTipo(e.target.value)}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-xs sm:text-sm lg:text-base"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
             >
               <option value="">Todos os tipos</option>
               <option value="Fisica">Pessoa Física</option>
@@ -351,7 +353,7 @@ export default function UsuariosPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-xs sm:text-sm lg:text-base"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
             >
               <option value="">Todos os status</option>
               <option value="ativo">Ativo</option>

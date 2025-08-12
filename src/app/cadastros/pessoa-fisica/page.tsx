@@ -25,7 +25,7 @@ function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1.5 sm:px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium",
         status === "ativo"
           ? "bg-green-100 text-green-800"
           : "bg-red-100 text-red-800"
@@ -161,22 +161,22 @@ export default function PessoaFisicaPage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5 lg:space-y-6 w-full max-w-none">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full"
         >
           <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
             <div className="p-1.5 sm:p-2 lg:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl text-white">
               <Users className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold gradient-text">
+              <h1 className="text-base sm:text-lg lg:text-xl font-bold gradient-text">
                 Pessoas Físicas
               </h1>
-              <p className="text-xs sm:text-sm text-secondary-600">
+              <p className="text-[10px] sm:text-xs text-secondary-600">
                 Gerenciar cadastros de pessoas físicas
               </p>
             </div>
@@ -186,7 +186,7 @@ export default function PessoaFisicaPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="btn-mobile flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 text-xs sm:text-sm lg:text-base"
+            className="btn-mobile flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
           >
             <Plus className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
             <span>Nova Pessoa</span>
@@ -198,9 +198,9 @@ export default function PessoaFisicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-6 shadow-sm border border-secondary-200/50"
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full"
         >
-          <div className="flex flex-col md:flex-row gap-2 sm:gap-3 lg:gap-4">
+          <div className="flex flex-col md:flex-row gap-2 sm:gap-3 lg:gap-4 w-full">
             <div className="flex-1 relative">
               <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <input
@@ -208,13 +208,13 @@ export default function PessoaFisicaPage() {
                 placeholder="Buscar por nome, CPF ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-xs sm:text-sm lg:text-base"
+                className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
               />
             </div>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-xs sm:text-sm lg:text-base"
+              className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
             >
               <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <span>Filtros</span>
@@ -227,51 +227,51 @@ export default function PessoaFisicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
+                <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
                   Total de Pessoas
                 </p>
-                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-secondary-900">
+                <p className="text-base sm:text-lg lg:text-xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
               </div>
-              <div className="p-1.5 sm:p-2 lg:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
+              <div className="p-2 sm:p-2.5 lg:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
                 <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
+                <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
                   Pessoas Ativas
                 </p>
-                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">
+                <p className="text-base sm:text-lg lg:text-xl font-bold text-blue-600">
                   {stats.ativos}
                 </p>
               </div>
-              <div className="p-1.5 sm:p-2 lg:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
+              <div className="p-2 sm:p-2.5 lg:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
                 <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
+                <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
                   Novas este mês
                 </p>
-                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-accent-600">
+                <p className="text-base sm:text-lg lg:text-xl font-bold text-accent-600">
                   {stats.novosEstemês}
                 </p>
               </div>
-              <div className="p-1.5 sm:p-2 lg:p-3 bg-accent-100 rounded-lg sm:rounded-xl">
+              <div className="p-2 sm:p-2.5 lg:p-3 bg-accent-100 rounded-lg sm:rounded-xl">
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-accent-600" />
               </div>
             </div>
@@ -311,107 +311,109 @@ export default function PessoaFisicaPage() {
                 </p>
               </div>
             ) : (
-              <div className="table-responsive table-container overflow-x-auto">
-                <table className="w-full min-w-[800px] sm:min-w-[900px] lg:min-w-[1000px] xl:min-w-[1100px]">
-                  <thead className="bg-secondary-50/50">
-                    <tr>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Pessoa
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                        CPF
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
-                        Contato
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
-                        Status
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
-                        Data Cadastro
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Ações
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-secondary-200/50">
-                    {filteredPessoas.map((pessoa, index) => (
-                      <motion.tr
-                        key={pessoa.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 + index * 0.05 }}
-                        className="hover:bg-secondary-50/50 transition-colors duration-200"
-                      >
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
-                          <div className="flex items-center space-x-1.5 sm:space-x-2">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                              <span className="text-xs font-bold text-white">
-                                {pessoa.nome.charAt(0)}
-                              </span>
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-xs sm:text-sm font-medium text-secondary-900 truncate">
-                                {pessoa.nome}
+              <div className="w-full overflow-x-auto">
+                <div className="table-responsive table-container overflow-x-auto min-w-full">
+                  <table className="w-full min-w-[900px] sm:min-w-[1000px] lg:min-w-[1100px] xl:min-w-[1200px]">
+                    <thead className="bg-secondary-50/50">
+                      <tr>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                          Pessoa
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
+                          CPF
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
+                          Contato
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
+                          Status
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
+                          Data Cadastro
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                          Ações
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-secondary-200/50">
+                      {filteredPessoas.map((pessoa, index) => (
+                        <motion.tr
+                          key={pessoa.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 + index * 0.05 }}
+                          className="hover:bg-secondary-50/50 transition-colors duration-200"
+                        >
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
+                            <div className="flex items-center space-x-1.5 sm:space-x-2 max-w-[150px] sm:max-w-[180px] lg:max-w-[200px]">
+                              <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span className="text-[10px] sm:text-xs font-bold text-white">
+                                  {pessoa.nome.charAt(0)}
+                                </span>
                               </div>
-                              <div className="text-xs text-secondary-500 truncate hidden sm:block">
-                                {pessoa.email}
+                              <div className="min-w-0 flex-1">
+                                <div className="text-[11px] sm:text-xs lg:text-sm font-medium text-secondary-900 truncate">
+                                  {pessoa.nome}
+                                </div>
+                                <div className="text-[10px] sm:text-xs text-secondary-500 truncate hidden sm:block">
+                                  {pessoa.email}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden sm:table-cell">
-                          {pessoa.cpf}
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden md:table-cell">
-                          <div className="text-xs sm:text-sm text-secondary-900 truncate">
-                            {pessoa.email}
-                          </div>
-                          <div className="text-xs sm:text-sm text-secondary-500 truncate">
-                            {pessoa.telefone1}
-                          </div>
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden lg:table-cell">
-                          <StatusBadge status="ativo" />
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden xl:table-cell">
-                          {formatDate(pessoa.dataCadastro)}
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
-                          <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
-                              title="Visualizar"
-                            >
-                              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => handleEdit(pessoa)}
-                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
-                              title="Editar"
-                            >
-                              <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => setShowDeleteConfirm(pessoa.id)}
-                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
-                              title="Excluir"
-                            >
-                              <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                            </motion.button>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden sm:table-cell">
+                            {pessoa.cpf}
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden md:table-cell">
+                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-900 truncate">
+                              {pessoa.email}
+                            </div>
+                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-500 truncate">
+                              {pessoa.telefone1}
+                            </div>
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden lg:table-cell">
+                            <StatusBadge status="ativo" />
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden xl:table-cell">
+                            {formatDate(pessoa.dataCadastro)}
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
+                                title="Visualizar"
+                              >
+                                <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => handleEdit(pessoa)}
+                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
+                                title="Editar"
+                              >
+                                <Edit className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setShowDeleteConfirm(pessoa.id)}
+                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
+                                title="Excluir"
+                              >
+                                <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
+                              </motion.button>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
