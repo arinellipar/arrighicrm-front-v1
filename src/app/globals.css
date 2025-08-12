@@ -170,6 +170,20 @@
     }
   }
 
+  /* Garantir que todas as colunas sejam visíveis em telas grandes */
+  @media screen and (min-width: 1280px) {
+    .table-responsive table {
+      min-width: 1000px !important;
+    }
+  }
+
+  /* Garantir que o texto seja truncado corretamente */
+  .table-responsive .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   /* Garantir que o container principal não corte conteúdo */
   .container {
     /* Usar configuração padrão do Tailwind */

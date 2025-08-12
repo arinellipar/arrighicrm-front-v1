@@ -360,8 +360,8 @@ export default function PessoaJuridicaPage() {
                 </p>
               </div>
             ) : (
-              <div className="table-responsive table-container">
-                <table className="w-full min-w-[500px] sm:min-w-[600px] lg:min-w-[700px]">
+              <div className="table-responsive table-container overflow-x-auto">
+                <table className="w-full min-w-[700px] sm:min-w-[800px] lg:min-w-[900px] xl:min-w-[1000px]">
                   <thead className="bg-secondary-50/50">
                     <tr>
                       <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
@@ -371,9 +371,12 @@ export default function PessoaJuridicaPage() {
                         CNPJ
                       </th>
                       <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
-                        Contato
+                        Responsável Técnico
                       </th>
                       <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
+                        Contato
+                      </th>
+                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
                         Status
                       </th>
                       <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
@@ -394,18 +397,24 @@ export default function PessoaJuridicaPage() {
                         className="hover:bg-secondary-50/50 transition-colors duration-200"
                       >
                         <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
-                          <div className="flex items-center space-x-1.5 sm:space-x-2">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                          <div className="flex items-center space-x-1.5 sm:space-x-2 max-w-[200px] sm:max-w-[250px] lg:max-w-[300px]">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                               <span className="text-xs font-bold text-white">
                                 {pessoa.razaoSocial.charAt(0)}
                               </span>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <div className="text-xs sm:text-sm font-medium text-secondary-900 truncate">
+                              <div
+                                className="text-xs sm:text-sm font-medium text-secondary-900 truncate"
+                                title={pessoa.razaoSocial}
+                              >
                                 {pessoa.razaoSocial}
                               </div>
                               {pessoa.nomeFantasia && (
-                                <div className="text-xs text-secondary-500 truncate hidden sm:block">
+                                <div
+                                  className="text-xs text-secondary-500 truncate hidden sm:block"
+                                  title={pessoa.nomeFantasia}
+                                >
                                   {pessoa.nomeFantasia}
                                 </div>
                               )}
@@ -416,14 +425,22 @@ export default function PessoaJuridicaPage() {
                           {pessoa.cnpj}
                         </td>
                         <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden md:table-cell">
-                          <div className="text-xs sm:text-sm text-secondary-900 truncate">
-                            {pessoa.email}
+                          <div className="text-xs sm:text-sm text-secondary-900">
+                            {pessoa.responsavelTecnico.nome}
                           </div>
-                          <div className="text-xs sm:text-sm text-secondary-500 truncate">
-                            {pessoa.telefone1}
+                          <div className="text-xs sm:text-sm text-secondary-500">
+                            {pessoa.responsavelTecnico.cpf}
                           </div>
                         </td>
                         <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden lg:table-cell">
+                          <div className="text-xs sm:text-sm text-secondary-900">
+                            {pessoa.email}
+                          </div>
+                          <div className="text-xs sm:text-sm text-secondary-500">
+                            {pessoa.telefone1}
+                          </div>
+                        </td>
+                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden xl:table-cell">
                           <StatusBadge status="ativo" />
                         </td>
                         <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden xl:table-cell">

@@ -311,8 +311,8 @@ export default function PessoaFisicaPage() {
                 </p>
               </div>
             ) : (
-              <div className="table-responsive table-container">
-                <table className="w-full min-w-[500px] sm:min-w-[600px] lg:min-w-[700px]">
+              <div className="table-responsive table-container overflow-x-auto">
+                <table className="w-full min-w-[800px] sm:min-w-[900px] lg:min-w-[1000px] xl:min-w-[1100px]">
                   <thead className="bg-secondary-50/50">
                     <tr>
                       <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
