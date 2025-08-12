@@ -1,38 +1,66 @@
 // src/app/cadastros/pessoa-juridica/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Building2,
   Plus,
   Search,
   Filter,
+  Eye,
   Edit,
   Trash2,
-  Eye,
+  Users,
+  Building2,
+  TrendingUp,
+  Calendar,
   AlertCircle,
   Loader2,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import PessoaJuridicaForm from "@/components/forms/PessoaJuridicaForm";
 import { usePessoaJuridica } from "@/hooks/usePessoaJuridica";
-import { usePessoaFisica } from "@/hooks/usePessoaFisica";
 import { PessoaJuridica, ResponsavelTecnicoOption } from "@/types/api";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useForm } from "@/contexts/FormContext";
+import { TableNavigation } from "@/components/TableNavigation";
+import { TableSizeToggle } from "@/components/TableSizeToggle";
 
-function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
+function StatusBadge({
+  status,
+  isCompact = false,
+}: {
+  status: "ativo" | "inativo";
+  isCompact?: boolean;
+}) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-1 sm:px-1.5 py-0.5 rounded-full text-[9px] sm:text-xs font-medium",
+        "inline-flex items-center rounded-full font-medium",
+        isCompact
+          ? "px-1 py-0.5 text-[8px] sm:text-[9px]"
+          : "px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-xs",
         status === "ativo"
-          ? "bg-green-100 text-green-800"
-          : "bg-red-100 text-red-800"
+          ? "bg-green-100 text-green-800 border border-green-200"
+          : "bg-red-100 text-red-800 border border-red-200"
       )}
     >
+      {status === "ativo" ? (
+        <CheckCircle
+          className={
+            isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+          }
+        />
+      ) : (
+        <XCircle
+          className={
+            isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+          }
+        />
+      )}
       {status === "ativo" ? "Ativo" : "Inativo"}
     </span>
   );
@@ -91,7 +119,6 @@ export default function PessoaJuridicaPage() {
     clearError,
   } = usePessoaJuridica();
 
-  const { fetchResponsaveisTecnicos } = usePessoaFisica();
   const { openForm, closeForm } = useForm();
 
   const [showForm, setShowForm] = useState(false);
@@ -105,15 +132,29 @@ export default function PessoaJuridicaPage() {
   const [responsaveisTecnicos, setResponsaveisTecnicos] = useState<
     ResponsavelTecnicoOption[]
   >([]);
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterResponsavel, setFilterResponsavel] = useState("");
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [isTableCompact, setIsTableCompact] = useState(false);
 
   // Carregar responsáveis técnicos
   useEffect(() => {
-    const loadResponsaveis = async () => {
-      const responsaveis = await fetchResponsaveisTecnicos();
-      setResponsaveisTecnicos(responsaveis);
+    const loadResponsaveisTecnicos = async () => {
+      try {
+        const response = await fetch("/api/pessoas-fisicas");
+        if (response.ok) {
+          const data = await response.json();
+          setResponsaveisTecnicos(data);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar responsáveis técnicos:", error);
+      }
     };
-    loadResponsaveis();
-  }, [fetchResponsaveisTecnicos]);
+
+    loadResponsaveisTecnicos();
+  }, []);
 
   // Filtrar pessoas por termo de busca e ordenar alfabeticamente
   const filteredPessoas = pessoas
@@ -181,6 +222,43 @@ export default function PessoaJuridicaPage() {
       return cadastro >= mesAtual;
     }).length,
   };
+
+  const handleScrollLeft = () => {
+    if (tableRef.current) {
+      tableRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const handleScrollRight = () => {
+    if (tableRef.current) {
+      tableRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
+  const checkScrollPosition = () => {
+    if (tableRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = tableRef.current;
+      const hasHorizontalScroll = scrollWidth > clientWidth;
+
+      setCanScrollLeft(hasHorizontalScroll && scrollLeft > 0);
+      setCanScrollRight(
+        hasHorizontalScroll && scrollLeft < scrollWidth - clientWidth - 1
+      );
+    }
+  };
+
+  useEffect(() => {
+    const tableElement = tableRef.current;
+    if (tableElement) {
+      tableElement.addEventListener("scroll", checkScrollPosition);
+      // Verificar posição inicial
+      setTimeout(checkScrollPosition, 100);
+
+      return () => {
+        tableElement.removeEventListener("scroll", checkScrollPosition);
+      };
+    }
+  }, [pessoas]);
 
   return (
     <MainLayout>
@@ -360,127 +438,299 @@ export default function PessoaJuridicaPage() {
                 </p>
               </div>
             ) : (
-              <div className="w-full overflow-x-auto">
-                <div className="table-responsive table-container overflow-x-auto min-w-full">
-                  <table className="w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px]">
-                    <thead className="bg-secondary-50/50">
-                      <tr>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                          Empresa
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          CNPJ
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Responsável Técnico
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Contato
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Status
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Data Cadastro
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                          Ações
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-secondary-200/50">
-                      {filteredPessoas.map((pessoa, index) => (
-                        <motion.tr
-                          key={pessoa.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 + index * 0.05 }}
-                          className="hover:bg-secondary-50/50 transition-colors duration-200"
-                        >
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
-                            <div className="flex items-center space-x-1.5 sm:space-x-2 max-w-[200px] sm:max-w-[250px] lg:max-w-[300px]">
-                              <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-[10px] sm:text-xs font-bold text-white">
-                                  {pessoa.razaoSocial.charAt(0)}
-                                </span>
-                              </div>
-                              <div className="min-w-0 flex-1">
+              <div className="w-full">
+                {/* Controles da tabela */}
+                <div className="flex items-center justify-end mb-3">
+                  <TableSizeToggle
+                    isCompact={isTableCompact}
+                    onToggle={() => setIsTableCompact(!isTableCompact)}
+                    pageId="pessoa-juridica"
+                  />
+                </div>
+
+                <div className="w-full overflow-x-auto">
+                  <div
+                    ref={tableRef}
+                    className="table-responsive table-container overflow-x-auto min-w-full"
+                  >
+                    <table
+                      className={`w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px] ${
+                        isTableCompact ? "table-compact" : ""
+                      }`}
+                    >
+                      <thead className="bg-secondary-50/50">
+                        <tr>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Empresa
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            CNPJ
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Responsável Técnico
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Contato
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Status
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Data Cadastro
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right font-medium text-secondary-500 uppercase tracking-wider ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Ações
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-secondary-200/50">
+                        {filteredPessoas.map((pessoa, index) => (
+                          <motion.tr
+                            key={pessoa.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 + index * 0.05 }}
+                            className="hover:bg-secondary-50/50 transition-colors duration-200"
+                          >
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div
+                                className={`flex items-center space-x-1.5 sm:space-x-2 max-w-[200px] sm:max-w-[250px] lg:max-w-[300px] ${
+                                  isTableCompact
+                                    ? "max-w-[150px] sm:max-w-[180px] lg:max-w-[200px]"
+                                    : ""
+                                }`}
+                              >
                                 <div
-                                  className="text-[11px] sm:text-xs lg:text-sm font-medium text-secondary-900 truncate"
-                                  title={pessoa.razaoSocial}
+                                  className={`bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                    isTableCompact
+                                      ? "w-4 h-4 sm:w-5 sm:h-5"
+                                      : "w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7"
+                                  }`}
                                 >
-                                  {pessoa.razaoSocial}
-                                </div>
-                                {pessoa.nomeFantasia && (
-                                  <div
-                                    className="text-[10px] sm:text-xs text-secondary-500 truncate hidden sm:block"
-                                    title={pessoa.nomeFantasia}
+                                  <span
+                                    className={`font-bold text-white ${
+                                      isTableCompact
+                                        ? "text-[9px] sm:text-[10px]"
+                                        : "text-[10px] sm:text-xs"
+                                    }`}
                                   >
-                                    {pessoa.nomeFantasia}
+                                    {pessoa.razaoSocial.charAt(0)}
+                                  </span>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div
+                                    className={`font-medium text-secondary-900 truncate ${
+                                      isTableCompact
+                                        ? "text-[10px] sm:text-[11px]"
+                                        : "text-[11px] sm:text-xs lg:text-sm"
+                                    }`}
+                                    title={pessoa.razaoSocial}
+                                  >
+                                    {pessoa.razaoSocial}
                                   </div>
-                                )}
+                                  {pessoa.nomeFantasia && (
+                                    <div
+                                      className={`text-secondary-500 truncate hidden sm:block ${
+                                        isTableCompact
+                                          ? "text-[9px] sm:text-[10px]"
+                                          : "text-[10px] sm:text-xs"
+                                      }`}
+                                      title={pessoa.nomeFantasia}
+                                    >
+                                      {pessoa.nomeFantasia}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden sm:table-cell">
-                            {pessoa.cnpj}
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-900">
-                              {pessoa.responsavelTecnico.nome}
-                            </div>
-                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-500">
-                              {pessoa.responsavelTecnico.cpf}
-                            </div>
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-900">
-                              {pessoa.email}
-                            </div>
-                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-500">
-                              {pessoa.telefone1}
-                            </div>
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                            <StatusBadge status="ativo" />
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden sm:table-cell">
-                            {formatDate(pessoa.dataCadastro)}
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
-                            <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
-                                title="Visualizar"
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
+                                isTableCompact
+                                  ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
+                                  : "text-[10px] sm:text-xs lg:text-sm"
+                              }`}
+                            >
+                              {pessoa.cnpj}
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div
+                                className={`text-secondary-900 ${
+                                  isTableCompact
+                                    ? "text-[9px] sm:text-[10px]"
+                                    : "text-[10px] sm:text-xs lg:text-sm"
+                                }`}
                               >
-                                <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => handleEdit(pessoa)}
-                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
-                                title="Editar"
+                                {pessoa.responsavelTecnico.nome}
+                              </div>
+                              <div
+                                className={`text-secondary-500 ${
+                                  isTableCompact
+                                    ? "text-[9px] sm:text-[10px]"
+                                    : "text-[10px] sm:text-xs lg:text-sm"
+                                }`}
                               >
-                                <Edit className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => setShowDeleteConfirm(pessoa.id)}
-                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
-                                title="Excluir"
+                                {pessoa.responsavelTecnico.cpf}
+                              </div>
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div
+                                className={`text-secondary-900 ${
+                                  isTableCompact
+                                    ? "text-[9px] sm:text-[10px]"
+                                    : "text-[10px] sm:text-xs lg:text-sm"
+                                }`}
                               >
-                                <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
-                              </motion.button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
+                                {pessoa.email}
+                              </div>
+                              <div
+                                className={`text-secondary-500 ${
+                                  isTableCompact
+                                    ? "text-[9px] sm:text-[10px]"
+                                    : "text-[10px] sm:text-xs lg:text-sm"
+                                }`}
+                              >
+                                {pessoa.telefone1}
+                              </div>
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <StatusBadge
+                                status="ativo"
+                                isCompact={isTableCompact}
+                              />
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
+                                isTableCompact
+                                  ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
+                                  : "text-[10px] sm:text-xs lg:text-sm"
+                              }`}
+                            >
+                              {formatDate(pessoa.dataCadastro)}
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
+                                  title="Visualizar"
+                                >
+                                  <Eye
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleEdit(pessoa)}
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
+                                  title="Editar"
+                                >
+                                  <Edit
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() =>
+                                    setShowDeleteConfirm(pessoa.id)
+                                  }
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
+                                  title="Excluir"
+                                >
+                                  <Trash2
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <TableNavigation
+                    onScrollLeft={handleScrollLeft}
+                    onScrollRight={handleScrollRight}
+                    canScrollLeft={canScrollLeft}
+                    canScrollRight={canScrollRight}
+                    pageId="pessoa-juridica"
+                  />
                 </div>
               </div>
             )}

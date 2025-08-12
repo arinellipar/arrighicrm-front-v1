@@ -1,24 +1,25 @@
 // src/app/usuarios/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  UserCheck,
   Plus,
   Search,
   Filter,
+  Eye,
   Edit,
   Trash2,
-  Eye,
-  AlertCircle,
-  Loader2,
-  Shield,
+  Users,
   User,
   Building2,
+  AlertCircle,
+  Loader2,
+  Calendar,
   CheckCircle,
   XCircle,
-  Calendar,
+  Shield,
+  UserCheck,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import UsuarioForm from "@/components/forms/UsuarioForm";
@@ -26,6 +27,8 @@ import { useUsuario } from "@/hooks/useUsuario";
 import { Usuario, PessoaFisicaOption, PessoaJuridicaOption } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
+import { TableNavigation } from "@/components/TableNavigation";
+import { TableSizeToggle } from "@/components/TableSizeToggle";
 
 function StatusBadge({ status }: { status: "ativo" | "inativo" }) {
   return (
@@ -166,6 +169,10 @@ export default function UsuariosPage() {
   const [pessoasJuridicas, setPessoasJuridicas] = useState<
     PessoaJuridicaOption[]
   >([]);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [isTableCompact, setIsTableCompact] = useState(false);
 
   // Carregar dados auxiliares
   useEffect(() => {
@@ -258,6 +265,43 @@ export default function UsuariosPage() {
     administradores: usuarios.filter((u) => u.grupoAcesso === "Administrador")
       .length,
   };
+
+  const handleScrollLeft = () => {
+    if (tableRef.current) {
+      tableRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const handleScrollRight = () => {
+    if (tableRef.current) {
+      tableRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
+  const checkScrollPosition = () => {
+    if (tableRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = tableRef.current;
+      const hasHorizontalScroll = scrollWidth > clientWidth;
+
+      setCanScrollLeft(hasHorizontalScroll && scrollLeft > 0);
+      setCanScrollRight(
+        hasHorizontalScroll && scrollLeft < scrollWidth - clientWidth - 1
+      );
+    }
+  };
+
+  useEffect(() => {
+    const tableElement = tableRef.current;
+    if (tableElement) {
+      tableElement.addEventListener("scroll", checkScrollPosition);
+      // Verificar posição inicial
+      setTimeout(checkScrollPosition, 100);
+
+      return () => {
+        tableElement.removeEventListener("scroll", checkScrollPosition);
+      };
+    }
+  }, [usuarios]);
 
   return (
     <MainLayout>
@@ -470,126 +514,292 @@ export default function UsuariosPage() {
                 </p>
               </div>
             ) : (
-              <div className="w-full overflow-x-auto">
-                <div className="table-responsive table-container overflow-x-auto min-w-full">
-                  <table className="w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px]">
-                    <thead className="bg-secondary-50/50">
-                      <tr>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                          Usuário
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Pessoa Vinculada
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Grupo de Acesso
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Tipo
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Status
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                          Último Acesso
-                        </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                          Ações
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-secondary-200/50">
-                      {filteredUsuarios.map((usuario, index) => (
-                        <motion.tr
-                          key={usuario.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.4 + index * 0.05 }}
-                          className="hover:bg-secondary-50/50 transition-colors duration-200"
-                        >
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
-                            <div className="flex items-center space-x-1.5 sm:space-x-2 max-w-[200px] sm:max-w-[250px] lg:max-w-[300px]">
-                              <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-                                <span className="text-[10px] sm:text-xs font-bold text-white">
-                                  {usuario.login.charAt(0)}
-                                </span>
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="text-[11px] sm:text-xs lg:text-sm font-medium text-secondary-900 truncate">
-                                  {usuario.login}
+              <div className="w-full">
+                {/* Controles da tabela */}
+                <div className="flex items-center justify-end mb-3">
+                  <TableSizeToggle
+                    isCompact={isTableCompact}
+                    onToggle={() => setIsTableCompact(!isTableCompact)}
+                    pageId="usuarios"
+                  />
+                </div>
+
+                <div className="w-full overflow-x-auto">
+                  <div
+                    ref={tableRef}
+                    className="table-responsive table-container overflow-x-auto min-w-full"
+                  >
+                    <table
+                      className={`w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px] ${
+                        isTableCompact ? "table-compact" : ""
+                      }`}
+                    >
+                      <thead className="bg-secondary-50/50">
+                        <tr>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Usuário
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Pessoa Vinculada
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Grupo de Acesso
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Tipo
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Status
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Último Acesso
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right font-medium text-secondary-500 uppercase tracking-wider ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Ações
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-secondary-200/50">
+                        {filteredUsuarios.map((usuario, index) => (
+                          <motion.tr
+                            key={usuario.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 + index * 0.05 }}
+                            className="hover:bg-secondary-50/50 transition-colors duration-200"
+                          >
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div
+                                className={`flex items-center space-x-1.5 sm:space-x-2 max-w-[200px] sm:max-w-[250px] lg:max-w-[300px] ${
+                                  isTableCompact
+                                    ? "max-w-[150px] sm:max-w-[180px] lg:max-w-[200px]"
+                                    : ""
+                                }`}
+                              >
+                                <div
+                                  className={`bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                    isTableCompact
+                                      ? "w-4 h-4 sm:w-5 sm:h-5"
+                                      : "w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7"
+                                  }`}
+                                >
+                                  <span
+                                    className={`font-bold text-white ${
+                                      isTableCompact
+                                        ? "text-[9px] sm:text-[10px]"
+                                        : "text-[10px] sm:text-xs"
+                                    }`}
+                                  >
+                                    {usuario.login.charAt(0)}
+                                  </span>
                                 </div>
-                                <div className="text-[10px] sm:text-xs text-secondary-500 truncate hidden sm:block">
-                                  {usuario.email}
+                                <div className="min-w-0 flex-1">
+                                  <div
+                                    className={`font-medium text-secondary-900 truncate ${
+                                      isTableCompact
+                                        ? "text-[10px] sm:text-[11px]"
+                                        : "text-[11px] sm:text-xs lg:text-sm"
+                                    }`}
+                                  >
+                                    {usuario.login}
+                                  </div>
+                                  <div
+                                    className={`text-secondary-500 truncate hidden sm:block ${
+                                      isTableCompact
+                                        ? "text-[9px] sm:text-[10px]"
+                                        : "text-[10px] sm:text-xs"
+                                    }`}
+                                  >
+                                    {usuario.email}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-900">
-                              {usuario.pessoaFisica
-                                ? usuario.pessoaFisica.nome
-                                : usuario.pessoaJuridica
-                                ? usuario.pessoaJuridica.razaoSocial
-                                : "N/A"}
-                            </div>
-                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-500">
-                              {usuario.pessoaFisica
-                                ? usuario.pessoaFisica.cpf
-                                : usuario.pessoaJuridica
-                                ? usuario.pessoaJuridica.cnpj
-                                : "N/A"}
-                            </div>
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                            <GrupoAcessoBadge grupo={usuario.grupoAcesso} />
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                            <TipoPessoaBadge tipo={usuario.tipoPessoa} />
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                            <StatusBadge
-                              status={usuario.ativo ? "ativo" : "inativo"}
-                            />
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden sm:table-cell">
-                            {usuario.ultimoAcesso
-                              ? formatDateTime(usuario.ultimoAcesso)
-                              : "Nunca acessou"}
-                          </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
-                            <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
-                                title="Visualizar"
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div
+                                className={`text-secondary-900 ${
+                                  isTableCompact
+                                    ? "text-[9px] sm:text-[10px]"
+                                    : "text-[10px] sm:text-xs lg:text-sm"
+                                }`}
                               >
-                                <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => handleEdit(usuario)}
-                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
-                                title="Editar"
+                                {usuario.pessoaFisica
+                                  ? usuario.pessoaFisica.nome
+                                  : usuario.pessoaJuridica
+                                  ? usuario.pessoaJuridica.razaoSocial
+                                  : "N/A"}
+                              </div>
+                              <div
+                                className={`text-secondary-500 ${
+                                  isTableCompact
+                                    ? "text-[9px] sm:text-[10px]"
+                                    : "text-[10px] sm:text-xs lg:text-sm"
+                                }`}
                               >
-                                <Edit className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
-                              </motion.button>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => setShowDeleteConfirm(usuario.id)}
-                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
-                                title="Excluir"
-                              >
-                                <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
-                              </motion.button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
+                                {usuario.pessoaFisica
+                                  ? usuario.pessoaFisica.cpf
+                                  : usuario.pessoaJuridica
+                                  ? usuario.pessoaJuridica.cnpj
+                                  : "N/A"}
+                              </div>
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <GrupoAcessoBadge
+                                grupo={usuario.grupoAcesso}
+                                isCompact={isTableCompact}
+                              />
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <TipoPessoaBadge
+                                tipo={usuario.tipoPessoa}
+                                isCompact={isTableCompact}
+                              />
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <StatusBadge
+                                status={usuario.ativo ? "ativo" : "inativo"}
+                                isCompact={isTableCompact}
+                              />
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
+                                isTableCompact
+                                  ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
+                                  : "text-[10px] sm:text-xs lg:text-sm"
+                              }`}
+                            >
+                              {usuario.ultimoAcesso
+                                ? formatDateTime(usuario.ultimoAcesso)
+                                : "Nunca acessou"}
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
+                                  title="Visualizar"
+                                >
+                                  <Eye
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleEdit(usuario)}
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
+                                  title="Editar"
+                                >
+                                  <Edit
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() =>
+                                    setShowDeleteConfirm(usuario.id)
+                                  }
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
+                                  title="Excluir"
+                                >
+                                  <Trash2
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <TableNavigation
+                    onScrollLeft={handleScrollLeft}
+                    onScrollRight={handleScrollRight}
+                    canScrollLeft={canScrollLeft}
+                    canScrollRight={canScrollRight}
+                    pageId="usuarios"
+                  />
                 </div>
               </div>
             )}

@@ -203,6 +203,57 @@
     white-space: nowrap;
   }
 
+  /* Estilos para as setas de navegação da tabela */
+  .table-navigation-button {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    pointer-events: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Garantir que as setas sejam visíveis em diferentes fundos */
+  .table-navigation-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 1) !important;
+  }
+
+  /* Garantir que as setas sempre fiquem visíveis */
+  .table-navigation-button:not(:disabled) {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Estilo para setas desabilitadas */
+  .table-navigation-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Responsividade para as setas */
+  @media screen and (max-width: 640px) {
+    .table-navigation-button {
+      padding: 0.75rem;
+    }
+
+    .table-navigation-button svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  /* Ajustes para telas muito pequenas */
+  @media screen and (max-width: 480px) {
+    .table-navigation-button {
+      padding: 0.5rem;
+    }
+
+    .table-navigation-button svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
   /* Garantir que o container principal não corte conteúdo */
   .container {
     /* Usar configuração padrão do Tailwind */
