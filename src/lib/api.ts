@@ -1,8 +1,6 @@
 // src/lib/api.ts
 import { getApiUrl, isDevelopment } from "../../env.config";
 
-const API_BASE_URL = getApiUrl();
-
 export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
@@ -10,18 +8,19 @@ export interface ApiResponse<T = any> {
 }
 
 class ApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-    console.log("🔧 ApiClient: Base URL configurada como:", this.baseUrl);
+  private getBaseUrl(): string {
+    return getApiUrl();
   }
 
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${this.baseUrl}${endpoint}`;
+    const baseUrl = this.getBaseUrl();
+    const url = `${baseUrl}${endpoint}`;
+
+    // Log the base URL for debugging
+    console.log("🔧 ApiClient: Base URL configurada como:", baseUrl);
 
     try {
       // Log da URL em desenvolvimento
@@ -150,4 +149,4 @@ class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient(API_BASE_URL);
+export const apiClient = new ApiClient();
