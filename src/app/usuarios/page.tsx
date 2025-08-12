@@ -470,143 +470,127 @@ export default function UsuariosPage() {
                 </p>
               </div>
             ) : (
-              <div className="table-responsive table-container">
-                <table className="w-full min-w-[500px] sm:min-w-[600px] lg:min-w-[700px]">
-                  <thead className="bg-secondary-50/50">
-                    <tr>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Usuário
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
-                        Pessoa Vinculada
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden md:table-cell">
-                        Grupo de Acesso
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden lg:table-cell">
-                        Tipo
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
-                        Status
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider hidden xl:table-cell">
-                        Último Acesso
-                      </th>
-                      <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Ações
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-secondary-200/50">
-                    {filteredUsuarios.map((usuario, index) => (
-                      <motion.tr
-                        key={usuario.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 + index * 0.05 }}
-                        className="hover:bg-secondary-50/50 transition-colors duration-200"
-                      >
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
-                          <div className="flex items-center space-x-1.5 sm:space-x-2">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                              <span className="text-xs font-bold text-white">
-                                {usuario.login.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-xs sm:text-sm font-medium text-secondary-900 truncate">
-                                {usuario.login}
+              <div className="w-full overflow-x-auto">
+                <div className="table-responsive table-container overflow-x-auto min-w-full">
+                  <table className="w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px]">
+                    <thead className="bg-secondary-50/50">
+                      <tr>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                          Usuário
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
+                          Pessoa Vinculada
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
+                          Grupo de Acesso
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
+                          Tipo
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
+                          Status
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
+                          Último Acesso
+                        </th>
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                          Ações
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-secondary-200/50">
+                      {filteredUsuarios.map((usuario, index) => (
+                        <motion.tr
+                          key={usuario.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 + index * 0.05 }}
+                          className="hover:bg-secondary-50/50 transition-colors duration-200"
+                        >
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
+                            <div className="flex items-center space-x-1.5 sm:space-x-2 max-w-[200px] sm:max-w-[250px] lg:max-w-[300px]">
+                              <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span className="text-[10px] sm:text-xs font-bold text-white">
+                                  {usuario.login.charAt(0)}
+                                </span>
                               </div>
-                              <div className="text-xs text-secondary-500 truncate">
-                                {usuario.email}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
-                          {usuario.pessoaFisica ? (
-                            <div>
-                              <div className="text-xs sm:text-sm font-medium text-secondary-900 truncate">
-                                {usuario.pessoaFisica.nome}
-                              </div>
-                              <div className="text-xs sm:text-sm text-secondary-500 truncate">
-                                {usuario.pessoaFisica.cpf}
+                              <div className="min-w-0 flex-1">
+                                <div className="text-[11px] sm:text-xs lg:text-sm font-medium text-secondary-900 truncate">
+                                  {usuario.login}
+                                </div>
+                                <div className="text-[10px] sm:text-xs text-secondary-500 truncate hidden sm:block">
+                                  {usuario.email}
+                                </div>
                               </div>
                             </div>
-                          ) : usuario.pessoaJuridica ? (
-                            <div>
-                              <div className="text-xs sm:text-sm font-medium text-secondary-900 truncate">
-                                {usuario.pessoaJuridica.razaoSocial}
-                              </div>
-                              <div className="text-xs sm:text-sm text-secondary-500 truncate">
-                                {usuario.pessoaJuridica.cnpj}
-                              </div>
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
+                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-900">
+                              {usuario.pessoaFisica
+                                ? usuario.pessoaFisica.nome
+                                : usuario.pessoaJuridica
+                                ? usuario.pessoaJuridica.razaoSocial
+                                : "N/A"}
                             </div>
-                          ) : (
-                            <span className="text-xs sm:text-sm text-secondary-400">
-                              Não vinculado
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden md:table-cell">
-                          <GrupoAcessoBadge grupo={usuario.grupoAcesso} />
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden lg:table-cell">
-                          <TipoPessoaBadge tipo={usuario.tipoPessoa} />
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden xl:table-cell">
-                          <StatusBadge
-                            status={usuario.ativo ? "ativo" : "inativo"}
-                          />
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-xs sm:text-sm text-secondary-600 hidden xl:table-cell">
-                          {usuario.ultimoAcesso ? (
-                            <div className="flex items-center space-x-1">
-                              <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                              <span>
-                                {formatDateTime(usuario.ultimoAcesso)}
-                              </span>
+                            <div className="text-[10px] sm:text-xs lg:text-sm text-secondary-500">
+                              {usuario.pessoaFisica
+                                ? usuario.pessoaFisica.cpf
+                                : usuario.pessoaJuridica
+                                ? usuario.pessoaJuridica.cnpj
+                                : "N/A"}
                             </div>
-                          ) : (
-                            <span className="text-secondary-400">
-                              Nunca acessou
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
-                          <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
-                              title="Visualizar"
-                            >
-                              <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => handleEdit(usuario)}
-                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
-                              title="Editar"
-                            >
-                              <Edit className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => setShowDeleteConfirm(usuario.id)}
-                              className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
-                              title="Excluir"
-                            >
-                              <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                            </motion.button>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
+                            <GrupoAcessoBadge grupo={usuario.grupoAcesso} />
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
+                            <TipoPessoaBadge tipo={usuario.tipoPessoa} />
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
+                            <StatusBadge
+                              status={usuario.ativo ? "ativo" : "inativo"}
+                            />
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden sm:table-cell">
+                            {usuario.ultimoAcesso
+                              ? formatDateTime(usuario.ultimoAcesso)
+                              : "Nunca acessou"}
+                          </td>
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
+                                title="Visualizar"
+                              >
+                                <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => handleEdit(usuario)}
+                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
+                                title="Editar"
+                              >
+                                <Edit className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setShowDeleteConfirm(usuario.id)}
+                                className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
+                                title="Excluir"
+                              >
+                                <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5" />
+                              </motion.button>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 

@@ -362,7 +362,7 @@ export default function PessoaJuridicaPage() {
             ) : (
               <div className="w-full overflow-x-auto">
                 <div className="table-responsive table-container overflow-x-auto min-w-full">
-                  <table className="w-full min-w-[900px] sm:min-w-[1000px] lg:min-w-[1100px] xl:min-w-[1200px]">
+                  <table className="w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px]">
                     <thead className="bg-secondary-50/50">
                       <tr>
                         <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
@@ -377,10 +377,10 @@ export default function PessoaJuridicaPage() {
                         <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
                           Contato
                         </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell max-w-[80px] sm:max-w-[90px] lg:max-w-[100px]">
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
                           Status
                         </th>
-                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell max-w-[90px] sm:max-w-[100px] lg:max-w-[110px]">
+                        <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell">
                           Data Cadastro
                         </th>
                         <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right text-[10px] sm:text-xs font-medium text-secondary-500 uppercase tracking-wider">
@@ -398,7 +398,7 @@ export default function PessoaJuridicaPage() {
                           className="hover:bg-secondary-50/50 transition-colors duration-200"
                         >
                           <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap">
-                            <div className="flex items-center space-x-1.5 sm:space-x-2 max-w-[150px] sm:max-w-[180px] lg:max-w-[200px]">
+                            <div className="flex items-center space-x-1.5 sm:space-x-2 max-w-[200px] sm:max-w-[250px] lg:max-w-[300px]">
                               <div className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span className="text-[10px] sm:text-xs font-bold text-white">
                                   {pessoa.razaoSocial.charAt(0)}
@@ -441,10 +441,10 @@ export default function PessoaJuridicaPage() {
                               {pessoa.telefone1}
                             </div>
                           </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell max-w-[80px] sm:max-w-[90px] lg:max-w-[100px]">
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell">
                             <StatusBadge status="ativo" />
                           </td>
-                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden sm:table-cell max-w-[90px] sm:max-w-[100px] lg:max-w-[110px]">
+                          <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-[10px] sm:text-xs lg:text-sm text-secondary-600 hidden sm:table-cell">
                             {formatDate(pessoa.dataCadastro)}
                           </td>
                           <td className="px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right">
