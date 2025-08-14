@@ -153,6 +153,109 @@ export interface PessoaJuridicaOption {
   email: string;
 }
 
+// Tipos para Consultor
+export interface Consultor {
+  id: number;
+  pessoaFisicaId: number;
+  pessoaFisica: PessoaFisica;
+  filial: string;
+  dataCadastro: string;
+  dataAtualizacao?: string;
+  ativo: boolean;
+  // Propriedades adicionadas durante transformação no frontend
+  nome?: string;
+  email?: string;
+  telefone1?: string;
+  telefone2?: string;
+  oab?: string;
+  especialidades?: string[];
+  status?: "ativo" | "inativo" | "ferias" | "licenca";
+  casosAtivos?: number;
+  taxaSucesso?: number;
+}
+
+export interface CreateConsultorDTO {
+  pessoaFisicaId: number;
+  filial: string;
+}
+
+export interface UpdateConsultorDTO extends CreateConsultorDTO {
+  id: number;
+}
+
+// Tipos para Cliente
+export interface Cliente {
+  id: number;
+  tipoPessoa: "Fisica" | "Juridica";
+  pessoaFisicaId?: number;
+  pessoaFisica?: PessoaFisica;
+  pessoaJuridicaId?: number;
+  pessoaJuridica?: PessoaJuridica;
+  consultorAtualId?: number;
+  filial: string;
+  status?: string;
+  observacoes?: string;
+  dataCadastro: string;
+  dataAtualizacao?: string;
+  ativo: boolean;
+  // Propriedades adicionadas durante transformação no frontend
+  tipo?: "fisica" | "juridica";
+  nome?: string;
+  razaoSocial?: string;
+  email?: string;
+  cpf?: string;
+  cnpj?: string;
+  telefone1?: string;
+  telefone2?: string;
+  segmento?: string;
+  valorContrato?: number;
+}
+
+export interface CreateClienteDTO {
+  tipoPessoa: "Fisica" | "Juridica";
+  pessoaId: number;
+  filial: string;
+  status?: string;
+  observacoes?: string;
+}
+
+export interface UpdateClienteDTO extends CreateClienteDTO {
+  id: number;
+}
+
+// Tipos para HistoricoConsultor
+export interface HistoricoConsultor {
+  id: number;
+  clienteId: number;
+  cliente?: Cliente;
+  consultorId: number;
+  consultor?: Consultor;
+  dataInicio: string;
+  dataFim?: string;
+  motivoTransferencia?: string;
+  dataCadastro: string;
+}
+
+export interface AtribuirClienteDTO {
+  consultorId: number;
+  clienteId: number;
+  motivoAtribuicao?: string;
+}
+
+// Tipos para Filial
+export interface Filial {
+  id: number;
+  nome: string;
+  cidade: string;
+  estado: string;
+  endereco?: string;
+  telefone?: string;
+  email?: string;
+  ativo: boolean;
+  dataCadastro: string;
+  dataAtualizacao?: string;
+}
+
 // Enums
 export const SexoOptions = [
   { value: "M", label: "Masculino" },
