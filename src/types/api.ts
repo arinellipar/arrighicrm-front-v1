@@ -177,6 +177,14 @@ export interface Consultor {
 export interface CreateConsultorDTO {
   pessoaFisicaId: number;
   filial: string;
+  // Propriedades adicionais para o frontend
+  nome?: string;
+  email?: string;
+  oab?: string;
+  telefone1?: string;
+  telefone2?: string;
+  especialidades?: string[];
+  status?: "ativo" | "inativo" | "ferias" | "licenca";
 }
 
 export interface UpdateConsultorDTO extends CreateConsultorDTO {
@@ -217,6 +225,17 @@ export interface CreateClienteDTO {
   filial: string;
   status?: string;
   observacoes?: string;
+  // Propriedades adicionais para o frontend
+  tipo?: "fisica" | "juridica";
+  nome?: string;
+  razaoSocial?: string;
+  email?: string;
+  cpf?: string;
+  cnpj?: string;
+  telefone1?: string;
+  telefone2?: string;
+  segmento?: string;
+  valorContrato?: number;
 }
 
 export interface UpdateClienteDTO extends CreateClienteDTO {

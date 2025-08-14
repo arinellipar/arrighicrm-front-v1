@@ -33,6 +33,9 @@ export default function ClienteForm({
   loading = false,
 }: ClienteFormProps) {
   const [formData, setFormData] = useState<CreateClienteDTO>({
+    tipoPessoa: "Fisica",
+    pessoaId: 0,
+    filial: "",
     nome: "",
     razaoSocial: "",
     email: "",
@@ -51,15 +54,19 @@ export default function ClienteForm({
   useEffect(() => {
     if (initialData) {
       setFormData({
+        tipoPessoa: initialData.tipoPessoa || "Fisica",
+        pessoaId:
+          initialData.pessoaFisicaId || initialData.pessoaJuridicaId || 0,
+        filial: initialData.filial || "",
         nome: initialData.nome || "",
         razaoSocial: initialData.razaoSocial || "",
-        email: initialData.email,
+        email: initialData.email || "",
         cpf: initialData.cpf || "",
         cnpj: initialData.cnpj || "",
-        telefone1: initialData.telefone1,
+        telefone1: initialData.telefone1 || "",
         telefone2: initialData.telefone2 || "",
-        tipo: initialData.tipo,
-        status: initialData.status,
+        tipo: initialData.tipo || "fisica",
+        status: initialData.status || "ativo",
         segmento: initialData.segmento || "",
         valorContrato: initialData.valorContrato || 0,
       });
@@ -86,13 +93,13 @@ export default function ClienteForm({
       }
     }
 
-    if (!formData.email.trim()) {
+    if (!formData.email?.trim()) {
       newErrors.email = "Email é obrigatório";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email || "")) {
       newErrors.email = "Email inválido";
     }
 
-    if (!formData.telefone1.trim()) {
+    if (!formData.telefone1?.trim()) {
       newErrors.telefone1 = "Telefone é obrigatório";
     }
 

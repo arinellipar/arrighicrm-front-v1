@@ -32,6 +32,8 @@ export default function ConsultorForm({
   loading = false,
 }: ConsultorFormProps) {
   const [formData, setFormData] = useState<CreateConsultorDTO>({
+    pessoaFisicaId: 0,
+    filial: "",
     nome: "",
     email: "",
     oab: "",
@@ -39,7 +41,6 @@ export default function ConsultorForm({
     telefone2: "",
     especialidades: [],
     status: "ativo",
-    filial: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -48,14 +49,15 @@ export default function ConsultorForm({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        nome: initialData.nome,
-        email: initialData.email,
+        pessoaFisicaId: initialData.pessoaFisicaId || 0,
+        filial: initialData.filial || "",
+        nome: initialData.nome || "",
+        email: initialData.email || "",
         oab: initialData.oab || "",
-        telefone1: initialData.telefone1,
+        telefone1: initialData.telefone1 || "",
         telefone2: initialData.telefone2 || "",
         especialidades: initialData.especialidades || [],
-        status: initialData.status,
-        filial: initialData.filial,
+        status: initialData.status || "ativo",
       });
     }
   }, [initialData]);
@@ -63,17 +65,17 @@ export default function ConsultorForm({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.nome.trim()) {
+    if (!formData.nome?.trim()) {
       newErrors.nome = "Nome é obrigatório";
     }
 
-    if (!formData.email.trim()) {
+    if (!formData.email?.trim()) {
       newErrors.email = "Email é obrigatório";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(formData.email || "")) {
       newErrors.email = "Email inválido";
     }
 
-    if (!formData.telefone1.trim()) {
+    if (!formData.telefone1?.trim()) {
       newErrors.telefone1 = "Telefone é obrigatório";
     }
 
@@ -118,7 +120,9 @@ export default function ConsultorForm({
   const removeEspecialidade = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      especialidades: prev.especialidades?.filter((_, i) => i !== index) || [],
+      especialidades:
+        prev.especialidades?.filter((_: string, i: number) => i !== index) ||
+        [],
     }));
   };
 
@@ -364,7 +368,7 @@ export default function ConsultorForm({
             </div>
             {formData.especialidades && formData.especialidades.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {formData.especialidades.map((esp, index) => (
+                {formData.especialidades?.map((esp: string, index: number) => (
                   <span
                     key={index}
                     className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"

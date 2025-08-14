@@ -2,8 +2,8 @@
 export { default as MainLayout } from "./MainLayout";
 export { default as Header } from "./Header";
 export { default as Dashboard } from "./Dashboard";
-export { default as TableNavigation } from "./TableNavigation";
-export { default as TableSizeToggle } from "./TableSizeToggle";
+// export { default as TableNavigation } from "./TableNavigation";
+// export { default as TableSizeToggle } from "./TableSizeToggle";
 
 // Forms
 export { default as PessoaFisicaForm } from "./forms/PessoaFisicaForm";
