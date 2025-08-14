@@ -8,3 +8,4 @@ export { useClientes } from "./useClientes";
 export { usePessoasFisicas } from "./usePessoasFisicas";
 export { usePessoasJuridicas } from "./usePessoasJuridicas";
 export { useHistoricoConsultores } from "./useHistoricoConsultores";
+export { useFiliais } from "./useFiliais";

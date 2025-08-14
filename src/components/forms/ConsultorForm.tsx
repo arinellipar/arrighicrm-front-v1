@@ -26,6 +26,7 @@ import {
 } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { usePessoasFisicas } from "@/hooks/usePessoasFisicas";
+import { useFiliais } from "@/hooks/useFiliais";
 
 interface ConsultorFormProps {
   initialData?: Consultor | null;
@@ -47,6 +48,13 @@ export default function ConsultorForm({
     fetchPessoasFisicas,
     buscarPorCpf,
   } = usePessoasFisicas();
+
+  const {
+    filiais,
+    loading: loadingFiliais,
+    error: filiaisError,
+    fetchFiliais,
+  } = useFiliais();
 
   const [formData, setFormData] = useState<CreateConsultorDTO>({
     pessoaFisicaId: 0,
@@ -513,21 +521,38 @@ export default function ConsultorForm({
             </label>
             <div className="relative">
               <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
-              <input
-                type="text"
+              <select
                 value={formData.filial}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, filial: e.target.value }))
                 }
                 className={cn(
-                  "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                  "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 appearance-none",
                   errors.filial
                     ? "border-red-300 focus:ring-red-500"
                     : "border-secondary-300"
                 )}
-                placeholder="Nome da filial"
-              />
+                disabled={loadingFiliais}
+              >
+                <option value="">Selecione uma filial</option>
+                {filiais.map((filial) => (
+                  <option key={filial.id} value={filial.nome}>
+                    {filial.nome}
+                  </option>
+                ))}
+              </select>
+              {loadingFiliais && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Loader2 className="w-4 h-4 animate-spin text-secondary-400" />
+                </div>
+              )}
             </div>
+            {filiaisError && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                Erro ao carregar filiais: {filiaisError}
+              </p>
+            )}
             {errors.filial && (
               <p className="mt-1 text-sm text-red-600 flex items-center">
                 <AlertCircle className="w-4 h-4 mr-1" />

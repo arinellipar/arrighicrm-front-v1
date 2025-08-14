@@ -103,6 +103,14 @@ class ApiClient {
       // Verificar se a resposta é JSON
       const contentType = response.headers.get("content-type");
 
+      // Para status 204 (No Content), não esperamos JSON
+      if (response.status === 204) {
+        return {
+          data: undefined,
+          status: response.status,
+        };
+      }
+
       if (!contentType || !contentType.includes("application/json")) {
         console.error(
           `Non-JSON response received: ${contentType}`,
@@ -185,6 +193,13 @@ class ApiClient {
   async put<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async patch<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: "PATCH",
       body: JSON.stringify(data),
     });
   }

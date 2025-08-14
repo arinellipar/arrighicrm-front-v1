@@ -164,16 +164,30 @@ export function useConsultores() {
     async (id: number, data: UpdateConsultorDTO) => {
       setState((prev) => ({ ...prev, updating: true, error: null }));
       try {
-        const response = await apiClient.put(`/Consultor/${id}`, data);
+        // Enviar apenas os campos que o backend permite atualizar
+        const backendData = {
+          id: id,
+          filial: data.filial,
+          oab: data.oab || null,
+        };
+
+        console.log(
+          "🔧 updateConsultor: Enviando dados para backend:",
+          backendData
+        );
+        const response = await apiClient.put(`/Consultor/${id}`, backendData);
+
+        // Atualizar a lista local com os dados atualizados
         setState((prev) => ({
           ...prev,
           consultores: prev.consultores.map((c) =>
-            c.id === id ? (response.data as Consultor) : c
+            c.id === id ? { ...c, filial: data.filial, oab: data.oab } : c
           ),
           updating: false,
         }));
         return true;
       } catch (error: unknown) {
+        console.error("🔧 updateConsultor: Erro:", error);
         const errorMessage =
           error instanceof Error
             ? error.message

@@ -183,6 +183,9 @@ export default function ClientesPage() {
   const [selectedTab, setSelectedTab] = useState<
     "todos" | "fisica" | "juridica"
   >("todos");
+  const [selectedClienteId, setSelectedClienteId] = useState<number | null>(
+    null
+  );
 
   // Filtrar clientes
   const filteredClientes = clientes.filter((cliente: Cliente) => {
@@ -242,6 +245,35 @@ export default function ClientesPage() {
   const handleOpenForm = () => {
     setShowForm(true);
     openForm();
+  };
+
+  const handleSelectCliente = (clienteId: number) => {
+    setSelectedClienteId(selectedClienteId === clienteId ? null : clienteId);
+  };
+
+  const handleViewSelected = () => {
+    if (selectedClienteId) {
+      const cliente = clientes.find((c: Cliente) => c.id === selectedClienteId);
+      if (cliente) {
+        // Implementar visualização do cliente
+        console.log("Visualizar cliente:", cliente);
+      }
+    }
+  };
+
+  const handleEditSelected = () => {
+    if (selectedClienteId) {
+      const cliente = clientes.find((c: Cliente) => c.id === selectedClienteId);
+      if (cliente) {
+        handleEdit(cliente);
+      }
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedClienteId) {
+      setShowDeleteConfirm(selectedClienteId);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -358,7 +390,7 @@ export default function ClientesPage() {
           </div>
         </motion.div>
 
-        {/* Filtros e Busca */}
+        {/* Busca e Ações */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -375,6 +407,13 @@ export default function ClientesPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
               />
+              {selectedClienteId && (
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  <div className="bg-accent-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="text-xs font-bold">✓</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <select
@@ -402,14 +441,41 @@ export default function ClientesPage() {
               ))}
             </select>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center space-x-2 px-6 py-3 bg-secondary-100 hover:bg-secondary-200 text-secondary-700 rounded-xl font-medium transition-all duration-200"
-            >
-              <Filter className="w-5 h-5" />
-              <span>Filtros</span>
-            </motion.button>
+            <div className="flex space-x-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleViewSelected}
+                disabled={!selectedClienteId}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-blue-100 hover:bg-blue-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-blue-700 rounded-xl font-medium transition-all duration-200"
+                title="Visualizar cliente selecionado"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Visualizar</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleEditSelected}
+                disabled={!selectedClienteId}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-100 hover:bg-green-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-green-700 rounded-xl font-medium transition-all duration-200"
+                title="Editar cliente selecionado"
+              >
+                <Edit className="w-4 h-4" />
+                <span>Editar</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleDeleteSelected}
+                disabled={!selectedClienteId}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-100 hover:bg-red-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-red-700 rounded-xl font-medium transition-all duration-200"
+                title="Excluir cliente selecionado"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Excluir</span>
+              </motion.button>
+            </div>
           </div>
         </motion.div>
 
@@ -601,9 +667,6 @@ export default function ClientesPage() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
                         Cliente Desde
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Ações
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-200/50">
@@ -613,7 +676,13 @@ export default function ClientesPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
-                        className="hover:bg-secondary-50/50 transition-colors duration-200"
+                        onClick={() => handleSelectCliente(cliente.id)}
+                        className={cn(
+                          "transition-colors duration-200 cursor-pointer",
+                          selectedClienteId === cliente.id
+                            ? "bg-secondary-200 hover:bg-secondary-200 border-l-4 border-accent-500"
+                            : "hover:bg-secondary-50/50"
+                        )}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -666,33 +735,6 @@ export default function ClientesPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
                           {formatDate(cliente.dataCadastro)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex items-center justify-end space-x-2">
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="text-secondary-400 hover:text-primary-600 transition-colors duration-200"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => handleEdit(cliente)}
-                              className="text-secondary-400 hover:text-accent-600 transition-colors duration-200"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => setShowDeleteConfirm(cliente.id)}
-                              className="text-secondary-400 hover:text-red-600 transition-colors duration-200"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </motion.button>
-                          </div>
-                        </td>
                       </motion.tr>
                     ))}
                   </tbody>
@@ -706,7 +748,13 @@ export default function ClientesPage() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.05 * index }}
-                    className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 border border-secondary-200/50"
+                    onClick={() => handleSelectCliente(cliente.id)}
+                    className={cn(
+                      "bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 border border-secondary-200/50 cursor-pointer",
+                      selectedClienteId === cliente.id
+                        ? "border-accent-500 bg-accent-50"
+                        : ""
+                    )}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center">
@@ -769,20 +817,6 @@ export default function ClientesPage() {
                           <SegmentoBadge segmento={cliente.segmento} />
                         </div>
                       )}
-                      <div className="flex justify-between">
-                        <button
-                          onClick={() => handleEdit(cliente)}
-                          className="text-primary-600 hover:text-primary-700 font-medium text-sm"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(cliente.id)}
-                          className="text-red-600 hover:text-red-700 font-medium text-sm"
-                        >
-                          Excluir
-                        </button>
-                      </div>
                     </div>
                   </motion.div>
                 ))}
