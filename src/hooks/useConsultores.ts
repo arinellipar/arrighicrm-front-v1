@@ -71,18 +71,38 @@ export function useConsultores() {
       }
 
       // Transformar os dados para o formato esperado pelo frontend
-      const consultoresTransformados = response.data.map((consultor: any) => ({
-        ...consultor,
-        nome: consultor.pessoaFisica?.nome,
-        email: consultor.pessoaFisica?.email,
-        telefone1: consultor.pessoaFisica?.telefone1,
-        telefone2: consultor.pessoaFisica?.telefone2,
-        oab: consultor.oab, // Usando o campo OAB real
-        especialidades: [], // Array vazio por padrão
-        status: "ativo" as const, // Status padrão
-        casosAtivos: 0, // Valor padrão
-        taxaSucesso: 0, // Valor padrão
-      }));
+      const consultoresTransformados = response.data.map(
+        (consultor: unknown) => {
+          const c = consultor as {
+            id: number;
+            pessoaFisicaId: number;
+            pessoaFisica?: {
+              nome?: string;
+              email?: string;
+              telefone1?: string;
+              telefone2?: string;
+            };
+            filial: string;
+            oab?: string;
+            dataCadastro: string;
+            dataAtualizacao?: string;
+            ativo: boolean;
+          };
+
+          return {
+            ...c,
+            nome: c.pessoaFisica?.nome,
+            email: c.pessoaFisica?.email,
+            telefone1: c.pessoaFisica?.telefone1,
+            telefone2: c.pessoaFisica?.telefone2,
+            oab: c.oab, // Usando o campo OAB real
+            especialidades: [], // Array vazio por padrão
+            status: "ativo" as const, // Status padrão
+            casosAtivos: 0, // Valor padrão
+            taxaSucesso: 0, // Valor padrão
+          };
+        }
+      );
 
       console.log(
         "🔧 fetchConsultores: Consultores transformados:",
@@ -91,14 +111,16 @@ export function useConsultores() {
 
       setState((prev) => ({
         ...prev,
-        consultores: consultoresTransformados as Consultor[],
+        consultores: consultoresTransformados as unknown as Consultor[],
         loading: false,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("🔧 fetchConsultores: Erro capturado:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro ao carregar consultores";
       setState((prev) => ({
         ...prev,
-        error: error.response?.data?.message || "Erro ao carregar consultores",
+        error: errorMessage,
         loading: false,
       }));
     }
@@ -125,11 +147,13 @@ export function useConsultores() {
         creating: false,
       }));
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("🔧 createConsultor: Erro:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro ao criar consultor";
       setState((prev) => ({
         ...prev,
-        error: error.response?.data?.message || "Erro ao criar consultor",
+        error: errorMessage,
         creating: false,
       }));
       return false;
@@ -149,10 +173,14 @@ export function useConsultores() {
           updating: false,
         }));
         return true;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Erro ao atualizar consultor";
         setState((prev) => ({
           ...prev,
-          error: error.response?.data?.message || "Erro ao atualizar consultor",
+          error: errorMessage,
           updating: false,
         }));
         return false;
@@ -171,10 +199,12 @@ export function useConsultores() {
         deleting: false,
       }));
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro ao excluir consultor";
       setState((prev) => ({
         ...prev,
-        error: error.response?.data?.message || "Erro ao excluir consultor",
+        error: errorMessage,
         deleting: false,
       }));
       return false;
