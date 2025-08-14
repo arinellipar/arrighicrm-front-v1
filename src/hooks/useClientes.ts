@@ -25,7 +25,7 @@ export function useClientes() {
   const fetchClientes = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await apiClient.get("/api/Cliente");
+      const response = await apiClient.get("/Cliente");
       // Transformar os dados para o formato esperado pelo frontend
       const clientesTransformados = (response.data as any[]).map(
         (cliente: any) => ({
@@ -63,7 +63,7 @@ export function useClientes() {
   const createCliente = useCallback(async (data: CreateClienteDTO) => {
     setState((prev) => ({ ...prev, creating: true, error: null }));
     try {
-      const response = await apiClient.post("/api/Cliente", data);
+      const response = await apiClient.post("/Cliente", data);
       setState((prev) => ({
         ...prev,
         clientes: [...prev.clientes, response.data as Cliente],
@@ -84,7 +84,7 @@ export function useClientes() {
     async (id: number, data: UpdateClienteDTO) => {
       setState((prev) => ({ ...prev, updating: true, error: null }));
       try {
-        const response = await apiClient.put(`/api/Cliente/${id}`, data);
+        const response = await apiClient.put(`/Cliente/${id}`, data);
         setState((prev) => ({
           ...prev,
           clientes: prev.clientes.map((c) =>
@@ -108,7 +108,7 @@ export function useClientes() {
   const deleteCliente = useCallback(async (id: number) => {
     setState((prev) => ({ ...prev, deleting: true, error: null }));
     try {
-      await apiClient.delete(`/api/Cliente/${id}`);
+      await apiClient.delete(`/Cliente/${id}`);
       setState((prev) => ({
         ...prev,
         clientes: prev.clientes.filter((c) => c.id !== id),

@@ -14,9 +14,18 @@ import {
   Save,
   Loader2,
   AlertCircle,
+  ChevronDown,
+  Search,
+  Users,
 } from "lucide-react";
-import { Consultor, CreateConsultorDTO, UpdateConsultorDTO } from "@/types/api";
+import {
+  Consultor,
+  CreateConsultorDTO,
+  UpdateConsultorDTO,
+  PessoaFisica,
+} from "@/types/api";
 import { cn } from "@/lib/utils";
+import { usePessoasFisicas } from "@/hooks/usePessoasFisicas";
 
 interface ConsultorFormProps {
   initialData?: Consultor | null;
@@ -31,6 +40,14 @@ export default function ConsultorForm({
   onCancel,
   loading = false,
 }: ConsultorFormProps) {
+  const {
+    pessoas: pessoasFisicas,
+    loading: loadingPessoas,
+    error: pessoasError,
+    fetchPessoasFisicas,
+    buscarPorCpf,
+  } = usePessoasFisicas();
+
   const [formData, setFormData] = useState<CreateConsultorDTO>({
     pessoaFisicaId: 0,
     filial: "",
@@ -45,6 +62,10 @@ export default function ConsultorForm({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [newEspecialidade, setNewEspecialidade] = useState("");
+  const [showPessoaFisicaSelector, setShowPessoaFisicaSelector] =
+    useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [cpfSearch, setCpfSearch] = useState("");
 
   useEffect(() => {
     if (initialData) {
@@ -126,6 +147,36 @@ export default function ConsultorForm({
     }));
   };
 
+  const selectPessoaFisica = (pessoa: PessoaFisica) => {
+    setFormData((prev) => ({
+      ...prev,
+      pessoaFisicaId: pessoa.id,
+      nome: pessoa.nome || "",
+      email: pessoa.email || "",
+      telefone1: pessoa.telefone1 || "",
+      telefone2: pessoa.telefone2 || "",
+    }));
+    setShowPessoaFisicaSelector(false);
+    setSearchTerm("");
+    setCpfSearch("");
+  };
+
+  const handleBuscarPorCpf = async () => {
+    if (cpfSearch.trim()) {
+      const pessoa = await buscarPorCpf(cpfSearch.trim());
+      if (pessoa) {
+        selectPessoaFisica(pessoa);
+      }
+    }
+  };
+
+  const filteredPessoasFisicas = pessoasFisicas.filter(
+    (pessoa) =>
+      pessoa.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pessoa.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pessoa.cpf?.includes(searchTerm)
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -158,11 +209,156 @@ export default function ConsultorForm({
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        {/* Seletor de Pessoa Física */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <Users className="w-5 h-5 text-blue-600" />
+              <h3 className="text-sm font-semibold text-blue-900">
+                Selecionar Pessoa Física Existente
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (!showPessoaFisicaSelector) {
+                  fetchPessoasFisicas();
+                }
+                setShowPessoaFisicaSelector(!showPessoaFisicaSelector);
+              }}
+              className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              <span>{showPessoaFisicaSelector ? "Ocultar" : "Mostrar"}</span>
+              <ChevronDown
+                className={cn(
+                  "w-4 h-4 transition-transform duration-200",
+                  showPessoaFisicaSelector && "rotate-180"
+                )}
+              />
+            </button>
+          </div>
+
+          {showPessoaFisicaSelector && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-3"
+            >
+              {/* Busca por CPF */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <h4 className="text-sm font-medium text-yellow-900 mb-2">
+                  Buscar por CPF
+                </h4>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={cpfSearch}
+                    onChange={(e) => setCpfSearch(e.target.value)}
+                    placeholder="Digite o CPF..."
+                    className="flex-1 px-3 py-2 border border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    onKeyPress={(e) => e.key === "Enter" && handleBuscarPorCpf()}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleBuscarPorCpf}
+                    disabled={loadingPessoas || !cpfSearch.trim()}
+                    className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-400 text-white rounded-lg font-medium transition-colors duration-200"
+                  >
+                    {loadingPessoas ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Buscar"
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Busca geral */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-4 h-4" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por nome, email ou CPF..."
+                  className="w-full pl-10 pr-4 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="max-h-60 overflow-y-auto border border-secondary-200 rounded-lg">
+                {loadingPessoas ? (
+                  <div className="p-4 text-center text-secondary-600">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
+                    Carregando pessoas físicas...
+                  </div>
+                ) : pessoasError ? (
+                  <div className="p-4 text-center text-red-600">
+                    <AlertCircle className="w-5 h-5 mx-auto mb-2" />
+                    Erro ao carregar pessoas físicas
+                    <p className="text-sm text-red-500 mt-1">{pessoasError}</p>
+                  </div>
+                ) : filteredPessoasFisicas.length === 0 ? (
+                  <div className="p-4 text-center text-secondary-600">
+                    {searchTerm
+                      ? "Nenhuma pessoa encontrada"
+                      : "Nenhuma pessoa física cadastrada"}
+                  </div>
+                ) : (
+                  <div className="divide-y divide-secondary-100">
+                    {filteredPessoasFisicas.map((pessoa) => (
+                      <button
+                        key={pessoa.id}
+                        type="button"
+                        onClick={() => selectPessoaFisica(pessoa)}
+                        className="w-full p-3 text-left hover:bg-blue-50 transition-colors duration-200"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-secondary-900">
+                              {pessoa.nome}
+                            </p>
+                            <p className="text-sm text-secondary-600">
+                              {pessoa.email}
+                            </p>
+                            {pessoa.cpf && (
+                              <p className="text-xs text-secondary-500">
+                                CPF: {pessoa.cpf}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-blue-600">
+                            <User className="w-4 h-4" />
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {formData.pessoaFisicaId > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm text-green-800">
+                    <span className="font-medium">Pessoa selecionada:</span>{" "}
+                    {formData.nome}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Nome */}
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-2">
               Nome Completo *
+              {formData.pessoaFisicaId > 0 && (
+                <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                  Preenchido automaticamente
+                </span>
+              )}
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
@@ -176,6 +372,8 @@ export default function ConsultorForm({
                   "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                   errors.nome
                     ? "border-red-300 focus:ring-red-500"
+                    : formData.pessoaFisicaId > 0
+                    ? "border-green-300 bg-green-50"
                     : "border-secondary-300"
                 )}
                 placeholder="Nome completo"
@@ -193,6 +391,11 @@ export default function ConsultorForm({
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-2">
               Email *
+              {formData.pessoaFisicaId > 0 && (
+                <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                  Preenchido automaticamente
+                </span>
+              )}
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
@@ -206,6 +409,8 @@ export default function ConsultorForm({
                   "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                   errors.email
                     ? "border-red-300 focus:ring-red-500"
+                    : formData.pessoaFisicaId > 0
+                    ? "border-green-300 bg-green-50"
                     : "border-secondary-300"
                 )}
                 placeholder="email@exemplo.com"
@@ -239,6 +444,11 @@ export default function ConsultorForm({
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-2">
               Telefone Principal *
+              {formData.pessoaFisicaId > 0 && (
+                <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                  Preenchido automaticamente
+                </span>
+              )}
             </label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
@@ -255,6 +465,8 @@ export default function ConsultorForm({
                   "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                   errors.telefone1
                     ? "border-red-300 focus:ring-red-500"
+                    : formData.pessoaFisicaId > 0
+                    ? "border-green-300 bg-green-50"
                     : "border-secondary-300"
                 )}
                 placeholder="(11) 99999-9999"
@@ -272,6 +484,11 @@ export default function ConsultorForm({
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-2">
               Telefone Secundário
+              {formData.pessoaFisicaId > 0 && (
+                <span className="ml-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                  Preenchido automaticamente
+                </span>
+              )}
             </label>
             <input
               type="tel"
@@ -279,7 +496,12 @@ export default function ConsultorForm({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, telefone2: e.target.value }))
               }
-              className="w-full px-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+              className={cn(
+                "w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                formData.pessoaFisicaId > 0
+                  ? "border-green-300 bg-green-50"
+                  : "border-secondary-300"
+              )}
               placeholder="(11) 88888-8888"
             />
           </div>

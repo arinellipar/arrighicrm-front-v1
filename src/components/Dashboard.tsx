@@ -11,6 +11,8 @@ import {
   Loader2,
   AlertCircle,
   UserCheck,
+  Briefcase,
+  UserPlus,
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
@@ -79,7 +81,7 @@ interface QuickActionProps {
   description: string;
   icon: React.ReactNode;
   href: string;
-  color: "blue" | "green" | "purple" | "orange";
+  color: "blue" | "green" | "purple" | "orange" | "indigo" | "emerald";
 }
 
 function QuickAction({
@@ -90,13 +92,17 @@ function QuickAction({
   color,
 }: QuickActionProps) {
   const colorClasses = {
-    blue: "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700",
+    blue: "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-500/25",
     green:
-      "from-green-500 to-green-600 hover:from-green-600 hover:to-green-700",
+      "from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-500/25",
     purple:
-      "from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700",
+      "from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 shadow-violet-500/25",
     orange:
-      "from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700",
+      "from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-500/25",
+    indigo:
+      "from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 shadow-indigo-500/25",
+    emerald:
+      "from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-emerald-500/25",
   };
 
   return (
@@ -104,19 +110,22 @@ function QuickAction({
       whileHover={{ y: -2, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="h-full"
     >
       <Link
         href={href}
         className={cn(
-          "block p-6 bg-gradient-to-br text-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300",
+          "block p-4 sm:p-5 lg:p-6 bg-gradient-to-br text-white rounded-xl lg:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 h-full min-h-[120px] sm:min-h-[140px] lg:min-h-[160px]",
           colorClasses[color]
         )}
       >
-        <div className="flex items-center space-x-4">
-          <div className="flex-shrink-0">{icon}</div>
-          <div>
-            <h3 className="font-semibold text-lg mb-1">{title}</h3>
-            <p className="text-white/90 text-sm">{description}</p>
+        <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 h-full">
+          <div className="flex-shrink-0 flex justify-center sm:justify-start">
+            {icon}
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h3 className="font-semibold text-base sm:text-lg mb-1">{title}</h3>
+            <p className="text-white/90 text-xs sm:text-sm leading-relaxed">{description}</p>
           </div>
         </div>
       </Link>
@@ -161,21 +170,35 @@ export default function Dashboard() {
     {
       title: "Nova Pessoa Física",
       description: "Cadastrar cliente pessoa física",
-      icon: <Users className="w-8 h-8" />,
+      icon: <Users className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
       href: "/cadastros/pessoa-fisica",
       color: "blue" as const,
     },
     {
       title: "Nova Pessoa Jurídica",
       description: "Cadastrar empresa ou organização",
-      icon: <Building2 className="w-8 h-8" />,
+      icon: <Building2 className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
       href: "/cadastros/pessoa-juridica",
       color: "green" as const,
     },
     {
+      title: "Novo Consultor",
+      description: "Cadastrar consultor jurídico",
+      icon: <Briefcase className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+      href: "/consultores",
+      color: "indigo" as const,
+    },
+    {
+      title: "Novo Cliente",
+      description: "Cadastrar cliente do escritório",
+      icon: <UserPlus className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
+      href: "/clientes",
+      color: "emerald" as const,
+    },
+    {
       title: "Novo Usuário",
       description: "Cadastrar usuário do sistema",
-      icon: <UserCheck className="w-8 h-8" />,
+      icon: <UserCheck className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
       href: "/usuarios",
       color: "purple" as const,
     },
@@ -297,7 +320,7 @@ export default function Dashboard() {
         <h2 className="text-2xl font-bold text-secondary-900 mb-6">
           Ações Rápidas
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 auto-rows-fr">
           {quickActions.map((action, index) => (
             <motion.div
               key={action.title}

@@ -35,23 +35,19 @@ export const getApiUrl = (): string => {
     process.env.NEXT_PUBLIC_API_URL
   );
 
+  // Forçar uso da API local em desenvolvimento
+  if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
+    const devUrl = "http://localhost:5101/api";
+    console.log("🔧 getApiUrl: Forçando URL de desenvolvimento:", devUrl);
+    return devUrl;
+  }
+
   // In production, always use the production URL
   if (process.env.NODE_ENV === "production") {
     const productionUrl =
       "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
     console.log("🔧 getApiUrl: Usando URL de produção:", productionUrl);
     return productionUrl;
-  }
-
-  // In development, prefer explicit public URL if provided
-  if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== "undefined") {
-    // Garantir que é uma URL absoluta
-    let url = process.env.NEXT_PUBLIC_API_URL;
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-      url = `https://${url}`;
-    }
-    console.log("🔧 getApiUrl: Usando NEXT_PUBLIC_API_URL:", url);
-    return url;
   }
 
   // Development fallback

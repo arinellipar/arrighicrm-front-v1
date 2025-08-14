@@ -25,28 +25,77 @@ export function useConsultores() {
   const fetchConsultores = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await apiClient.get("/api/Consultor");
+      console.log("🔧 fetchConsultores: Iniciando requisição...");
+      const response = await apiClient.get("/Consultor");
+      console.log("🔧 fetchConsultores: Resposta recebida:", response);
+      console.log("🔧 fetchConsultores: Response status:", response.status);
+      console.log("🔧 fetchConsultores: Response error:", response.error);
+      console.log("🔧 fetchConsultores: Response data:", response.data);
+
+      // Verificar se há erro na resposta
+      if (response.error) {
+        console.error("🔧 fetchConsultores: Erro na resposta:", response.error);
+        setState((prev) => ({
+          ...prev,
+          error: response.error || "Erro desconhecido",
+          loading: false,
+        }));
+        return;
+      }
+
+      // Verificar se os dados existem
+      if (!response.data) {
+        console.warn("🔧 fetchConsultores: Dados não encontrados na resposta");
+        setState((prev) => ({
+          ...prev,
+          consultores: [],
+          loading: false,
+        }));
+        return;
+      }
+
+      console.log("🔧 fetchConsultores: Dados recebidos:", response.data);
+
+      // Verificar se é um array
+      if (!Array.isArray(response.data)) {
+        console.error(
+          "🔧 fetchConsultores: Dados não são um array:",
+          typeof response.data
+        );
+        setState((prev) => ({
+          ...prev,
+          error: "Formato de dados inválido",
+          loading: false,
+        }));
+        return;
+      }
+
       // Transformar os dados para o formato esperado pelo frontend
-      const consultoresTransformados = (response.data as any[]).map(
-        (consultor: any) => ({
-          ...consultor,
-          nome: consultor.pessoaFisica?.nome,
-          email: consultor.pessoaFisica?.email,
-          telefone1: consultor.pessoaFisica?.telefone1,
-          telefone2: consultor.pessoaFisica?.telefone2,
-          oab: consultor.pessoaFisica?.cpf, // Usando CPF como OAB temporariamente
-          especialidades: [], // Array vazio por padrão
-          status: "ativo" as const, // Status padrão
-          casosAtivos: 0, // Valor padrão
-          taxaSucesso: 0, // Valor padrão
-        })
+      const consultoresTransformados = response.data.map((consultor: any) => ({
+        ...consultor,
+        nome: consultor.pessoaFisica?.nome,
+        email: consultor.pessoaFisica?.email,
+        telefone1: consultor.pessoaFisica?.telefone1,
+        telefone2: consultor.pessoaFisica?.telefone2,
+        oab: consultor.oab, // Usando o campo OAB real
+        especialidades: [], // Array vazio por padrão
+        status: "ativo" as const, // Status padrão
+        casosAtivos: 0, // Valor padrão
+        taxaSucesso: 0, // Valor padrão
+      }));
+
+      console.log(
+        "🔧 fetchConsultores: Consultores transformados:",
+        consultoresTransformados
       );
+
       setState((prev) => ({
         ...prev,
         consultores: consultoresTransformados as Consultor[],
         loading: false,
       }));
     } catch (error: any) {
+      console.error("🔧 fetchConsultores: Erro capturado:", error);
       setState((prev) => ({
         ...prev,
         error: error.response?.data?.message || "Erro ao carregar consultores",
@@ -58,7 +107,18 @@ export function useConsultores() {
   const createConsultor = useCallback(async (data: CreateConsultorDTO) => {
     setState((prev) => ({ ...prev, creating: true, error: null }));
     try {
-      const response = await apiClient.post("/api/Consultor", data);
+      // Enviar apenas os campos necessários para o backend
+      const backendData = {
+        pessoaFisicaId: data.pessoaFisicaId,
+        filial: data.filial,
+        oab: data.oab || null,
+      };
+
+      console.log(
+        "🔧 createConsultor: Enviando dados para backend:",
+        backendData
+      );
+      const response = await apiClient.post("/Consultor", backendData);
       setState((prev) => ({
         ...prev,
         consultores: [...prev.consultores, response.data as Consultor],
@@ -66,6 +126,7 @@ export function useConsultores() {
       }));
       return true;
     } catch (error: any) {
+      console.error("🔧 createConsultor: Erro:", error);
       setState((prev) => ({
         ...prev,
         error: error.response?.data?.message || "Erro ao criar consultor",
@@ -79,7 +140,7 @@ export function useConsultores() {
     async (id: number, data: UpdateConsultorDTO) => {
       setState((prev) => ({ ...prev, updating: true, error: null }));
       try {
-        const response = await apiClient.put(`/api/Consultor/${id}`, data);
+        const response = await apiClient.put(`/Consultor/${id}`, data);
         setState((prev) => ({
           ...prev,
           consultores: prev.consultores.map((c) =>
@@ -103,7 +164,7 @@ export function useConsultores() {
   const deleteConsultor = useCallback(async (id: number) => {
     setState((prev) => ({ ...prev, deleting: true, error: null }));
     try {
-      await apiClient.delete(`/api/Consultor/${id}`);
+      await apiClient.delete(`/Consultor/${id}`);
       setState((prev) => ({
         ...prev,
         consultores: prev.consultores.filter((c) => c.id !== id),

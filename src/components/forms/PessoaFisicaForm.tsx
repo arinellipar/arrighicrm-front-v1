@@ -301,32 +301,34 @@ export default function PessoaFisicaForm({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        nome: initialData.nome,
-        email: initialData.email,
+        nome: initialData.nome || "",
+        email: initialData.email || "",
         codinome: initialData.codinome || "",
-        sexo: initialData.sexo,
-        dataNascimento: initialData.dataNascimento,
-        estadoCivil: initialData.estadoCivil,
-        cpf: initialData.cpf,
+        sexo: initialData.sexo || "",
+        dataNascimento: initialData.dataNascimento || "",
+        estadoCivil: initialData.estadoCivil || "",
+        cpf: initialData.cpf || "",
         rg: initialData.rg || "",
         cnh: initialData.cnh || "",
-        telefone1: initialData.telefone1,
+        telefone1: initialData.telefone1 || "",
         telefone2: initialData.telefone2 || "",
-        endereco: initialData.endereco ? {
-          cidade: initialData.endereco.cidade || "",
-          bairro: initialData.endereco.bairro || "",
-          logradouro: initialData.endereco.logradouro || "",
-          cep: initialData.endereco.cep || "",
-          numero: initialData.endereco.numero || "",
-          complemento: initialData.endereco.complemento || "",
-        } : {
-          cidade: "",
-          bairro: "",
-          logradouro: "",
-          cep: "",
-          numero: "",
-          complemento: "",
-        },
+        endereco: initialData.endereco
+          ? {
+              cidade: initialData.endereco.cidade || "",
+              bairro: initialData.endereco.bairro || "",
+              logradouro: initialData.endereco.logradouro || "",
+              cep: initialData.endereco.cep || "",
+              numero: initialData.endereco.numero || "",
+              complemento: initialData.endereco.complemento || "",
+            }
+          : {
+              cidade: "",
+              bairro: "",
+              logradouro: "",
+              cep: "",
+              numero: "",
+              complemento: "",
+            },
       });
     }
   }, [initialData]);

@@ -21,7 +21,7 @@ export function useHistoricoConsultores() {
   const fetchHistoricoConsultores = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await apiClient.get("/api/HistoricoConsultor");
+      const response = await apiClient.get("/HistoricoConsultor");
       setState((prev) => ({
         ...prev,
         historico: response.data as HistoricoConsultor[],
@@ -30,7 +30,9 @@ export function useHistoricoConsultores() {
     } catch (error: any) {
       setState((prev) => ({
         ...prev,
-        error: error.response?.data?.message || "Erro ao carregar histórico de consultores",
+        error:
+          error.response?.data?.message ||
+          "Erro ao carregar histórico de consultores",
         loading: false,
       }));
     }
@@ -39,7 +41,7 @@ export function useHistoricoConsultores() {
   const atribuirCliente = useCallback(async (data: AtribuirClienteDTO) => {
     setState((prev) => ({ ...prev, atribuindo: true, error: null }));
     try {
-      await apiClient.post("/api/Consultor/atribuir-cliente", data);
+      await apiClient.post("/Consultor/atribuir-cliente", data);
       setState((prev) => ({
         ...prev,
         atribuindo: false,
@@ -58,7 +60,7 @@ export function useHistoricoConsultores() {
   const getHistoricoCliente = useCallback(async (clienteId: number) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await apiClient.get(`/api/Cliente/${clienteId}/historico`);
+      const response = await apiClient.get(`/Cliente/${clienteId}/historico`);
       setState((prev) => ({
         ...prev,
         historico: response.data as HistoricoConsultor[],
@@ -67,7 +69,9 @@ export function useHistoricoConsultores() {
     } catch (error: any) {
       setState((prev) => ({
         ...prev,
-        error: error.response?.data?.message || "Erro ao carregar histórico do cliente",
+        error:
+          error.response?.data?.message ||
+          "Erro ao carregar histórico do cliente",
         loading: false,
       }));
     }
@@ -76,7 +80,9 @@ export function useHistoricoConsultores() {
   const getClientesConsultor = useCallback(async (consultorId: number) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await apiClient.get(`/api/Consultor/${consultorId}/clientes`);
+      const response = await apiClient.get(
+        `/Consultor/${consultorId}/clientes`
+      );
       setState((prev) => ({
         ...prev,
         historico: response.data as HistoricoConsultor[],
@@ -85,7 +91,9 @@ export function useHistoricoConsultores() {
     } catch (error: any) {
       setState((prev) => ({
         ...prev,
-        error: error.response?.data?.message || "Erro ao carregar clientes do consultor",
+        error:
+          error.response?.data?.message ||
+          "Erro ao carregar clientes do consultor",
         loading: false,
       }));
     }

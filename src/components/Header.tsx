@@ -9,6 +9,8 @@ import {
   UserCog,
   Scale,
   UserCheck,
+  Briefcase,
+  UserPlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -37,6 +39,16 @@ const menuItems: MenuGroup[] = [
         label: "Pessoa Jurídica",
         href: "/cadastros/pessoa-juridica",
         icon: <Building2 className="w-4 h-4" />,
+      },
+      {
+        label: "Consultores",
+        href: "/consultores",
+        icon: <Briefcase className="w-4 h-4" />,
+      },
+      {
+        label: "Clientes",
+        href: "/clientes",
+        icon: <UserPlus className="w-4 h-4" />,
       },
     ],
   },
