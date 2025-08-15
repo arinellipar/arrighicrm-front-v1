@@ -28,9 +28,10 @@ import {
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import ClienteForm from "@/components/forms/ClienteForm";
+import { Tooltip } from "@/components";
 import { useClientes } from "@/hooks/useClientes";
 import { Cliente } from "@/types/api";
-import { cn } from "@/lib/utils";
+import { cn, truncateText } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 
 function TipoClienteBadge({ tipo }: { tipo: "fisica" | "juridica" }) {
@@ -189,12 +190,21 @@ export default function ClientesPage() {
 
   // Filtrar clientes
   const filteredClientes = clientes.filter((cliente: Cliente) => {
+    // Verificar se o cliente existe
+    if (!cliente) return false;
+
+    const nome = cliente.nome || "";
+    const razaoSocial = cliente.razaoSocial || "";
+    const email = cliente.email || "";
+    const cpf = cliente.cpf || "";
+    const cnpj = cliente.cnpj || "";
+
     const matchesSearch =
-      cliente.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cliente.razaoSocial?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cliente.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cliente.cpf?.includes(searchTerm) ||
-      cliente.cnpj?.includes(searchTerm);
+      nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      cpf.includes(searchTerm) ||
+      cnpj.includes(searchTerm);
 
     const matchesTipo = !filterTipo || cliente.tipo === filterTipo;
     const matchesStatus = !filterStatus || cliente.status === filterStatus;
@@ -277,7 +287,12 @@ export default function ClientesPage() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("pt-BR");
+    } catch (error) {
+      return "N/A";
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -697,10 +712,21 @@ export default function ClientesPage() {
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-secondary-900">
-                                {cliente.nome || cliente.razaoSocial}
+                                <Tooltip
+                                  content={
+                                    cliente.nome || cliente.razaoSocial || ""
+                                  }
+                                >
+                                  <span className="cursor-help">
+                                    {truncateText(
+                                      cliente.nome || cliente.razaoSocial || "",
+                                      20
+                                    )}
+                                  </span>
+                                </Tooltip>
                               </div>
                               <div className="text-sm text-secondary-500">
-                                {cliente.email}
+                                {cliente.email || "N/A"}
                               </div>
                             </div>
                           </div>
@@ -713,7 +739,7 @@ export default function ClientesPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-secondary-900">
-                            {cliente.telefone1}
+                            {cliente.telefone1 || "N/A"}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -767,7 +793,18 @@ export default function ClientesPage() {
                         </div>
                         <div className="ml-3">
                           <h4 className="text-lg font-semibold text-secondary-900">
-                            {cliente.nome || cliente.razaoSocial}
+                            <Tooltip
+                              content={
+                                cliente.nome || cliente.razaoSocial || ""
+                              }
+                            >
+                              <span className="cursor-help">
+                                {truncateText(
+                                  cliente.nome || cliente.razaoSocial || "",
+                                  25
+                                )}
+                              </span>
+                            </Tooltip>
                           </h4>
                           <TipoClienteBadge tipo={cliente.tipo || "fisica"} />
                         </div>
@@ -786,11 +823,11 @@ export default function ClientesPage() {
                     <div className="space-y-3">
                       <div className="flex items-center text-sm text-secondary-600">
                         <Mail className="w-4 h-4 mr-2" />
-                        {cliente.email}
+                        {cliente.email || "N/A"}
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">
                         <Phone className="w-4 h-4 mr-2" />
-                        {cliente.telefone1}
+                        {cliente.telefone1 || "N/A"}
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">
                         {cliente.tipo === "fisica" ? (

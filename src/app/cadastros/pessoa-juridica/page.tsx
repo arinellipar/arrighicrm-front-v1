@@ -21,9 +21,10 @@ import {
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import PessoaJuridicaForm from "@/components/forms/PessoaJuridicaForm";
+import { Tooltip } from "@/components";
 import { usePessoaJuridica } from "@/hooks/usePessoaJuridica";
 import { PessoaJuridica, ResponsavelTecnicoOption } from "@/types/api";
-import { cn } from "@/lib/utils";
+import { cn, truncateText } from "@/lib/utils";
 import Link from "next/link";
 import { useForm } from "@/contexts/FormContext";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
@@ -609,14 +610,17 @@ export default function PessoaJuridicaPage() {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <div
-                                    className={`font-medium text-secondary-900 truncate ${
+                                    className={`font-medium text-secondary-900 ${
                                       isTableCompact
                                         ? "text-[10px] sm:text-[11px]"
                                         : "text-[11px] sm:text-xs lg:text-sm"
                                     }`}
-                                    title={pessoa.razaoSocial}
                                   >
-                                    {pessoa.razaoSocial}
+                                    <Tooltip content={pessoa.razaoSocial}>
+                                      <span className="cursor-help">
+                                        {truncateText(pessoa.razaoSocial, 20)}
+                                      </span>
+                                    </Tooltip>
                                   </div>
                                   {pessoa.nomeFantasia && (
                                     <div

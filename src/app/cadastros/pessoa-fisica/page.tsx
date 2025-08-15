@@ -17,13 +17,14 @@ import {
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import PessoaFisicaForm from "@/components/forms/PessoaFisicaForm";
+import { Tooltip } from "@/components";
 import { usePessoaFisica } from "@/hooks/usePessoaFisica";
 import {
   PessoaFisica,
   CreatePessoaFisicaDTO,
   UpdatePessoaFisicaDTO,
 } from "@/types/api";
-import { cn } from "@/lib/utils";
+import { cn, truncateText } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 import { TableNavigation } from "@/components/TableNavigation";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
@@ -571,13 +572,17 @@ export default function PessoaFisicaPage() {
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <div
-                                    className={`font-medium text-secondary-900 truncate ${
+                                    className={`font-medium text-secondary-900 ${
                                       isTableCompact
                                         ? "text-[10px] sm:text-[11px]"
                                         : "text-[11px] sm:text-xs lg:text-sm"
                                     }`}
                                   >
-                                    {pessoa.nome}
+                                    <Tooltip content={pessoa.nome}>
+                                      <span className="cursor-help">
+                                        {truncateText(pessoa.nome, 20)}
+                                      </span>
+                                    </Tooltip>
                                   </div>
                                   <div
                                     className={`text-secondary-500 truncate hidden sm:block ${

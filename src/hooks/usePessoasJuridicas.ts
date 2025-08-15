@@ -117,6 +117,20 @@ export function usePessoasJuridicas() {
     }
   }, []);
 
+  const buscarPorCnpj = useCallback(async (cnpj: string) => {
+    try {
+      console.log("🔧 buscarPorCnpj: Buscando CNPJ:", cnpj);
+      const response = await apiClient.get(
+        `/PessoaJuridica/buscar-por-cnpj/${cnpj}`
+      );
+      console.log("🔧 buscarPorCnpj: Resposta:", response);
+      return response.data as PessoaJuridica;
+    } catch (error: unknown) {
+      console.error("🔧 buscarPorCnpj: Erro:", error);
+      return null;
+    }
+  }, []);
+
   const clearError = useCallback(() => {
     setState((prev) => ({ ...prev, error: null }));
   }, []);
@@ -131,6 +145,7 @@ export function usePessoasJuridicas() {
     createPessoaJuridica,
     updatePessoaJuridica,
     deletePessoaJuridica,
+    buscarPorCnpj,
     clearError,
   };
 }

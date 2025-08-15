@@ -43,7 +43,7 @@ export function useClientes() {
             cliente.pessoaFisica?.telefone2 ||
             cliente.pessoaJuridica?.telefone2,
           segmento: cliente.status, // Usando status como segmento temporariamente
-          valorContrato: 0, // Valor padrão
+          valorContrato: cliente.valorContrato || 0,
         })
       );
       setState((prev) => ({
@@ -64,9 +64,31 @@ export function useClientes() {
     setState((prev) => ({ ...prev, creating: true, error: null }));
     try {
       const response = await apiClient.post("/Cliente", data);
+
+      // Transformar os dados retornados como em fetchClientes
+      const novoCliente = response.data as any;
+      const clienteTransformado = {
+        ...novoCliente,
+        tipo: novoCliente.tipoPessoa === "Fisica" ? "fisica" : "juridica",
+        nome: novoCliente.pessoaFisica?.nome,
+        razaoSocial: novoCliente.pessoaJuridica?.razaoSocial,
+        email:
+          novoCliente.pessoaFisica?.email || novoCliente.pessoaJuridica?.email,
+        cpf: novoCliente.pessoaFisica?.cpf,
+        cnpj: novoCliente.pessoaJuridica?.cnpj,
+        telefone1:
+          novoCliente.pessoaFisica?.telefone1 ||
+          novoCliente.pessoaJuridica?.telefone1,
+        telefone2:
+          novoCliente.pessoaFisica?.telefone2 ||
+          novoCliente.pessoaJuridica?.telefone2,
+        segmento: novoCliente.status, // Usando status como segmento temporariamente
+        valorContrato: novoCliente.valorContrato || 0,
+      };
+
       setState((prev) => ({
         ...prev,
-        clientes: [...prev.clientes, response.data as Cliente],
+        clientes: [...prev.clientes, clienteTransformado as Cliente],
         creating: false,
       }));
       return true;
@@ -85,10 +107,34 @@ export function useClientes() {
       setState((prev) => ({ ...prev, updating: true, error: null }));
       try {
         const response = await apiClient.put(`/Cliente/${id}`, data);
+
+        // Transformar os dados retornados como em fetchClientes
+        const clienteAtualizado = response.data as any;
+        const clienteTransformado = {
+          ...clienteAtualizado,
+          tipo:
+            clienteAtualizado.tipoPessoa === "Fisica" ? "fisica" : "juridica",
+          nome: clienteAtualizado.pessoaFisica?.nome,
+          razaoSocial: clienteAtualizado.pessoaJuridica?.razaoSocial,
+          email:
+            clienteAtualizado.pessoaFisica?.email ||
+            clienteAtualizado.pessoaJuridica?.email,
+          cpf: clienteAtualizado.pessoaFisica?.cpf,
+          cnpj: clienteAtualizado.pessoaJuridica?.cnpj,
+          telefone1:
+            clienteAtualizado.pessoaFisica?.telefone1 ||
+            clienteAtualizado.pessoaJuridica?.telefone1,
+          telefone2:
+            clienteAtualizado.pessoaFisica?.telefone2 ||
+            clienteAtualizado.pessoaJuridica?.telefone2,
+          segmento: clienteAtualizado.status, // Usando status como segmento temporariamente
+          valorContrato: clienteAtualizado.valorContrato || 0,
+        };
+
         setState((prev) => ({
           ...prev,
           clientes: prev.clientes.map((c) =>
-            c.id === id ? (response.data as Cliente) : c
+            c.id === id ? (clienteTransformado as Cliente) : c
           ),
           updating: false,
         }));

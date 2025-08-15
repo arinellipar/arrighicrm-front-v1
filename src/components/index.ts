@@ -16,3 +16,4 @@ export { default as AtribuirClienteForm } from "./forms/AtribuirClienteForm";
 // Special Components
 export { default as HistoricoConsultores } from "./HistoricoConsultores";
 export { default as ClienteDetalhes } from "./ClienteDetalhes";
+export { default as Tooltip } from "./Tooltip";

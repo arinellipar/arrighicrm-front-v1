@@ -15,9 +15,19 @@ import {
   AlertCircle,
   DollarSign,
   FileText,
+  Search,
 } from "lucide-react";
-import { Cliente, CreateClienteDTO, UpdateClienteDTO } from "@/types/api";
+import {
+  Cliente,
+  CreateClienteDTO,
+  UpdateClienteDTO,
+  PessoaFisica,
+  PessoaJuridica,
+} from "@/types/api";
 import { cn } from "@/lib/utils";
+import { usePessoasFisicas } from "@/hooks/usePessoasFisicas";
+import { usePessoasJuridicas } from "@/hooks/usePessoasJuridicas";
+import { useFiliais } from "@/hooks/useFiliais";
 
 interface ClienteFormProps {
   initialData?: Cliente | null;
@@ -50,6 +60,70 @@ export default function ClienteForm({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [cpfSearch, setCpfSearch] = useState("");
+  const [cnpjSearch, setCnpjSearch] = useState("");
+  const [searchingCpf, setSearchingCpf] = useState(false);
+  const [searchingCnpj, setSearchingCnpj] = useState(false);
+
+  const { buscarPorCpf } = usePessoasFisicas();
+  const { buscarPorCnpj } = usePessoasJuridicas();
+  const {
+    filiais,
+    loading: loadingFiliais,
+    error: errorFiliais,
+  } = useFiliais();
+
+  const handleBuscarPorCpf = async () => {
+    if (!cpfSearch.trim()) return;
+
+    setSearchingCpf(true);
+    try {
+      const pessoa = await buscarPorCpf(cpfSearch);
+      if (pessoa) {
+        setFormData((prev) => ({
+          ...prev,
+          tipoPessoa: "Fisica",
+          pessoaId: pessoa.id,
+          nome: pessoa.nome || "",
+          email: pessoa.email || "",
+          cpf: pessoa.cpf || "",
+          telefone1: pessoa.telefone1 || "",
+          telefone2: pessoa.telefone2 || "",
+          tipo: "fisica",
+        }));
+      }
+    } catch (error) {
+      console.error("Erro ao buscar por CPF:", error);
+    } finally {
+      setSearchingCpf(false);
+    }
+  };
+
+  const handleBuscarPorCnpj = async () => {
+    if (!cnpjSearch.trim()) return;
+
+    setSearchingCnpj(true);
+    try {
+      const pessoa = await buscarPorCnpj(cnpjSearch);
+      if (pessoa) {
+        setFormData((prev) => ({
+          ...prev,
+          tipoPessoa: "Juridica",
+          pessoaId: pessoa.id,
+          razaoSocial: pessoa.razaoSocial || "",
+          email: pessoa.email || "",
+          cnpj: pessoa.cnpj || "",
+          telefone1: pessoa.telefone1 || "",
+          telefone2: pessoa.telefone2 || "",
+          tipo: "juridica",
+        }));
+      }
+    } catch (error) {
+      console.error("Erro ao buscar por CNPJ:", error);
+    } finally {
+      setSearchingCnpj(false);
+    }
+  };
 
   useEffect(() => {
     if (initialData) {
@@ -101,6 +175,10 @@ export default function ClienteForm({
 
     if (!formData.telefone1?.trim()) {
       newErrors.telefone1 = "Telefone é obrigatório";
+    }
+
+    if (!formData.filial?.trim()) {
+      newErrors.filial = "Filial é obrigatória";
     }
 
     setErrors(newErrors);
@@ -208,6 +286,71 @@ export default function ClienteForm({
             </label>
           </div>
         </div>
+
+        {/* Busca por CPF/CNPJ */}
+        {formData.tipo === "fisica" ? (
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">
+              Buscar Pessoa Física por CPF
+            </label>
+            <div className="flex space-x-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+                <input
+                  type="text"
+                  value={cpfSearch}
+                  onChange={(e) => setCpfSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Digite o CPF para buscar"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleBuscarPorCpf}
+                disabled={searchingCpf || !cpfSearch.trim()}
+                className="px-4 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
+              >
+                {searchingCpf ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Search className="w-4 h-4" />
+                )}
+                <span>Buscar</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">
+              Buscar Pessoa Jurídica por CNPJ
+            </label>
+            <div className="flex space-x-2">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+                <input
+                  type="text"
+                  value={cnpjSearch}
+                  onChange={(e) => setCnpjSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Digite o CNPJ para buscar"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleBuscarPorCnpj}
+                disabled={searchingCnpj || !cnpjSearch.trim()}
+                className="px-4 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
+              >
+                {searchingCnpj ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Search className="w-4 h-4" />
+                )}
+                <span>Buscar</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Nome/Razão Social */}
@@ -412,6 +555,52 @@ export default function ClienteForm({
               className="w-full px-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
               placeholder="(11) 88888-8888"
             />
+          </div>
+
+          {/* Filial */}
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-2">
+              Filial *
+            </label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+              {loadingFiliais ? (
+                <div className="w-full px-4 py-3 border border-secondary-300 rounded-xl bg-gray-50 flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Carregando filiais...
+                </div>
+              ) : errorFiliais ? (
+                <div className="w-full px-4 py-3 border border-red-300 rounded-xl bg-red-50 text-red-600">
+                  Erro ao carregar filiais: {errorFiliais}
+                </div>
+              ) : (
+                <select
+                  value={formData.filial}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, filial: e.target.value }))
+                  }
+                  className={cn(
+                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    errors.filial
+                      ? "border-red-300 focus:ring-red-500"
+                      : "border-secondary-300"
+                  )}
+                >
+                  <option value="">Selecione uma filial</option>
+                  {filiais.map((filial) => (
+                    <option key={filial.id} value={filial.nome}>
+                      {filial.nome}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            {errors.filial && (
+              <p className="mt-1 text-sm text-red-600 flex items-center">
+                <AlertCircle className="w-4 h-4 mr-1" />
+                {errors.filial}
+              </p>
+            )}
           </div>
 
           {/* Segmento */}

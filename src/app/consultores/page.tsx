@@ -25,9 +25,10 @@ import {
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import ConsultorForm from "@/components/forms/ConsultorForm";
+import { Tooltip } from "@/components";
 import { useConsultores } from "@/hooks/useConsultores";
 import { Consultor } from "@/types/api";
-import { cn } from "@/lib/utils";
+import { cn, truncateText } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 
 function StatusBadge({
@@ -568,7 +569,18 @@ export default function ConsultoresPage() {
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-secondary-900">
-                                  {consultor.nome || "Nome não informado"}
+                                  <Tooltip
+                                    content={
+                                      consultor.nome || "Nome não informado"
+                                    }
+                                  >
+                                    <span className="cursor-help">
+                                      {truncateText(
+                                        consultor.nome || "Nome não informado",
+                                        20
+                                      )}
+                                    </span>
+                                  </Tooltip>
                                 </div>
                                 <div className="text-sm text-secondary-500">
                                   {consultor.email}
@@ -640,7 +652,16 @@ export default function ConsultoresPage() {
                           </div>
                           <div className="ml-3">
                             <h4 className="text-lg font-semibold text-secondary-900">
-                              {consultor.nome || "Nome não informado"}
+                              <Tooltip
+                                content={consultor.nome || "Nome não informado"}
+                              >
+                                <span className="cursor-help">
+                                  {truncateText(
+                                    consultor.nome || "Nome não informado",
+                                    25
+                                  )}
+                                </span>
+                              </Tooltip>
                             </h4>
                             <p className="text-sm text-secondary-500">
                               {consultor.oab}

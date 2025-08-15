@@ -203,6 +203,7 @@ export interface Cliente {
   filial: string;
   status?: string;
   observacoes?: string;
+  valorContrato: number;
   dataCadastro: string;
   dataAtualizacao?: string;
   ativo: boolean;
@@ -216,7 +217,6 @@ export interface Cliente {
   telefone1?: string;
   telefone2?: string;
   segmento?: string;
-  valorContrato?: number;
 }
 
 export interface CreateClienteDTO {
@@ -225,6 +225,7 @@ export interface CreateClienteDTO {
   filial: string;
   status?: string;
   observacoes?: string;
+  valorContrato?: number;
   // Propriedades adicionais para o frontend
   tipo?: "fisica" | "juridica";
   nome?: string;
@@ -235,7 +236,6 @@ export interface CreateClienteDTO {
   telefone1?: string;
   telefone2?: string;
   segmento?: string;
-  valorContrato?: number;
 }
 
 export interface UpdateClienteDTO extends CreateClienteDTO {
