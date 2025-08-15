@@ -553,6 +553,11 @@ export default function ConsultoresPage() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.05 * index }}
                           onClick={() => handleSelectConsultor(consultor.id)}
+                          onDoubleClick={() => {
+                            setEditingConsultor(consultor);
+                            setShowForm(true);
+                            openForm();
+                          }}
                           className={cn(
                             "transition-colors duration-200 cursor-pointer",
                             selectedConsultorId === consultor.id

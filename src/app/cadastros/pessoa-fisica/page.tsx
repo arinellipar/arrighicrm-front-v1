@@ -535,6 +535,11 @@ export default function PessoaFisicaPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 + index * 0.05 }}
                             onClick={() => handleSelectPerson(pessoa.id)}
+                            onDoubleClick={() => {
+                              setEditingPessoa(pessoa);
+                              setShowForm(true);
+                              openForm();
+                            }}
                             className={`transition-colors duration-200 cursor-pointer ${
                               selectedPersonId === pessoa.id
                                 ? "bg-secondary-200 hover:bg-secondary-200 border-l-4 border-accent-500"

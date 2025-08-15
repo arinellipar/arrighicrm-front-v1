@@ -656,7 +656,12 @@ export default function UsuariosPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 + index * 0.05 }}
-                            className="hover:bg-secondary-50/50 transition-colors duration-200"
+                            onDoubleClick={() => {
+                              setEditingUsuario(usuario);
+                              setShowForm(true);
+                              openForm();
+                            }}
+                            className="hover:bg-secondary-50/50 transition-colors duration-200 cursor-pointer"
                           >
                             <td
                               className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap ${

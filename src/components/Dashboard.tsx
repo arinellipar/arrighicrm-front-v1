@@ -1,437 +1,546 @@
-// src/components/Dashboard.tsx
 "use client";
 
 import { motion } from "framer-motion";
 import {
   Users,
   Building2,
-  FileText,
-  Bell,
-  ArrowUpRight,
-  Loader2,
-  AlertCircle,
   UserCheck,
+  TrendingUp,
+  ArrowUpRight,
+  ArrowDownRight,
+  MoreVertical,
+  Calendar,
+  DollarSign,
+  Activity,
+  Target,
+  Award,
   Briefcase,
-  UserPlus,
+  Clock,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-interface StatsCardProps {
+// Componente de Card de Métrica Principal
+function MetricCard({
+  title,
+  value,
+  change,
+  changeType,
+  icon,
+  loading,
+  subtitle,
+  accentColor = "primary",
+}: {
   title: string;
   value: string | number;
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
-  icon: React.ReactNode;
+  icon: React.ElementType;
   loading?: boolean;
-}
+  subtitle?: string;
+  accentColor?: "primary" | "gold" | "green" | "red";
+}) {
+  const accentColors = {
+    primary: "from-primary-500 to-primary-600",
+    gold: "from-gold-500 to-gold-600",
+    green: "from-green-500 to-green-600",
+    red: "from-red-500 to-red-600",
+  };
 
-function StatsCard({
-  title,
-  value,
-  change,
-  changeType = "neutral",
-  icon,
-  loading = false,
-}: StatsCardProps) {
-  return (
-    <motion.div
-      whileHover={{ y: -2, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50 hover:shadow-lg transition-all duration-300"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div className="p-3 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white">
-          {icon}
-        </div>
-        {change && (
-          <div
-            className={cn(
-              "flex items-center space-x-1 text-sm font-medium",
-              changeType === "positive" && "text-green-600",
-              changeType === "negative" && "text-red-600",
-              changeType === "neutral" && "text-secondary-600"
-            )}
-          >
-            <ArrowUpRight className="w-4 h-4" />
-            <span>{change}</span>
-          </div>
-        )}
-      </div>
-      <div>
-        {loading ? (
-          <div className="flex items-center space-x-2">
-            <Loader2 className="w-6 h-6 animate-spin text-primary-600" />
-            <div className="h-8 w-16 bg-secondary-200 rounded animate-pulse" />
-          </div>
-        ) : (
-          <h3 className="text-2xl font-bold text-secondary-900 mb-1">
-            {value}
-          </h3>
-        )}
-        <p className="text-secondary-600 text-sm font-medium">{title}</p>
-      </div>
-    </motion.div>
-  );
-}
-
-interface QuickActionProps {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  href: string;
-  color: "blue" | "green" | "purple" | "orange" | "indigo" | "emerald";
-}
-
-function QuickAction({
-  title,
-  description,
-  icon,
-  href,
-  color,
-}: QuickActionProps) {
-  const colorClasses = {
-    blue: "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-500/25",
-    green:
-      "from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-green-500/25",
-    purple:
-      "from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 shadow-violet-500/25",
-    orange:
-      "from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-orange-500/25",
-    indigo:
-      "from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 shadow-indigo-500/25",
-    emerald:
-      "from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-emerald-500/25",
+  const changeColors = {
+    positive: "text-green-600 bg-green-50",
+    negative: "text-red-600 bg-red-50",
+    neutral: "text-neutral-600 bg-neutral-50",
   };
 
   return (
     <motion.div
-      whileHover={{ y: -2, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="h-full"
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+      className="executive-card p-6 relative overflow-hidden group"
     >
-      <Link
-        href={href}
-        className={cn(
-          "block p-4 sm:p-5 lg:p-6 bg-gradient-to-br text-white rounded-xl lg:rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 h-full min-h-[120px] sm:min-h-[140px] lg:min-h-[160px]",
-          colorClasses[color]
-        )}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3 h-full">
-          <div className="flex-shrink-0 flex justify-center sm:justify-start">
-            {icon}
+      {/* Background Accent */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 to-gold-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500" />
+
+      {/* Content */}
+      <div className="relative">
+        <div className="flex items-start justify-between mb-4">
+          <div
+            className={cn(
+              "p-3 rounded-xl bg-gradient-to-br shadow-lg",
+              accentColors[accentColor]
+            )}
+          >
+            {icon &&
+              (() => {
+                const Icon = icon;
+                return <Icon className="w-6 h-6 text-white" />;
+              })()}
           </div>
-          <div className="flex-1 text-center sm:text-left">
-            <h3 className="font-semibold text-base sm:text-lg mb-1">{title}</h3>
-            <p className="text-white/90 text-xs sm:text-sm leading-relaxed">{description}</p>
-          </div>
+          <button className="p-1 hover:bg-neutral-100 rounded-lg transition-colors">
+            <MoreVertical className="w-4 h-4 text-neutral-400" />
+          </button>
         </div>
-      </Link>
+
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-neutral-600">{title}</p>
+          {loading ? (
+            <div className="h-10 w-24 bg-neutral-200 rounded-lg animate-pulse" />
+          ) : (
+            <p className="text-3xl font-bold text-neutral-900">{value}</p>
+          )}
+          {subtitle && <p className="text-xs text-neutral-500">{subtitle}</p>}
+        </div>
+
+        {change && (
+          <div className="mt-4 flex items-center gap-2">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold",
+                changeColors[changeType || "neutral"]
+              )}
+            >
+              {changeType === "positive" ? (
+                <ArrowUpRight className="w-3 h-3" />
+              ) : changeType === "negative" ? (
+                <ArrowDownRight className="w-3 h-3" />
+              ) : null}
+              {change}
+            </span>
+            <span className="text-xs text-neutral-500">vs. mês anterior</span>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
 
-function ErrorMessage({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
+// Componente de Gráfico de Performance
+function PerformanceChart() {
+  const data = [
+    { month: "Jan", value: 65 },
+    { month: "Fev", value: 72 },
+    { month: "Mar", value: 78 },
+    { month: "Abr", value: 85 },
+    { month: "Mai", value: 92 },
+    { month: "Jun", value: 88 },
+  ];
+
+  const maxValue = Math.max(...data.map((d) => d.value));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-red-50 border border-red-200 rounded-xl p-6 text-center"
+      transition={{ delay: 0.4 }}
+      className="executive-card p-6"
     >
-      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-red-900 mb-2">
-        Erro ao carregar estatísticas
-      </h3>
-      <p className="text-red-700 mb-4">{message}</p>
-      <motion.button
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        onClick={onRetry}
-        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
-      >
-        Tentar novamente
-      </motion.button>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h3 className="text-lg font-bold text-neutral-900">
+            Performance Mensal
+          </h3>
+          <p className="text-sm text-neutral-600">Crescimento de cadastros</p>
+        </div>
+        <button className="px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+          Ver Detalhes
+        </button>
+      </div>
+
+      <div className="relative h-64">
+        <div className="absolute inset-0 flex items-end justify-between gap-4">
+          {data.map((item, index) => (
+            <motion.div
+              key={item.month}
+              initial={{ height: 0 }}
+              animate={{ height: `${(item.value / maxValue) * 100}%` }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="flex-1 relative group"
+            >
+              <div className="absolute bottom-0 w-full bg-gradient-to-t from-primary-500 to-primary-400 rounded-t-lg hover:from-primary-600 hover:to-primary-500 transition-colors cursor-pointer">
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                  {item.value}%
+                </div>
+              </div>
+              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-neutral-600 font-medium">
+                {item.month}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </motion.div>
+  );
+}
+
+// Componente de Atividades Recentes
+function RecentActivities() {
+  const activities = [
+    {
+      id: 1,
+      type: "new_client",
+      title: "Novo cliente cadastrado",
+      description: "João Silva foi adicionado ao sistema",
+      time: "há 5 minutos",
+      icon: <Users className="w-4 h-4" />,
+      color: "bg-green-500",
+    },
+    {
+      id: 2,
+      type: "update",
+      title: "Empresa atualizada",
+      description: "ABC Corp teve seus dados atualizados",
+      time: "há 15 minutos",
+      icon: <Building2 className="w-4 h-4" />,
+      color: "bg-blue-500",
+    },
+    {
+      id: 3,
+      type: "new_user",
+      title: "Novo usuário criado",
+      description: "Maria Santos agora tem acesso ao sistema",
+      time: "há 1 hora",
+      icon: <UserCheck className="w-4 h-4" />,
+      color: "bg-purple-500",
+    },
+    {
+      id: 4,
+      type: "report",
+      title: "Relatório gerado",
+      description: "Relatório mensal de vendas disponível",
+      time: "há 2 horas",
+      icon: <Activity className="w-4 h-4" />,
+      color: "bg-gold-500",
+    },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.5 }}
+      className="executive-card p-6"
+    >
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-bold text-neutral-900">
+          Atividades Recentes
+        </h3>
+        <Link
+          href="#"
+          className="text-sm font-medium text-primary-600 hover:text-primary-700"
+        >
+          Ver todas
+        </Link>
+      </div>
+
+      <div className="space-y-4">
+        {activities.map((activity, index) => (
+          <motion.div
+            key={activity.id}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 + index * 0.1 }}
+            className="flex items-start gap-4 p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer"
+          >
+            <div
+              className={cn(
+                "p-2 rounded-lg text-white shadow-md",
+                activity.color
+              )}
+            >
+              {activity.icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-neutral-900">
+                {activity.title}
+              </p>
+              <p className="text-xs text-neutral-600 truncate">
+                {activity.description}
+              </p>
+            </div>
+            <span className="text-xs text-neutral-500 whitespace-nowrap">
+              {activity.time}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// Componente de Quick Actions Premium
+function QuickActions() {
+  const actions = [
+    {
+      title: "Novo Cliente",
+      description: "Cadastrar pessoa física",
+      icon: <Users className="w-6 h-6" />,
+      href: "/cadastros/pessoa-fisica",
+      gradient: "from-blue-500 to-blue-600",
+    },
+    {
+      title: "Nova Empresa",
+      description: "Cadastrar pessoa jurídica",
+      icon: <Building2 className="w-6 h-6" />,
+      href: "/cadastros/pessoa-juridica",
+      gradient: "from-green-500 to-green-600",
+    },
+    {
+      title: "Novo Usuário",
+      description: "Adicionar ao sistema",
+      icon: <UserCheck className="w-6 h-6" />,
+      href: "/usuarios",
+      gradient: "from-purple-500 to-purple-600",
+    },
+    {
+      title: "Relatórios",
+      description: "Análises e métricas",
+      icon: <Activity className="w-6 h-6" />,
+      href: "#",
+      gradient: "from-gold-500 to-gold-600",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {actions.map((action, index) => (
+        <motion.div
+          key={action.title}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 + index * 0.05 }}
+        >
+          <Link
+            href={action.href}
+            className="block p-6 bg-white rounded-2xl border border-neutral-200/60 hover:shadow-lg transition-all duration-300 group"
+          >
+            <div
+              className={cn(
+                "inline-flex p-3 rounded-xl bg-gradient-to-br text-white shadow-lg group-hover:shadow-xl transition-all",
+                action.gradient
+              )}
+            >
+              {action.icon}
+            </div>
+            <h4 className="mt-4 text-base font-bold text-neutral-900 group-hover:text-primary-600 transition-colors">
+              {action.title}
+            </h4>
+            <p className="mt-1 text-sm text-neutral-600">
+              {action.description}
+            </p>
+          </Link>
+        </motion.div>
+      ))}
+    </div>
   );
 }
 
 export default function Dashboard() {
   const { stats, loading, error, fetchStats, clearError } = useDashboard();
 
-  const quickActions = [
-    {
-      title: "Nova Pessoa Física",
-      description: "Cadastrar cliente pessoa física",
-      icon: <Users className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-      href: "/cadastros/pessoa-fisica",
-      color: "blue" as const,
-    },
-    {
-      title: "Nova Pessoa Jurídica",
-      description: "Cadastrar empresa ou organização",
-      icon: <Building2 className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-      href: "/cadastros/pessoa-juridica",
-      color: "green" as const,
-    },
-    {
-      title: "Novo Consultor",
-      description: "Cadastrar consultor jurídico",
-      icon: <Briefcase className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-      href: "/consultores",
-      color: "indigo" as const,
-    },
-    {
-      title: "Novo Cliente",
-      description: "Cadastrar cliente do escritório",
-      icon: <UserPlus className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-      href: "/clientes",
-      color: "emerald" as const,
-    },
-    {
-      title: "Novo Usuário",
-      description: "Cadastrar usuário do sistema",
-      icon: <UserCheck className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8" />,
-      href: "/usuarios",
-      color: "purple" as const,
-    },
-  ];
-
-  // Calcular porcentagem de crescimento (mockado para demonstração)
-  const getChangePercentage = (current: number) => {
-    if (current === 0) return "+0%";
-    // Simular crescimento baseado no valor atual
-    const percentage = Math.floor(Math.random() * 15) + 1;
-    return `+${percentage}%`;
-  };
-
-  const statsCards = [
-    {
-      title: "Pessoas Físicas",
-      value: loading ? 0 : stats.totalPessoasFisicas,
-      change: loading
-        ? undefined
-        : getChangePercentage(stats.totalPessoasFisicas),
-      changeType: "positive" as const,
-      icon: <Users className="w-6 h-6" />,
-    },
-    {
-      title: "Pessoas Jurídicas",
-      value: loading ? 0 : stats.totalPessoasJuridicas,
-      change: loading
-        ? undefined
-        : getChangePercentage(stats.totalPessoasJuridicas),
-      changeType: "positive" as const,
-      icon: <Building2 className="w-6 h-6" />,
-    },
-    {
-      title: "Usuários do Sistema",
-      value: loading ? 0 : stats.totalUsuarios,
-      change: loading ? undefined : getChangePercentage(stats.totalUsuarios),
-      changeType: "positive" as const,
-      icon: <UserCheck className="w-6 h-6" />,
-    },
-  ];
-
   if (error) {
     return (
-      <div className="space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">
-              Dashboard CRM
-            </h1>
-            <p className="text-secondary-600">
-              Bem-vindo ao sistema de gestão Arrighi Advogados
-            </p>
-          </div>
-        </motion.div>
-
-        <ErrorMessage
-          message={error}
-          onRetry={() => {
-            clearError();
-            fetchStats();
-          }}
-        />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+            Erro ao carregar dados
+          </h2>
+          <p className="text-neutral-600 mb-6">{error}</p>
+          <button
+            onClick={() => {
+              clearError();
+              fetchStats();
+            }}
+            className="btn-premium px-6 py-3 text-white rounded-xl"
+          >
+            Tentar novamente
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {/* Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">
-            Dashboard CRM
+          <h1 className="text-3xl font-bold text-neutral-900">
+            Dashboard Executivo
           </h1>
-          <p className="text-secondary-600">
-            Bem-vindo ao sistema de gestão Arrighi Advogados
+          <p className="text-neutral-600 mt-1">
+            Bem-vindo de volta! Aqui está o resumo do seu CRM.
           </p>
         </div>
-        <div className="flex items-center space-x-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="relative p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-secondary-200/50 hover:shadow-lg transition-all duration-300"
-          >
-            <Bell className="w-6 h-6 text-secondary-600" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-          </motion.button>
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1.5 bg-green-50 text-green-700 text-sm font-semibold rounded-lg inline-flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            Sistema Online
+          </span>
+          <button className="btn-gold px-6 py-2.5 text-sm font-semibold rounded-xl">
+            Gerar Relatório
+          </button>
         </div>
       </motion.div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {statsCards.map((stat, index) => (
-          <motion.div
-            key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <StatsCard {...stat} loading={loading} />
-          </motion.div>
-        ))}
+      {/* Dica de Uso - Instrução de Cliques */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-gradient-to-r from-blue-50 to-primary-50 border border-blue-200/60 rounded-xl p-4 shadow-sm"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-500 rounded-lg">
+            <svg
+              className="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-blue-900 mb-1">
+              💡 Dica de Navegação
+            </h3>
+            <p className="text-sm text-blue-700">
+              <strong>1 clique</strong> para selecionar uma linha na tabela •{" "}
+              <strong>2 cliques seguidos</strong> para editar diretamente
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <MetricCard
+          title="Total de Clientes"
+          value={loading ? "..." : stats.totalPessoasFisicas}
+          change="+12.5%"
+          changeType="positive"
+          icon={Users}
+          loading={loading}
+          subtitle="Pessoas físicas ativas"
+          accentColor="primary"
+        />
+        <MetricCard
+          title="Empresas Cadastradas"
+          value={loading ? "..." : stats.totalPessoasJuridicas}
+          change="+8.3%"
+          changeType="positive"
+          icon={Building2}
+          loading={loading}
+          subtitle="Pessoas jurídicas ativas"
+          accentColor="green"
+        />
+        <MetricCard
+          title="Usuários do Sistema"
+          value={loading ? "..." : stats.totalUsuarios}
+          change="+4.2%"
+          changeType="positive"
+          icon={UserCheck}
+          loading={loading}
+          subtitle="Usuários com acesso"
+          accentColor="gold"
+        />
+        <MetricCard
+          title="Taxa de Crescimento"
+          value="23.8%"
+          change="+2.1%"
+          changeType="positive"
+          icon={TrendingUp}
+          loading={loading}
+          subtitle="Crescimento mensal"
+          accentColor="primary"
+        />
       </div>
 
       {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <h2 className="text-2xl font-bold text-secondary-900 mb-6">
+      <div>
+        <h2 className="text-xl font-bold text-neutral-900 mb-4">
           Ações Rápidas
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 auto-rows-fr">
-          {quickActions.map((action, index) => (
-            <motion.div
-              key={action.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + index * 0.1 }}
-            >
-              <QuickAction {...action} />
-            </motion.div>
-          ))}
+        <QuickActions />
+      </div>
+
+      {/* Charts and Activities */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <PerformanceChart />
         </div>
-      </motion.div>
-
-      {/* Recent Activity */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50"
-      >
-        <h2 className="text-2xl font-bold text-secondary-900 mb-6">
-          Sistema Integrado
-        </h2>
-        <div className="space-y-4">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.9 }}
-            className="flex items-center space-x-4 p-4 bg-green-50/50 rounded-xl border border-green-200/50"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-grow">
-              <p className="text-secondary-900 font-medium">
-                <span className="font-semibold">API Backend</span> conectada com
-                sucesso
-              </p>
-              <p className="text-secondary-500 text-sm">
-                Sistema .NET Core funcionando
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.0 }}
-            className="flex items-center space-x-4 p-4 bg-blue-50/50 rounded-xl border border-blue-200/50"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-grow">
-              <p className="text-secondary-900 font-medium">
-                <span className="font-semibold">Frontend Next.js</span>{" "}
-                integrado à API
-              </p>
-              <p className="text-secondary-500 text-sm">
-                {loading
-                  ? "Carregando dados..."
-                  : `${
-                      stats.totalPessoasFisicas +
-                      stats.totalPessoasJuridicas +
-                      stats.totalUsuarios
-                    } registros sincronizados`}
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.1 }}
-            className="flex items-center space-x-4 p-4 bg-purple-50/50 rounded-xl border border-purple-200/50"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-              <UserCheck className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-grow">
-              <p className="text-secondary-900 font-medium">
-                <span className="font-semibold">Gestão de Usuários</span>{" "}
-                implementada
-              </p>
-              <p className="text-secondary-500 text-sm">
-                Sistema completo de autenticação e permissões
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 1.2 }}
-            className="flex items-center space-x-4 p-4 bg-orange-50/50 rounded-xl border border-orange-200/50"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-              <FileText className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-grow">
-              <p className="text-secondary-900 font-medium">
-                <span className="font-semibold">CRUD Completo</span>{" "}
-                implementado
-              </p>
-              <p className="text-secondary-500 text-sm">
-                Criar, ler, atualizar e deletar registros
-              </p>
-            </div>
-          </motion.div>
+        <div className="lg:col-span-1">
+          <RecentActivities />
         </div>
-      </motion.div>
+      </div>
+
+      {/* Status Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="executive-card p-6 bg-gradient-to-br from-green-50 to-green-100/50 border-green-200"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-green-500 rounded-xl text-white shadow-lg">
+              <CheckCircle className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-900">98.5%</p>
+              <p className="text-sm text-green-700">Taxa de Disponibilidade</p>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="executive-card p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-blue-500 rounded-xl text-white shadow-lg">
+              <Target className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-blue-900">142</p>
+              <p className="text-sm text-blue-700">Metas Alcançadas</p>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="executive-card p-6 bg-gradient-to-br from-gold-50 to-gold-100/50 border-gold-200"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl text-white shadow-lg">
+              <Award className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gold-900">Premium</p>
+              <p className="text-sm text-gold-700">Plano Enterprise</p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }

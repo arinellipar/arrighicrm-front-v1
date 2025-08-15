@@ -692,6 +692,11 @@ export default function ClientesPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.05 * index }}
                         onClick={() => handleSelectCliente(cliente.id)}
+                        onDoubleClick={() => {
+                          setEditingCliente(cliente);
+                          setShowForm(true);
+                          openForm();
+                        }}
                         className={cn(
                           "transition-colors duration-200 cursor-pointer",
                           selectedClienteId === cliente.id
