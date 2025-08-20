@@ -1,4 +1,4 @@
-// src/types/api.ts - Adicionar os tipos de Usuario
+// src/types/api.ts
 
 export interface Endereco {
   id: number;
@@ -90,14 +90,13 @@ export interface UpdatePessoaJuridicaDTO extends CreatePessoaJuridicaDTO {
   enderecoId: number;
 }
 
-// Tipos de Usuario - NOVOS
 export interface Usuario {
   id: number;
   login: string;
   email: string;
   senha: string;
   grupoAcesso: string;
-  tipoPessoa: string; // "Fisica" ou "Juridica"
+  tipoPessoa: "Fisica" | "Juridica";
   pessoaFisicaId?: number;
   pessoaFisica?: PessoaFisica;
   pessoaJuridicaId?: number;
@@ -113,10 +112,10 @@ export interface CreateUsuarioDTO {
   email: string;
   senha: string;
   grupoAcesso: string;
-  tipoPessoa: string;
+  tipoPessoa: "Fisica" | "Juridica";
   pessoaFisicaId?: number;
   pessoaJuridicaId?: number;
-  ativo?: boolean;
+  ativo: boolean;
 }
 
 export interface UpdateUsuarioDTO extends CreateUsuarioDTO {
@@ -129,13 +128,6 @@ export interface ResponsavelTecnicoOption {
   nome: string;
   cpf: string;
   email: string;
-  sexo: string;
-  dataNascimento: string;
-  estadoCivil: string;
-  telefone1: string;
-  telefone2?: string;
-  enderecoId: number;
-  endereco: Endereco;
 }
 
 export interface PessoaFisicaOption {
@@ -151,128 +143,6 @@ export interface PessoaJuridicaOption {
   nomeFantasia?: string;
   cnpj: string;
   email: string;
-}
-
-// Tipos para Consultor
-export interface Consultor {
-  id: number;
-  pessoaFisicaId: number;
-  pessoaFisica: PessoaFisica;
-  filial: string;
-  dataCadastro: string;
-  dataAtualizacao?: string;
-  ativo: boolean;
-  // Propriedades adicionadas durante transformação no frontend
-  nome?: string;
-  email?: string;
-  telefone1?: string;
-  telefone2?: string;
-  oab?: string;
-  especialidades?: string[];
-  status?: "ativo" | "inativo" | "ferias" | "licenca";
-  casosAtivos?: number;
-  taxaSucesso?: number;
-}
-
-export interface CreateConsultorDTO {
-  pessoaFisicaId: number;
-  filial: string;
-  // Propriedades adicionais para o frontend
-  nome?: string;
-  email?: string;
-  oab?: string;
-  telefone1?: string;
-  telefone2?: string;
-  especialidades?: string[];
-  status?: "ativo" | "inativo" | "ferias" | "licenca";
-}
-
-export interface UpdateConsultorDTO extends CreateConsultorDTO {
-  id: number;
-}
-
-// Tipos para Cliente
-export interface Cliente {
-  id: number;
-  tipoPessoa: "Fisica" | "Juridica";
-  pessoaFisicaId?: number;
-  pessoaFisica?: PessoaFisica;
-  pessoaJuridicaId?: number;
-  pessoaJuridica?: PessoaJuridica;
-  consultorAtualId?: number;
-  filial: string;
-  status?: string;
-  observacoes?: string;
-  valorContrato: number;
-  dataCadastro: string;
-  dataAtualizacao?: string;
-  ativo: boolean;
-  // Propriedades adicionadas durante transformação no frontend
-  tipo?: "fisica" | "juridica";
-  nome?: string;
-  razaoSocial?: string;
-  email?: string;
-  cpf?: string;
-  cnpj?: string;
-  telefone1?: string;
-  telefone2?: string;
-  segmento?: string;
-}
-
-export interface CreateClienteDTO {
-  tipoPessoa: "Fisica" | "Juridica";
-  pessoaId: number;
-  filial: string;
-  status?: string;
-  observacoes?: string;
-  valorContrato?: number;
-  // Propriedades adicionais para o frontend
-  tipo?: "fisica" | "juridica";
-  nome?: string;
-  razaoSocial?: string;
-  email?: string;
-  cpf?: string;
-  cnpj?: string;
-  telefone1?: string;
-  telefone2?: string;
-  segmento?: string;
-}
-
-export interface UpdateClienteDTO extends CreateClienteDTO {
-  id: number;
-}
-
-// Tipos para HistoricoConsultor
-export interface HistoricoConsultor {
-  id: number;
-  clienteId: number;
-  cliente?: Cliente;
-  consultorId: number;
-  consultor?: Consultor;
-  dataInicio: string;
-  dataFim?: string;
-  motivoTransferencia?: string;
-  dataCadastro: string;
-}
-
-export interface AtribuirClienteDTO {
-  consultorId: number;
-  clienteId: number;
-  motivoAtribuicao?: string;
-}
-
-// Tipos para Filial
-export interface Filial {
-  id: number;
-  nome: string;
-  cidade: string;
-  estado: string;
-  endereco?: string;
-  telefone?: string;
-  email?: string;
-  ativo: boolean;
-  dataCadastro: string;
-  dataAtualizacao?: string;
 }
 
 // Enums
@@ -295,9 +165,4 @@ export const GrupoAcessoOptions = [
   { value: "Administrador", label: "Administrador" },
   { value: "Usuario", label: "Usuário" },
   { value: "Visualizador", label: "Visualizador" },
-] as const;
-
-export const TipoPessoaOptions = [
-  { value: "Fisica", label: "Pessoa Física" },
-  { value: "Juridica", label: "Pessoa Jurídica" },
 ] as const;

@@ -41,26 +41,18 @@ export function usePessoaFisica() {
 
   // Listar todas as pessoas físicas
   const fetchPessoas = useCallback(async () => {
-    console.log("🔄 Iniciando fetchPessoas");
     setLoading(true);
     setError(null);
 
     try {
       const response = await apiClient.get<PessoaFisica[]>("/PessoaFisica");
-      console.log("📡 Resposta fetchPessoas:", response);
 
       if (response.error) {
-        console.error("❌ Erro em fetchPessoas:", response.error);
         setError(response.error);
-      } else if (!response.data) {
-        console.warn("⚠️ fetchPessoas: dados vazios ou nulos");
-        setPessoas([]);
       } else {
-        console.log("✅ fetchPessoas bem-sucedido, dados:", response.data.length);
-        setPessoas(response.data);
+        setPessoas(response.data || []);
       }
     } catch (error) {
-      console.error("💥 Erro em fetchPessoas:", error);
       setError("Erro ao carregar pessoas físicas");
     } finally {
       setLoading(false);
@@ -152,41 +144,20 @@ export function usePessoaFisica() {
   // Deletar pessoa física
   const deletePessoa = useCallback(
     async (id: number): Promise<boolean> => {
-      console.log("🗑️ Iniciando exclusão da pessoa física ID:", id);
       setState((prev) => ({ ...prev, deleting: true, error: null }));
 
       try {
         const response = await apiClient.delete(`/PessoaFisica/${id}`);
-        console.log("📡 Resposta da API:", response);
 
         if (response.error) {
-          console.error(
-            "❌ Erro na exclusão:",
-            response.error,
-            "Status:",
-            response.status
-          );
-          // Se for erro 400, pode ser uma validação de negócio (ex: responsável técnico)
-          if (response.status === 400) {
-            setError(response.error);
-          } else {
-            setError("Erro ao excluir pessoa física");
-          }
+          setError(response.error);
           return false;
         }
 
-        console.log("✅ Exclusão bem-sucedida, recarregando lista...");
         // Recarregar a lista após deletar
-        try {
-          await fetchPessoas();
-          console.log("✅ Lista recarregada com sucesso");
-        } catch (fetchError) {
-          console.error("❌ Erro ao recarregar lista:", fetchError);
-          setError("Pessoa excluída, mas erro ao atualizar lista");
-        }
+        await fetchPessoas();
         return true;
       } catch (error) {
-        console.error("💥 Erro na exclusão:", error);
         setError("Erro ao deletar pessoa física");
         return false;
       } finally {
@@ -223,7 +194,7 @@ export function usePessoaFisica() {
   // Carregar dados iniciais
   useEffect(() => {
     fetchPessoas();
-  }, []); // Remover fetchPessoas da dependência para evitar loops
+  }, [fetchPessoas]);
 
   return {
     ...state,

@@ -85,48 +85,6 @@ export function useUsuario() {
     []
   );
 
-  // Buscar pessoas físicas para select
-  const fetchPessoasFisicas = useCallback(async (): Promise<
-    PessoaFisicaOption[]
-  > => {
-    try {
-      const response = await apiClient.get<PessoaFisicaOption[]>(
-        "/Usuario/pessoas-fisicas"
-      );
-
-      if (response.error) {
-        console.error("Erro ao carregar pessoas físicas:", response.error);
-        return [];
-      }
-
-      return response.data || [];
-    } catch (error) {
-      console.error("Erro ao carregar pessoas físicas:", error);
-      return [];
-    }
-  }, []);
-
-  // Buscar pessoas jurídicas para select
-  const fetchPessoasJuridicas = useCallback(async (): Promise<
-    PessoaJuridicaOption[]
-  > => {
-    try {
-      const response = await apiClient.get<PessoaJuridicaOption[]>(
-        "/Usuario/pessoas-juridicas"
-      );
-
-      if (response.error) {
-        console.error("Erro ao carregar pessoas jurídicas:", response.error);
-        return [];
-      }
-
-      return response.data || [];
-    } catch (error) {
-      console.error("Erro ao carregar pessoas jurídicas:", error);
-      return [];
-    }
-  }, []);
-
   // Criar novo usuário
   const createUsuario = useCallback(
     async (data: CreateUsuarioDTO): Promise<boolean> => {
@@ -205,20 +163,62 @@ export function useUsuario() {
     [fetchUsuarios]
   );
 
+  // Buscar pessoas físicas para select
+  const fetchPessoasFisicas = useCallback(async (): Promise<
+    PessoaFisicaOption[]
+  > => {
+    try {
+      const response = await apiClient.get<PessoaFisicaOption[]>(
+        "/Usuario/pessoas-fisicas"
+      );
+
+      if (response.error) {
+        console.error("Erro ao carregar pessoas físicas:", response.error);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Erro ao carregar pessoas físicas:", error);
+      return [];
+    }
+  }, []);
+
+  // Buscar pessoas jurídicas para select
+  const fetchPessoasJuridicas = useCallback(async (): Promise<
+    PessoaJuridicaOption[]
+  > => {
+    try {
+      const response = await apiClient.get<PessoaJuridicaOption[]>(
+        "/Usuario/pessoas-juridicas"
+      );
+
+      if (response.error) {
+        console.error("Erro ao carregar pessoas jurídicas:", response.error);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Erro ao carregar pessoas jurídicas:", error);
+      return [];
+    }
+  }, []);
+
   // Carregar dados iniciais
   useEffect(() => {
     fetchUsuarios();
-  }, []); // Remover fetchUsuarios da dependência para evitar loops
+  }, [fetchUsuarios]);
 
   return {
     ...state,
     fetchUsuarios,
     fetchUsuarioById,
-    fetchPessoasFisicas,
-    fetchPessoasJuridicas,
     createUsuario,
     updateUsuario,
     deleteUsuario,
+    fetchPessoasFisicas,
+    fetchPessoasJuridicas,
     clearError: () => setError(null),
   };
 }
