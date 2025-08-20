@@ -91,7 +91,7 @@ function StatusClienteBadge({
     },
   };
 
-  const config = statusConfig[status];
+  const config = statusConfig[status] || statusConfig.inativo; // Fallback para inativo se status for inválido
   const Icon = config.icon;
 
   return (
