@@ -8,7 +8,6 @@ import {
   Building2,
   Plus,
   Search,
-  Filter,
   Edit,
   Trash2,
   Eye,
@@ -19,10 +18,8 @@ import {
   Clock,
   DollarSign,
   FileText,
-  Calendar,
   Phone,
   Mail,
-  MapPin,
   CheckCircle,
   XCircle,
 } from "lucide-react";
@@ -30,7 +27,7 @@ import MainLayout from "@/components/MainLayout";
 import ClienteForm from "@/components/forms/ClienteForm";
 import { Tooltip } from "@/components";
 import { useClientes } from "@/hooks/useClientes";
-import { Cliente } from "@/types/api";
+import { Cliente, CreateClienteDTO, UpdateClienteDTO } from "@/types/api";
 import { cn, truncateText } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 
@@ -171,6 +168,11 @@ export default function ClientesPage() {
 
   const { openForm, closeForm } = useForm();
 
+  // Carregar dados ao montar o componente
+  useEffect(() => {
+    fetchClientes();
+  }, [fetchClientes]);
+
   const [showForm, setShowForm] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -224,11 +226,13 @@ export default function ClientesPage() {
     );
   });
 
-  const handleCreateOrUpdate = async (data: any) => {
+  const handleCreateOrUpdate = async (
+    data: CreateClienteDTO | UpdateClienteDTO
+  ) => {
     if (editingCliente) {
-      return await updateCliente(editingCliente.id, data);
+      return await updateCliente(editingCliente.id, data as UpdateClienteDTO);
     } else {
-      return await createCliente(data);
+      return await createCliente(data as CreateClienteDTO);
     }
   };
 
@@ -286,15 +290,6 @@ export default function ClientesPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("pt-BR");
-    } catch (error) {
-      return "N/A";
-    }
-  };
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -302,7 +297,7 @@ export default function ClientesPage() {
     }).format(value);
   };
 
-  // Estatísticas
+  // Estatísticas baseadas nos clientes do banco de dados
   const stats = {
     total: clientes.length,
     ativos: clientes.filter((c: Cliente) => c.status === "ativo").length,
@@ -680,7 +675,7 @@ export default function ClientesPage() {
                         Status
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Cliente Desde
+                        Filial
                       </th>
                     </tr>
                   </thead>
@@ -764,7 +759,7 @@ export default function ClientesPage() {
                           />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
-                          {formatDate(cliente.dataCadastro)}
+                          {cliente.filial || "Não informada"}
                         </td>
                       </motion.tr>
                     ))}
@@ -848,8 +843,8 @@ export default function ClientesPage() {
                         )}
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Cliente desde {formatDate(cliente.dataCadastro)}
+                        <Building2 className="w-4 h-4 mr-2" />
+                        Filial: {cliente.filial || "Não informada"}
                       </div>
                     </div>
 

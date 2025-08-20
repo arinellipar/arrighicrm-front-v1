@@ -279,7 +279,7 @@ function QuickActions() {
       description: "Cadastrar pessoa física",
       icon: <Users className="w-6 h-6" />,
       href: "/cadastros/pessoa-fisica",
-      gradient: "from-orange-500 to-orange-600",
+      gradient: "from-blue-500 to-blue-600",
     },
     {
       title: "Nova Empresa",

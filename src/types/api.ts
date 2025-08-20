@@ -200,7 +200,9 @@ export interface Cliente {
   pessoaJuridicaId?: number;
   pessoaJuridica?: PessoaJuridica;
   consultorAtualId?: number;
-  filial: string;
+  filialId?: number;
+  filialNavigation?: Filial;
+  filial?: string;
   status?: string;
   observacoes?: string;
   valorContrato: number;
