@@ -2,13 +2,27 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Users, Building2, UserCog, Scale } from "lucide-react";
+import {
+  ChevronDown,
+  Users,
+  Building2,
+  UserCheck,
+  Scale,
+  Bell,
+  Search,
+  Settings,
+  LogOut,
+  Menu,
+  X as CloseIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface MenuItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  badge?: string;
 }
 
 interface MenuGroup {
@@ -18,7 +32,7 @@ interface MenuGroup {
 
 const menuItems: MenuGroup[] = [
   {
-    label: "Cadastros Gerais",
+    label: "Cadastros",
     items: [
       {
         label: "Pessoa Física",
@@ -31,9 +45,25 @@ const menuItems: MenuGroup[] = [
         icon: <Building2 className="w-4 h-4" />,
       },
       {
+        label: "Consultores",
+        href: "/consultores",
+        icon: <UserCheck className="w-4 h-4" />,
+      },
+      {
+        label: "Clientes",
+        href: "/clientes",
+        icon: <Users className="w-4 h-4 text-gold-500" />,
+      },
+    ],
+  },
+  {
+    label: "Gestão",
+    items: [
+      {
         label: "Usuários",
-        href: "/cadastros/usuarios",
-        icon: <UserCog className="w-4 h-4" />,
+        href: "/usuarios",
+        icon: <UserCheck className="w-4 h-4" />,
+        badge: "3",
       },
     ],
   },
@@ -41,126 +71,282 @@ const menuItems: MenuGroup[] = [
 
 export default function Header() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleDropdownToggle = (label: string) => {
     setActiveDropdown(activeDropdown === label ? null : label);
   };
 
   return (
-    <header className="relative z-50">
-      {/* Barra principal */}
-      <div className="bg-gradient-to-r from-primary-800 via-primary-700 to-primary-600 shadow-lg border-b border-primary-600/20">
-        <div className="container mx-auto px-6">
+    <header className="relative z-50 bg-white border-b border-neutral-200/60">
+      {/* Top bar - Linha dourada premium */}
+      <div className="h-1 bg-gradient-to-r from-primary-500 via-gold-500 to-primary-500" />
+
+      {/* Main header */}
+      <div className="bg-white shadow-sm">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center space-x-3"
-            >
-              <div className="flex items-center space-x-2">
-                <Scale className="w-8 h-8 text-accent-400" />
+            {/* Logo Section */}
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="flex items-center space-x-3 group">
+                <motion.div whileHover={{ rotate: 10 }} className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl blur-md opacity-50 group-hover:opacity-70 transition-opacity" />
+                  <div className="relative p-2.5 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-lg">
+                    <Scale className="w-6 h-6 text-white" />
+                  </div>
+                </motion.div>
                 <div>
-                  <h1 className="text-xl font-bold text-white">Arrighi</h1>
-                  <p className="text-xs text-primary-200 -mt-1">Advogados</p>
+                  <h1 className="text-xl font-bold text-neutral-900">
+                    Arrighi
+                  </h1>
+                  <p className="text-xs text-neutral-500 font-medium -mt-0.5">
+                    ENTERPRISE CRM
+                  </p>
                 </div>
-              </div>
-            </motion.div>
+              </Link>
 
-            {/* Navegação principal */}
-            <nav className="flex items-center space-x-1">
-              {menuItems.map((group, index) => (
-                <div key={group.label} className="relative">
-                  <motion.button
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    onClick={() => handleDropdownToggle(group.label)}
-                    className={cn(
-                      "flex items-center space-x-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                      "text-white hover:bg-white/10 hover:text-accent-300",
-                      "focus:outline-none focus:ring-2 focus:ring-accent-400/50",
-                      activeDropdown === group.label &&
-                        "bg-white/10 text-accent-300"
-                    )}
-                  >
-                    <span>{group.label}</span>
-                    <motion.div
-                      animate={{
-                        rotate: activeDropdown === group.label ? 180 : 0,
-                      }}
-                      transition={{ duration: 0.2 }}
+              {/* Desktop Navigation */}
+              <nav className="hidden lg:flex items-center space-x-1">
+                <Link
+                  href="/"
+                  className="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200"
+                >
+                  Dashboard
+                </Link>
+
+                {menuItems.map((group) => (
+                  <div key={group.label} className="relative">
+                    <button
+                      onClick={() => handleDropdownToggle(group.label)}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                        activeDropdown === group.label
+                          ? "text-primary-600 bg-primary-50"
+                          : "text-neutral-700 hover:text-primary-600 hover:bg-primary-50"
+                      )}
                     >
-                      <ChevronDown className="w-4 h-4" />
-                    </motion.div>
-                  </motion.button>
+                      <span>{group.label}</span>
+                      <ChevronDown
+                        className={cn(
+                          "w-3.5 h-3.5 transition-transform",
+                          activeDropdown === group.label && "rotate-180"
+                        )}
+                      />
+                    </button>
 
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {activeDropdown === group.label && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-secondary-200/20 overflow-hidden"
-                      >
-                        <div className="p-2">
-                          {group.items.map((item, itemIndex) => (
-                            <motion.a
-                              key={item.href}
-                              href={item.href}
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: itemIndex * 0.05 }}
-                              className={cn(
-                                "flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium",
-                                "text-secondary-700 hover:bg-primary-50 hover:text-primary-700",
-                                "transition-all duration-200 group"
-                              )}
-                              onClick={() => setActiveDropdown(null)}
-                            >
-                              <div className="flex-shrink-0 text-secondary-500 group-hover:text-primary-600">
-                                {item.icon}
-                              </div>
-                              <span className="flex-grow">{item.label}</span>
-                            </motion.a>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                    {/* Premium Dropdown */}
+                    <AnimatePresence>
+                      {activeDropdown === group.label && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-neutral-200/60 overflow-hidden z-50"
+                        >
+                          <div className="bg-gradient-to-r from-primary-50 to-gold-50 p-3 border-b border-neutral-200/60">
+                            <p className="text-xs font-semibold text-neutral-600 uppercase tracking-wider">
+                              {group.label}
+                            </p>
+                          </div>
+                          <div className="p-2">
+                            {group.items.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => {
+                                  console.log(
+                                    "Clicando em:",
+                                    item.label,
+                                    "href:",
+                                    item.href
+                                  );
+                                  setActiveDropdown(null);
+                                }}
+                                className="flex items-center justify-between px-4 py-3 rounded-lg hover:bg-primary-50 transition-all duration-200 group"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="p-2 bg-neutral-100 rounded-lg group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors">
+                                    {item.icon}
+                                  </div>
+                                  <span className="text-sm font-medium text-neutral-700 group-hover:text-primary-600">
+                                    {item.label}
+                                  </span>
+                                </div>
+                                {item.badge && (
+                                  <span className="px-2 py-0.5 bg-gold-500 text-white text-xs font-bold rounded-full">
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </nav>
+            </div>
+
+            {/* Right Section */}
+            <div className="flex items-center gap-3">
+              {/* Search Bar - Desktop */}
+              <div className="hidden lg:flex items-center">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar..."
+                    className="pl-10 pr-4 py-2 w-64 bg-neutral-50 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  />
                 </div>
-              ))}
-            </nav>
+              </div>
 
-            {/* Área do usuário */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center space-x-4"
-            >
-              <div className="text-right">
-                <p className="text-sm font-medium text-white">Usuário Admin</p>
-                <p className="text-xs text-primary-200">Sistema CRM</p>
+              {/* Notifications */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2.5 bg-neutral-50 hover:bg-neutral-100 rounded-lg transition-colors"
+              >
+                <Bell className="w-5 h-5 text-neutral-600" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-gold-500 rounded-full animate-pulse" />
+              </motion.button>
+
+              {/* User Menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-3 p-2 hover:bg-neutral-50 rounded-lg transition-colors"
+                >
+                  <div className="hidden sm:block text-right">
+                    <p className="text-sm font-semibold text-neutral-900">
+                      Admin User
+                    </p>
+                    <p className="text-xs text-neutral-500">Administrador</p>
+                  </div>
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <span className="text-white font-bold">A</span>
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                  </div>
+                </button>
+
+                {/* User Dropdown */}
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-neutral-200/60 overflow-hidden z-50"
+                    >
+                      <div className="p-4 bg-gradient-to-r from-primary-50 to-gold-50 border-b border-neutral-200/60">
+                        <p className="text-sm font-semibold text-neutral-900">
+                          Admin User
+                        </p>
+                        <p className="text-xs text-neutral-600">
+                          admin@arrighi.com
+                        </p>
+                      </div>
+                      <div className="p-2">
+                        <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 rounded-lg transition-colors">
+                          <Settings className="w-4 h-4" />
+                          Configurações
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                          <LogOut className="w-4 h-4" />
+                          Sair
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-accent-400 to-accent-600 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-white">A</span>
-              </div>
-            </motion.div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 hover:bg-neutral-50 rounded-lg"
+              >
+                {mobileMenuOpen ? (
+                  <CloseIcon className="w-6 h-6 text-neutral-600" />
+                ) : (
+                  <Menu className="w-6 h-6 text-neutral-600" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Overlay para fechar dropdown */}
+      {/* Mobile Menu */}
       <AnimatePresence>
-        {activeDropdown && (
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden bg-white border-t border-neutral-200/60"
+          >
+            <div className="px-4 py-4 space-y-2">
+              <Link
+                href="/"
+                className="block px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
+              >
+                Dashboard
+              </Link>
+              {menuItems.map((group) => (
+                <div key={group.label} className="space-y-1">
+                  <p className="px-4 py-2 text-xs font-semibold text-neutral-500 uppercase">
+                    {group.label}
+                  </p>
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => {
+                        console.log(
+                          "Mobile - Clicando em:",
+                          item.label,
+                          "href:",
+                          item.href
+                        );
+                      }}
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
+                    >
+                      {item.icon}
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className="ml-auto px-2 py-0.5 bg-gold-500 text-white text-xs font-bold rounded-full">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Overlay */}
+      <AnimatePresence>
+        {(activeDropdown || showNotifications || showUserMenu) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-40"
-            onClick={() => setActiveDropdown(null)}
+            onClick={() => {
+              setActiveDropdown(null);
+              setShowNotifications(false);
+              setShowUserMenu(false);
+            }}
           />
         )}
       </AnimatePresence>

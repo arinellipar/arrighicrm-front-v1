@@ -1,30 +1,31 @@
-// src/app/cadastros/pessoa-fisica/page.tsx
+// src/app/usuarios/page.tsx
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Search,
+  Filter,
   Eye,
   Edit,
   Trash2,
   Users,
+  User,
+  Building2,
   AlertCircle,
   Loader2,
+  Calendar,
   CheckCircle,
   XCircle,
+  Shield,
+  UserCheck,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
-import PessoaFisicaForm from "@/components/forms/PessoaFisicaForm";
-import { Tooltip } from "@/components";
-import { usePessoaFisica } from "@/hooks/usePessoaFisica";
-import {
-  PessoaFisica,
-  CreatePessoaFisicaDTO,
-  UpdatePessoaFisicaDTO,
-} from "@/types/api";
-import { cn, truncateText } from "@/lib/utils";
+import UsuarioForm from "@/components/forms/UsuarioForm";
+import { useUsuario } from "@/hooks/useUsuario";
+import { Usuario, PessoaFisicaOption, PessoaJuridicaOption } from "@/types/api";
+import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 import { TableNavigation } from "@/components/TableNavigation";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
@@ -62,6 +63,84 @@ function StatusBadge({
         />
       )}
       {status === "ativo" ? "Ativo" : "Inativo"}
+    </span>
+  );
+}
+
+function TipoPessoaBadge({
+  tipo,
+  isCompact = false,
+}: {
+  tipo: string;
+  isCompact?: boolean;
+}) {
+  const getTipoColor = (tipo: string) => {
+    switch (tipo.toLowerCase()) {
+      case "fisica":
+        return "bg-blue-100 text-blue-800 border border-blue-200";
+      case "juridica":
+        return "bg-purple-100 text-purple-800 border border-purple-200";
+      default:
+        return "bg-gray-100 text-gray-800 border border-gray-200";
+    }
+  };
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full font-medium",
+        isCompact
+          ? "px-1 py-0.5 text-[8px] sm:text-[9px]"
+          : "px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-xs",
+        getTipoColor(tipo)
+      )}
+    >
+      <UserCheck
+        className={
+          isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+        }
+      />
+      {tipo === "fisica" ? "Física" : tipo === "juridica" ? "Jurídica" : tipo}
+    </span>
+  );
+}
+
+function GrupoAcessoBadge({
+  grupo,
+  isCompact = false,
+}: {
+  grupo: string;
+  isCompact?: boolean;
+}) {
+  const getGrupoColor = (grupo: string) => {
+    switch (grupo.toLowerCase()) {
+      case "admin":
+        return "bg-red-100 text-red-800 border border-red-200";
+      case "gerente":
+        return "bg-blue-100 text-blue-800 border border-blue-200";
+      case "usuario":
+        return "bg-green-100 text-green-800 border border-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 border border-gray-200";
+    }
+  };
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full font-medium",
+        isCompact
+          ? "px-1 py-0.5 text-[8px] sm:text-[9px]"
+          : "px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-xs",
+        getGrupoColor(grupo)
+      )}
+    >
+      <Shield
+        className={
+          isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+        }
+      />
+      {grupo}
     </span>
   );
 }
@@ -104,117 +183,116 @@ function ErrorMessage({
   );
 }
 
-export default function PessoaFisicaPage() {
+export default function UsuariosPage() {
   const {
-    pessoas,
+    usuarios,
     loading,
     error,
     creating,
     updating,
     deleting,
-    fetchPessoas,
-    createPessoa,
-    updatePessoa,
-    deletePessoa,
+    fetchUsuarios,
+    fetchPessoasFisicas,
+    fetchPessoasJuridicas,
+    createUsuario,
+    updateUsuario,
+    deleteUsuario,
     clearError,
-  } = usePessoaFisica();
+  } = useUsuario();
 
   const { openForm, closeForm } = useForm();
 
   const [showForm, setShowForm] = useState(false);
-  const [editingPessoa, setEditingPessoa] = useState<PessoaFisica | null>(null);
+  const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterGrupo, setFilterGrupo] = useState("");
+  const [filterTipo, setFilterTipo] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
     null
   );
-  const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
-
+  const [pessoasFisicas, setPessoasFisicas] = useState<PessoaFisicaOption[]>(
+    []
+  );
+  const [pessoasJuridicas, setPessoasJuridicas] = useState<
+    PessoaJuridicaOption[]
+  >([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
   const [isTableCompact, setIsTableCompact] = useState(false);
 
-  // Filtrar pessoas por termo de busca e ordenar alfabeticamente
-  const filteredPessoas = pessoas
-    .filter(
-      (pessoa) =>
-        pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pessoa.cpf.includes(searchTerm) ||
-        pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  // Carregar dados auxiliares
+  useEffect(() => {
+    const loadAuxData = async () => {
+      const [pf, pj] = await Promise.all([
+        fetchPessoasFisicas(),
+        fetchPessoasJuridicas(),
+      ]);
+      setPessoasFisicas(pf);
+      setPessoasJuridicas(pj);
+    };
+    loadAuxData();
+  }, [fetchPessoasFisicas, fetchPessoasJuridicas]);
 
-  const handleCreateOrUpdate = async (
-    data: CreatePessoaFisicaDTO | UpdatePessoaFisicaDTO
-  ) => {
-    if (editingPessoa) {
-      return await updatePessoa(
-        editingPessoa.id,
-        data as UpdatePessoaFisicaDTO
-      );
+  // Filtrar usuários
+  const filteredUsuarios = usuarios.filter((usuario) => {
+    const matchesSearch =
+      usuario.login.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      usuario.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (usuario.pessoaFisica &&
+        usuario.pessoaFisica.nome
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (usuario.pessoaJuridica &&
+        usuario.pessoaJuridica.razaoSocial
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()));
+
+    const matchesGrupo = !filterGrupo || usuario.grupoAcesso === filterGrupo;
+    const matchesTipo = !filterTipo || usuario.tipoPessoa === filterTipo;
+    const matchesStatus =
+      !filterStatus ||
+      (filterStatus === "ativo" ? usuario.ativo : !usuario.ativo);
+
+    return matchesSearch && matchesGrupo && matchesTipo && matchesStatus;
+  });
+
+  const handleCreateOrUpdate = async (data: any) => {
+    if (editingUsuario) {
+      return await updateUsuario(editingUsuario.id, data);
     } else {
-      return await createPessoa(data as CreatePessoaFisicaDTO);
+      return await createUsuario(data);
     }
   };
 
-  const handleSelectPerson = (personId: number) => {
-    setSelectedPersonId(selectedPersonId === personId ? null : personId);
-  };
-
-  const handleViewPerson = () => {
-    if (selectedPersonId) {
-      const person = pessoas.find((p) => p.id === selectedPersonId);
-      if (person) {
-        // Aqui você pode implementar a visualização detalhada
-        alert(`Visualizando: ${person.nome}`);
-      }
-    }
-  };
-
-  const handleEditSelected = () => {
-    if (selectedPersonId) {
-      const person = pessoas.find((p) => p.id === selectedPersonId);
-      if (person) {
-        handleEdit(person);
-      }
-    }
-  };
-
-  const handleDeleteSelected = () => {
-    if (selectedPersonId) {
-      setShowDeleteConfirm(selectedPersonId);
-    }
-  };
-
-  const handleEdit = (pessoa: PessoaFisica) => {
-    setEditingPessoa(pessoa);
+  const handleEdit = (usuario: Usuario) => {
+    setEditingUsuario(usuario);
     setShowForm(true);
     openForm();
   };
 
   const handleDelete = async (id: number) => {
-    const success = await deletePessoa(id);
-    // Sempre fechar o modal, independente do resultado
-    setShowDeleteConfirm(null);
-
-    // Limpar seleção se a pessoa excluída era a selecionada
-    if (selectedPersonId === id) {
-      setSelectedPersonId(null);
+    const success = await deleteUsuario(id);
+    if (success) {
+      setShowDeleteConfirm(null);
     }
-
-    // Se não foi bem-sucedido, o erro já foi definido no hook
-    // e será exibido na interface
   };
 
   const handleCloseForm = () => {
     setShowForm(false);
-    setEditingPessoa(null);
-    setSelectedPersonId(null);
+    setEditingUsuario(null);
     clearError();
     closeForm();
   };
 
   const handleOpenForm = () => {
+    if (pessoasFisicas.length === 0 && pessoasJuridicas.length === 0) {
+      alert(
+        "É necessário cadastrar pelo menos uma pessoa física ou jurídica antes de criar um usuário."
+      );
+      return;
+    }
     setShowForm(true);
     openForm();
   };
@@ -223,16 +301,17 @@ export default function PessoaFisicaPage() {
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
 
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString("pt-BR");
+  };
+
   // Estatísticas calculadas
   const stats = {
-    total: pessoas.length,
-    ativos: pessoas.length, // Assumindo que todos estão ativos por enquanto
-    novosEstemês: pessoas.filter((p) => {
-      const cadastro = new Date(p.dataCadastro);
-      const hoje = new Date();
-      const mesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      return cadastro >= mesAtual;
-    }).length,
+    total: usuarios.length,
+    ativos: usuarios.filter((u) => u.ativo).length,
+    inativos: usuarios.filter((u) => !u.ativo).length,
+    administradores: usuarios.filter((u) => u.grupoAcesso === "Administrador")
+      .length,
   };
 
   const handleScrollLeft = () => {
@@ -270,7 +349,7 @@ export default function PessoaFisicaPage() {
         tableElement.removeEventListener("scroll", checkScrollPosition);
       };
     }
-  }, [pessoas]);
+  }, [usuarios]);
 
   return (
     <MainLayout>
@@ -282,15 +361,15 @@ export default function PessoaFisicaPage() {
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 w-full"
         >
           <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
-            <div className="p-1.5 sm:p-2 lg:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl text-white">
-              <Users className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
+            <div className="p-1.5 sm:p-2 lg:p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl text-white">
+              <UserCheck className="w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
             </div>
             <div>
               <h1 className="text-base sm:text-lg lg:text-xl font-bold gradient-text">
-                Pessoas Físicas
+                Usuários
               </h1>
               <p className="text-[10px] sm:text-xs text-secondary-600">
-                Gerenciar cadastros de pessoas físicas
+                Gerenciar usuários do sistema
               </p>
             </div>
           </div>
@@ -299,73 +378,79 @@ export default function PessoaFisicaPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="btn-mobile flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+            className="btn-mobile flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg sm:rounded-xl font-medium shadow-lg transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
           >
             <Plus className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-            <span>Nova Pessoa</span>
+            <span>Novo Usuário</span>
           </motion.button>
         </motion.div>
+
+        {/* Aviso se não há pessoas cadastradas */}
+        {pessoasFisicas.length === 0 && pessoasJuridicas.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-yellow-50 border border-yellow-200 rounded-xl p-4"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600" />
+              <p className="text-yellow-800 text-[11px] sm:text-xs">
+                <strong>Atenção:</strong> É necessário ter pelo menos uma pessoa
+                física ou jurídica cadastrada para criar usuários.
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Filtros e Busca */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full"
+          className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full"
         >
-          <div className="flex flex-col md:flex-row gap-2 sm:gap-3 lg:gap-4 w-full">
-            <div className="flex-1 relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 w-full">
+            <div className="sm:col-span-2 relative">
               <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
               <input
                 type="text"
-                placeholder="Buscar por nome, CPF ou email..."
+                placeholder="Buscar por login, email ou pessoa..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
               />
-              {selectedPersonId && (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                  <div className="bg-accent-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                    <span className="text-xs font-bold">✓</span>
-                  </div>
-                </div>
-              )}
             </div>
-            <div className="flex items-center space-x-1 sm:space-x-2">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleViewPerson}
-                disabled={!selectedPersonId}
-                className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-secondary-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
-                title="Visualizar pessoa selecionada"
-              >
-                <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-                <span>Visualizar</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleEditSelected}
-                disabled={!selectedPersonId}
-                className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-accent-100 hover:bg-accent-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-accent-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
-                title="Editar pessoa selecionada"
-              >
-                <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-                <span>Editar</span>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleDeleteSelected}
-                disabled={!selectedPersonId}
-                className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-red-100 hover:bg-red-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-red-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
-                title="Excluir pessoa selecionada"
-              >
-                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-                <span>Excluir</span>
-              </motion.button>
-            </div>
+
+            <select
+              value={filterGrupo}
+              onChange={(e) => setFilterGrupo(e.target.value)}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+            >
+              <option value="">Todos os grupos</option>
+              <option value="Administrador">Administrador</option>
+              <option value="Usuario">Usuário</option>
+              <option value="Visualizador">Visualizador</option>
+            </select>
+
+            <select
+              value={filterTipo}
+              onChange={(e) => setFilterTipo(e.target.value)}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+            >
+              <option value="">Todos os tipos</option>
+              <option value="Fisica">Pessoa Física</option>
+              <option value="Juridica">Pessoa Jurídica</option>
+            </select>
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-3 sm:px-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+            >
+              <option value="">Todos os status</option>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
           </div>
         </motion.div>
 
@@ -374,52 +459,68 @@ export default function PessoaFisicaPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
-                  Total de Pessoas
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
+                  Total de Usuários
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl font-bold text-secondary-900">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
               </div>
-              <div className="p-2 sm:p-2.5 lg:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
+              <div className="p-1.5 sm:p-2 lg:p-3 bg-purple-100 rounded-lg sm:rounded-xl">
+                <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
-                  Pessoas Ativas
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
+                  Usuários Ativos
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl font-bold text-blue-600">
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
                   {stats.ativos}
                 </p>
               </div>
-              <div className="p-2 sm:p-2.5 lg:p-3 bg-blue-100 rounded-lg sm:rounded-xl">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
+              <div className="p-1.5 sm:p-2 lg:p-3 bg-green-100 rounded-lg sm:rounded-xl">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
-                  Novas este mês
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
+                  Usuários Inativos
                 </p>
-                <p className="text-base sm:text-lg lg:text-xl font-bold text-accent-600">
-                  {stats.novosEstemês}
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600">
+                  {stats.inativos}
                 </p>
               </div>
-              <div className="p-2 sm:p-2.5 lg:p-3 bg-accent-100 rounded-lg sm:rounded-xl">
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-accent-600" />
+              <div className="p-1.5 sm:p-2 lg:p-3 bg-red-100 rounded-lg sm:rounded-xl">
+                <XCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-red-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-secondary-600 text-xs sm:text-sm font-medium">
+                  Administradores
+                </p>
+                <p className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600">
+                  {stats.administradores}
+                </p>
+              </div>
+              <div className="p-1.5 sm:p-2 lg:p-3 bg-orange-100 rounded-lg sm:rounded-xl">
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-orange-600" />
               </div>
             </div>
           </div>
@@ -427,7 +528,7 @@ export default function PessoaFisicaPage() {
 
         {/* Tabela ou Estados de Loading/Error */}
         {error ? (
-          <ErrorMessage message={error} onRetry={fetchPessoas} />
+          <ErrorMessage message={error} onRetry={fetchUsuarios} />
         ) : loading ? (
           <LoadingSpinner />
         ) : (
@@ -439,22 +540,25 @@ export default function PessoaFisicaPage() {
           >
             <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-secondary-200/50">
               <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-secondary-900">
-                Lista de Pessoas ({filteredPessoas.length} registros)
+                Lista de Usuários ({filteredUsuarios.length} registros)
               </h3>
             </div>
 
-            {filteredPessoas.length === 0 ? (
+            {filteredUsuarios.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
+                <UserCheck className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-secondary-900 mb-2">
-                  {searchTerm
+                  {searchTerm || filterGrupo || filterTipo || filterStatus
                     ? "Nenhum resultado encontrado"
-                    : "Nenhuma pessoa cadastrada"}
+                    : "Nenhum usuário cadastrado"}
                 </h3>
                 <p className="text-secondary-600">
-                  {searchTerm
-                    ? "Tente ajustar o termo de busca"
-                    : "Clique em 'Nova Pessoa' para começar"}
+                  {searchTerm || filterGrupo || filterTipo || filterStatus
+                    ? "Tente ajustar os filtros de busca"
+                    : pessoasFisicas.length === 0 &&
+                      pessoasJuridicas.length === 0
+                    ? "Cadastre primeiro uma pessoa física ou jurídica"
+                    : "Clique em 'Novo Usuário' para começar"}
                 </p>
               </div>
             ) : (
@@ -464,7 +568,7 @@ export default function PessoaFisicaPage() {
                   <TableSizeToggle
                     isCompact={isTableCompact}
                     onToggle={() => setIsTableCompact(!isTableCompact)}
-                    pageId="pessoa-fisica"
+                    pageId="usuarios"
                   />
                 </div>
 
@@ -487,7 +591,7 @@ export default function PessoaFisicaPage() {
                                 : "text-[10px] sm:text-xs"
                             }`}
                           >
-                            Pessoa
+                            Usuário
                           </th>
                           <th
                             className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
@@ -496,7 +600,7 @@ export default function PessoaFisicaPage() {
                                 : "text-[10px] sm:text-xs"
                             }`}
                           >
-                            CPF
+                            Pessoa Vinculada
                           </th>
                           <th
                             className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
@@ -505,7 +609,16 @@ export default function PessoaFisicaPage() {
                                 : "text-[10px] sm:text-xs"
                             }`}
                           >
-                            Contato
+                            Grupo de Acesso
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Tipo
                           </th>
                           <th
                             className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
@@ -523,28 +636,32 @@ export default function PessoaFisicaPage() {
                                 : "text-[10px] sm:text-xs"
                             }`}
                           >
-                            Data Cadastro
+                            Último Acesso
+                          </th>
+                          <th
+                            className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-right font-medium text-secondary-500 uppercase tracking-wider ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Ações
                           </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-secondary-200/50">
-                        {filteredPessoas.map((pessoa, index) => (
+                        {filteredUsuarios.map((usuario, index) => (
                           <motion.tr
-                            key={pessoa.id}
+                            key={usuario.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 + index * 0.05 }}
-                            onClick={() => handleSelectPerson(pessoa.id)}
                             onDoubleClick={() => {
-                              setEditingPessoa(pessoa);
+                              setEditingUsuario(usuario);
                               setShowForm(true);
                               openForm();
                             }}
-                            className={`transition-colors duration-200 cursor-pointer ${
-                              selectedPersonId === pessoa.id
-                                ? "bg-secondary-200 hover:bg-secondary-200 border-l-4 border-accent-500"
-                                : "hover:bg-secondary-50/50"
-                            }`}
+                            className="hover:bg-secondary-50/50 transition-colors duration-200 cursor-pointer"
                           >
                             <td
                               className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap ${
@@ -559,7 +676,7 @@ export default function PessoaFisicaPage() {
                                 }`}
                               >
                                 <div
-                                  className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  className={`bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 ${
                                     isTableCompact
                                       ? "w-4 h-4 sm:w-5 sm:h-5"
                                       : "w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7"
@@ -572,22 +689,18 @@ export default function PessoaFisicaPage() {
                                         : "text-[10px] sm:text-xs"
                                     }`}
                                   >
-                                    {pessoa.nome.charAt(0)}
+                                    {usuario.login.charAt(0)}
                                   </span>
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <div
-                                    className={`font-medium text-secondary-900 ${
+                                    className={`font-medium text-secondary-900 truncate ${
                                       isTableCompact
                                         ? "text-[10px] sm:text-[11px]"
                                         : "text-[11px] sm:text-xs lg:text-sm"
                                     }`}
                                   >
-                                    <Tooltip content={pessoa.nome}>
-                                      <span className="cursor-help">
-                                        {truncateText(pessoa.nome, 20)}
-                                      </span>
-                                    </Tooltip>
+                                    {usuario.login}
                                   </div>
                                   <div
                                     className={`text-secondary-500 truncate hidden sm:block ${
@@ -596,19 +709,10 @@ export default function PessoaFisicaPage() {
                                         : "text-[10px] sm:text-xs"
                                     }`}
                                   >
-                                    {pessoa.email}
+                                    {usuario.email}
                                   </div>
                                 </div>
                               </div>
-                            </td>
-                            <td
-                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
-                                isTableCompact
-                                  ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
-                                  : "text-[10px] sm:text-xs lg:text-sm"
-                              }`}
-                            >
-                              {pessoa.cpf}
                             </td>
                             <td
                               className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
@@ -622,7 +726,11 @@ export default function PessoaFisicaPage() {
                                     : "text-[10px] sm:text-xs lg:text-sm"
                                 }`}
                               >
-                                {pessoa.email}
+                                {usuario.pessoaFisica
+                                  ? usuario.pessoaFisica.nome
+                                  : usuario.pessoaJuridica
+                                  ? usuario.pessoaJuridica.razaoSocial
+                                  : "N/A"}
                               </div>
                               <div
                                 className={`text-secondary-500 ${
@@ -631,7 +739,11 @@ export default function PessoaFisicaPage() {
                                     : "text-[10px] sm:text-xs lg:text-sm"
                                 }`}
                               >
-                                {pessoa.telefone1}
+                                {usuario.pessoaFisica
+                                  ? usuario.pessoaFisica.cpf
+                                  : usuario.pessoaJuridica
+                                  ? usuario.pessoaJuridica.cnpj
+                                  : "N/A"}
                               </div>
                             </td>
                             <td
@@ -639,8 +751,28 @@ export default function PessoaFisicaPage() {
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
+                              <GrupoAcessoBadge
+                                grupo={usuario.grupoAcesso}
+                                isCompact={isTableCompact}
+                              />
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <TipoPessoaBadge
+                                tipo={usuario.tipoPessoa}
+                                isCompact={isTableCompact}
+                              />
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
                               <StatusBadge
-                                status="ativo"
+                                status={usuario.ativo ? "ativo" : "inativo"}
                                 isCompact={isTableCompact}
                               />
                             </td>
@@ -651,7 +783,63 @@ export default function PessoaFisicaPage() {
                                   : "text-[10px] sm:text-xs lg:text-sm"
                               }`}
                             >
-                              {formatDate(pessoa.dataCadastro)}
+                              {usuario.ultimoAcesso
+                                ? formatDateTime(usuario.ultimoAcesso)
+                                : "Nunca acessou"}
+                            </td>
+                            <td
+                              className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-right ${
+                                isTableCompact ? "py-1 sm:py-1.5" : ""
+                              }`}
+                            >
+                              <div className="flex items-center justify-end space-x-0.5 sm:space-x-1">
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-primary-600 transition-colors duration-200"
+                                  title="Visualizar"
+                                >
+                                  <Eye
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => handleEdit(usuario)}
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-accent-600 transition-colors duration-200"
+                                  title="Editar"
+                                >
+                                  <Edit
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() =>
+                                    setShowDeleteConfirm(usuario.id)
+                                  }
+                                  className="p-1 sm:p-1.5 text-secondary-400 hover:text-red-600 transition-colors duration-200"
+                                  title="Excluir"
+                                >
+                                  <Trash2
+                                    className={
+                                      isTableCompact
+                                        ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                        : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                    }
+                                  />
+                                </motion.button>
+                              </div>
                             </td>
                           </motion.tr>
                         ))}
@@ -663,18 +851,18 @@ export default function PessoaFisicaPage() {
                     onScrollRight={handleScrollRight}
                     canScrollLeft={canScrollLeft}
                     canScrollRight={canScrollRight}
-                    pageId="pessoa-fisica"
+                    pageId="usuarios"
                   />
                 </div>
               </div>
             )}
 
             {/* Paginação */}
-            {filteredPessoas.length > 0 && (
+            {filteredUsuarios.length > 0 && (
               <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                   <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
-                    Mostrando {filteredPessoas.length} de {pessoas.length}{" "}
+                    Mostrando {filteredUsuarios.length} de {usuarios.length}{" "}
                     registros
                   </div>
                   <div className="flex items-center space-x-1 sm:space-x-2">
@@ -709,8 +897,10 @@ export default function PessoaFisicaPage() {
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             >
               <div className="w-full max-w-4xl max-h-screen overflow-y-auto">
-                <PessoaFisicaForm
-                  initialData={editingPessoa}
+                <UsuarioForm
+                  initialData={editingUsuario}
+                  pessoasFisicas={pessoasFisicas}
+                  pessoasJuridicas={pessoasJuridicas}
                   onSubmit={handleCreateOrUpdate}
                   onCancel={handleCloseForm}
                   loading={creating || updating}
@@ -728,14 +918,12 @@ export default function PessoaFisicaPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              onClick={() => setShowDeleteConfirm(null)}
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
-                onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-2 bg-red-100 rounded-full">
@@ -746,8 +934,8 @@ export default function PessoaFisicaPage() {
                   </h3>
                 </div>
                 <p className="text-secondary-600 mb-6">
-                  Tem certeza que deseja excluir esta pessoa? Esta ação não pode
-                  ser desfeita.
+                  Tem certeza que deseja excluir este usuário? Esta ação não
+                  pode ser desfeita.
                 </p>
                 <div className="flex justify-end space-x-3">
                   <motion.button

@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { FormProvider } from "@/contexts/FormContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +19,13 @@ export const metadata: Metadata = {
     "Sistema de Gestão de Relacionamento com Cliente para Arrighi Advogados",
   keywords: ["CRM", "Advogados", "Gestão", "Clientes", "Jurídico"],
   authors: [{ name: "Arrighi Advogados" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -31,7 +38,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
-        {children}
+        <FormProvider>
+          {children}
+        </FormProvider>
       </body>
     </html>
   );
