@@ -336,7 +336,7 @@ export default function ClientesPage() {
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white">
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl text-white">
               <UserPlus className="w-8 h-8" />
             </div>
             <div>
@@ -351,7 +351,7 @@ export default function ClientesPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
             <span>Novo Cliente</span>
@@ -507,15 +507,15 @@ export default function ClientesPage() {
                 <p className="text-secondary-600 text-sm font-medium">
                   Total de Clientes
                 </p>
-                <p className="text-2xl font-bold text-secondary-900">
+                <p className="text-2xl font-bold text-orange-600">
                   {stats.total}
                 </p>
                 <p className="text-xs text-secondary-500 mt-1">
                   +{stats.novosEsteMes} este mês
                 </p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="p-3 bg-orange-100 rounded-xl">
+                <Users className="w-6 h-6 text-orange-600" />
               </div>
             </div>
           </div>
@@ -706,7 +706,7 @@ export default function ClientesPage() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
                               <span className="text-sm font-bold text-white">
                                 {(
                                   cliente.nome ||
@@ -789,7 +789,7 @@ export default function ClientesPage() {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
                           <span className="text-lg font-bold text-white">
                             {(cliente.nome || cliente.razaoSocial || "").charAt(
                               0

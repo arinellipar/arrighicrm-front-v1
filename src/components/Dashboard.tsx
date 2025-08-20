@@ -5,7 +5,6 @@ import {
   Users,
   Building2,
   UserCheck,
-  TrendingUp,
   ArrowUpRight,
   ArrowDownRight,
   MoreVertical,
@@ -41,13 +40,14 @@ function MetricCard({
   icon: React.ElementType;
   loading?: boolean;
   subtitle?: string;
-  accentColor?: "primary" | "gold" | "green" | "red";
+  accentColor?: "primary" | "gold" | "green" | "red" | "orange";
 }) {
   const accentColors = {
     primary: "from-primary-500 to-primary-600",
     gold: "from-gold-500 to-gold-600",
     green: "from-green-500 to-green-600",
     red: "from-red-500 to-red-600",
+    orange: "from-orange-500 to-orange-600",
   };
 
   const changeColors = {
@@ -182,11 +182,11 @@ function RecentActivities() {
     {
       id: 1,
       type: "new_client",
-      title: "Novo cliente cadastrado",
+      title: "Nova Pessoa Física",
       description: "João Silva foi adicionado ao sistema",
       time: "há 5 minutos",
       icon: <Users className="w-4 h-4" />,
-      color: "bg-green-500",
+      color: "bg-blue-500",
     },
     {
       id: 2,
@@ -195,7 +195,7 @@ function RecentActivities() {
       description: "ABC Corp teve seus dados atualizados",
       time: "há 15 minutos",
       icon: <Building2 className="w-4 h-4" />,
-      color: "bg-blue-500",
+      color: "bg-green-500",
     },
     {
       id: 3,
@@ -275,11 +275,11 @@ function RecentActivities() {
 function QuickActions() {
   const actions = [
     {
-      title: "Novo Cliente",
+      title: "Nova Pessoa Física",
       description: "Cadastrar pessoa física",
       icon: <Users className="w-6 h-6" />,
       href: "/cadastros/pessoa-fisica",
-      gradient: "from-blue-500 to-blue-600",
+      gradient: "from-orange-500 to-orange-600",
     },
     {
       title: "Nova Empresa",
@@ -429,7 +429,7 @@ export default function Dashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
-          title="Total de Clientes"
+          title="Total de Pessoas Físicas"
           value={loading ? "..." : stats.totalPessoasFisicas}
           change="+12.5%"
           changeType="positive"
@@ -459,14 +459,18 @@ export default function Dashboard() {
           accentColor="gold"
         />
         <MetricCard
-          title="Taxa de Crescimento"
-          value="23.8%"
-          change="+2.1%"
+          title="Total de Clientes"
+          value={
+            loading
+              ? "..."
+              : stats.totalPessoasFisicas + stats.totalPessoasJuridicas
+          }
+          change="+15.2%"
           changeType="positive"
-          icon={TrendingUp}
+          icon={Users}
           loading={loading}
-          subtitle="Crescimento mensal"
-          accentColor="primary"
+          subtitle="Pessoas físicas + jurídicas"
+          accentColor="orange"
         />
       </div>
 
