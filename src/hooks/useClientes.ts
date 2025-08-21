@@ -26,16 +26,6 @@ export function useClientes() {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       const response = await apiClient.get("/Cliente");
-
-      // Buscar dados das filiais para mapear os nomes
-      let filiais: any[] = [];
-      try {
-        const filiaisResponse = await apiClient.get("/Filial");
-        filiais = (filiaisResponse.data as any[]) || [];
-      } catch (filiaisError) {
-        console.warn("Erro ao buscar filiais:", filiaisError);
-      }
-
       // Transformar os dados para o formato esperado pelo frontend
       const clientesTransformados = (response.data as any[]).map(
         (cliente: any) => ({
@@ -53,18 +43,7 @@ export function useClientes() {
             cliente.pessoaFisica?.telefone2 ||
             cliente.pessoaJuridica?.telefone2,
           segmento: cliente.status, // Usando status como segmento temporariamente
-          status: cliente.status?.toLowerCase() || "ativo", // Converter para minúsculas para o StatusBadge
           valorContrato: cliente.valorContrato || 0,
-          filial: (() => {
-            if (cliente.filialNavigation?.nome)
-              return cliente.filialNavigation.nome;
-            if (cliente.filial) return cliente.filial;
-            if (cliente.filialId) {
-              const filial = filiais.find((f) => f.id === cliente.filialId);
-              return filial?.nome || "Não informada";
-            }
-            return "Não informada";
-          })(),
         })
       );
       setState((prev) => ({
@@ -104,12 +83,7 @@ export function useClientes() {
           novoCliente.pessoaFisica?.telefone2 ||
           novoCliente.pessoaJuridica?.telefone2,
         segmento: novoCliente.status, // Usando status como segmento temporariamente
-        status: novoCliente.status?.toLowerCase() || "ativo", // Converter para minúsculas para o StatusBadge
         valorContrato: novoCliente.valorContrato || 0,
-        filial:
-          novoCliente.filialNavigation?.nome ||
-          novoCliente.filial ||
-          "Não informada",
       };
 
       setState((prev) => ({
@@ -154,7 +128,6 @@ export function useClientes() {
             clienteAtualizado.pessoaFisica?.telefone2 ||
             clienteAtualizado.pessoaJuridica?.telefone2,
           segmento: clienteAtualizado.status, // Usando status como segmento temporariamente
-          status: clienteAtualizado.status?.toLowerCase() || "ativo", // Converter para minúsculas para o StatusBadge
           valorContrato: clienteAtualizado.valorContrato || 0,
         };
 
