@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api";
 import { Consultor, CreateConsultorDTO, UpdateConsultorDTO } from "@/types/api";
+import { useAtividadeContext } from "@/contexts/AtividadeContext";
 
 interface UseConsultoresState {
   consultores: Consultor[];
@@ -21,6 +22,8 @@ export function useConsultores() {
     updating: false,
     deleting: false,
   });
+
+  const { adicionarAtividade } = useAtividadeContext();
 
   const fetchConsultores = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
@@ -126,39 +129,54 @@ export function useConsultores() {
     }
   }, []);
 
-  const createConsultor = useCallback(async (data: CreateConsultorDTO) => {
-    setState((prev) => ({ ...prev, creating: true, error: null }));
-    try {
-      // Enviar apenas os campos necessários para o backend
-      const backendData = {
-        pessoaFisicaId: data.pessoaFisicaId,
-        filial: data.filial,
-        oab: data.oab || null,
-      };
+  const createConsultor = useCallback(
+    async (data: CreateConsultorDTO) => {
+      setState((prev) => ({ ...prev, creating: true, error: null }));
+      try {
+        // Enviar apenas os campos necessários para o backend
+        const backendData = {
+          pessoaFisicaId: data.pessoaFisicaId,
+          filial: data.filial,
+          oab: data.oab || null,
+        };
 
-      console.log(
-        "🔧 createConsultor: Enviando dados para backend:",
-        backendData
-      );
-      const response = await apiClient.post("/Consultor", backendData);
-      setState((prev) => ({
-        ...prev,
-        consultores: [...prev.consultores, response.data as Consultor],
-        creating: false,
-      }));
-      return true;
-    } catch (error: unknown) {
-      console.error("🔧 createConsultor: Erro:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Erro ao criar consultor";
-      setState((prev) => ({
-        ...prev,
-        error: errorMessage,
-        creating: false,
-      }));
-      return false;
-    }
-  }, []);
+        console.log(
+          "🔧 createConsultor: Enviando dados para backend:",
+          backendData
+        );
+        const response = await apiClient.post("/Consultor", backendData);
+
+        const novoConsultor = response.data as Consultor;
+        setState((prev) => ({
+          ...prev,
+          consultores: [...prev.consultores, novoConsultor],
+          creating: false,
+        }));
+
+        // Registrar atividade
+        adicionarAtividade(
+          "Admin User",
+          `Cadastrou novo consultor: ${data.nome}`,
+          "success",
+          `OAB: ${data.oab || "Não informado"}`,
+          "Consultores"
+        );
+
+        return true;
+      } catch (error: unknown) {
+        console.error("🔧 createConsultor: Erro:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Erro ao criar consultor";
+        setState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          creating: false,
+        }));
+        return false;
+      }
+    },
+    [adicionarAtividade]
+  );
 
   const updateConsultor = useCallback(
     async (id: number, data: UpdateConsultorDTO) => {
@@ -185,6 +203,16 @@ export function useConsultores() {
           ),
           updating: false,
         }));
+
+        // Registrar atividade
+        adicionarAtividade(
+          "Admin User",
+          `Atualizou consultor: ${data.nome}`,
+          "info",
+          `Filial: ${data.filial}`,
+          "Consultores"
+        );
+
         return true;
       } catch (error: unknown) {
         console.error("🔧 updateConsultor: Erro:", error);
@@ -200,30 +228,48 @@ export function useConsultores() {
         return false;
       }
     },
-    []
+    [adicionarAtividade]
   );
 
-  const deleteConsultor = useCallback(async (id: number) => {
-    setState((prev) => ({ ...prev, deleting: true, error: null }));
-    try {
-      await apiClient.delete(`/Consultor/${id}`);
-      setState((prev) => ({
-        ...prev,
-        consultores: prev.consultores.filter((c) => c.id !== id),
-        deleting: false,
-      }));
-      return true;
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Erro ao excluir consultor";
-      setState((prev) => ({
-        ...prev,
-        error: errorMessage,
-        deleting: false,
-      }));
-      return false;
-    }
-  }, []);
+  const deleteConsultor = useCallback(
+    async (id: number) => {
+      setState((prev) => ({ ...prev, deleting: true, error: null }));
+      try {
+        // Encontrar o consultor antes de deletar para registrar a atividade
+        const consultorParaDeletar = state.consultores.find((c) => c.id === id);
+
+        await apiClient.delete(`/Consultor/${id}`);
+        setState((prev) => ({
+          ...prev,
+          consultores: prev.consultores.filter((c) => c.id !== id),
+          deleting: false,
+        }));
+
+        // Registrar atividade
+        if (consultorParaDeletar) {
+          adicionarAtividade(
+            "Admin User",
+            `Excluiu consultor: ${consultorParaDeletar.nome}`,
+            "warning",
+            `OAB: ${consultorParaDeletar.oab || "Não informado"}`,
+            "Consultores"
+          );
+        }
+
+        return true;
+      } catch (error: unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Erro ao excluir consultor";
+        setState((prev) => ({
+          ...prev,
+          error: errorMessage,
+          deleting: false,
+        }));
+        return false;
+      }
+    },
+    [state.consultores, adicionarAtividade]
+  );
 
   const clearError = useCallback(() => {
     setState((prev) => ({ ...prev, error: null }));

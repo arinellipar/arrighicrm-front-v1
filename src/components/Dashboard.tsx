@@ -1,545 +1,937 @@
 "use client";
-
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
   Building2,
-  UserCheck,
-  TrendingUp,
+  Bell,
+  Plus,
   ArrowUpRight,
   ArrowDownRight,
-  MoreVertical,
-  Calendar,
-  DollarSign,
+  Menu,
+  X,
+  Home,
+  BarChart3,
+  Settings,
+  LogOut,
+  Moon,
+  Sun,
   Activity,
+  DollarSign,
   Target,
-  Award,
-  Briefcase,
-  Clock,
+  Sparkles,
+  ChevronRight,
+  Search,
+  Download,
+  Upload,
+  RefreshCw,
+  Shield,
   CheckCircle,
   AlertCircle,
+  XCircle,
+  Trash2,
 } from "lucide-react";
-import { useDashboard } from "@/hooks/useDashboard";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { useAtividadeContext } from "@/contexts/AtividadeContext";
+import { formatRelativeTime } from "@/lib/formatUtils";
 
-// Componente de Card de Métrica Principal
-function MetricCard({
-  title,
-  value,
-  change,
-  changeType,
-  icon,
-  loading,
-  subtitle,
-  accentColor = "primary",
+// Componente de Card Moderno com Glassmorphism
+const GlassCard = ({
+  children,
+  className = "",
+  delay = 0,
 }: {
-  title: string;
-  value: string | number;
-  change?: string;
-  changeType?: "positive" | "negative" | "neutral";
-  icon: React.ElementType;
-  loading?: boolean;
-  subtitle?: string;
-  accentColor?: "primary" | "gold" | "green" | "red";
-}) {
-  const accentColors = {
-    primary: "from-primary-500 to-primary-600",
-    gold: "from-gold-500 to-gold-600",
-    green: "from-green-500 to-green-600",
-    red: "from-red-500 to-red-600",
-  };
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20, rotateX: -10 }}
+    animate={{ opacity: 1, y: 0, rotateX: 0 }}
+    transition={{
+      duration: 0.6,
+      delay,
+      type: "spring",
+      stiffness: 100,
+    }}
+    whileHover={{
+      y: -5,
+      scale: 1.02,
+      transition: { duration: 0.2 },
+    }}
+    className={`
+      relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/20
+      border border-white/20 dark:border-gray-700/30
+      rounded-3xl p-6 shadow-2xl
+      before:absolute before:inset-0 before:rounded-3xl
+      before:bg-gradient-to-br before:from-white/10 before:to-transparent
+      before:pointer-events-none
+      hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)]
+      dark:hover:shadow-[0_20px_70px_-15px_rgba(255,255,255,0.1)]
+      ${className}
+    `}
+    style={{
+      transformStyle: "preserve-3d",
+      transform: "perspective(1000px)",
+    }}
+  >
+    {children}
+  </motion.div>
+);
 
-  const changeColors = {
-    positive: "text-green-600 bg-green-50",
-    negative: "text-red-600 bg-red-50",
-    neutral: "text-neutral-600 bg-neutral-50",
-  };
+// Componente de Estatística Animada
+const AnimatedStat = ({
+  value,
+  suffix = "",
+  prefix = "",
+  decimals = 0,
+}: {
+  value: number;
+  suffix?: string;
+  prefix?: string;
+  decimals?: number;
+}) => {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const duration = 2000;
+    const steps = 60;
+    const stepValue = value / steps;
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current += stepValue;
+      if (current >= value) {
+        setDisplayValue(value);
+        clearInterval(timer);
+      } else {
+        setDisplayValue(current);
+      }
+    }, duration / steps);
+
+    return () => clearInterval(timer);
+  }, [value]);
 
   return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.01 }}
-      transition={{ duration: 0.2 }}
-      className="executive-card p-6 relative overflow-hidden group"
-    >
-      {/* Background Accent */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/5 to-gold-500/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-500" />
-
-      {/* Content */}
-      <div className="relative">
-        <div className="flex items-start justify-between mb-4">
-          <div
-            className={cn(
-              "p-3 rounded-xl bg-gradient-to-br shadow-lg",
-              accentColors[accentColor]
-            )}
-          >
-            {icon &&
-              (() => {
-                const Icon = icon;
-                return <Icon className="w-6 h-6 text-white" />;
-              })()}
-          </div>
-          <button className="p-1 hover:bg-neutral-100 rounded-lg transition-colors">
-            <MoreVertical className="w-4 h-4 text-neutral-400" />
-          </button>
-        </div>
-
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-neutral-600">{title}</p>
-          {loading ? (
-            <div className="h-10 w-24 bg-neutral-200 rounded-lg animate-pulse" />
-          ) : (
-            <p className="text-3xl font-bold text-neutral-900">{value}</p>
-          )}
-          {subtitle && <p className="text-xs text-neutral-500">{subtitle}</p>}
-        </div>
-
-        {change && (
-          <div className="mt-4 flex items-center gap-2">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold",
-                changeColors[changeType || "neutral"]
-              )}
-            >
-              {changeType === "positive" ? (
-                <ArrowUpRight className="w-3 h-3" />
-              ) : changeType === "negative" ? (
-                <ArrowDownRight className="w-3 h-3" />
-              ) : null}
-              {change}
-            </span>
-            <span className="text-xs text-neutral-500">vs. mês anterior</span>
-          </div>
-        )}
-      </div>
-    </motion.div>
+    <span className="tabular-nums">
+      {prefix}
+      {displayValue.toFixed(decimals)}
+      {suffix}
+    </span>
   );
-}
+};
 
-// Componente de Gráfico de Performance
-function PerformanceChart() {
-  const data = [
-    { month: "Jan", value: 65 },
-    { month: "Fev", value: 72 },
-    { month: "Mar", value: 78 },
-    { month: "Abr", value: 85 },
-    { month: "Mai", value: 92 },
-    { month: "Jun", value: 88 },
-  ];
-
-  const maxValue = Math.max(...data.map((d) => d.value));
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4 }}
-      className="executive-card p-6"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-neutral-900">
-            Performance Mensal
-          </h3>
-          <p className="text-sm text-neutral-600">Crescimento de cadastros</p>
-        </div>
-        <button className="px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
-          Ver Detalhes
-        </button>
-      </div>
-
-      <div className="relative h-64">
-        <div className="absolute inset-0 flex items-end justify-between gap-4">
-          {data.map((item, index) => (
-            <motion.div
-              key={item.month}
-              initial={{ height: 0 }}
-              animate={{ height: `${(item.value / maxValue) * 100}%` }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="flex-1 relative group"
-            >
-              <div className="absolute bottom-0 w-full bg-gradient-to-t from-primary-500 to-primary-400 rounded-t-lg hover:from-primary-600 hover:to-primary-500 transition-colors cursor-pointer">
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                  {item.value}%
-                </div>
-              </div>
-              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-neutral-600 font-medium">
-                {item.month}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// Componente de Atividades Recentes
-function RecentActivities() {
-  const activities = [
-    {
-      id: 1,
-      type: "new_client",
-      title: "Novo cliente cadastrado",
-      description: "João Silva foi adicionado ao sistema",
-      time: "há 5 minutos",
-      icon: <Users className="w-4 h-4" />,
-      color: "bg-green-500",
-    },
-    {
-      id: 2,
-      type: "update",
-      title: "Empresa atualizada",
-      description: "ABC Corp teve seus dados atualizados",
-      time: "há 15 minutos",
-      icon: <Building2 className="w-4 h-4" />,
-      color: "bg-blue-500",
-    },
-    {
-      id: 3,
-      type: "new_user",
-      title: "Novo usuário criado",
-      description: "Maria Santos agora tem acesso ao sistema",
-      time: "há 1 hora",
-      icon: <UserCheck className="w-4 h-4" />,
-      color: "bg-purple-500",
-    },
-    {
-      id: 4,
-      type: "report",
-      title: "Relatório gerado",
-      description: "Relatório mensal de vendas disponível",
-      time: "há 2 horas",
-      icon: <Activity className="w-4 h-4" />,
-      color: "bg-gold-500",
-    },
-  ];
+// Componente de Gráfico Circular Animado
+const CircularProgress = ({
+  percentage,
+  color,
+  size = 120,
+}: {
+  percentage: number;
+  color: string;
+  size?: number;
+}) => {
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5 }}
-      className="executive-card p-6"
-    >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-neutral-900">
-          Atividades Recentes
-        </h3>
-        <Link
-          href="#"
-          className="text-sm font-medium text-primary-600 hover:text-primary-700"
-        >
-          Ver todas
-        </Link>
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="none"
+          className="text-gray-200 dark:text-gray-700"
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          strokeLinecap="round"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          {percentage}%
+        </span>
       </div>
-
-      <div className="space-y-4">
-        {activities.map((activity, index) => (
-          <motion.div
-            key={activity.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6 + index * 0.1 }}
-            className="flex items-start gap-4 p-3 hover:bg-neutral-50 rounded-lg transition-colors cursor-pointer"
-          >
-            <div
-              className={cn(
-                "p-2 rounded-lg text-white shadow-md",
-                activity.color
-              )}
-            >
-              {activity.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-neutral-900">
-                {activity.title}
-              </p>
-              <p className="text-xs text-neutral-600 truncate">
-                {activity.description}
-              </p>
-            </div>
-            <span className="text-xs text-neutral-500 whitespace-nowrap">
-              {activity.time}
-            </span>
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
-// Componente de Quick Actions Premium
-function QuickActions() {
-  const actions = [
-    {
-      title: "Novo Cliente",
-      description: "Cadastrar pessoa física",
-      icon: <Users className="w-6 h-6" />,
-      href: "/cadastros/pessoa-fisica",
-      gradient: "from-blue-500 to-blue-600",
-    },
-    {
-      title: "Nova Empresa",
-      description: "Cadastrar pessoa jurídica",
-      icon: <Building2 className="w-6 h-6" />,
-      href: "/cadastros/pessoa-juridica",
-      gradient: "from-green-500 to-green-600",
-    },
-    {
-      title: "Novo Usuário",
-      description: "Adicionar ao sistema",
-      icon: <UserCheck className="w-6 h-6" />,
-      href: "/usuarios",
-      gradient: "from-purple-500 to-purple-600",
-    },
-    {
-      title: "Relatórios",
-      description: "Análises e métricas",
-      icon: <Activity className="w-6 h-6" />,
-      href: "#",
-      gradient: "from-gold-500 to-gold-600",
-    },
-  ];
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {actions.map((action, index) => (
-        <motion.div
-          key={action.title}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 + index * 0.05 }}
-        >
-          <Link
-            href={action.href}
-            className="block p-6 bg-white rounded-2xl border border-neutral-200/60 hover:shadow-lg transition-all duration-300 group"
-          >
-            <div
-              className={cn(
-                "inline-flex p-3 rounded-xl bg-gradient-to-br text-white shadow-lg group-hover:shadow-xl transition-all",
-                action.gradient
-              )}
-            >
-              {action.icon}
-            </div>
-            <h4 className="mt-4 text-base font-bold text-neutral-900 group-hover:text-primary-600 transition-colors">
-              {action.title}
-            </h4>
-            <p className="mt-1 text-sm text-neutral-600">
-              {action.description}
-            </p>
-          </Link>
-        </motion.div>
-      ))}
     </div>
   );
-}
+};
 
-export default function Dashboard() {
-  const { stats, loading, error, fetchStats, clearError } = useDashboard();
+// Componente de Notificação
+const NotificationBadge = ({ count }: { count: number }) => (
+  <motion.div
+    initial={{ scale: 0 }}
+    animate={{ scale: 1 }}
+    transition={{ type: "spring", stiffness: 500 }}
+    className="absolute -top-2 -right-2 min-w-[24px] h-6 px-1.5
+               bg-gradient-to-r from-red-500 to-pink-500
+               rounded-full flex items-center justify-center
+               text-white text-xs font-bold
+               shadow-lg shadow-red-500/50"
+  >
+    {count > 99 ? "99+" : count}
+  </motion.div>
+);
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-neutral-900 mb-2">
-            Erro ao carregar dados
-          </h2>
-          <p className="text-neutral-600 mb-6">{error}</p>
-          <button
-            onClick={() => {
-              clearError();
-              fetchStats();
-            }}
-            className="btn-premium px-6 py-3 text-white rounded-xl"
-          >
-            Tentar novamente
-          </button>
-        </div>
-      </div>
+// Componente Principal do Dashboard
+export default function ModernDashboard() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState("week");
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Contexto de atividades
+  const { obterAtividadesRecentes, adicionarAtividade, limparAtividades } =
+    useAtividadeContext();
+
+  // Dados mockados
+  const stats = {
+    totalUsers: 2847,
+    newUsers: 182,
+    revenue: 48650,
+    revenueGrowth: 12.5,
+    activeSessions: 1259,
+    conversionRate: 3.48,
+    totalOrders: 524,
+    orderGrowth: 8.3,
+  };
+
+  const chartData = [
+    { day: "Seg", value: 42 },
+    { day: "Ter", value: 65 },
+    { day: "Qua", value: 58 },
+    { day: "Qui", value: 72 },
+    { day: "Sex", value: 89 },
+    { day: "Sáb", value: 95 },
+    { day: "Dom", value: 78 },
+  ];
+
+  // Obter atividades recentes dinâmicas
+  const atividadesRecentes = obterAtividadesRecentes(6);
+
+  // Função para adicionar atividade de demonstração
+  const adicionarAtividadeDemo = () => {
+    const usuarios = [
+      "João Silva",
+      "Maria Santos",
+      "Pedro Costa",
+      "Ana Lima",
+      "Carlos Oliveira",
+    ];
+    const acoes = [
+      "Cadastrou nova empresa",
+      "Atualizou perfil",
+      "Enviou documento",
+      "Completou cadastro",
+      "Criou novo cliente",
+      "Atualizou dados bancários",
+      "Registrou nova venda",
+      "Enviou relatório",
+    ];
+    const tipos: ("success" | "info" | "warning" | "error")[] = [
+      "success",
+      "info",
+      "warning",
+    ];
+
+    const usuarioAleatorio =
+      usuarios[Math.floor(Math.random() * usuarios.length)];
+    const acaoAleatoria = acoes[Math.floor(Math.random() * acoes.length)];
+    const tipoAleatorio = tipos[Math.floor(Math.random() * tipos.length)];
+
+    adicionarAtividade(
+      usuarioAleatorio,
+      acaoAleatoria,
+      tipoAleatorio,
+      undefined,
+      "Dashboard"
     );
-  }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 2000);
+  };
 
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+    <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
+      <div
+        className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50
+                      dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500"
       >
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-900">
-            Dashboard Executivo
-          </h1>
-          <p className="text-neutral-600 mt-1">
-            Bem-vindo de volta! Aqui está o resumo do seu CRM.
-          </p>
+        {/* Background Decorativo Animado */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            animate={{
+              x: [0, 100, 0],
+              y: [0, -100, 0],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400 to-purple-600
+                       rounded-full blur-3xl opacity-20"
+          />
+          <motion.div
+            animate={{
+              x: [0, -100, 0],
+              y: [0, 100, 0],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-pink-400 to-orange-600
+                       rounded-full blur-3xl opacity-20"
+          />
         </div>
-        <div className="flex items-center gap-3">
-          <span className="px-3 py-1.5 bg-green-50 text-green-700 text-sm font-semibold rounded-lg inline-flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            Sistema Online
-          </span>
-          <button className="btn-gold px-6 py-2.5 text-sm font-semibold rounded-xl">
-            Gerar Relatório
-          </button>
-        </div>
-      </motion.div>
 
-      {/* Dica de Uso - Instrução de Cliques */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-gradient-to-r from-blue-50 to-primary-50 border border-blue-200/60 rounded-xl p-4 shadow-sm"
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-500 rounded-lg">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        {/* Sidebar */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.div
+              initial={{ x: -280, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -280, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed left-0 top-0 h-full w-72 z-40"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+              <GlassCard className="h-full rounded-none rounded-r-3xl">
+                <div className="flex items-center justify-between mb-8">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center space-x-3"
+                  >
+                    <div
+                      className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600
+                                    rounded-2xl flex items-center justify-center shadow-lg"
+                    >
+                      <Sparkles className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h1
+                        className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600
+                                     bg-clip-text text-transparent"
+                      >
+                        CRM 2025
+                      </h1>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Premium Dashboard
+                      </p>
+                    </div>
+                  </motion.div>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="lg:hidden p-2 hover:bg-white/10 rounded-xl transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Menu Items */}
+                <nav className="space-y-2">
+                  {[
+                    { icon: Home, label: "Dashboard", active: true },
+                    { icon: Users, label: "Clientes", badge: 12 },
+                    { icon: Building2, label: "Empresas" },
+                    { icon: BarChart3, label: "Analytics" },
+                    { icon: Settings, label: "Configurações" },
+                  ].map((item) => (
+                    <motion.button
+                      key={item.label}
+                      whileHover={{ x: 5 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl
+                                  transition-all duration-300 group
+                                  ${
+                                    item.active
+                                      ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30"
+                                      : "hover:bg-white/10"
+                                  }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <item.icon
+                          className={`w-5 h-5 ${
+                            item.active
+                              ? "text-blue-500"
+                              : "text-gray-600 dark:text-gray-400"
+                          }`}
+                        />
+                        <span
+                          className={`font-medium ${
+                            item.active
+                              ? "text-gray-900 dark:text-white"
+                              : "text-gray-600 dark:text-gray-400"
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                      </div>
+                      {item.badge && (
+                        <span
+                          className="px-2 py-1 bg-gradient-to-r from-red-500 to-pink-500
+                                         text-white text-xs rounded-full font-bold"
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                      {!item.badge && (
+                        <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      )}
+                    </motion.button>
+                  ))}
+                </nav>
+
+                {/* User Profile */}
+                <div className="absolute bottom-6 left-6 right-6">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className="flex items-center space-x-3 p-3 bg-white/10 rounded-2xl"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 dark:text-white">
+                        Admin User
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        admin@crm2025.com
+                      </p>
+                    </div>
+                    <LogOut className="w-5 h-5 text-gray-400" />
+                  </motion.div>
+                </div>
+              </GlassCard>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main Content */}
+        <div
+          className={`transition-all duration-300 ${
+            sidebarOpen ? "lg:ml-72" : ""
+          }`}
+        >
+          {/* Top Bar */}
+          <GlassCard className="mx-6 mt-6 rounded-3xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                >
+                  <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                </button>
+
+                <div
+                  className="hidden md:flex items-center space-x-2 px-4 py-2 bg-white/20
+                                dark:bg-gray-800/20 rounded-2xl backdrop-blur-sm"
+                >
+                  <Search className="w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Pesquisar..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-transparent border-none outline-none text-gray-700
+                               dark:text-gray-300 placeholder-gray-400 w-64"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleRefresh}
+                  className="p-3 hover:bg-white/10 rounded-xl transition-colors"
+                >
+                  <RefreshCw
+                    className={`w-5 h-5 text-gray-700 dark:text-gray-300
+                                        ${refreshing ? "animate-spin" : ""}`}
+                  />
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="relative p-3 hover:bg-white/10 rounded-xl transition-colors"
+                >
+                  <Bell className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <NotificationBadge count={3} />
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="p-3 hover:bg-white/10 rounded-xl transition-colors"
+                >
+                  {darkMode ? (
+                    <Sun className="w-5 h-5 text-yellow-500" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-gray-700" />
+                  )}
+                </motion.button>
+              </div>
+            </div>
+          </GlassCard>
+
+          {/* Header com Título */}
+          <div className="px-6 mt-8 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="text-4xl md:text-5xl font-bold mb-2">
+                <span
+                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600
+                                 bg-clip-text text-transparent animate-gradient"
+                >
+                  Bem-vindo de volta! 👋
+                </span>
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">
+                Aqui está o que está acontecendo com seu negócio hoje
+              </p>
+            </motion.div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-blue-900 mb-1">
-              💡 Dica de Navegação
-            </h3>
-            <p className="text-sm text-blue-700">
-              <strong>1 clique</strong> para selecionar uma linha na tabela •{" "}
-              <strong>2 cliques seguidos</strong> para editar diretamente
-            </p>
+
+          {/* Stats Grid */}
+          <div className="px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[
+              {
+                title: "Total de Usuários",
+                value: stats.totalUsers,
+                change: stats.newUsers,
+                changeType: "positive",
+                icon: Users,
+                color: "from-blue-500 to-cyan-500",
+                bgColor: "from-blue-500/20 to-cyan-500/20",
+              },
+              {
+                title: "Receita",
+                value: stats.revenue,
+                change: `${stats.revenueGrowth}%`,
+                changeType: "positive",
+                icon: DollarSign,
+                color: "from-green-500 to-emerald-500",
+                bgColor: "from-green-500/20 to-emerald-500/20",
+                prefix: "R$ ",
+              },
+              {
+                title: "Sessões Ativas",
+                value: stats.activeSessions,
+                change: "Em tempo real",
+                changeType: "neutral",
+                icon: Activity,
+                color: "from-purple-500 to-pink-500",
+                bgColor: "from-purple-500/20 to-pink-500/20",
+              },
+              {
+                title: "Taxa de Conversão",
+                value: stats.conversionRate,
+                change: "+0.5%",
+                changeType: "positive",
+                icon: Target,
+                color: "from-orange-500 to-red-500",
+                bgColor: "from-orange-500/20 to-red-500/20",
+                suffix: "%",
+              },
+            ].map((stat, index) => (
+              <GlassCard key={stat.title} delay={index * 0.1}>
+                <div className="flex items-start justify-between mb-4">
+                  <div
+                    className={`p-3 rounded-2xl bg-gradient-to-r ${stat.bgColor}`}
+                  >
+                    <stat.icon
+                      className={`w-6 h-6 text-transparent bg-gradient-to-r ${stat.color} bg-clip-text`}
+                      style={{
+                        stroke: `url(#gradient-${index})`,
+                        fill: "none",
+                      }}
+                    />
+                    <svg width="0" height="0">
+                      <defs>
+                        <linearGradient id={`gradient-${index}`}>
+                          <stop
+                            stopColor={
+                              stat.color.includes("blue")
+                                ? "#3B82F6"
+                                : stat.color.includes("green")
+                                ? "#10B981"
+                                : stat.color.includes("purple")
+                                ? "#8B5CF6"
+                                : "#F97316"
+                            }
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor={
+                              stat.color.includes("cyan")
+                                ? "#06B6D4"
+                                : stat.color.includes("emerald")
+                                ? "#10B981"
+                                : stat.color.includes("pink")
+                                ? "#EC4899"
+                                : "#EF4444"
+                            }
+                          />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold
+                                ${
+                                  stat.changeType === "positive"
+                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                    : stat.changeType === "negative"
+                                    ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                    : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                                }`}
+                  >
+                    {stat.changeType === "positive" && (
+                      <ArrowUpRight className="w-3 h-3" />
+                    )}
+                    {stat.changeType === "negative" && (
+                      <ArrowDownRight className="w-3 h-3" />
+                    )}
+                    <span>{stat.change}</span>
+                  </motion.div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
+                  {stat.title}
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                  <AnimatedStat
+                    value={stat.value}
+                    prefix={stat.prefix}
+                    suffix={stat.suffix}
+                    decimals={stat.suffix === "%" ? 2 : 0}
+                  />
+                </p>
+              </GlassCard>
+            ))}
+          </div>
+
+          {/* Charts Section */}
+          <div className="px-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Main Chart */}
+            <div className="lg:col-span-2">
+              <GlassCard delay={0.4}>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                      Visão Geral de Vendas
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Últimos 7 dias
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {["dia", "semana", "mês"].map((period) => (
+                      <motion.button
+                        key={period}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setSelectedPeriod(period)}
+                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all
+                                    ${
+                                      selectedPeriod === period
+                                        ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
+                                        : "bg-white/20 text-gray-600 dark:text-gray-400 hover:bg-white/30"
+                                    }`}
+                      >
+                        {period.charAt(0).toUpperCase() + period.slice(1)}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Animated Bar Chart */}
+                <div className="flex items-end justify-between h-64 px-2">
+                  {chartData.map((item, index) => (
+                    <motion.div
+                      key={item.day}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: `${item.value}%`, opacity: 1 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ scaleY: 1.05 }}
+                      className="relative flex-1 mx-1 bg-gradient-to-t from-blue-500 to-purple-500
+                                 rounded-t-2xl cursor-pointer group"
+                    >
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        className="absolute -top-8 left-1/2 transform -translate-x-1/2
+                                   bg-gray-900 text-white text-xs px-2 py-1 rounded-lg"
+                      >
+                        {item.value}%
+                      </motion.div>
+                      <span
+                        className="absolute -bottom-6 left-0 right-0 text-center text-xs
+                                       text-gray-500 dark:text-gray-400"
+                      >
+                        {item.day}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </GlassCard>
+            </div>
+
+            {/* Progress Cards */}
+            <div className="space-y-6">
+              <GlassCard delay={0.5}>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                  Metas do Mês
+                </h3>
+                <div className="flex items-center justify-center mb-4">
+                  <CircularProgress percentage={68} color="#3B82F6" />
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Vendas
+                    </span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      R$ 32.5k / 50k
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Novos Clientes
+                    </span>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      142 / 200
+                    </span>
+                  </div>
+                </div>
+              </GlassCard>
+
+              <GlassCard delay={0.6}>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                  Performance
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    {
+                      label: "Produtividade",
+                      value: 87,
+                      color: "from-green-400 to-green-600",
+                    },
+                    {
+                      label: "Qualidade",
+                      value: 92,
+                      color: "from-blue-400 to-blue-600",
+                    },
+                    {
+                      label: "Satisfação",
+                      value: 78,
+                      color: "from-purple-400 to-purple-600",
+                    },
+                  ].map((metric, index) => (
+                    <div key={metric.label}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {metric.label}
+                        </span>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">
+                          {metric.value}%
+                        </span>
+                      </div>
+                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${metric.value}%` }}
+                          transition={{ duration: 1, delay: 0.7 + index * 0.1 }}
+                          className={`h-full bg-gradient-to-r ${metric.color} rounded-full`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            </div>
+          </div>
+
+          {/* Activity Feed & Quick Actions */}
+          <div className="px-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Activity Feed */}
+            <div className="lg:col-span-2">
+              <GlassCard delay={0.7}>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Atividade Recente
+                  </h3>
+                  <div className="flex items-center space-x-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={adicionarAtividadeDemo}
+                      className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg font-medium transition-colors"
+                    >
+                      + Demo
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={limparAtividades}
+                      className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-medium transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </motion.button>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {atividadesRecentes.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500 dark:text-gray-400">
+                        Nenhuma atividade recente
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                        As atividades aparecerão aqui conforme você usa o
+                        sistema
+                      </p>
+                    </div>
+                  ) : (
+                    atividadesRecentes.map((atividade, index) => (
+                      <motion.div
+                        key={atividade.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
+                        whileHover={{ x: 5 }}
+                        className="flex items-center space-x-4 p-3 rounded-2xl hover:bg-white/20
+                                   dark:hover:bg-gray-800/20 transition-all cursor-pointer"
+                      >
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center
+                                        ${
+                                          atividade.tipo === "success"
+                                            ? "bg-green-100 dark:bg-green-900/30"
+                                            : atividade.tipo === "warning"
+                                            ? "bg-yellow-100 dark:bg-yellow-900/30"
+                                            : atividade.tipo === "error"
+                                            ? "bg-red-100 dark:bg-red-900/30"
+                                            : "bg-blue-100 dark:bg-blue-900/30"
+                                        }`}
+                        >
+                          {atividade.tipo === "success" && (
+                            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                          )}
+                          {atividade.tipo === "warning" && (
+                            <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                          )}
+                          {atividade.tipo === "error" && (
+                            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                          )}
+                          {atividade.tipo === "info" && (
+                            <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            <span className="font-bold">
+                              {atividade.usuario}
+                            </span>{" "}
+                            {atividade.acao}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {formatRelativeTime(atividade.timestamp)}
+                          </p>
+                          {atividade.moduloOrigem && (
+                            <p className="text-xs text-gray-400 dark:text-gray-500">
+                              via {atividade.moduloOrigem}
+                            </p>
+                          )}
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              </GlassCard>
+            </div>
+
+            {/* Quick Actions */}
+            <GlassCard delay={0.9}>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                Ações Rápidas
+              </h3>
+              <div className="space-y-3">
+                {[
+                  {
+                    icon: Plus,
+                    label: "Novo Cliente",
+                    color: "from-blue-500 to-cyan-500",
+                  },
+                  {
+                    icon: Upload,
+                    label: "Upload Arquivo",
+                    color: "from-green-500 to-emerald-500",
+                  },
+                  {
+                    icon: Download,
+                    label: "Exportar Relatório",
+                    color: "from-purple-500 to-pink-500",
+                  },
+                  {
+                    icon: Shield,
+                    label: "Configurar Segurança",
+                    color: "from-orange-500 to-red-500",
+                  },
+                ].map((action, index) => (
+                  <motion.button
+                    key={action.label}
+                    whileHover={{ scale: 1.02, x: 5 }}
+                    whileTap={{ scale: 0.98 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 1 + index * 0.1 }}
+                    className="w-full flex items-center space-x-3 p-3 rounded-2xl
+                               bg-white/10 hover:bg-white/20 dark:bg-gray-800/20
+                               dark:hover:bg-gray-800/30 transition-all group"
+                  >
+                    <div
+                      className={`p-2 rounded-xl bg-gradient-to-r ${action.color}
+                                     shadow-lg group-hover:shadow-xl transition-shadow`}
+                    >
+                      <action.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {action.label}
+                    </span>
+                    <ChevronRight
+                      className="w-4 h-4 text-gray-400 ml-auto
+                                           group-hover:translate-x-1 transition-transform"
+                    />
+                  </motion.button>
+                ))}
+              </div>
+            </GlassCard>
           </div>
         </div>
-      </motion.div>
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard
-          title="Total de Clientes"
-          value={loading ? "..." : stats.totalPessoasFisicas}
-          change="+12.5%"
-          changeType="positive"
-          icon={Users}
-          loading={loading}
-          subtitle="Pessoas físicas ativas"
-          accentColor="primary"
-        />
-        <MetricCard
-          title="Empresas Cadastradas"
-          value={loading ? "..." : stats.totalPessoasJuridicas}
-          change="+8.3%"
-          changeType="positive"
-          icon={Building2}
-          loading={loading}
-          subtitle="Pessoas jurídicas ativas"
-          accentColor="green"
-        />
-        <MetricCard
-          title="Usuários do Sistema"
-          value={loading ? "..." : stats.totalUsuarios}
-          change="+4.2%"
-          changeType="positive"
-          icon={UserCheck}
-          loading={loading}
-          subtitle="Usuários com acesso"
-          accentColor="gold"
-        />
-        <MetricCard
-          title="Taxa de Crescimento"
-          value="23.8%"
-          change="+2.1%"
-          changeType="positive"
-          icon={TrendingUp}
-          loading={loading}
-          subtitle="Crescimento mensal"
-          accentColor="primary"
-        />
-      </div>
-
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-xl font-bold text-neutral-900 mb-4">
-          Ações Rápidas
-        </h2>
-        <QuickActions />
-      </div>
-
-      {/* Charts and Activities */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <PerformanceChart />
-        </div>
-        <div className="lg:col-span-1">
-          <RecentActivities />
-        </div>
-      </div>
-
-      {/* Status Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="executive-card p-6 bg-gradient-to-br from-green-50 to-green-100/50 border-green-200"
-        >
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-500 rounded-xl text-white shadow-lg">
-              <CheckCircle className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-green-900">98.5%</p>
-              <p className="text-sm text-green-700">Taxa de Disponibilidade</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="executive-card p-6 bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200"
-        >
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-500 rounded-xl text-white shadow-lg">
-              <Target className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-blue-900">142</p>
-              <p className="text-sm text-blue-700">Metas Alcançadas</p>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="executive-card p-6 bg-gradient-to-br from-gold-50 to-gold-100/50 border-gold-200"
-        >
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl text-white shadow-lg">
-              <Award className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gold-900">Premium</p>
-              <p className="text-sm text-gold-700">Plano Enterprise</p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </div>
   );
