@@ -33,6 +33,7 @@ import {
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
 import { formatRelativeTime } from "@/lib/formatUtils";
 import { useClientes } from "@/hooks/useClientes";
+import { useActiveUsers } from "@/hooks/useActiveUsers";
 
 // Componente de Card Moderno com Glassmorphism - Otimizado com memo
 const GlassCard = memo(
@@ -208,6 +209,9 @@ export default function ModernDashboard() {
   // Hook para dados de clientes
   const { clientes, loading: clientesLoading } = useClientes();
 
+  // Hook para usuários ativos/autenticados
+  const { activeSessions } = useActiveUsers();
+
   // Cálculo de clientes ativos dinâmico
   const clientesAtivos = useMemo(() => {
     return clientes.filter(
@@ -229,12 +233,12 @@ export default function ModernDashboard() {
       ), // Estimativa de novos clientes
       revenue: 48650,
       revenueGrowth: 12.5,
-      activeSessions: 1259,
+      activeSessions: activeSessions,
       conversionRate: 3.48,
       totalOrders: 524,
       orderGrowth: 8.3,
     }),
-    [clientesAtivos]
+    [clientesAtivos, activeSessions]
   );
 
   const chartData = useMemo(
