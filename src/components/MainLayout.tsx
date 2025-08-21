@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Header from "./Header";
 import { useForm } from "@/contexts/FormContext";
 import { Calendar, Clock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useClientes } from "@/hooks/useClientes";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,20 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   const { isFormOpen } = useForm();
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  // Hook para dados de clientes
+  const { clientes, loading: clientesLoading } = useClientes();
+
+  // Cálculo de clientes ativos dinâmico
+  const clientesAtivos = useMemo(() => {
+    return clientes.filter(
+      (cliente) =>
+        cliente.ativo &&
+        (cliente.status === "ativo" ||
+          cliente.status === "Ativo" ||
+          !cliente.status)
+    ).length;
+  }, [clientes]);
 
   useEffect(() => {
     setCurrentTime(new Date());
@@ -167,7 +182,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <div className="flex items-center justify-center gap-8">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-primary-600">
-                        500+
+                        {clientesLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          `${clientesAtivos}+`
+                        )}
                       </p>
                       <p className="text-xs text-neutral-600">
                         Clientes Ativos

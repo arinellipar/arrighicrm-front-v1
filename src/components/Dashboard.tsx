@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -9,169 +9,177 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Menu,
-  X,
   Home,
   BarChart3,
   Settings,
   LogOut,
-  Moon,
-  Sun,
   Activity,
   DollarSign,
   Target,
-  Sparkles,
-  ChevronRight,
   Search,
-  Download,
-  Upload,
   RefreshCw,
-  Shield,
   CheckCircle,
   AlertCircle,
   XCircle,
-  Trash2,
+  ChevronRight,
+  Download,
+  Moon,
+  Shield,
+  Sparkles,
+  Sun,
+  Upload,
+  X,
 } from "lucide-react";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
 import { formatRelativeTime } from "@/lib/formatUtils";
+import { useClientes } from "@/hooks/useClientes";
 
-// Componente de Card Moderno com Glassmorphism
-const GlassCard = ({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20, rotateX: -10 }}
-    animate={{ opacity: 1, y: 0, rotateX: 0 }}
-    transition={{
-      duration: 0.6,
-      delay,
-      type: "spring",
-      stiffness: 100,
-    }}
-    whileHover={{
-      y: -5,
-      scale: 1.02,
-      transition: { duration: 0.2 },
-    }}
-    className={`
-      relative backdrop-blur-xl bg-white/10 dark:bg-gray-900/20
-      border border-white/20 dark:border-gray-700/30
+// Componente de Card Moderno com Glassmorphism - Otimizado com memo
+const GlassCard = memo(
+  ({
+    children,
+    className = "",
+    delay = 0,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+    delay?: number;
+  }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20, rotateX: -10 }}
+      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+      transition={{
+        duration: 0.6,
+        delay,
+        type: "spring",
+        stiffness: 100,
+      }}
+      whileHover={{
+        y: -5,
+        scale: 1.02,
+        transition: { duration: 0.2 },
+      }}
+      className={`
+      relative backdrop-blur-xl bg-white/10
+      border border-white/20
       rounded-3xl p-6 shadow-2xl
       before:absolute before:inset-0 before:rounded-3xl
       before:bg-gradient-to-br before:from-white/10 before:to-transparent
       before:pointer-events-none
       hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)]
-      dark:hover:shadow-[0_20px_70px_-15px_rgba(255,255,255,0.1)]
       ${className}
     `}
-    style={{
-      transformStyle: "preserve-3d",
-      transform: "perspective(1000px)",
-    }}
-  >
-    {children}
-  </motion.div>
+      style={{
+        transformStyle: "preserve-3d",
+        transform: "perspective(1000px)",
+      }}
+    >
+      {children}
+    </motion.div>
+  )
 );
+GlassCard.displayName = "GlassCard";
 
-// Componente de Estatística Animada
-const AnimatedStat = ({
-  value,
-  suffix = "",
-  prefix = "",
-  decimals = 0,
-}: {
-  value: number;
-  suffix?: string;
-  prefix?: string;
-  decimals?: number;
-}) => {
-  const [displayValue, setDisplayValue] = useState(0);
+// Componente de Estatística Animada - Otimizado com memo
+const AnimatedStat = memo(
+  ({
+    value,
+    suffix = "",
+    prefix = "",
+    decimals = 0,
+  }: {
+    value: number;
+    suffix?: string;
+    prefix?: string;
+    decimals?: number;
+  }) => {
+    const [displayValue, setDisplayValue] = useState(0);
 
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const stepValue = value / steps;
-    let current = 0;
+    useEffect(() => {
+      const duration = 2000;
+      const steps = 60;
+      const stepValue = value / steps;
+      let current = 0;
 
-    const timer = setInterval(() => {
-      current += stepValue;
-      if (current >= value) {
-        setDisplayValue(value);
-        clearInterval(timer);
-      } else {
-        setDisplayValue(current);
-      }
-    }, duration / steps);
+      const timer = setInterval(() => {
+        current += stepValue;
+        if (current >= value) {
+          setDisplayValue(value);
+          clearInterval(timer);
+        } else {
+          setDisplayValue(current);
+        }
+      }, duration / steps);
 
-    return () => clearInterval(timer);
-  }, [value]);
+      return () => clearInterval(timer);
+    }, [value]);
 
-  return (
-    <span className="tabular-nums">
-      {prefix}
-      {displayValue.toFixed(decimals)}
-      {suffix}
-    </span>
-  );
-};
+    return (
+      <span className="tabular-nums">
+        {prefix}
+        {displayValue.toFixed(decimals)}
+        {suffix}
+      </span>
+    );
+  }
+);
+AnimatedStat.displayName = "AnimatedStat";
 
-// Componente de Gráfico Circular Animado
-const CircularProgress = ({
-  percentage,
-  color,
-  size = 120,
-}: {
-  percentage: number;
-  color: string;
-  size?: number;
-}) => {
-  const strokeWidth = 8;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (percentage / 100) * circumference;
+// Componente de Gráfico Circular Animado - Otimizado com memo
+const CircularProgress = memo(
+  ({
+    percentage,
+    color,
+    size = 120,
+  }: {
+    percentage: number;
+    color: string;
+    size?: number;
+  }) => {
+    const strokeWidth = 8;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (percentage / 100) * circumference;
 
-  return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg className="transform -rotate-90" width={size} height={size}>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="currentColor"
-          strokeWidth={strokeWidth}
-          fill="none"
-          className="text-gray-200 dark:text-gray-700"
-        />
-        <motion.circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          strokeLinecap="round"
-        />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          {percentage}%
-        </span>
+    return (
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg className="transform -rotate-90" width={size} height={size}>
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            fill="none"
+            className="text-gray-200"
+          />
+          <motion.circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={color}
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeDasharray={circumference}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: offset }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            {percentage}%
+          </span>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
+CircularProgress.displayName = "CircularProgress";
 
-// Componente de Notificação
-const NotificationBadge = ({ count }: { count: number }) => (
+// Componente de Notificação - Otimizado com memo
+const NotificationBadge = memo(({ count }: { count: number }) => (
   <motion.div
     initial={{ scale: 0 }}
     animate={{ scale: 1 }}
@@ -184,120 +192,89 @@ const NotificationBadge = ({ count }: { count: number }) => (
   >
     {count > 99 ? "99+" : count}
   </motion.div>
-);
+));
+NotificationBadge.displayName = "NotificationBadge";
 
-// Componente Principal do Dashboard
+// Componente Principal do Dashboard - Otimizado
 export default function ModernDashboard() {
-  const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("week");
   const [refreshing, setRefreshing] = useState(false);
 
   // Contexto de atividades
-  const { obterAtividadesRecentes, adicionarAtividade, limparAtividades } =
-    useAtividadeContext();
+  const { obterAtividadesRecentes } = useAtividadeContext();
 
-  // Dados mockados
-  const stats = {
-    totalUsers: 2847,
-    newUsers: 182,
-    revenue: 48650,
-    revenueGrowth: 12.5,
-    activeSessions: 1259,
-    conversionRate: 3.48,
-    totalOrders: 524,
-    orderGrowth: 8.3,
-  };
+  // Hook para dados de clientes
+  const { clientes, loading: clientesLoading } = useClientes();
 
-  const chartData = [
-    { day: "Seg", value: 42 },
-    { day: "Ter", value: 65 },
-    { day: "Qua", value: 58 },
-    { day: "Qui", value: 72 },
-    { day: "Sex", value: 89 },
-    { day: "Sáb", value: 95 },
-    { day: "Dom", value: 78 },
-  ];
+  // Cálculo de clientes ativos dinâmico
+  const clientesAtivos = useMemo(() => {
+    return clientes.filter(
+      (cliente) =>
+        cliente.ativo &&
+        (cliente.status === "ativo" ||
+          cliente.status === "Ativo" ||
+          !cliente.status)
+    ).length;
+  }, [clientes]);
 
-  // Obter atividades recentes dinâmicas
-  const atividadesRecentes = obterAtividadesRecentes(6);
+  // Dados mockados - Memoizados para performance
+  const stats = useMemo(
+    () => ({
+      clientesAtivos: clientesAtivos,
+      novosClientes: Math.max(
+        0,
+        clientesAtivos - Math.floor(clientesAtivos * 0.9)
+      ), // Estimativa de novos clientes
+      revenue: 48650,
+      revenueGrowth: 12.5,
+      activeSessions: 1259,
+      conversionRate: 3.48,
+      totalOrders: 524,
+      orderGrowth: 8.3,
+    }),
+    [clientesAtivos]
+  );
 
-  // Função para adicionar atividade de demonstração
-  const adicionarAtividadeDemo = () => {
-    const usuarios = [
-      "João Silva",
-      "Maria Santos",
-      "Pedro Costa",
-      "Ana Lima",
-      "Carlos Oliveira",
-    ];
-    const acoes = [
-      "Cadastrou nova empresa",
-      "Atualizou perfil",
-      "Enviou documento",
-      "Completou cadastro",
-      "Criou novo cliente",
-      "Atualizou dados bancários",
-      "Registrou nova venda",
-      "Enviou relatório",
-    ];
-    const tipos: ("success" | "info" | "warning" | "error")[] = [
-      "success",
-      "info",
-      "warning",
-    ];
+  const chartData = useMemo(
+    () => [
+      { day: "Seg", value: 42 },
+      { day: "Ter", value: 65 },
+      { day: "Qua", value: 58 },
+      { day: "Qui", value: 72 },
+      { day: "Sex", value: 89 },
+      { day: "Sáb", value: 95 },
+      { day: "Dom", value: 78 },
+    ],
+    []
+  );
 
-    const usuarioAleatorio =
-      usuarios[Math.floor(Math.random() * usuarios.length)];
-    const acaoAleatoria = acoes[Math.floor(Math.random() * acoes.length)];
-    const tipoAleatorio = tipos[Math.floor(Math.random() * tipos.length)];
+  // Obter atividades recentes dinâmicas - Memoizadas
+  const atividadesRecentes = useMemo(
+    () => obterAtividadesRecentes(6),
+    [obterAtividadesRecentes]
+  );
 
-    adicionarAtividade(
-      usuarioAleatorio,
-      acaoAleatoria,
-      tipoAleatorio,
-      undefined,
-      "Dashboard"
-    );
-  };
-
-  const handleRefresh = () => {
+  // Função de refresh memoizada
+  const handleRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 2000);
-  };
+  }, []);
 
   return (
-    <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
+    <div className="min-h-screen">
       <div
         className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50
-                      dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-all duration-500"
+                       transition-all duration-500"
       >
-        {/* Background Decorativo Animado */}
+        {/* Background Decorativo Otimizado */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <motion.div
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -100, 0],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+          <div
             className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400 to-purple-600
                        rounded-full blur-3xl opacity-20"
           />
-          <motion.div
-            animate={{
-              x: [0, -100, 0],
-              y: [0, 100, 0],
-            }}
-            transition={{
-              duration: 25,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+          <div
             className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-pink-400 to-orange-600
                        rounded-full blur-3xl opacity-20"
           />
@@ -311,7 +288,7 @@ export default function ModernDashboard() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -280, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed left-0 top-0 h-full w-72 z-40"
+              className="fixed left-0 top-[68px] h-[calc(100vh-68px)] w-72 z-40"
             >
               <GlassCard className="h-full rounded-none rounded-r-3xl">
                 <div className="flex items-center justify-between mb-8">
@@ -332,9 +309,7 @@ export default function ModernDashboard() {
                       >
                         CRM 2025
                       </h1>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Premium Dashboard
-                      </p>
+                      <p className="text-xs text-gray-500">Premium Dashboard</p>
                     </div>
                   </motion.div>
                   <button
@@ -369,16 +344,12 @@ export default function ModernDashboard() {
                       <div className="flex items-center space-x-3">
                         <item.icon
                           className={`w-5 h-5 ${
-                            item.active
-                              ? "text-blue-500"
-                              : "text-gray-600 dark:text-gray-400"
+                            item.active ? "text-blue-500" : "text-gray-600"
                           }`}
                         />
                         <span
                           className={`font-medium ${
-                            item.active
-                              ? "text-gray-900 dark:text-white"
-                              : "text-gray-600 dark:text-gray-400"
+                            item.active ? "text-gray-900" : "text-gray-600"
                           }`}
                         >
                           {item.label}
@@ -407,12 +378,8 @@ export default function ModernDashboard() {
                   >
                     <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full" />
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        Admin User
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        admin@crm2025.com
-                      </p>
+                      <p className="font-semibold text-gray-900">Admin User</p>
+                      <p className="text-xs text-gray-500">admin@crm2025.com</p>
                     </div>
                     <LogOut className="w-5 h-5 text-gray-400" />
                   </motion.div>
@@ -436,12 +403,12 @@ export default function ModernDashboard() {
                   onClick={() => setSidebarOpen(!sidebarOpen)}
                   className="p-2 hover:bg-white/10 rounded-xl transition-colors"
                 >
-                  <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                  <Menu className="w-6 h-6 text-gray-700" />
                 </button>
 
                 <div
                   className="hidden md:flex items-center space-x-2 px-4 py-2 bg-white/20
-                                dark:bg-gray-800/20 rounded-2xl backdrop-blur-sm"
+                                rounded-2xl backdrop-blur-sm"
                 >
                   <Search className="w-5 h-5 text-gray-400" />
                   <input
@@ -450,7 +417,7 @@ export default function ModernDashboard() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="bg-transparent border-none outline-none text-gray-700
-                               dark:text-gray-300 placeholder-gray-400 w-64"
+                               placeholder-gray-400 w-64"
                   />
                 </div>
               </div>
@@ -463,7 +430,7 @@ export default function ModernDashboard() {
                   className="p-3 hover:bg-white/10 rounded-xl transition-colors"
                 >
                   <RefreshCw
-                    className={`w-5 h-5 text-gray-700 dark:text-gray-300
+                    className={`w-5 h-5 text-gray-700
                                         ${refreshing ? "animate-spin" : ""}`}
                   />
                 </motion.button>
@@ -473,21 +440,8 @@ export default function ModernDashboard() {
                   whileTap={{ scale: 0.9 }}
                   className="relative p-3 hover:bg-white/10 rounded-xl transition-colors"
                 >
-                  <Bell className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <Bell className="w-5 h-5 text-gray-700" />
                   <NotificationBadge count={3} />
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setDarkMode(!darkMode)}
-                  className="p-3 hover:bg-white/10 rounded-xl transition-colors"
-                >
-                  {darkMode ? (
-                    <Sun className="w-5 h-5 text-yellow-500" />
-                  ) : (
-                    <Moon className="w-5 h-5 text-gray-700" />
-                  )}
                 </motion.button>
               </div>
             </div>
@@ -508,7 +462,7 @@ export default function ModernDashboard() {
                   Bem-vindo de volta! 👋
                 </span>
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
+              <p className="text-gray-600 text-lg">
                 Aqui está o que está acontecendo com seu negócio hoje
               </p>
             </motion.div>
@@ -518,13 +472,14 @@ export default function ModernDashboard() {
           <div className="px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {[
               {
-                title: "Total de Usuários",
-                value: stats.totalUsers,
-                change: stats.newUsers,
+                title: "Clientes Ativos",
+                value: clientesLoading ? 0 : stats.clientesAtivos,
+                change: `+${stats.novosClientes}`,
                 changeType: "positive",
                 icon: Users,
                 color: "from-blue-500 to-cyan-500",
                 bgColor: "from-blue-500/20 to-cyan-500/20",
+                loading: clientesLoading,
               },
               {
                 title: "Receita",
@@ -603,10 +558,10 @@ export default function ModernDashboard() {
                     className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold
                                 ${
                                   stat.changeType === "positive"
-                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                    ? "bg-green-100 text-green-700"
                                     : stat.changeType === "negative"
-                                    ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                    : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-gray-100 text-gray-700"
                                 }`}
                   >
                     {stat.changeType === "positive" && (
@@ -618,16 +573,18 @@ export default function ModernDashboard() {
                     <span>{stat.change}</span>
                   </motion.div>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
-                  {stat.title}
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                  <AnimatedStat
-                    value={stat.value}
-                    prefix={stat.prefix}
-                    suffix={stat.suffix}
-                    decimals={stat.suffix === "%" ? 2 : 0}
-                  />
+                <p className="text-gray-600 text-sm mb-1">{stat.title}</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stat.loading ? (
+                    <span className="animate-pulse">...</span>
+                  ) : (
+                    <AnimatedStat
+                      value={stat.value}
+                      prefix={stat.prefix}
+                      suffix={stat.suffix}
+                      decimals={stat.suffix === "%" ? 2 : 0}
+                    />
+                  )}
                 </p>
               </GlassCard>
             ))}
@@ -640,12 +597,10 @@ export default function ModernDashboard() {
               <GlassCard delay={0.4}>
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">
                       Visão Geral de Vendas
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Últimos 7 dias
-                    </p>
+                    <p className="text-sm text-gray-500">Últimos 7 dias</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     {["dia", "semana", "mês"].map((period) => (
@@ -658,7 +613,7 @@ export default function ModernDashboard() {
                                     ${
                                       selectedPeriod === period
                                         ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg"
-                                        : "bg-white/20 text-gray-600 dark:text-gray-400 hover:bg-white/30"
+                                        : "bg-white/20 text-gray-600 hover:bg-white/30"
                                     }`}
                       >
                         {period.charAt(0).toUpperCase() + period.slice(1)}
@@ -689,7 +644,7 @@ export default function ModernDashboard() {
                       </motion.div>
                       <span
                         className="absolute -bottom-6 left-0 right-0 text-center text-xs
-                                       text-gray-500 dark:text-gray-400"
+                                       text-gray-500"
                       >
                         {item.day}
                       </span>
@@ -702,7 +657,7 @@ export default function ModernDashboard() {
             {/* Progress Cards */}
             <div className="space-y-6">
               <GlassCard delay={0.5}>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
                   Metas do Mês
                 </h3>
                 <div className="flex items-center justify-center mb-4">
@@ -710,18 +665,16 @@ export default function ModernDashboard() {
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      Vendas
-                    </span>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    <span className="text-sm text-gray-600">Vendas</span>
+                    <span className="text-sm font-bold text-gray-900">
                       R$ 32.5k / 50k
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="text-sm text-gray-600">
                       Novos Clientes
                     </span>
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    <span className="text-sm font-bold text-gray-900">
                       142 / 200
                     </span>
                   </div>
@@ -729,7 +682,7 @@ export default function ModernDashboard() {
               </GlassCard>
 
               <GlassCard delay={0.6}>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
                   Performance
                 </h3>
                 <div className="space-y-4">
@@ -752,14 +705,14 @@ export default function ModernDashboard() {
                   ].map((metric, index) => (
                     <div key={metric.label}>
                       <div className="flex justify-between mb-1">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                        <span className="text-sm text-gray-600">
                           {metric.label}
                         </span>
-                        <span className="text-sm font-bold text-gray-900 dark:text-white">
+                        <span className="text-sm font-bold text-gray-900">
                           {metric.value}%
                         </span>
                       </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${metric.value}%` }}
@@ -780,36 +733,16 @@ export default function ModernDashboard() {
             <div className="lg:col-span-2">
               <GlassCard delay={0.7}>
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h3 className="text-xl font-bold text-gray-900">
                     Atividade Recente
                   </h3>
-                  <div className="flex items-center space-x-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={adicionarAtividadeDemo}
-                      className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg font-medium transition-colors"
-                    >
-                      + Demo
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={limparAtividades}
-                      className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg font-medium transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </motion.button>
-                  </div>
                 </div>
                 <div className="space-y-4">
                   {atividadesRecentes.length === 0 ? (
                     <div className="text-center py-8">
                       <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400">
-                        Nenhuma atividade recente
-                      </p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                      <p className="text-gray-500">Nenhuma atividade recente</p>
+                      <p className="text-xs text-gray-400 mt-1">
                         As atividades aparecerão aqui conforme você usa o
                         sistema
                       </p>
@@ -823,45 +756,45 @@ export default function ModernDashboard() {
                         transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
                         whileHover={{ x: 5 }}
                         className="flex items-center space-x-4 p-3 rounded-2xl hover:bg-white/20
-                                   dark:hover:bg-gray-800/20 transition-all cursor-pointer"
+                                   transition-all cursor-pointer"
                       >
                         <div
                           className={`w-10 h-10 rounded-full flex items-center justify-center
                                         ${
                                           atividade.tipo === "success"
-                                            ? "bg-green-100 dark:bg-green-900/30"
+                                            ? "bg-green-100"
                                             : atividade.tipo === "warning"
-                                            ? "bg-yellow-100 dark:bg-yellow-900/30"
+                                            ? "bg-yellow-100"
                                             : atividade.tipo === "error"
-                                            ? "bg-red-100 dark:bg-red-900/30"
-                                            : "bg-blue-100 dark:bg-blue-900/30"
+                                            ? "bg-red-100"
+                                            : "bg-blue-100"
                                         }`}
                         >
                           {atividade.tipo === "success" && (
-                            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                            <CheckCircle className="w-5 h-5 text-green-600" />
                           )}
                           {atividade.tipo === "warning" && (
-                            <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                            <AlertCircle className="w-5 h-5 text-yellow-600" />
                           )}
                           {atividade.tipo === "error" && (
-                            <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                            <XCircle className="w-5 h-5 text-red-600" />
                           )}
                           {atividade.tipo === "info" && (
-                            <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                            <Activity className="w-5 h-5 text-blue-600" />
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          <p className="text-sm font-medium text-gray-900">
                             <span className="font-bold">
                               {atividade.usuario}
                             </span>{" "}
                             {atividade.acao}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-gray-500">
                             {formatRelativeTime(atividade.timestamp)}
                           </p>
                           {atividade.moduloOrigem && (
-                            <p className="text-xs text-gray-400 dark:text-gray-500">
+                            <p className="text-xs text-gray-400">
                               via {atividade.moduloOrigem}
                             </p>
                           )}
@@ -876,7 +809,7 @@ export default function ModernDashboard() {
 
             {/* Quick Actions */}
             <GlassCard delay={0.9}>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">
                 Ações Rápidas
               </h3>
               <div className="space-y-3">
@@ -910,8 +843,8 @@ export default function ModernDashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: 1 + index * 0.1 }}
                     className="w-full flex items-center space-x-3 p-3 rounded-2xl
-                               bg-white/10 hover:bg-white/20 dark:bg-gray-800/20
-                               dark:hover:bg-gray-800/30 transition-all group"
+                               bg-white/10 hover:bg-white/20
+                               transition-all group"
                   >
                     <div
                       className={`p-2 rounded-xl bg-gradient-to-r ${action.color}
@@ -919,7 +852,7 @@ export default function ModernDashboard() {
                     >
                       <action.icon className="w-5 h-5 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className="text-sm font-medium text-gray-700">
                       {action.label}
                     </span>
                     <ChevronRight
