@@ -149,7 +149,7 @@ export function useUsuario() {
         // Registrar atividade
         adicionarAtividade(
           "Admin User",
-          `Cadastrou novo usuário: ${data.nome}`,
+          `Cadastrou novo usuário: ${data.login}`,
           "success",
           `Email: ${data.email}`,
           "Usuários"
@@ -185,7 +185,7 @@ export function useUsuario() {
         // Registrar atividade
         adicionarAtividade(
           "Admin User",
-          `Atualizou usuário: ${data.nome}`,
+          `Atualizou usuário: ${data.login}`,
           "info",
           `Tipo: ${
             data.tipoPessoa === "Fisica" ? "Pessoa Física" : "Pessoa Jurídica"
@@ -227,7 +227,7 @@ export function useUsuario() {
         if (usuarioParaDeletar) {
           adicionarAtividade(
             "Admin User",
-            `Excluiu usuário: ${usuarioParaDeletar.nome}`,
+            `Excluiu usuário: ${usuarioParaDeletar.login}`,
             "warning",
             `Email: ${usuarioParaDeletar.email}`,
             "Usuários"
