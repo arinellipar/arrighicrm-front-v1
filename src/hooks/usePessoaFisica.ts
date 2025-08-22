@@ -7,7 +7,6 @@ import {
   UpdatePessoaFisicaDTO,
   ResponsavelTecnicoOption,
 } from "@/types/api";
-import { useAtividadeContext } from "@/contexts/AtividadeContext";
 
 interface UsePessoaFisicaState {
   pessoas: PessoaFisica[];
@@ -27,8 +26,6 @@ export function usePessoaFisica() {
     updating: false,
     deleting: false,
   });
-
-  const { adicionarAtividade } = useAtividadeContext();
 
   const setLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -59,10 +56,7 @@ export function usePessoaFisica() {
         console.warn("⚠️ fetchPessoas: dados vazios ou nulos");
         setPessoas([]);
       } else {
-        console.log(
-          "✅ fetchPessoas bem-sucedido, dados:",
-          response.data.length
-        );
+        console.log("✅ fetchPessoas bem-sucedido, dados:", response.data.length);
         setPessoas(response.data);
       }
     } catch (error) {
@@ -97,7 +91,7 @@ export function usePessoaFisica() {
         setLoading(false);
       }
     },
-    [fetchPessoas]
+    []
   );
 
   // Criar nova pessoa física
@@ -118,16 +112,6 @@ export function usePessoaFisica() {
 
         // Recarregar a lista após criar
         await fetchPessoas();
-
-        // Registrar atividade
-        adicionarAtividade(
-          "Admin User",
-          `Cadastrou nova pessoa física: ${data.nome}`,
-          "success",
-          `CPF: ${data.cpf || "Não informado"}`,
-          "Pessoa Física"
-        );
-
         return true;
       } catch (error) {
         setError("Erro ao criar pessoa física");
@@ -136,7 +120,7 @@ export function usePessoaFisica() {
         setState((prev) => ({ ...prev, creating: false }));
       }
     },
-    [fetchPessoas, adicionarAtividade]
+    [fetchPessoas]
   );
 
   // Atualizar pessoa física
@@ -154,16 +138,6 @@ export function usePessoaFisica() {
 
         // Recarregar a lista após atualizar
         await fetchPessoas();
-
-        // Registrar atividade
-        adicionarAtividade(
-          "Admin User",
-          `Atualizou pessoa física: ${data.nome}`,
-          "info",
-          `Email: ${data.email || "Não informado"}`,
-          "Pessoa Física"
-        );
-
         return true;
       } catch (error) {
         setError("Erro ao atualizar pessoa física");
@@ -172,7 +146,7 @@ export function usePessoaFisica() {
         setState((prev) => ({ ...prev, updating: false }));
       }
     },
-    [fetchPessoas, adicionarAtividade]
+    [fetchPessoas]
   );
 
   // Deletar pessoa física
@@ -202,10 +176,6 @@ export function usePessoaFisica() {
         }
 
         console.log("✅ Exclusão bem-sucedida, recarregando lista...");
-
-        // Encontrar a pessoa antes de recarregar para registrar atividade
-        const pessoaParaDeletar = state.pessoas.find((p) => p.id === id);
-
         // Recarregar a lista após deletar
         try {
           await fetchPessoas();
@@ -214,18 +184,6 @@ export function usePessoaFisica() {
           console.error("❌ Erro ao recarregar lista:", fetchError);
           setError("Pessoa excluída, mas erro ao atualizar lista");
         }
-
-        // Registrar atividade
-        if (pessoaParaDeletar) {
-          adicionarAtividade(
-            "Admin User",
-            `Excluiu pessoa física: ${pessoaParaDeletar.nome}`,
-            "warning",
-            `CPF: ${pessoaParaDeletar.cpf || "Não informado"}`,
-            "Pessoa Física"
-          );
-        }
-
         return true;
       } catch (error) {
         console.error("💥 Erro na exclusão:", error);
@@ -235,7 +193,7 @@ export function usePessoaFisica() {
         setState((prev) => ({ ...prev, deleting: false }));
       }
     },
-    [fetchPessoas, state.pessoas, adicionarAtividade]
+    [fetchPessoas]
   );
 
   // Buscar responsáveis técnicos para select

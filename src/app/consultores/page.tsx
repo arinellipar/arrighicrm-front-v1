@@ -725,7 +725,6 @@ export default function ConsultoresPage() {
                   initialData={editingConsultor}
                   onSubmit={handleCreateOrUpdate}
                   onCancel={handleCloseForm}
-                  onBackToList={handleCloseForm}
                   loading={creating || updating}
                 />
               </div>

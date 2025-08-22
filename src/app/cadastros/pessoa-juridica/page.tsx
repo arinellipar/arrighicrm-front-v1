@@ -259,6 +259,10 @@ export default function PessoaJuridicaPage() {
     openForm();
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("pt-BR");
+  };
+
   // Estatísticas calculadas
   const stats = {
     total: pessoas.length,
@@ -533,7 +537,7 @@ export default function PessoaJuridicaPage() {
                             Responsável Técnico
                           </th>
                           <th
-                            className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 -mr-5 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                            className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
@@ -542,13 +546,22 @@ export default function PessoaJuridicaPage() {
                             Contato
                           </th>
                           <th
-                            className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 mr-5 -ml-10 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                            className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
                               isTableCompact
                                 ? "text-[9px] sm:text-[10px]"
                                 : "text-[10px] sm:text-xs"
                             }`}
                           >
                             Status
+                          </th>
+                          <th
+                            className={`px-4 sm:px-5 lg:px-6 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              isTableCompact
+                                ? "text-[9px] sm:text-[10px]"
+                                : "text-[10px] sm:text-xs"
+                            }`}
+                          >
+                            Data Cadastro
                           </th>
                         </tr>
                       </thead>
@@ -610,10 +623,7 @@ export default function PessoaJuridicaPage() {
                                   >
                                     <Tooltip content={pessoa.razaoSocial}>
                                       <span className="cursor-help">
-                                        {truncateText(
-                                          pessoa.razaoSocial,
-                                          isTableCompact ? 40 : 25
-                                        )}
+                                        {truncateText(pessoa.razaoSocial, 20)}
                                       </span>
                                     </Tooltip>
                                   </div>
@@ -666,7 +676,7 @@ export default function PessoaJuridicaPage() {
                               </div>
                             </td>
                             <td
-                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 -mr-5 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
+                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
@@ -690,7 +700,7 @@ export default function PessoaJuridicaPage() {
                               </div>
                             </td>
                             <td
-                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 mr-5 -ml-10 whitespace-nowrap hidden sm:table-cell ${
+                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap hidden sm:table-cell ${
                                 isTableCompact ? "py-1 sm:py-1.5" : ""
                               }`}
                             >
@@ -698,6 +708,15 @@ export default function PessoaJuridicaPage() {
                                 status="ativo"
                                 isCompact={isTableCompact}
                               />
+                            </td>
+                            <td
+                              className={`px-4 sm:px-5 lg:px-6 pr-10 sm:pr-10 lg:pr-10 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
+                                isTableCompact
+                                  ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
+                                  : "text-[10px] sm:text-xs lg:text-sm"
+                              }`}
+                            >
+                              {formatDate(pessoa.dataCadastro)}
                             </td>
                           </motion.tr>
                         ))}
