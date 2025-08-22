@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Header from "./Header";
 import { useForm } from "@/contexts/FormContext";
 import { Calendar, Clock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useClientes } from "@/hooks/useClientes";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,20 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   const { isFormOpen } = useForm();
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  // Hook para dados de clientes
+  const { clientes, loading: clientesLoading } = useClientes();
+
+  // Cálculo de clientes ativos dinâmico
+  const clientesAtivos = useMemo(() => {
+    return clientes.filter(
+      (cliente) =>
+        cliente.ativo &&
+        (cliente.status === "ativo" ||
+          cliente.status === "Ativo" ||
+          !cliente.status)
+    ).length;
+  }, [clientes]);
 
   useEffect(() => {
     setCurrentTime(new Date());
@@ -41,9 +56,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-neutral-50 flex flex-col">
       {/* Background Pattern - Mais sutil e executivo */}
-      <div className="fixed inset-0 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-50/30 via-transparent to-gold-50/20" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50" />
       </div>
@@ -96,7 +111,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <main className="relative z-10">
+      <main className="relative z-10 flex-1">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -142,7 +157,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             initial={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ duration: 0.3 }}
-            className="relative z-10 mt-auto"
+            className="relative z-5 mt-auto"
           >
             {/* Footer Gradient Line */}
             <div className="h-px bg-gradient-to-r from-transparent via-primary-500/20 to-transparent" />
@@ -167,7 +182,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <div className="flex items-center justify-center gap-8">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-primary-600">
-                        500+
+                        {clientesLoading ? (
+                          <span className="animate-pulse">...</span>
+                        ) : (
+                          `${clientesAtivos}+`
+                        )}
                       </p>
                       <p className="text-xs text-neutral-600">
                         Clientes Ativos

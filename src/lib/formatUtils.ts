@@ -303,3 +303,26 @@ export const formatBytes = (bytes: number, decimals: number = 2): string => {
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 };
+
+/**
+ * Formatar tempo relativo (ex: "2 min atrás", "1 hora atrás")
+ */
+export const formatRelativeTime = (date: Date): string => {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMinutes < 1) {
+    return "Agora mesmo";
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes} min atrás`;
+  } else if (diffHours < 24) {
+    return `${diffHours} ${diffHours === 1 ? "hora" : "horas"} atrás`;
+  } else if (diffDays < 30) {
+    return `${diffDays} ${diffDays === 1 ? "dia" : "dias"} atrás`;
+  } else {
+    return date.toLocaleDateString("pt-BR");
+  }
+};
