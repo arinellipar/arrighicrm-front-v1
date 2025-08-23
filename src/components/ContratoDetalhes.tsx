@@ -110,11 +110,11 @@ export default function ContratoDetalhes({
       console.info("🔧 ContratoDetalhes: Dados recebidos do hook:", data);
       setHistorico(data || []);
     } catch (error) {
-      console.info(
-        "🔧 ContratoDetalhes: Usando dados mock para histórico:",
+      console.error(
+        "🔧 ContratoDetalhes: Erro ao carregar histórico:",
         error
       );
-      // Em caso de erro, definir histórico vazio - os dados mock já são tratados no hook
+      // Em caso de erro, definir histórico vazio
       setHistorico([]);
     } finally {
       setLoadingHistorico(false);

@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
+import ClientePickerModal from "@/components/ClientePickerModal";
 import {
   Contrato,
   CreateContratoDTO,
@@ -34,6 +35,7 @@ interface ContratoFormProps {
     data: CreateContratoDTO | Partial<UpdateContratoDTO>
   ) => Promise<void>;
   onCancel: () => void;
+  initialClienteId?: number;
 }
 
 export default function ContratoForm({
@@ -42,6 +44,7 @@ export default function ContratoForm({
   consultores,
   onSubmit,
   onCancel,
+  initialClienteId,
 }: ContratoFormProps) {
   const { isFormOpen } = useForm();
   const [formData, setFormData] = useState<CreateContratoDTO>({
@@ -57,6 +60,10 @@ export default function ContratoForm({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [showClientePicker, setShowClientePicker] = useState(false);
+  // Estados controlados para inputs de moeda (permite digitação livre e parse no blur/submit)
+  const [valorDevidoText, setValorDevidoText] = useState<string>("");
+  const [valorNegociadoText, setValorNegociadoText] = useState<string>("");
 
   useEffect(() => {
     if (contrato) {
@@ -74,6 +81,8 @@ export default function ContratoForm({
         valorNegociado: contrato.valorNegociado,
         observacoes: contrato.observacoes || "",
       });
+      setValorDevidoText(formatCurrencyInput(contrato.valorDevido));
+      setValorNegociadoText(formatCurrencyInput(contrato.valorNegociado));
     } else {
       // Definir data próximo contato como 3 dias no futuro por padrão
       const proximoContato = new Date();
@@ -81,9 +90,20 @@ export default function ContratoForm({
       setFormData((prev) => ({
         ...prev,
         dataProximoContato: proximoContato.toISOString().split("T")[0],
+        clienteId: initialClienteId ? initialClienteId : prev.clienteId,
       }));
+      // Inicializar textos de moeda a partir dos números atuais
+      setValorDevidoText(formatCurrencyInput(formData.valorDevido));
+      setValorNegociadoText(formatCurrencyInput(formData.valorNegociado));
     }
-  }, [contrato]);
+  }, [contrato, initialClienteId]);
+
+  // Pré-selecionar automaticamente o primeiro consultor disponível (evita envio com consultorId=0)
+  useEffect(() => {
+    if (!contrato && formData.consultorId === 0 && consultores.length > 0) {
+      setFormData((prev) => ({ ...prev, consultorId: consultores[0].id }));
+    }
+  }, [contrato, consultores, formData.consultorId]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -117,11 +137,16 @@ export default function ContratoForm({
       }
     }
 
-    if (!formData.valorDevido || formData.valorDevido <= 0) {
+    const parsedDevido = parseCurrencyInput(valorDevidoText || "0");
+    const parsedNegociado = valorNegociadoText
+      ? parseCurrencyInput(valorNegociadoText)
+      : undefined;
+
+    if (!parsedDevido || parsedDevido <= 0) {
       newErrors.valorDevido = "Valor devido deve ser maior que zero";
     }
 
-    if (formData.valorNegociado && formData.valorNegociado < 0) {
+    if (parsedNegociado !== undefined && parsedNegociado < 0) {
       newErrors.valorNegociado = "Valor negociado não pode ser negativo";
     }
 
@@ -138,10 +163,41 @@ export default function ContratoForm({
 
     setSubmitting(true);
     try {
-      await onSubmit(formData);
+      // Sincronizar valores numéricos a partir dos textos antes de enviar
+      const payload: CreateContratoDTO = {
+        ...formData,
+        valorDevido: parseCurrencyInput(valorDevidoText || "0"),
+        valorNegociado:
+          valorNegociadoText && valorNegociadoText.trim() !== ""
+            ? parseCurrencyInput(valorNegociadoText)
+            : undefined,
+      };
+      await onSubmit(payload);
       onCancel();
-    } catch (error) {
-      console.error("Erro ao salvar contrato:", error);
+    } catch (error: any) {
+      console.error("🔧 ContratoForm: Erro ao salvar contrato:", error);
+
+      // Extrair mensagem de erro mais específica
+      let errorMessage = "Erro desconhecido ao salvar contrato";
+
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.title) {
+        errorMessage = error.response.data.title;
+      }
+
+      console.error(
+        "🔧 ContratoForm: Mensagem de erro processada:",
+        errorMessage
+      );
+
+      // Adicionar erro para o campo geral
+      setErrors((prev) => ({
+        ...prev,
+        general: errorMessage,
+      }));
     } finally {
       setSubmitting(false);
     }
@@ -165,6 +221,19 @@ export default function ContratoForm({
     return isNaN(parsed) ? 0 : parsed;
   };
 
+  // Máscara amigável de moeda pt-BR durante digitação (milhares com ponto e decimais com vírgula)
+  const maskCurrencyBR = (text: string): string => {
+    if (!text) return "";
+    // Retirar tudo que não for dígito ou vírgula
+    const only = text.replace(/[^\d,]/g, "");
+    const parts = only.split(",");
+    const intDigits = parts[0].replace(/\D/g, "");
+    const decDigits = (parts[1] || "").replace(/\D/g, "").slice(0, 2);
+    if (!intDigits) return decDigits ? `,${decDigits}` : "";
+    const intFormatted = intDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    return parts.length > 1 ? `${intFormatted},${decDigits}` : intFormatted;
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -172,13 +241,12 @@ export default function ContratoForm({
   ) => {
     const { name, value, type } = e.target;
 
-    if (name === "valorDevido" || name === "valorNegociado") {
-      // Tratamento especial para valores monetários
-      const parsedValue = parseCurrencyInput(value);
-      setFormData((prev) => ({
-        ...prev,
-        [name]: parsedValue,
-      }));
+    if (name === "valorDevido") {
+      setValorDevidoText(maskCurrencyBR(value));
+      return;
+    } else if (name === "valorNegociado") {
+      setValorNegociadoText(maskCurrencyBR(value));
+      return;
     } else if (type === "number") {
       setFormData((prev) => ({
         ...prev,
@@ -208,9 +276,29 @@ export default function ContratoForm({
     }).format(value);
   };
 
+  const handleCurrencyBlur = (field: "valorDevido" | "valorNegociado") => {
+    if (field === "valorDevido") {
+      const parsed = parseCurrencyInput(valorDevidoText || "0");
+      setFormData((prev) => ({ ...prev, valorDevido: parsed }));
+      setValorDevidoText(formatCurrencyInput(parsed));
+    } else {
+      if (!valorNegociadoText || valorNegociadoText.trim() === "") {
+        setFormData((prev) => ({ ...prev, valorNegociado: undefined }));
+        setValorNegociadoText("");
+        return;
+      }
+      const parsed = parseCurrencyInput(valorNegociadoText);
+      setFormData((prev) => ({ ...prev, valorNegociado: parsed }));
+      setValorNegociadoText(formatCurrencyInput(parsed));
+    }
+  };
+
+  const selectedCliente =
+    clientes.find((c) => c.id === formData.clienteId) || null;
+
   return (
     <AnimatePresence>
-      {isFormOpen && (
+      {isFormOpen && clientes.length > 0 && consultores.length > 0 && (
         <>
           {/* Overlay */}
           <motion.div
@@ -253,6 +341,22 @@ export default function ContratoForm({
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="p-6">
+                {/* Erro Geral */}
+                {errors.general && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+                  >
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                      <p className="text-sm text-red-700 font-medium">
+                        {errors.general}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
                 <div className="space-y-6 max-h-[calc(90vh-180px)] overflow-y-auto">
                   {/* Cliente e Consultor */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -260,30 +364,63 @@ export default function ContratoForm({
                       <label className="block text-sm font-medium text-neutral-700 mb-2">
                         Cliente *
                       </label>
-                      <div className="relative">
-                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                        <select
-                          name="clienteId"
-                          value={formData.clienteId}
-                          onChange={handleInputChange}
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowClientePicker(true)}
                           className={cn(
-                            "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border rounded-lg text-sm",
+                            "hover:bg-neutral-50 transition-colors",
                             errors.clienteId
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
                           )}
                         >
-                          <option value={0}>Selecione um cliente</option>
-                          {clientes.map((cliente) => (
-                            <option key={cliente.id} value={cliente.id}>
-                              {cliente.pessoaFisica?.nome ||
-                                cliente.pessoaJuridica?.razaoSocial}{" "}
-                              -
-                              {cliente.pessoaFisica?.cpf ||
-                                cliente.pessoaJuridica?.cnpj}
-                            </option>
-                          ))}
-                        </select>
+                          <Users className="w-4 h-4 text-neutral-500" />
+                          {selectedCliente
+                            ? selectedCliente.pessoaFisica?.nome ||
+                              selectedCliente.pessoaJuridica?.razaoSocial
+                            : "Selecionar cliente (duplo clique)"}
+                        </button>
+                        {selectedCliente && (
+                          <div className="rounded-lg border border-neutral-200 p-3 bg-neutral-50 text-xs text-neutral-700">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              <div>
+                                <span className="font-medium">Email: </span>
+                                <span>
+                                  {selectedCliente.pessoaFisica?.email ||
+                                    selectedCliente.pessoaJuridica?.email ||
+                                    "—"}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="font-medium">CPF/CNPJ: </span>
+                                <span>
+                                  {selectedCliente.pessoaFisica?.cpf ||
+                                    selectedCliente.pessoaJuridica?.cnpj ||
+                                    "—"}
+                                </span>
+                              </div>
+                              <div className="col-span-1 md:col-span-2">
+                                <span className="font-medium">Telefones: </span>
+                                <span>
+                                  {[
+                                    selectedCliente.pessoaFisica?.telefone1 ||
+                                      selectedCliente.pessoaJuridica?.telefone1,
+                                    selectedCliente.pessoaFisica?.telefone2 ||
+                                      selectedCliente.pessoaJuridica?.telefone2,
+                                    (selectedCliente as any).telefone3 ||
+                                      selectedCliente.pessoaJuridica?.telefone3,
+                                    (selectedCliente as any).telefone4 ||
+                                      selectedCliente.pessoaJuridica?.telefone4,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" · ") || "—"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       {errors.clienteId && (
                         <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
@@ -310,10 +447,14 @@ export default function ContratoForm({
                               : "border-neutral-200"
                           )}
                         >
-                          <option value={0}>Selecione um consultor</option>
+                          <option value={0}>
+                            {consultores.length === 0
+                              ? "Carregando consultores..."
+                              : "Selecione um consultor"}
+                          </option>
                           {consultores.map((consultor) => (
                             <option key={consultor.id} value={consultor.id}>
-                              {consultor.pessoaFisica?.nome || consultor.nome} -
+                              {consultor.pessoaFisica?.nome || consultor.nome} -{" "}
                               {consultor.filial}
                             </option>
                           ))}
@@ -428,8 +569,9 @@ export default function ContratoForm({
                         <input
                           type="text"
                           name="valorDevido"
-                          value={formatCurrencyInput(formData.valorDevido)}
+                          value={valorDevidoText}
                           onChange={handleInputChange}
+                          onBlur={() => handleCurrencyBlur("valorDevido")}
                           className={cn(
                             "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.valorDevido
@@ -458,8 +600,9 @@ export default function ContratoForm({
                         <input
                           type="text"
                           name="valorNegociado"
-                          value={formatCurrencyInput(formData.valorNegociado)}
+                          value={valorNegociadoText}
                           onChange={handleInputChange}
+                          onBlur={() => handleCurrencyBlur("valorNegociado")}
                           className={cn(
                             "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.valorNegociado
@@ -532,6 +675,25 @@ export default function ContratoForm({
               </form>
             </div>
           </motion.div>
+
+          {/* Seleção de Cliente */}
+          <ClientePickerModal
+            isOpen={showClientePicker}
+            clientes={clientes}
+            onClose={() => setShowClientePicker(false)}
+            onSelect={(cliente) => {
+              setFormData((prev) => ({ ...prev, clienteId: cliente.id }));
+              setShowClientePicker(false);
+              // limpar erro de cliente se havia
+              if (errors.clienteId) {
+                setErrors((prev) => {
+                  const e = { ...prev };
+                  delete e.clienteId;
+                  return e;
+                });
+              }
+            }}
+          />
         </>
       )}
     </AnimatePresence>

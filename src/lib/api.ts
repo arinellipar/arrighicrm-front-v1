@@ -48,7 +48,13 @@ class ApiClient {
       }
 
       // Timeout desabilitado por solicitação
-      const response = await fetch(url, config);
+      let response: Response;
+      try {
+        response = await fetch(url, config);
+      } catch (networkError) {
+        console.error("🔧 ApiClient: Network error on fetch:", networkError);
+        return { error: "Failed to fetch", status: 0 };
+      }
 
       // Debug logging
       console.log("🔧 ApiClient: Response status:", response.status);
@@ -73,27 +79,17 @@ class ApiClient {
       }
 
       if (!response.ok) {
-        // Verificar se é um endpoint de contratos ou cliente que pode usar dados mock
-        const isContractEndpoint =
-          url.includes("/Contrato") || url.includes("/Cliente");
+        console.error("🔧 ApiClient: Erro na resposta:", responseText);
+        console.error("🔧 ApiClient: Status:", response.status);
+        console.error("🔧 ApiClient: URL:", url);
+        console.error(
+          "🔧 ApiClient: Headers:",
+          Object.fromEntries(response.headers.entries())
+        );
 
-        if (isContractEndpoint) {
-          console.warn(
-            `🔧 ApiClient: Endpoint ${url} não disponível, usando dados mock`
-          );
-        } else {
-          console.error("🔧 ApiClient: Erro na resposta:", responseText);
-          console.error("🔧 ApiClient: Status:", response.status);
-          console.error("🔧 ApiClient: URL:", url);
-          console.error(
-            "🔧 ApiClient: Headers:",
-            Object.fromEntries(response.headers.entries())
-          );
-
-          // Log de erro em desenvolvimento
-          if (isDevelopment()) {
-            console.error(`API Error: ${response.status} - ${responseText}`);
-          }
+        // Log de erro em desenvolvimento
+        if (isDevelopment()) {
+          console.error(`API Error: ${response.status} - ${responseText}`);
         }
 
         // Se a resposta estiver vazia, fornecer uma mensagem mais específica

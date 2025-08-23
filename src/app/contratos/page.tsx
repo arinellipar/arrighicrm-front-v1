@@ -123,6 +123,9 @@ export default function ContratosPage() {
   const [showDetalhes, setShowDetalhes] = useState(false);
   const [showMudancaSituacao, setShowMudancaSituacao] = useState(false);
   const { openForm, closeForm } = useForm();
+  const [activeTab, setActiveTab] = useState<"contratos" | "clientes">(
+    "contratos"
+  );
 
   const {
     contratos,
@@ -141,6 +144,9 @@ export default function ContratosPage() {
 
   const { clientes } = useClientes();
   const { consultores } = useConsultores();
+  const [clienteSelecionadoId, setClienteSelecionadoId] = useState<
+    number | null
+  >(null);
 
   // Filtrar contratos
   const contratosFiltrados = useMemo(() => {
@@ -360,18 +366,7 @@ export default function ContratosPage() {
                 Gerencie contratos e acompanhe negociações
               </p>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                setSelectedContrato(null);
-                openForm();
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all duration-200 shadow-lg"
-            >
-              <Plus className="w-4 h-4" />
-              Novo Contrato
-            </motion.button>
+            {/* Botão de Novo Contrato removido conforme solicitação */}
           </div>
 
           {/* Cards de Estatísticas */}
@@ -468,6 +463,34 @@ export default function ContratosPage() {
                 <TrendingUp className="w-8 h-8 text-indigo-500 opacity-50" />
               </div>
             </motion.div>
+          </div>
+        </div>
+
+        {/* Tabs Contratos / Clientes */}
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 p-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab("contratos")}
+              className={cn(
+                "flex-1 px-4 py-2 rounded-lg text-sm font-medium",
+                activeTab === "contratos"
+                  ? "bg-primary-100 text-primary-700"
+                  : "text-neutral-600 hover:bg-neutral-50"
+              )}
+            >
+              Contratos
+            </button>
+            <button
+              onClick={() => setActiveTab("clientes")}
+              className={cn(
+                "flex-1 px-4 py-2 rounded-lg text-sm font-medium",
+                activeTab === "clientes"
+                  ? "bg-primary-100 text-primary-700"
+                  : "text-neutral-600 hover:bg-neutral-50"
+              )}
+            >
+              Clientes
+            </button>
           </div>
         </div>
 
@@ -603,161 +626,310 @@ export default function ContratosPage() {
         </div>
 
         {/* Lista de Contratos */}
-        {viewMode === "cards" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <AnimatePresence mode="popLayout">
-              {contratosFiltrados.map((contrato, index) => (
-                <motion.div
-                  key={contrato.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-xl shadow-sm border border-neutral-200/60 hover:shadow-lg transition-all duration-300 overflow-hidden group"
-                >
-                  {/* Header do Card */}
-                  <div className="p-4 border-b border-neutral-100">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-neutral-900 truncate">
-                          {contrato.cliente?.pessoaFisica?.nome ||
-                            contrato.cliente?.pessoaJuridica?.razaoSocial ||
-                            "Cliente não identificado"}
-                        </h3>
-                        <p className="text-xs text-neutral-500 mt-1">
-                          #{contrato.id} • {formatDate(contrato.dataCadastro)}
-                        </p>
-                      </div>
-                      <SituacaoBadge situacao={contrato.situacao} />
-                    </div>
-                  </div>
-
-                  {/* Corpo do Card */}
-                  <div className="p-4 space-y-3">
-                    {/* Consultor */}
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-neutral-400" />
-                      <span className="text-sm text-neutral-600">
-                        {contrato.consultor?.pessoaFisica?.nome ||
-                          "Sem consultor"}
-                      </span>
-                    </div>
-
-                    {/* Valores */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <p className="text-xs text-neutral-500">Valor Devido</p>
-                        <p className="text-sm font-semibold text-neutral-900">
-                          {formatCurrency(contrato.valorDevido)}
-                        </p>
-                      </div>
-                      {contrato.valorNegociado && (
-                        <div>
-                          <p className="text-xs text-neutral-500">Negociado</p>
-                          <p className="text-sm font-semibold text-green-600">
-                            {formatCurrency(contrato.valorNegociado)}
+        {activeTab === "contratos" &&
+          (viewMode === "cards" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <AnimatePresence mode="popLayout">
+                {contratosFiltrados.map((contrato, index) => (
+                  <motion.div
+                    key={contrato.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="bg-white rounded-xl shadow-sm border border-neutral-200/60 hover:shadow-lg transition-all duration-300 overflow-hidden group"
+                  >
+                    {/* Header do Card */}
+                    <div className="p-4 border-b border-neutral-100">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-neutral-900 truncate">
+                            {(() => {
+                              const nome =
+                                contrato.cliente?.pessoaFisica?.nome ||
+                                contrato.cliente?.pessoaJuridica?.razaoSocial;
+                              if (nome) return nome;
+                              // fallback: se não veio o objeto cliente, tentar exibir pelo id
+                              return contrato.clienteId
+                                ? `Cliente #${contrato.clienteId}`
+                                : "Cliente não identificado";
+                            })()}
+                          </h3>
+                          <p className="text-xs text-neutral-500 mt-1">
+                            #{index + 1} • {formatDate(contrato.dataCadastro)}
                           </p>
                         </div>
+                        <SituacaoBadge situacao={contrato.situacao} />
+                      </div>
+                    </div>
+
+                    {/* Corpo do Card */}
+                    <div className="p-4 space-y-3">
+                      {/* Consultor */}
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-neutral-400" />
+                        <span className="text-sm text-neutral-600">
+                          {contrato.consultor?.pessoaFisica?.nome ||
+                            "Sem consultor"}
+                        </span>
+                      </div>
+
+                      {/* Valores */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-xs text-neutral-500">
+                            Valor Devido
+                          </p>
+                          <p className="text-sm font-semibold text-neutral-900">
+                            {formatCurrency(contrato.valorDevido)}
+                          </p>
+                        </div>
+                        {contrato.valorNegociado && (
+                          <div>
+                            <p className="text-xs text-neutral-500">
+                              Negociado
+                            </p>
+                            <p className="text-sm font-semibold text-green-600">
+                              {formatCurrency(contrato.valorNegociado)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Datas de Contato */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-neutral-400" />
+                          <span className="text-xs text-neutral-600">
+                            Último: {formatDate(contrato.dataUltimoContato)}
+                          </span>
+                        </div>
+                        <div
+                          className={cn(
+                            "flex items-center gap-2",
+                            isProximoContatoVencido(
+                              contrato.dataProximoContato
+                            ) && "text-red-600"
+                          )}
+                        >
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-xs font-medium">
+                            Próximo: {formatDate(contrato.dataProximoContato)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Observações */}
+                      {contrato.observacoes && (
+                        <p className="text-xs text-neutral-500 line-clamp-2">
+                          {contrato.observacoes}
+                        </p>
                       )}
                     </div>
 
-                    {/* Datas de Contato */}
-                    <div className="space-y-2">
+                    {/* Ações */}
+                    <div className="p-4 bg-neutral-50 border-t border-neutral-100">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-neutral-400" />
-                        <span className="text-xs text-neutral-600">
-                          Último: {formatDate(contrato.dataUltimoContato)}
-                        </span>
+                        <Tooltip content="Ver Detalhes">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setSelectedContrato(contrato);
+                              setShowDetalhes(true);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                            <span className="text-xs font-medium">
+                              Detalhes
+                            </span>
+                          </motion.button>
+                        </Tooltip>
+
+                        <Tooltip content="Mudar Situação">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setSelectedContrato(contrato);
+                              setShowMudancaSituacao(true);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-yellow-50 text-yellow-600 rounded-lg transition-colors"
+                          >
+                            <RefreshCcw className="w-4 h-4" />
+                            <span className="text-xs font-medium">
+                              Situação
+                            </span>
+                          </motion.button>
+                        </Tooltip>
+
+                        <Tooltip content="Editar">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setSelectedContrato(contrato);
+                              openForm();
+                            }}
+                            className="p-2 bg-white hover:bg-primary-50 text-primary-600 rounded-lg transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </motion.button>
+                        </Tooltip>
+
+                        <Tooltip content="Excluir">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleDeleteContrato(contrato.id)}
+                            className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </motion.button>
+                        </Tooltip>
                       </div>
-                      <div
-                        className={cn(
-                          "flex items-center gap-2",
-                          isProximoContatoVencido(
-                            contrato.dataProximoContato
-                          ) && "text-red-600"
-                        )}
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            /* View de Tabela */
+            <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-neutral-50 border-b border-neutral-200">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                        Cliente
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                        Consultor
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                        Situação
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                        Valores
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                        Próximo Contato
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200">
+                    {contratosFiltrados.map((contrato, index) => (
+                      <tr
+                        key={contrato.id}
+                        className="hover:bg-neutral-50 transition-colors"
                       >
-                        <Calendar className="w-4 h-4" />
-                        <span className="text-xs font-medium">
-                          Próximo: {formatDate(contrato.dataProximoContato)}
-                        </span>
-                      </div>
-                    </div>
+                        <td className="px-4 py-3">
+                          <div>
+                            <p className="text-sm font-medium text-neutral-900">
+                              {contrato.cliente?.pessoaFisica?.nome ||
+                                contrato.cliente?.pessoaJuridica?.razaoSocial}
+                            </p>
+                            <p className="text-xs text-neutral-500">
+                              #{index + 1}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p className="text-sm text-neutral-700">
+                            {contrato.consultor?.pessoaFisica?.nome}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <SituacaoBadge situacao={contrato.situacao} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div>
+                            <p className="text-sm font-medium text-neutral-900">
+                              {formatCurrency(contrato.valorDevido)}
+                            </p>
+                            {contrato.valorNegociado && (
+                              <p className="text-xs text-green-600">
+                                Neg: {formatCurrency(contrato.valorNegociado)}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <p
+                            className={cn(
+                              "text-sm",
+                              isProximoContatoVencido(
+                                contrato.dataProximoContato
+                              )
+                                ? "text-red-600 font-medium"
+                                : "text-neutral-700"
+                            )}
+                          >
+                            {formatDate(contrato.dataProximoContato)}
+                          </p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-center gap-1">
+                            <Tooltip content="Ver">
+                              <button
+                                onClick={() => {
+                                  setSelectedContrato(contrato);
+                                  setShowDetalhes(true);
+                                }}
+                                className="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="Mudar Situação">
+                              <button
+                                onClick={() => {
+                                  setSelectedContrato(contrato);
+                                  setShowMudancaSituacao(true);
+                                }}
+                                className="p-1.5 hover:bg-yellow-50 text-yellow-600 rounded transition-colors"
+                              >
+                                <RefreshCcw className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="Editar">
+                              <button
+                                onClick={() => {
+                                  setSelectedContrato(contrato);
+                                  openForm();
+                                }}
+                                className="p-1.5 hover:bg-primary-50 text-primary-600 rounded transition-colors"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="Excluir">
+                              <button
+                                onClick={() =>
+                                  handleDeleteContrato(contrato.id)
+                                }
+                                className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
 
-                    {/* Observações */}
-                    {contrato.observacoes && (
-                      <p className="text-xs text-neutral-500 line-clamp-2">
-                        {contrato.observacoes}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Ações */}
-                  <div className="p-4 bg-neutral-50 border-t border-neutral-100">
-                    <div className="flex items-center gap-2">
-                      <Tooltip content="Ver Detalhes">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            setSelectedContrato(contrato);
-                            setShowDetalhes(true);
-                          }}
-                          className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
-                        >
-                          <Eye className="w-4 h-4" />
-                          <span className="text-xs font-medium">Detalhes</span>
-                        </motion.button>
-                      </Tooltip>
-
-                      <Tooltip content="Mudar Situação">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            setSelectedContrato(contrato);
-                            setShowMudancaSituacao(true);
-                          }}
-                          className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-yellow-50 text-yellow-600 rounded-lg transition-colors"
-                        >
-                          <RefreshCcw className="w-4 h-4" />
-                          <span className="text-xs font-medium">Situação</span>
-                        </motion.button>
-                      </Tooltip>
-
-                      <Tooltip content="Editar">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => {
-                            setSelectedContrato(contrato);
-                            openForm();
-                          }}
-                          className="p-2 bg-white hover:bg-primary-50 text-primary-600 rounded-lg transition-colors"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </motion.button>
-                      </Tooltip>
-
-                      <Tooltip content="Excluir">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleDeleteContrato(contrato.id)}
-                          className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </motion.button>
-                      </Tooltip>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          /* View de Tabela */
+        {/* Tabela de Clientes (igual a /clientes, simplificada) */}
+        {activeTab === "clientes" && (
           <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -767,117 +939,53 @@ export default function ContratosPage() {
                       Cliente
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Consultor
+                      Tipo
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Situação
+                      Documento
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Valores
+                      Contato
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Próximo Contato
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Ações
+                      Filial
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200">
-                  {contratosFiltrados.map((contrato) => (
-                    <tr
-                      key={contrato.id}
-                      className="hover:bg-neutral-50 transition-colors"
+                  {clientes.map((cliente, index) => (
+                    <motion.tr
+                      key={cliente.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.02 * index }}
+                      onDoubleClick={() => {
+                        setClienteSelecionadoId(cliente.id);
+                        openForm();
+                      }}
+                      className="hover:bg-neutral-50 cursor-pointer"
                     >
                       <td className="px-4 py-3">
-                        <div>
-                          <p className="text-sm font-medium text-neutral-900">
-                            {contrato.cliente?.pessoaFisica?.nome ||
-                              contrato.cliente?.pessoaJuridica?.razaoSocial}
-                          </p>
-                          <p className="text-xs text-neutral-500">
-                            #{contrato.id}
-                          </p>
+                        <div className="text-sm font-medium text-neutral-900">
+                          {cliente.nome || cliente.razaoSocial}
+                        </div>
+                        <div className="text-xs text-neutral-500">
+                          {cliente.email || "N/A"}
                         </div>
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="text-sm text-neutral-700">
-                          {contrato.consultor?.pessoaFisica?.nome}
-                        </p>
+                      <td className="px-4 py-3 text-sm text-neutral-700">
+                        {cliente.tipo === "fisica" ? "Física" : "Jurídica"}
                       </td>
-                      <td className="px-4 py-3">
-                        <SituacaoBadge situacao={contrato.situacao} />
+                      <td className="px-4 py-3 text-sm text-neutral-700">
+                        {cliente.cpf || cliente.cnpj || "—"}
                       </td>
-                      <td className="px-4 py-3">
-                        <div>
-                          <p className="text-sm font-medium text-neutral-900">
-                            {formatCurrency(contrato.valorDevido)}
-                          </p>
-                          {contrato.valorNegociado && (
-                            <p className="text-xs text-green-600">
-                              Neg: {formatCurrency(contrato.valorNegociado)}
-                            </p>
-                          )}
-                        </div>
+                      <td className="px-4 py-3 text-sm text-neutral-700">
+                        {cliente.telefone1 || "N/A"}
                       </td>
-                      <td className="px-4 py-3">
-                        <p
-                          className={cn(
-                            "text-sm",
-                            isProximoContatoVencido(contrato.dataProximoContato)
-                              ? "text-red-600 font-medium"
-                              : "text-neutral-700"
-                          )}
-                        >
-                          {formatDate(contrato.dataProximoContato)}
-                        </p>
+                      <td className="px-4 py-3 text-sm text-neutral-700">
+                        {cliente.filial || "Não informada"}
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-1">
-                          <Tooltip content="Ver">
-                            <button
-                              onClick={() => {
-                                setSelectedContrato(contrato);
-                                setShowDetalhes(true);
-                              }}
-                              className="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                          </Tooltip>
-                          <Tooltip content="Mudar Situação">
-                            <button
-                              onClick={() => {
-                                setSelectedContrato(contrato);
-                                setShowMudancaSituacao(true);
-                              }}
-                              className="p-1.5 hover:bg-yellow-50 text-yellow-600 rounded transition-colors"
-                            >
-                              <RefreshCcw className="w-4 h-4" />
-                            </button>
-                          </Tooltip>
-                          <Tooltip content="Editar">
-                            <button
-                              onClick={() => {
-                                setSelectedContrato(contrato);
-                                openForm();
-                              }}
-                              className="p-1.5 hover:bg-primary-50 text-primary-600 rounded transition-colors"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                          </Tooltip>
-                          <Tooltip content="Excluir">
-                            <button
-                              onClick={() => handleDeleteContrato(contrato.id)}
-                              className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </Tooltip>
-                        </div>
-                      </td>
-                    </tr>
+                    </motion.tr>
                   ))}
                 </tbody>
               </table>
@@ -904,23 +1012,7 @@ export default function ContratosPage() {
                 ? "Tente ajustar os filtros para ver mais resultados"
                 : "Comece criando um novo contrato"}
             </p>
-            {!searchTerm &&
-              filtroSituacao === "todas" &&
-              filtroConsultor === "todos" &&
-              filtroProximoContato === "todos" && (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setSelectedContrato(null);
-                    openForm();
-                  }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Criar Primeiro Contrato
-                </motion.button>
-              )}
+            {/* Removido botão "Criar Primeiro Contrato" conforme solicitação */}
           </motion.div>
         )}
       </div>
@@ -939,7 +1031,10 @@ export default function ContratosPage() {
           setSelectedContrato(null);
           closeForm();
         }}
+        initialClienteId={clienteSelecionadoId ?? undefined}
       />
+
+      {/* Overlay antigo removido */}
 
       {/* Modal de Detalhes */}
       {showDetalhes && selectedContrato && (

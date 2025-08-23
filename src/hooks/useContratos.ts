@@ -10,7 +10,6 @@ import {
   HistoricoSituacaoContrato,
 } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
-import { mockContratos } from "@/lib/mockContratos";
 
 interface UseContratosState {
   contratos: Contrato[];
@@ -20,6 +19,7 @@ interface UseContratosState {
   updating: boolean;
   deleting: boolean;
   changingSituacao: boolean;
+  sessionContratos: Contrato[];
 }
 
 export function useContratos() {
@@ -31,6 +31,7 @@ export function useContratos() {
     updating: false,
     deleting: false,
     changingSituacao: false,
+    sessionContratos: [],
   });
 
   const { adicionarAtividade } = useAtividadeContext();
@@ -38,30 +39,89 @@ export function useContratos() {
   const fetchContratos = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
+      console.log("🔧 useContratos: Buscando contratos da API...");
       const response = await apiClient.get("/Contrato");
 
-      // Se a resposta estiver vazia ou não for um array, usar dados mock
-      let contratos = response.data;
-      if (!Array.isArray(contratos) || contratos.length === 0) {
-        console.info(
-          "🔧 useContratos: Backend retornou dados inválidos ou vazios, usando dados mock"
-        );
-        contratos = mockContratos;
+      // Verificar se há erro na resposta
+      if (response.error) {
+        console.error("🔧 useContratos: Erro na API:", response.error);
+        setState((prev) => ({
+          ...prev,
+          contratos: [],
+          error: response.error || "Erro ao carregar contratos",
+          loading: false,
+        }));
+        return;
       }
 
-      setState((prev) => ({
-        ...prev,
-        contratos: contratos as Contrato[],
-        loading: false,
-      }));
-    } catch (error: any) {
-      console.info(
-        "🔧 useContratos: Backend não disponível, usando dados mock para desenvolvimento"
+      // Verificar se a resposta é válida
+      if (!response.data) {
+        console.warn(
+          "🔧 useContratos: API retornou resposta vazia, mas sem erro"
+        );
+        setState((prev) => ({
+          ...prev,
+          contratos: [],
+          loading: false,
+        }));
+        return;
+      }
+
+      // Se não for array, tratar como erro
+      if (!Array.isArray(response.data)) {
+        console.error(
+          "🔧 useContratos: API retornou dados inválidos (não é array):",
+          typeof response.data
+        );
+        setState((prev) => ({
+          ...prev,
+          contratos: [],
+          error: "Formato de dados inválido recebido da API",
+          loading: false,
+        }));
+        return;
+      }
+
+      // Array vazio é válido - significa que não há contratos cadastrados
+      // Remover contratos seed/mocks conhecidos do backend legado
+      const isSeedContrato = (c: any): boolean => {
+        const pfNome = c?.cliente?.pessoaFisica?.nome;
+        const pjRazao = c?.cliente?.pessoaJuridica?.razaoSocial;
+        const cpf = c?.cliente?.pessoaFisica?.cpf?.replace(/\D/g, "");
+        const cnpj = c?.cliente?.pessoaJuridica?.cnpj?.replace(/\D/g, "");
+        return (
+          pfNome === "João Silva" ||
+          pfNome === "Ana Costa" ||
+          pjRazao === "Empresa ABC Ltda" ||
+          cpf === "12345678901" ||
+          cnpj === "12345678000199"
+        );
+      };
+
+      const contratosApi = (response.data as any[]).filter(
+        (c) => !isSeedContrato(c)
+      ) as Contrato[];
+      console.log(
+        `🔧 useContratos: ${contratosApi.length} contratos carregados da API com sucesso`
       );
+
+      // Merge com contratos criados/atualizados na sessão
+      setState((prev) => {
+        const byId = new Map<number, Contrato>();
+        for (const c of contratosApi) byId.set(c.id, c);
+        for (const sc of prev.sessionContratos) byId.set(sc.id, sc);
+        return {
+          ...prev,
+          contratos: Array.from(byId.values()),
+          loading: false,
+        };
+      });
+    } catch (error: any) {
+      console.error("🔧 useContratos: Erro ao buscar contratos:", error);
       setState((prev) => ({
         ...prev,
-        contratos: mockContratos,
-        error: null, // Não mostrar erro para o usuário
+        contratos: [],
+        error: "Erro de conexão ao carregar contratos",
         loading: false,
       }));
     }
@@ -81,13 +141,84 @@ export function useContratos() {
   const createContrato = useCallback(
     async (data: CreateContratoDTO) => {
       setState((prev) => ({ ...prev, creating: true, error: null }));
+
+      // Log detalhado para debug em produção
+      console.log(
+        "🔧 createContrato: Iniciando criação de contrato com dados:",
+        data
+      );
+      console.log("🔧 createContrato: NODE_ENV =", process.env.NODE_ENV);
+      console.log(
+        "🔧 createContrato: API URL =",
+        process.env.NEXT_PUBLIC_API_URL
+      );
+
       try {
+        console.log(
+          "🔧 createContrato: Fazendo requisição POST para /Contrato"
+        );
         const response = await apiClient.post("/Contrato", data);
-        const novoContrato = response.data as Contrato;
+
+        // Considerar sucesso quando status 200-201, mesmo sem JSON, e recarregar lista
+        if (!response.data && response.status >= 200 && response.status < 300) {
+          console.warn(
+            "🔧 createContrato: Sucesso sem corpo JSON; atualizando lista de contratos"
+          );
+          setState((prev) => ({ ...prev, creating: false }));
+          adicionarAtividade(
+            "Admin User",
+            `Criou novo contrato para cliente ID ${data.clienteId}`,
+            "success",
+            `Situação: ${data.situacao}`,
+            "Contratos"
+          );
+          await fetchContratos();
+          return;
+        }
+
+        console.log("🔧 createContrato: Resposta recebida:", {
+          status: response.status,
+          hasData: !!response.data,
+          dataType: typeof response.data,
+          data: response.data,
+        });
+
+        let novoContrato = response.data as Contrato;
+        console.log(
+          "🔧 createContrato: Contrato criado com sucesso (raw):",
+          novoContrato
+        );
+
+        // Se o backend não retornou o objeto do cliente/consultor, tentar completar
+        try {
+          if (!novoContrato.cliente && novoContrato.clienteId) {
+            const clienteCompleto = await fetchClienteCompleto(
+              novoContrato.clienteId
+            );
+            if (clienteCompleto) {
+              novoContrato = {
+                ...novoContrato,
+                cliente: clienteCompleto as any,
+              };
+            }
+          }
+        } catch (e) {
+          console.warn(
+            "🔧 createContrato: Não foi possível preencher cliente do contrato recém-criado",
+            e
+          );
+        }
 
         setState((prev) => ({
           ...prev,
-          contratos: [...prev.contratos, novoContrato],
+          contratos: [
+            ...prev.contratos.filter((c) => c.id !== novoContrato.id),
+            novoContrato,
+          ],
+          sessionContratos: [
+            ...prev.sessionContratos.filter((c) => c.id !== novoContrato.id),
+            novoContrato,
+          ],
           creating: false,
         }));
 
@@ -99,17 +230,35 @@ export function useContratos() {
           "Contratos"
         );
 
+        // Recarregar lista para sincronizar com backend
         await fetchContratos();
         return novoContrato;
       } catch (error: any) {
+        console.error("🔧 createContrato: Erro ao criar contrato:", error);
+        console.error("🔧 createContrato: Detalhes do erro:", {
+          message: error.message,
+          status: error.status,
+          response: error.response,
+          data: error.response?.data,
+        });
+
+        const errorMessage =
+          error.response?.data?.message ||
+          error.response?.data?.title ||
+          error.message ||
+          "Erro desconhecido ao criar contrato";
+
         setState((prev) => ({
           ...prev,
-          error: error.response?.data?.message || "Erro ao criar contrato",
+          error: errorMessage,
           creating: false,
         }));
-        throw error;
+
+        // Re-throw para que o componente possa tratar o erro
+        throw new Error(errorMessage);
       }
     },
+    // Note: fetchClienteCompleto is defined later; avoid referencing it in deps to satisfy TS
     [fetchContratos, adicionarAtividade]
   );
 
@@ -123,6 +272,9 @@ export function useContratos() {
         setState((prev) => ({
           ...prev,
           contratos: prev.contratos.map((contrato) =>
+            contrato.id === id ? contratoAtualizado : contrato
+          ),
+          sessionContratos: prev.sessionContratos.map((contrato) =>
             contrato.id === id ? contratoAtualizado : contrato
           ),
           updating: false,
@@ -162,6 +314,9 @@ export function useContratos() {
           contratos: prev.contratos.map((contrato) =>
             contrato.id === id ? contratoAtualizado : contrato
           ),
+          sessionContratos: prev.sessionContratos.map((contrato) =>
+            contrato.id === id ? contratoAtualizado : contrato
+          ),
           changingSituacao: false,
         }));
 
@@ -198,6 +353,9 @@ export function useContratos() {
         setState((prev) => ({
           ...prev,
           contratos: prev.contratos.filter((contrato) => contrato.id !== id),
+          sessionContratos: prev.sessionContratos.filter(
+            (contrato) => contrato.id !== id
+          ),
           deleting: false,
         }));
 
@@ -316,8 +474,8 @@ export function useContratos() {
 
   const getHistoricoSituacao = useCallback(
     async (contratoId: number): Promise<HistoricoSituacaoContrato[]> => {
-      console.info(
-        "🔧 getHistoricoSituacao: Buscando histórico para contrato",
+      console.log(
+        "🔧 getHistoricoSituacao: Buscando histórico real para contrato",
         contratoId
       );
 
@@ -325,55 +483,39 @@ export function useContratos() {
         const response = await apiClient.get(
           `/Contrato/${contratoId}/historico`
         );
-        console.info(
-          "🔧 getHistoricoSituacao: Resposta do backend:",
-          response.data
+
+        // Verificar se há erro na resposta
+        if (response.error) {
+          console.warn("🔧 getHistoricoSituacao: Erro na API:", response.error);
+          return [];
+        }
+
+        // Verificar se os dados existem e são válidos
+        if (!response.data) {
+          console.warn("🔧 getHistoricoSituacao: API retornou resposta vazia");
+          return [];
+        }
+
+        if (!Array.isArray(response.data)) {
+          console.warn(
+            "🔧 getHistoricoSituacao: API retornou dados inválidos (não é array)"
+          );
+          return [];
+        }
+
+        console.log(
+          "🔧 getHistoricoSituacao: Histórico carregado da API:",
+          response.data.length,
+          "registros"
         );
         return response.data as HistoricoSituacaoContrato[];
       } catch (error: any) {
-        console.info(
-          "🔧 getHistoricoSituacao: Endpoint de histórico não implementado, retornando dados mock para contrato",
-          contratoId
+        console.error(
+          "🔧 getHistoricoSituacao: Erro ao buscar histórico:",
+          error
         );
-
-        // Retornar dados mock para desenvolvimento
-        // TODO: Remover quando o backend estiver implementado
-        const mockHistorico: HistoricoSituacaoContrato[] = [
-          {
-            id: 1,
-            contratoId: contratoId,
-            situacaoAnterior: "Leed",
-            novaSituacao: "Prospecto",
-            motivoMudanca:
-              "Cliente demonstrou interesse inicial após primeiro contato",
-            dataMudanca: new Date(
-              Date.now() - 7 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            dataCadastro: new Date(
-              Date.now() - 7 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-          },
-          {
-            id: 2,
-            contratoId: contratoId,
-            situacaoAnterior: "Prospecto",
-            novaSituacao: "Negociacao",
-            motivoMudanca:
-              "Cliente avançou para fase de negociação após apresentação da proposta",
-            dataMudanca: new Date(
-              Date.now() - 3 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-            dataCadastro: new Date(
-              Date.now() - 3 * 24 * 60 * 60 * 1000
-            ).toISOString(),
-          },
-        ];
-
-        console.info(
-          "🔧 getHistoricoSituacao: Retornando dados mock:",
-          mockHistorico
-        );
-        return mockHistorico;
+        // Retornar array vazio em caso de erro - sem dados mock
+        return [];
       }
     },
     []
