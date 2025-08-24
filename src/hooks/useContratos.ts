@@ -40,6 +40,10 @@ export function useContratos() {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       console.log("🔧 useContratos: Buscando contratos da API...");
+      console.log(
+        "🔧 useContratos: sessionContratos atuais:",
+        state.sessionContratos.length
+      );
       const response = await apiClient.get("/Contrato");
 
       // Verificar se há erro na resposta
@@ -108,11 +112,26 @@ export function useContratos() {
       // Merge com contratos criados/atualizados na sessão
       setState((prev) => {
         const byId = new Map<number, Contrato>();
-        for (const c of contratosApi) byId.set(c.id, c);
-        for (const sc of prev.sessionContratos) byId.set(sc.id, sc);
+
+        // Primeiro, adicionar contratos da API
+        for (const c of contratosApi) {
+          byId.set(c.id, c);
+        }
+
+        // Depois, adicionar contratos da sessão (podem sobrescrever os da API)
+        for (const sc of prev.sessionContratos) {
+          byId.set(sc.id, sc);
+        }
+
+        const mergedContratos = Array.from(byId.values());
+
+        console.log(
+          `🔧 useContratos: Merge realizado - ${contratosApi.length} da API + ${prev.sessionContratos.length} da sessão = ${mergedContratos.length} total`
+        );
+
         return {
           ...prev,
-          contratos: Array.from(byId.values()),
+          contratos: mergedContratos,
           loading: false,
         };
       });
@@ -159,12 +178,43 @@ export function useContratos() {
         );
         const response = await apiClient.post("/Contrato", data);
 
-        // Considerar sucesso quando status 200-201, mesmo sem JSON, e recarregar lista
+        // Considerar sucesso quando status 200-201, mesmo sem JSON, e criar contrato local
         if (!response.data && response.status >= 200 && response.status < 300) {
           console.warn(
-            "🔧 createContrato: Sucesso sem corpo JSON; atualizando lista de contratos"
+            "🔧 createContrato: Sucesso sem corpo JSON; criando contrato local"
           );
-          setState((prev) => ({ ...prev, creating: false }));
+
+          // Criar contrato local com ID temporário
+          const contratoLocal: Contrato = {
+            id: Date.now(), // ID temporário baseado no timestamp
+            ...data,
+            cliente: undefined, // Será preenchido depois
+            consultor: undefined, // Será preenchido depois
+            dataCadastro: new Date().toISOString(),
+            dataAtualizacao: undefined,
+            ativo: true,
+          };
+
+          // Tentar preencher dados do cliente
+          try {
+            const clienteCompleto = await fetchClienteCompleto(data.clienteId);
+            if (clienteCompleto) {
+              contratoLocal.cliente = clienteCompleto as any;
+            }
+          } catch (e) {
+            console.warn(
+              "🔧 createContrato: Não foi possível preencher cliente do contrato local",
+              e
+            );
+          }
+
+          setState((prev) => ({
+            ...prev,
+            contratos: [...prev.contratos, contratoLocal],
+            sessionContratos: [...prev.sessionContratos, contratoLocal],
+            creating: false,
+          }));
+
           adicionarAtividade(
             "Admin User",
             `Criou novo contrato para cliente ID ${data.clienteId}`,
@@ -172,8 +222,8 @@ export function useContratos() {
             `Situação: ${data.situacao}`,
             "Contratos"
           );
-          await fetchContratos();
-          return;
+
+          return contratoLocal;
         }
 
         console.log("🔧 createContrato: Resposta recebida:", {
@@ -209,18 +259,32 @@ export function useContratos() {
           );
         }
 
-        setState((prev) => ({
-          ...prev,
-          contratos: [
+        console.log(
+          "🔧 createContrato: Adicionando contrato ao estado local:",
+          novoContrato
+        );
+
+        setState((prev) => {
+          const newContratos = [
             ...prev.contratos.filter((c) => c.id !== novoContrato.id),
             novoContrato,
-          ],
-          sessionContratos: [
+          ];
+          const newSessionContratos = [
             ...prev.sessionContratos.filter((c) => c.id !== novoContrato.id),
             novoContrato,
-          ],
-          creating: false,
-        }));
+          ];
+
+          console.log(
+            `🔧 createContrato: Estado atualizado - ${newContratos.length} contratos totais, ${newSessionContratos.length} na sessão`
+          );
+
+          return {
+            ...prev,
+            contratos: newContratos,
+            sessionContratos: newSessionContratos,
+            creating: false,
+          };
+        });
 
         adicionarAtividade(
           "Admin User",
@@ -522,6 +586,9 @@ export function useContratos() {
   );
 
   useEffect(() => {
+    console.log(
+      "🔧 useContratos: useEffect - Carregando contratos na inicialização"
+    );
     fetchContratos();
   }, [fetchContratos]);
 

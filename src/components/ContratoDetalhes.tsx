@@ -184,7 +184,7 @@ export default function ContratoDetalhes({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9999]"
         onClick={onClose}
       />
 
@@ -194,7 +194,7 @@ export default function ContratoDetalhes({
         initial={{ opacity: 0, scale: 0.95, x: 100 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         exit={{ opacity: 0, scale: 0.95, x: 100 }}
-        className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl z-50 overflow-hidden"
+        className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl z-[9999] overflow-hidden"
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">

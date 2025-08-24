@@ -306,7 +306,7 @@ export default function ContratoForm({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9999]"
             onClick={onCancel}
           />
 
@@ -316,7 +316,7 @@ export default function ContratoForm({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
           >
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
               {/* Header */}
@@ -383,27 +383,27 @@ export default function ContratoForm({
                             : "Selecionar cliente (duplo clique)"}
                         </button>
                         {selectedCliente && (
-                          <div className="rounded-lg border border-neutral-200 p-3 bg-neutral-50 text-xs text-neutral-700">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div className="rounded-lg border border-neutral-200 p-4 bg-neutral-50 text-xs text-neutral-700">
+                            <div className="space-y-3">
                               <div>
-                                <span className="font-medium">Email: </span>
-                                <span>
+                                <span className="font-medium text-neutral-800">Email: </span>
+                                <span className="text-neutral-600">
                                   {selectedCliente.pessoaFisica?.email ||
                                     selectedCliente.pessoaJuridica?.email ||
                                     "—"}
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium">CPF/CNPJ: </span>
-                                <span>
+                                <span className="font-medium text-neutral-800">CPF/CNPJ: </span>
+                                <span className="text-neutral-600">
                                   {selectedCliente.pessoaFisica?.cpf ||
                                     selectedCliente.pessoaJuridica?.cnpj ||
                                     "—"}
                                 </span>
                               </div>
-                              <div className="col-span-1 md:col-span-2">
-                                <span className="font-medium">Telefones: </span>
-                                <span>
+                              <div>
+                                <span className="font-medium text-neutral-800">Telefones: </span>
+                                <div className="mt-1 space-y-1">
                                   {[
                                     selectedCliente.pessoaFisica?.telefone1 ||
                                       selectedCliente.pessoaJuridica?.telefone1,
@@ -415,8 +415,12 @@ export default function ContratoForm({
                                       selectedCliente.pessoaJuridica?.telefone4,
                                   ]
                                     .filter(Boolean)
-                                    .join(" · ") || "—"}
-                                </span>
+                                    .map((telefone, index) => (
+                                      <div key={index} className="text-neutral-600">
+                                        {telefone}
+                                      </div>
+                                    )) || <span className="text-neutral-600">—</span>}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -441,7 +445,7 @@ export default function ContratoForm({
                           value={formData.consultorId}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.consultorId
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -513,7 +517,7 @@ export default function ContratoForm({
                           value={formData.dataUltimoContato}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.dataUltimoContato
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -540,7 +544,7 @@ export default function ContratoForm({
                           value={formData.dataProximoContato}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.dataProximoContato
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -573,7 +577,7 @@ export default function ContratoForm({
                           onChange={handleInputChange}
                           onBlur={() => handleCurrencyBlur("valorDevido")}
                           className={cn(
-                            "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.valorDevido
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -604,7 +608,7 @@ export default function ContratoForm({
                           onChange={handleInputChange}
                           onBlur={() => handleCurrencyBlur("valorNegociado")}
                           className={cn(
-                            "w-full pl-10 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.valorNegociado
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -633,7 +637,7 @@ export default function ContratoForm({
                         value={formData.observacoes}
                         onChange={handleInputChange}
                         rows={4}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                        className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
                         placeholder="Adicione observações sobre o contrato..."
                       />
                     </div>

@@ -343,7 +343,7 @@ export default function ConsultorForm({
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Buscar por nome, email ou CPF..."
-                    className="w-full pl-10 pr-4 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-2 border border-secondary-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
@@ -432,7 +432,7 @@ export default function ConsultorForm({
                     setFormData((prev) => ({ ...prev, nome: e.target.value }))
                   }
                   className={cn(
-                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.nome
                       ? "border-red-300 focus:ring-red-500"
                       : formData.pessoaFisicaId > 0
@@ -469,7 +469,7 @@ export default function ConsultorForm({
                     setFormData((prev) => ({ ...prev, email: e.target.value }))
                   }
                   className={cn(
-                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.email
                       ? "border-red-300 focus:ring-red-500"
                       : formData.pessoaFisicaId > 0
@@ -525,7 +525,7 @@ export default function ConsultorForm({
                     }))
                   }
                   className={cn(
-                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.telefone1
                       ? "border-red-300 focus:ring-red-500"
                       : formData.pessoaFisicaId > 0
@@ -585,7 +585,7 @@ export default function ConsultorForm({
                     setFormData((prev) => ({ ...prev, filial: e.target.value }))
                   }
                   className={cn(
-                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 appearance-none",
+                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 appearance-none",
                     errors.filial
                       ? "border-red-300 focus:ring-red-500"
                       : "border-secondary-300"

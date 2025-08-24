@@ -185,7 +185,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         {clientesLoading ? (
                           <span className="animate-pulse">...</span>
                         ) : (
-                          `${clientesAtivos}+`
+                          clientesAtivos
                         )}
                       </p>
                       <p className="text-xs text-neutral-600">
