@@ -31,6 +31,7 @@ import MainLayout from "@/components/MainLayout";
 import ContratoForm from "@/components/forms/ContratoForm";
 import ContratoDetalhes from "@/components/ContratoDetalhes";
 import MudancaSituacaoModal from "@/components/MudancaSituacaoModal";
+import ErrorDialog from "@/components/ErrorDialog";
 import { Tooltip } from "@/components";
 import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
@@ -122,6 +123,14 @@ export default function ContratosPage() {
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
   const [showDetalhes, setShowDetalhes] = useState(false);
   const [showMudancaSituacao, setShowMudancaSituacao] = useState(false);
+  const [errorDialog, setErrorDialog] = useState<{
+    isOpen: boolean;
+    message: string;
+    onRetry?: () => void;
+  }>({
+    isOpen: false,
+    message: "",
+  });
   const { openForm, closeForm } = useForm();
   const [activeTab, setActiveTab] = useState<"contratos" | "clientes">(
     "contratos"
@@ -293,11 +302,53 @@ export default function ContratosPage() {
     if (!selectedContrato) return;
 
     try {
+      console.log("🔧 handleMudarSituacao: Iniciando mudança de situação");
+      console.log("🔧 handleMudarSituacao: Contrato ID:", selectedContrato.id);
+      console.log("🔧 handleMudarSituacao: Dados:", data);
+
       await mudarSituacao(selectedContrato.id, data);
       setShowMudancaSituacao(false);
       setSelectedContrato(null);
-    } catch (error) {
-      console.error("Erro ao mudar situação:", error);
+
+      console.log("🔧 handleMudarSituacao: Mudança realizada com sucesso");
+    } catch (error: any) {
+      console.error("🔧 handleMudarSituacao: Erro ao mudar situação:", error);
+
+      // Mostrar erro mais específico para o usuário
+      let errorMessage = "Erro desconhecido ao mudar situação";
+
+      if (error.message) {
+        if (error.message.includes("Failed to fetch")) {
+          errorMessage =
+            "Erro de conexão com o servidor. Verifique sua internet e tente novamente.";
+        } else if (error.message.includes("timeout")) {
+          errorMessage =
+            "A operação demorou muito para responder. Tente novamente.";
+        } else if (error.message.includes("Network error")) {
+          errorMessage =
+            "Erro de rede. Verifique sua conexão e tente novamente.";
+        } else if (error.message.includes("Erro ao ler resposta do servidor")) {
+          errorMessage =
+            "Erro na comunicação com o servidor. Tente novamente em alguns segundos.";
+        } else if (error.message.includes("Conexão interrompida")) {
+          errorMessage =
+            "Conexão interrompida pelo servidor. Tente novamente em alguns segundos.";
+        } else if (error.message.includes("body stream already read")) {
+          errorMessage =
+            "Erro interno na comunicação. Tente novamente.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      setErrorDialog({
+        isOpen: true,
+        message: errorMessage,
+        onRetry: () => {
+          setErrorDialog({ isOpen: false, message: "" });
+          handleMudarSituacao(data);
+        },
+      });
     }
   };
 
@@ -1066,6 +1117,16 @@ export default function ContratosPage() {
           }}
         />
       )}
+
+      {/* Dialog de Erro */}
+      <ErrorDialog
+        isOpen={errorDialog.isOpen}
+        onClose={() => setErrorDialog({ isOpen: false, message: "" })}
+        onRetry={errorDialog.onRetry}
+        title="Erro ao Mudar Situação"
+        message={errorDialog.message}
+        showRetry={!!errorDialog.onRetry}
+      />
     </MainLayout>
   );
 }

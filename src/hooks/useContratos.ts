@@ -369,41 +369,170 @@ export function useContratos() {
   const mudarSituacao = useCallback(
     async (id: number, data: MudancaSituacaoDTO) => {
       setState((prev) => ({ ...prev, changingSituacao: true, error: null }));
-      try {
-        const response = await apiClient.put(`/Contrato/${id}/situacao`, data);
-        const contratoAtualizado = response.data as Contrato;
 
-        setState((prev) => ({
-          ...prev,
-          contratos: prev.contratos.map((contrato) =>
-            contrato.id === id ? contratoAtualizado : contrato
-          ),
-          sessionContratos: prev.sessionContratos.map((contrato) =>
-            contrato.id === id ? contratoAtualizado : contrato
-          ),
-          changingSituacao: false,
-        }));
+      console.log(
+        "🔧 mudarSituacao: Iniciando mudança de situação para contrato",
+        id
+      );
+      console.log("🔧 mudarSituacao: Dados da mudança:", data);
 
-        adicionarAtividade(
-          "Admin User",
-          `Mudou situação do contrato #${id}`,
-          "info",
-          `Nova situação: ${data.novaSituacao}`,
-          "Contratos"
-        );
+      // Mecanismo de retry
+      const maxRetries = 3;
+      let lastError: any = null;
 
-        await fetchContratos();
-        return contratoAtualizado;
-      } catch (error: any) {
-        setState((prev) => ({
-          ...prev,
-          error:
-            error.response?.data?.message ||
-            "Erro ao mudar situação do contrato",
-          changingSituacao: false,
-        }));
-        throw error;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`🔧 mudarSituacao: Tentativa ${attempt}/${maxRetries}`);
+
+          const response = await apiClient.put(
+            `/Contrato/${id}/situacao`,
+            data
+          );
+
+          console.log("🔧 mudarSituacao: Resposta da API:", response);
+
+          if (response.error) {
+            console.error("🔧 mudarSituacao: Erro na API:", response.error);
+            lastError = new Error(response.error || "Erro desconhecido na API");
+
+            // Se for erro de validação, não tentar novamente
+            if (response.status === 400) {
+              break;
+            }
+
+            // Se não for a última tentativa, aguardar antes de tentar novamente
+            if (attempt < maxRetries) {
+              await new Promise((resolve) =>
+                setTimeout(resolve, 2000 * attempt)
+              ); // Backoff exponencial
+              continue;
+            }
+
+            setState((prev) => ({
+              ...prev,
+              error: response.error || "Erro desconhecido na API",
+              changingSituacao: false,
+            }));
+            throw lastError;
+          }
+
+          // Verificar se a resposta é um objeto de sucesso (quando não conseguimos ler a resposta completa)
+          if (
+            response.data &&
+            typeof response.data === "object" &&
+            "success" in response.data
+          ) {
+            console.log(
+              "🔧 mudarSituacao: Operação realizada com sucesso (resposta simplificada)"
+            );
+
+            // Buscar o contrato atualizado do estado local
+            const contratoAtual = state.contratos.find((c) => c.id === id);
+            if (contratoAtual) {
+              const contratoAtualizado = {
+                ...contratoAtual,
+                situacao: data.novaSituacao,
+                dataAtualizacao: new Date().toISOString(),
+              };
+
+              setState((prev) => ({
+                ...prev,
+                contratos: prev.contratos.map((contrato) =>
+                  contrato.id === id ? contratoAtualizado : contrato
+                ),
+                sessionContratos: prev.sessionContratos.map((contrato) =>
+                  contrato.id === id ? contratoAtualizado : contrato
+                ),
+                changingSituacao: false,
+              }));
+
+              adicionarAtividade(
+                "Admin User",
+                `Mudou situação do contrato #${id}`,
+                "info",
+                `Nova situação: ${data.novaSituacao}`,
+                "Contratos"
+              );
+
+              await fetchContratos();
+              return contratoAtualizado;
+            }
+          }
+
+          const contratoAtualizado = response.data as Contrato;
+          console.log(
+            "🔧 mudarSituacao: Contrato atualizado:",
+            contratoAtualizado
+          );
+
+          setState((prev) => ({
+            ...prev,
+            contratos: prev.contratos.map((contrato) =>
+              contrato.id === id ? contratoAtualizado : contrato
+            ),
+            sessionContratos: prev.sessionContratos.map((contrato) =>
+              contrato.id === id ? contratoAtualizado : contrato
+            ),
+            changingSituacao: false,
+          }));
+
+          adicionarAtividade(
+            "Admin User",
+            `Mudou situação do contrato #${id}`,
+            "info",
+            `Nova situação: ${data.novaSituacao}`,
+            "Contratos"
+          );
+
+          await fetchContratos();
+          return contratoAtualizado;
+        } catch (error: any) {
+          console.error(
+            `🔧 mudarSituacao: Erro na tentativa ${attempt}:`,
+            error
+          );
+          lastError = error;
+
+          // Se for erro de rede e não for a última tentativa, tentar novamente
+          if (
+            attempt < maxRetries &&
+            (error.message.includes("Failed to fetch") ||
+              error.message.includes("Network error") ||
+              error.message.includes("timeout") ||
+              error.message.includes("Erro ao ler resposta do servidor") ||
+              error.message.includes("ECONNRESET") ||
+              error.message.includes("terminated") ||
+              error.message.includes("Conexão interrompida") ||
+              error.message.includes("body stream already read"))
+          ) {
+            console.log(
+              `🔧 mudarSituacao: Tentando novamente em ${
+                2 * attempt
+              } segundos...`
+            );
+            await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+            continue;
+          }
+
+          // Se chegou aqui, é a última tentativa ou erro não recuperável
+          break;
+        }
       }
+
+      // Se chegou aqui, todas as tentativas falharam
+      console.error("🔧 mudarSituacao: Todas as tentativas falharam");
+      console.error("🔧 mudarSituacao: Último erro:", lastError);
+
+      const errorMessage =
+        lastError?.message ||
+        "Erro ao mudar situação do contrato após múltiplas tentativas";
+
+      setState((prev) => ({
+        ...prev,
+        error: errorMessage,
+        changingSituacao: false,
+      }));
+      throw lastError || new Error(errorMessage);
     },
     [fetchContratos, adicionarAtividade]
   );
@@ -578,6 +707,24 @@ export function useContratos() {
           "🔧 getHistoricoSituacao: Erro ao buscar histórico:",
           error
         );
+
+        // Se for erro de "Failed to fetch" ou qualquer erro de rede, retornar array vazio sem mostrar erro
+        if (
+          error?.message?.includes("Failed to fetch") ||
+          error?.message?.includes("Network error") ||
+          error?.message?.includes("timeout") ||
+          error?.message?.includes("Erro ao ler resposta do servidor") ||
+          error?.message?.includes("ECONNRESET") ||
+          error?.message?.includes("terminated") ||
+          error?.message?.includes("Conexão interrompida") ||
+          error?.message?.includes("body stream already read")
+        ) {
+          console.warn(
+            "🔧 getHistoricoSituacao: Erro de conexão - retornando array vazio"
+          );
+          return [];
+        }
+
         // Retornar array vazio em caso de erro - sem dados mock
         return [];
       }

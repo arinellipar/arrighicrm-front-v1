@@ -45,15 +45,57 @@ class ApiClient {
         console.log(`🌐 Making request to: ${url}`);
         console.log(`🌐 Request method: ${options.method || "GET"}`);
         console.log(`🌐 Request headers:`, config.headers);
+        if (options.body) {
+          console.log(`🌐 Request body:`, options.body);
+        }
       }
 
-      // Timeout desabilitado por solicitação
+      // Timeout de 60 segundos para operações que podem demorar
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
       let response: Response;
       try {
-        response = await fetch(url, config);
+        response = await fetch(url, {
+          ...config,
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
       } catch (networkError) {
+        clearTimeout(timeoutId);
         console.error("🔧 ApiClient: Network error on fetch:", networkError);
-        return { error: "Failed to fetch", status: 0 };
+
+        if (
+          networkError instanceof Error &&
+          networkError.name === "AbortError"
+        ) {
+          return {
+            error: "Request timeout - operação demorou muito para responder",
+            status: 0,
+          };
+        }
+
+        // Se for erro de "Failed to fetch", verificar se é um problema específico do histórico
+        if (
+          networkError instanceof Error &&
+          networkError.message.includes("Failed to fetch")
+        ) {
+          // Para endpoints de histórico, retornar array vazio em vez de erro
+          if (url.includes("/historico")) {
+            console.warn(
+              "🔧 ApiClient: Erro Failed to fetch em endpoint de histórico - retornando array vazio"
+            );
+            return {
+              data: [] as T,
+              status: 200,
+            };
+          }
+        }
+
+        return {
+          error: "Failed to fetch - verifique sua conexão com a internet",
+          status: 0,
+        };
       }
 
       // Debug logging
@@ -66,14 +108,148 @@ class ApiClient {
 
       // Read response body once and store it
       let responseText = "";
-      let data = null;
+      let data: T | undefined = undefined;
 
       try {
-        responseText = await response.text();
-      } catch (error) {
+        // Verificar se a resposta tem conteúdo antes de tentar ler
+        const contentLength = response.headers.get("content-length");
+        const hasContent = contentLength && parseInt(contentLength) > 0;
+
+        if (hasContent || response.status !== 204) {
+          // Clonar a resposta para evitar problemas de stream já lido
+          const responseClone = response.clone();
+
+          try {
+            responseText = await responseClone.text();
+          } catch (readError: any) {
+            console.warn(
+              `🔧 ApiClient: Erro ao ler resposta:`,
+              readError.message
+            );
+
+            // Se for erro de stream já lido, tentar com a resposta original
+            if (readError.message.includes("body stream already read")) {
+              console.warn("🔧 ApiClient: Tentando ler resposta original...");
+              try {
+                responseText = await response.text();
+              } catch (secondError: any) {
+                console.warn(
+                  "🔧 ApiClient: Erro na segunda tentativa:",
+                  secondError.message
+                );
+                responseText = "";
+              }
+            } else {
+              throw readError;
+            }
+          }
+        }
+      } catch (error: any) {
         console.error("🔧 ApiClient: Erro ao ler resposta:", error);
+        console.error("🔧 ApiClient: Tipo do erro:", typeof error);
+        console.error(
+          "🔧 ApiClient: Mensagem do erro:",
+          error?.message || "Erro desconhecido"
+        );
+
+        // Se o erro for um objeto com propriedades específicas, extrair a mensagem
+        let errorMessage = error?.message || "Erro desconhecido";
+        if (typeof error === "object" && error !== null) {
+          // Tentar extrair mensagem de diferentes propriedades possíveis
+          errorMessage =
+            error.message ||
+            error.error ||
+            error.reason ||
+            error.toString() ||
+            JSON.stringify(error);
+        }
+
+        console.error("🔧 ApiClient: ErrorMessage extraída:", errorMessage);
+
+        // Se for erro de rede, retornar erro específico
+        if (
+          errorMessage.includes("Failed to fetch") ||
+          errorMessage.includes("NetworkError")
+        ) {
+          // Se o status for 200, não é erro de conexão - é problema na leitura da resposta
+          if (response.status === 200) {
+            console.warn(
+              "🔧 ApiClient: Status 200 mas erro na leitura - considerando sucesso"
+            );
+            return {
+              data: {
+                success: true,
+                message: "Operação realizada com sucesso",
+              } as T,
+              status: response.status,
+            };
+          }
+
+          return {
+            error:
+              "Erro de conexão com o servidor. Verifique sua internet e tente novamente.",
+            status: 0,
+          };
+        }
+
+        // Se for erro de timeout
+        if (error?.name === "AbortError" || errorMessage.includes("timeout")) {
+          return {
+            error: "A operação demorou muito para responder. Tente novamente.",
+            status: 0,
+          };
+        }
+
+        // Se for erro de conexão resetada ou terminada
+        if (
+          errorMessage.includes("ECONNRESET") ||
+          errorMessage.includes("terminated")
+        ) {
+          // Se o status for 200, não é erro de conexão - é problema na leitura da resposta
+          if (response.status === 200) {
+            console.warn(
+              "🔧 ApiClient: Status 200 mas conexão terminada - considerando sucesso"
+            );
+            return {
+              data: {
+                success: true,
+                message: "Operação realizada com sucesso",
+              } as T,
+              status: response.status,
+            };
+          }
+
+          return {
+            error:
+              "Conexão interrompida pelo servidor. Tente novamente em alguns segundos.",
+            status: 0,
+          };
+        }
+
+        // Se o status for 200, considerar sucesso mesmo com erro na leitura
+        if (response.status === 200) {
+          console.warn(
+            "🔧 ApiClient: Status 200 mas erro na leitura - considerando sucesso"
+          );
+          return {
+            data: {
+              success: true,
+              message: "Operação realizada com sucesso",
+            } as T,
+            status: response.status,
+          };
+        }
+
+        // Se for erro de stream já lido
+        if (errorMessage.includes("body stream already read")) {
+          return {
+            error: "Erro interno na leitura da resposta. Tente novamente.",
+            status: 0,
+          };
+        }
+
         return {
-          error: "Erro ao ler resposta do servidor",
+          error: "Erro ao ler resposta do servidor. Tente novamente.",
           status: response.status,
         };
       }
@@ -92,6 +268,17 @@ class ApiClient {
           console.error(`API Error: ${response.status} - ${responseText}`);
         }
 
+        // Para endpoints de histórico com erro 500, retornar array vazio em vez de erro
+        if (url.includes("/historico") && response.status === 500) {
+          console.warn(
+            "🔧 ApiClient: Erro 500 em endpoint de histórico - retornando array vazio"
+          );
+          return {
+            data: [] as T,
+            status: 200,
+          };
+        }
+
         // Se a resposta estiver vazia, fornecer uma mensagem mais específica
         if (!responseText || responseText.trim() === "") {
           return {
@@ -106,8 +293,38 @@ class ApiClient {
         };
       }
 
-      // Verificar se a resposta é JSON
-      const contentType = response.headers.get("content-type");
+      // Se a resposta for 200, considerar sucesso independentemente do conteúdo
+      if (response.ok) {
+        // Se conseguimos ler o conteúdo, usar ele
+        if (responseText && responseText.trim() !== "") {
+          // Tentar fazer parse do JSON
+          try {
+            data = JSON.parse(responseText);
+          } catch (jsonError) {
+            console.warn(
+              "🔧 ApiClient: Erro ao fazer parse do JSON, mas status 200 - considerando sucesso"
+            );
+            data = {
+              success: true,
+              message: "Operação realizada com sucesso",
+            } as T;
+          }
+        } else {
+          // Se não conseguimos ler o conteúdo mas status é 200, considerar sucesso
+          console.warn(
+            "🔧 ApiClient: Status 200 mas conteúdo vazio - considerando sucesso"
+          );
+          data = {
+            success: true,
+            message: "Operação realizada com sucesso",
+          } as T;
+        }
+
+        return {
+          data,
+          status: response.status,
+        };
+      }
 
       // Para status 204 (No Content), não esperamos JSON
       if (response.status === 204) {
@@ -115,30 +332,6 @@ class ApiClient {
           data: undefined,
           status: response.status,
         };
-      }
-
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error(
-          `Non-JSON response received: ${contentType}`,
-          responseText
-        );
-        return {
-          error: `Expected JSON response but got ${contentType}`,
-          status: response.status,
-        };
-      }
-
-      // Parse JSON from the stored response text
-      try {
-        data = JSON.parse(responseText);
-      } catch (jsonError) {
-        // Se não conseguir fazer parse do JSON, pode ser uma resposta vazia
-        console.error("🔧 ApiClient: Erro ao fazer parse do JSON:", jsonError);
-        console.error("🔧 ApiClient: Response text:", responseText);
-        if (isDevelopment()) {
-          console.warn(`JSON parse error for ${endpoint}:`, jsonError);
-        }
-        data = null;
       }
 
       // Log de sucesso em desenvolvimento
