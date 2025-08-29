@@ -9,7 +9,7 @@
     "build:prod": "NODE_ENV=production NEXT_PUBLIC_ENVIRONMENT=production next build",
     "start": "next start",
     "start:prod": "NODE_ENV=production next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
+    "eslint-cli": "^1.1.1",
     "eslint-config-next": "15.5.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
