@@ -585,7 +585,10 @@ export default function PessoaFisicaPage() {
                                   >
                                     <Tooltip content={pessoa.nome}>
                                       <span className="cursor-help">
-                                        {truncateText(pessoa.nome, 20)}
+                                        {truncateText(
+                                          pessoa.nome,
+                                          isTableCompact ? 40 : 25
+                                        )}
                                       </span>
                                     </Tooltip>
                                   </div>

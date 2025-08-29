@@ -6,6 +6,7 @@ import {
   CreatePessoaJuridicaDTO,
   UpdatePessoaJuridicaDTO,
 } from "@/types/api";
+import { useAtividadeContext } from "@/contexts/AtividadeContext";
 
 interface UsePessoaJuridicaState {
   pessoas: PessoaJuridica[];
@@ -25,6 +26,8 @@ export function usePessoaJuridica() {
     updating: false,
     deleting: false,
   });
+
+  const { adicionarAtividade } = useAtividadeContext();
 
   const setLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -103,6 +106,16 @@ export function usePessoaJuridica() {
 
         // Recarregar a lista após criar
         await fetchPessoas();
+
+        // Registrar atividade
+        adicionarAtividade(
+          "Admin User",
+          `Cadastrou nova pessoa jurídica: ${data.razaoSocial}`,
+          "success",
+          `CNPJ: ${data.cnpj || "Não informado"}`,
+          "Pessoa Jurídica"
+        );
+
         return true;
       } catch (error) {
         setError("Erro ao criar pessoa jurídica");
@@ -111,7 +124,7 @@ export function usePessoaJuridica() {
         setState((prev) => ({ ...prev, creating: false }));
       }
     },
-    [fetchPessoas]
+    [fetchPessoas, adicionarAtividade]
   );
 
   // Atualizar pessoa jurídica
@@ -129,6 +142,16 @@ export function usePessoaJuridica() {
 
         // Recarregar a lista após atualizar
         await fetchPessoas();
+
+        // Registrar atividade
+        adicionarAtividade(
+          "Admin User",
+          `Atualizou pessoa jurídica: ${data.razaoSocial}`,
+          "info",
+          `Email: ${data.email || "Não informado"}`,
+          "Pessoa Jurídica"
+        );
+
         return true;
       } catch (error) {
         setError("Erro ao atualizar pessoa jurídica");
@@ -137,7 +160,7 @@ export function usePessoaJuridica() {
         setState((prev) => ({ ...prev, updating: false }));
       }
     },
-    [fetchPessoas]
+    [fetchPessoas, adicionarAtividade]
   );
 
   // Deletar pessoa jurídica
@@ -153,8 +176,23 @@ export function usePessoaJuridica() {
           return false;
         }
 
+        // Encontrar a pessoa antes de recarregar para registrar atividade
+        const pessoaParaDeletar = state.pessoas.find((p) => p.id === id);
+
         // Recarregar a lista após deletar
         await fetchPessoas();
+
+        // Registrar atividade
+        if (pessoaParaDeletar) {
+          adicionarAtividade(
+            "Admin User",
+            `Excluiu pessoa jurídica: ${pessoaParaDeletar.razaoSocial}`,
+            "warning",
+            `CNPJ: ${pessoaParaDeletar.cnpj || "Não informado"}`,
+            "Pessoa Jurídica"
+          );
+        }
+
         return true;
       } catch (error) {
         setError("Erro ao deletar pessoa jurídica");
@@ -163,7 +201,7 @@ export function usePessoaJuridica() {
         setState((prev) => ({ ...prev, deleting: false }));
       }
     },
-    [fetchPessoas]
+    [fetchPessoas, state.pessoas, adicionarAtividade]
   );
 
   // Carregar dados iniciais

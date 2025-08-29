@@ -48,7 +48,13 @@ class ApiClient {
       }
 
       // Timeout desabilitado por solicitação
-      const response = await fetch(url, config);
+      let response: Response;
+      try {
+        response = await fetch(url, config);
+      } catch (networkError) {
+        console.error("🔧 ApiClient: Network error on fetch:", networkError);
+        return { error: "Failed to fetch", status: 0 };
+      }
 
       // Debug logging
       console.log("🔧 ApiClient: Response status:", response.status);
