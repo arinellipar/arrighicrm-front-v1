@@ -300,7 +300,7 @@ export default function ClienteForm({
                   type="text"
                   value={cpfSearch}
                   onChange={(e) => setCpfSearch(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                   placeholder="Digite o CPF para buscar"
                 />
               </div>
@@ -331,7 +331,7 @@ export default function ClienteForm({
                   type="text"
                   value={cnpjSearch}
                   onChange={(e) => setCnpjSearch(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                   placeholder="Digite o CNPJ para buscar"
                 />
               </div>
@@ -368,7 +368,7 @@ export default function ClienteForm({
                     setFormData((prev) => ({ ...prev, nome: e.target.value }))
                   }
                   className={cn(
-                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.nome
                       ? "border-red-300 focus:ring-red-500"
                       : "border-secondary-300"
@@ -400,7 +400,7 @@ export default function ClienteForm({
                     }))
                   }
                   className={cn(
-                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.razaoSocial
                       ? "border-red-300 focus:ring-red-500"
                       : "border-secondary-300"
@@ -431,7 +431,7 @@ export default function ClienteForm({
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
                 }
                 className={cn(
-                  "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                  "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                   errors.email
                     ? "border-red-300 focus:ring-red-500"
                     : "border-secondary-300"
@@ -462,7 +462,7 @@ export default function ClienteForm({
                     setFormData((prev) => ({ ...prev, cpf: e.target.value }))
                   }
                   className={cn(
-                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.cpf
                       ? "border-red-300 focus:ring-red-500"
                       : "border-secondary-300"
@@ -491,7 +491,7 @@ export default function ClienteForm({
                     setFormData((prev) => ({ ...prev, cnpj: e.target.value }))
                   }
                   className={cn(
-                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.cnpj
                       ? "border-red-300 focus:ring-red-500"
                       : "border-secondary-300"
@@ -525,7 +525,7 @@ export default function ClienteForm({
                   }))
                 }
                 className={cn(
-                  "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                  "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                   errors.telefone1
                     ? "border-red-300 focus:ring-red-500"
                     : "border-secondary-300"
@@ -580,7 +580,7 @@ export default function ClienteForm({
                     setFormData((prev) => ({ ...prev, filial: e.target.value }))
                   }
                   className={cn(
-                    "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                    "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                     errors.filial
                       ? "border-red-300 focus:ring-red-500"
                       : "border-secondary-300"
@@ -616,7 +616,7 @@ export default function ClienteForm({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, segmento: e.target.value }))
                 }
-                className="w-full pl-12 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 placeholder="Ex: Tecnologia, Saúde, Educação"
               />
             </div>
@@ -662,7 +662,7 @@ export default function ClienteForm({
                   const value = parseCurrency(e.target.value);
                   setFormData((prev) => ({ ...prev, valorContrato: value }));
                 }}
-                className="w-full pl-12 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
                 placeholder="R$ 0,00"
               />
             </div>

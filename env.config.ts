@@ -35,19 +35,10 @@ export const getApiUrl = (): string => {
     process.env.NEXT_PUBLIC_API_URL
   );
 
-  // Em desenvolvimento, usar variável de ambiente ou API local
+  // Forçar uso da API local em desenvolvimento
   if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
-    // Se NEXT_PUBLIC_API_URL estiver definida, usa ela (permite apontar para produção)
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      console.log(
-        "🔧 getApiUrl: Usando URL de env var:",
-        process.env.NEXT_PUBLIC_API_URL
-      );
-      return process.env.NEXT_PUBLIC_API_URL;
-    }
-    // Senão, usa API local
     const devUrl = "http://localhost:5101/api";
-    console.log("🔧 getApiUrl: Usando URL de desenvolvimento padrão:", devUrl);
+    console.log("🔧 getApiUrl: Forçando URL de desenvolvimento:", devUrl);
     return devUrl;
   }
 

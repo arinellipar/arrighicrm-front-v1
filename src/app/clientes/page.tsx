@@ -8,6 +8,7 @@ import {
   Building2,
   Plus,
   Search,
+  Filter,
   Edit,
   Trash2,
   Eye,
@@ -18,8 +19,10 @@ import {
   Clock,
   DollarSign,
   FileText,
+  Calendar,
   Phone,
   Mail,
+  MapPin,
   CheckCircle,
   XCircle,
 } from "lucide-react";
@@ -27,7 +30,7 @@ import MainLayout from "@/components/MainLayout";
 import ClienteForm from "@/components/forms/ClienteForm";
 import { Tooltip } from "@/components";
 import { useClientes } from "@/hooks/useClientes";
-import { Cliente, CreateClienteDTO, UpdateClienteDTO } from "@/types/api";
+import { Cliente } from "@/types/api";
 import { cn, truncateText } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 
@@ -88,7 +91,7 @@ function StatusClienteBadge({
     },
   };
 
-  const config = statusConfig[status] || statusConfig.inativo; // Fallback para inativo se status for inválido
+  const config = statusConfig[status];
   const Icon = config.icon;
 
   return (
@@ -168,11 +171,6 @@ export default function ClientesPage() {
 
   const { openForm, closeForm } = useForm();
 
-  // Carregar dados ao montar o componente
-  useEffect(() => {
-    fetchClientes();
-  }, [fetchClientes]);
-
   const [showForm, setShowForm] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -226,13 +224,11 @@ export default function ClientesPage() {
     );
   });
 
-  const handleCreateOrUpdate = async (
-    data: CreateClienteDTO | UpdateClienteDTO
-  ) => {
+  const handleCreateOrUpdate = async (data: any) => {
     if (editingCliente) {
-      return await updateCliente(editingCliente.id, data as UpdateClienteDTO);
+      return await updateCliente(editingCliente.id, data);
     } else {
-      return await createCliente(data as CreateClienteDTO);
+      return await createCliente(data);
     }
   };
 
@@ -290,6 +286,15 @@ export default function ClientesPage() {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("pt-BR");
+    } catch (error) {
+      return "N/A";
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -297,7 +302,7 @@ export default function ClientesPage() {
     }).format(value);
   };
 
-  // Estatísticas baseadas nos clientes do banco de dados
+  // Estatísticas
   const stats = {
     total: clientes.length,
     ativos: clientes.filter((c: Cliente) => c.status === "ativo").length,
@@ -331,7 +336,7 @@ export default function ClientesPage() {
           className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         >
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl text-white">
+            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white">
               <UserPlus className="w-8 h-8" />
             </div>
             <div>
@@ -346,7 +351,7 @@ export default function ClientesPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleOpenForm}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
             <span>Novo Cliente</span>
@@ -502,15 +507,15 @@ export default function ClientesPage() {
                 <p className="text-secondary-600 text-sm font-medium">
                   Total de Clientes
                 </p>
-                <p className="text-2xl font-bold text-orange-600">
+                <p className="text-2xl font-bold text-secondary-900">
                   {stats.total}
                 </p>
                 <p className="text-xs text-secondary-500 mt-1">
                   +{stats.novosEsteMes} este mês
                 </p>
               </div>
-              <div className="p-3 bg-orange-100 rounded-xl">
-                <Users className="w-6 h-6 text-orange-600" />
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <Users className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -675,7 +680,7 @@ export default function ClientesPage() {
                         Status
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
-                        Filial
+                        Cliente Desde
                       </th>
                     </tr>
                   </thead>
@@ -701,7 +706,7 @@ export default function ClientesPage() {
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
                               <span className="text-sm font-bold text-white">
                                 {(
                                   cliente.nome ||
@@ -759,7 +764,7 @@ export default function ClientesPage() {
                           />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
-                          {cliente.filial || "Não informada"}
+                          {formatDate(cliente.dataCadastro)}
                         </td>
                       </motion.tr>
                     ))}
@@ -784,7 +789,7 @@ export default function ClientesPage() {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center">
-                        <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
                           <span className="text-lg font-bold text-white">
                             {(cliente.nome || cliente.razaoSocial || "").charAt(
                               0
@@ -843,8 +848,8 @@ export default function ClientesPage() {
                         )}
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">
-                        <Building2 className="w-4 h-4 mr-2" />
-                        Filial: {cliente.filial || "Não informada"}
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Cliente desde {formatDate(cliente.dataCadastro)}
                       </div>
                     </div>
 

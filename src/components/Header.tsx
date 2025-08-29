@@ -14,7 +14,6 @@ import {
   LogOut,
   Menu,
   X as CloseIcon,
-  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -115,14 +114,6 @@ export default function Header() {
                   className="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200"
                 >
                   Dashboard
-                </Link>
-
-                <Link
-                  href="/contratos"
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200"
-                >
-                  <FileText className="w-4 h-4 text-primary-600" />
-                  <span>Contratos</span>
                 </Link>
 
                 {menuItems.map((group) => (
@@ -308,13 +299,6 @@ export default function Header() {
               >
                 Dashboard
               </Link>
-              <Link
-                href="/contratos"
-                className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
-              >
-                <FileText className="w-4 h-4 text-primary-600" />
-                <span>Contratos</span>
-              </Link>
               {menuItems.map((group) => (
                 <div key={group.label} className="space-y-1">
                   <p className="px-4 py-2 text-xs font-semibold text-neutral-500 uppercase">
@@ -357,7 +341,7 @@ export default function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-30"
+            className="fixed inset-0 z-40"
             onClick={() => {
               setActiveDropdown(null);
               setShowNotifications(false);

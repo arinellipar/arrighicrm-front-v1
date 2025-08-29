@@ -122,7 +122,7 @@ export default function AtribuirClienteForm({
                 }))
               }
               className={cn(
-                "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                 errors.clienteId
                   ? "border-red-300 focus:ring-red-500"
                   : "border-secondary-300"
@@ -160,7 +160,7 @@ export default function AtribuirClienteForm({
                 }))
               }
               className={cn(
-                "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
+                "w-full pl-10 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
                 errors.consultorId
                   ? "border-red-300 focus:ring-red-500"
                   : "border-secondary-300"
@@ -198,7 +198,7 @@ export default function AtribuirClienteForm({
                 }))
               }
               rows={3}
-              className="w-full pl-12 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+              className="w-full pl-10 pr-4 py-3 border border-secondary-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
               placeholder="Descreva o motivo da atribuição (opcional)"
             />
           </div>

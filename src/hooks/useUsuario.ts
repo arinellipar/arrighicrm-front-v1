@@ -8,7 +8,6 @@ import {
   PessoaFisicaOption,
   PessoaJuridicaOption,
 } from "@/types/api";
-import { useAtividadeContext } from "@/contexts/AtividadeContext";
 
 interface UseUsuarioState {
   usuarios: Usuario[];
@@ -28,8 +27,6 @@ export function useUsuario() {
     updating: false,
     deleting: false,
   });
-
-  const { adicionarAtividade } = useAtividadeContext();
 
   const setLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -145,16 +142,6 @@ export function useUsuario() {
 
         // Recarregar a lista após criar
         await fetchUsuarios();
-
-        // Registrar atividade
-        adicionarAtividade(
-          "Admin User",
-          `Cadastrou novo usuário: ${data.login}`,
-          "success",
-          `Email: ${data.email}`,
-          "Usuários"
-        );
-
         return true;
       } catch (error) {
         setError("Erro ao criar usuário");
@@ -163,7 +150,7 @@ export function useUsuario() {
         setState((prev) => ({ ...prev, creating: false }));
       }
     },
-    [fetchUsuarios, adicionarAtividade]
+    [fetchUsuarios]
   );
 
   // Atualizar usuário
@@ -181,18 +168,6 @@ export function useUsuario() {
 
         // Recarregar a lista após atualizar
         await fetchUsuarios();
-
-        // Registrar atividade
-        adicionarAtividade(
-          "Admin User",
-          `Atualizou usuário: ${data.login}`,
-          "info",
-          `Tipo: ${
-            data.tipoPessoa === "Fisica" ? "Pessoa Física" : "Pessoa Jurídica"
-          }`,
-          "Usuários"
-        );
-
         return true;
       } catch (error) {
         setError("Erro ao atualizar usuário");
@@ -201,7 +176,7 @@ export function useUsuario() {
         setState((prev) => ({ ...prev, updating: false }));
       }
     },
-    [fetchUsuarios, adicionarAtividade]
+    [fetchUsuarios]
   );
 
   // Deletar usuário
@@ -217,23 +192,8 @@ export function useUsuario() {
           return false;
         }
 
-        // Encontrar o usuário antes de recarregar para registrar atividade
-        const usuarioParaDeletar = state.usuarios.find((u) => u.id === id);
-
         // Recarregar a lista após deletar
         await fetchUsuarios();
-
-        // Registrar atividade
-        if (usuarioParaDeletar) {
-          adicionarAtividade(
-            "Admin User",
-            `Excluiu usuário: ${usuarioParaDeletar.login}`,
-            "warning",
-            `Email: ${usuarioParaDeletar.email}`,
-            "Usuários"
-          );
-        }
-
         return true;
       } catch (error) {
         setError("Erro ao deletar usuário");
@@ -242,7 +202,7 @@ export function useUsuario() {
         setState((prev) => ({ ...prev, deleting: false }));
       }
     },
-    [fetchUsuarios, state.usuarios, adicionarAtividade]
+    [fetchUsuarios]
   );
 
   // Carregar dados iniciais

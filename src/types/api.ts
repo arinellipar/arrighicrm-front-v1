@@ -68,8 +68,6 @@ export interface PessoaJuridica {
   email: string;
   telefone1: string;
   telefone2?: string;
-  telefone3?: string;
-  telefone4?: string;
   enderecoId: number;
   endereco: Endereco;
   dataCadastro: string;
@@ -202,9 +200,7 @@ export interface Cliente {
   pessoaJuridicaId?: number;
   pessoaJuridica?: PessoaJuridica;
   consultorAtualId?: number;
-  filialId?: number;
-  filialNavigation?: Filial;
-  filial?: string;
+  filial: string;
   status?: string;
   observacoes?: string;
   valorContrato: number;
@@ -220,8 +216,6 @@ export interface Cliente {
   cnpj?: string;
   telefone1?: string;
   telefone2?: string;
-  telefone3?: string;
-  telefone4?: string;
   segmento?: string;
 }
 
@@ -241,8 +235,6 @@ export interface CreateClienteDTO {
   cnpj?: string;
   telefone1?: string;
   telefone2?: string;
-  telefone3?: string;
-  telefone4?: string;
   segmento?: string;
 }
 
@@ -303,90 +295,6 @@ export const GrupoAcessoOptions = [
   { value: "Administrador", label: "Administrador" },
   { value: "Usuario", label: "Usuário" },
   { value: "Visualizador", label: "Visualizador" },
-] as const;
-
-// Tipos para Contrato
-export type SituacaoContrato =
-  | "Leed"
-  | "Prospecto"
-  | "Negociacao"
-  | "Fechado"
-  | "Perdido"
-  | "Reativacao"
-  | "Suspenso";
-
-export interface Contrato {
-  id: number;
-  clienteId: number;
-  cliente?: Cliente;
-  consultorId: number;
-  consultor?: Consultor;
-  situacao: SituacaoContrato;
-  dataUltimoContato: string;
-  dataProximoContato: string;
-  valorDevido: number;
-  valorNegociado?: number;
-  observacoes?: string;
-  dataCadastro: string;
-  dataAtualizacao?: string;
-  ativo: boolean;
-}
-
-export interface CreateContratoDTO {
-  clienteId: number;
-  consultorId: number;
-  situacao: SituacaoContrato;
-  dataUltimoContato: string;
-  dataProximoContato: string;
-  valorDevido: number;
-  valorNegociado?: number;
-  observacoes?: string;
-}
-
-export interface UpdateContratoDTO extends CreateContratoDTO {
-  id: number;
-}
-
-export interface MudancaSituacaoDTO {
-  novaSituacao: SituacaoContrato;
-  motivoMudanca: string;
-  dataUltimoContato?: string;
-  dataProximoContato?: string;
-  valorNegociado?: number;
-  observacoes?: string;
-}
-
-export interface HistoricoSituacaoContrato {
-  id: number;
-  contratoId: number;
-  contrato?: Contrato;
-  situacaoAnterior: SituacaoContrato;
-  novaSituacao: SituacaoContrato;
-  motivoMudanca: string;
-  dataMudanca: string;
-  dataCadastro: string;
-}
-
-export const SituacaoContratoOptions = [
-  { value: "Leed", label: "Lead", color: "bg-blue-100 text-blue-800" },
-  {
-    value: "Prospecto",
-    label: "Prospecto",
-    color: "bg-indigo-100 text-indigo-800",
-  },
-  {
-    value: "Negociacao",
-    label: "Em Negociação",
-    color: "bg-yellow-100 text-yellow-800",
-  },
-  { value: "Fechado", label: "Fechado", color: "bg-green-100 text-green-800" },
-  { value: "Perdido", label: "Perdido", color: "bg-red-100 text-red-800" },
-  {
-    value: "Reativacao",
-    label: "Reativação",
-    color: "bg-purple-100 text-purple-800",
-  },
-  { value: "Suspenso", label: "Suspenso", color: "bg-gray-100 text-gray-800" },
 ] as const;
 
 export const TipoPessoaOptions = [
