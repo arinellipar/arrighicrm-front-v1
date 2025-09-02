@@ -136,7 +136,7 @@ export function useConsultores() {
         // Enviar apenas os campos necessários para o backend
         const backendData = {
           pessoaFisicaId: data.pessoaFisicaId,
-          filial: data.filial,
+          filialId: data.filialId,
           oab: data.oab || null,
         };
 
@@ -185,7 +185,7 @@ export function useConsultores() {
         // Enviar apenas os campos que o backend permite atualizar
         const backendData = {
           id: id,
-          filial: data.filial,
+          filialId: data.filialId,
           oab: data.oab || null,
         };
 
@@ -199,7 +199,7 @@ export function useConsultores() {
         setState((prev) => ({
           ...prev,
           consultores: prev.consultores.map((c) =>
-            c.id === id ? { ...c, filial: data.filial, oab: data.oab } : c
+            c.id === id ? { ...c, filialId: data.filialId, oab: data.oab } : c
           ),
           updating: false,
         }));
@@ -209,7 +209,7 @@ export function useConsultores() {
           "Admin User",
           `Atualizou consultor: ${data.nome}`,
           "info",
-          `Filial: ${data.filial}`,
+          `Filial ID: ${data.filialId}`,
           "Consultores"
         );
 

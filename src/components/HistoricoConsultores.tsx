@@ -117,7 +117,7 @@ export default function HistoricoConsultores({
                   <div className="flex items-center space-x-2">
                     <MapPin className="w-4 h-4" />
                     <span>
-                      {item.consultor?.filial || "Filial não informada"}
+                                              {item.consultor?.filial?.nome || "Filial não informada"}
                     </span>
                   </div>
                 </div>

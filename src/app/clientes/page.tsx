@@ -759,7 +759,7 @@ export default function ClientesPage() {
                           />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
-                          {cliente.filial || "Não informada"}
+                          {cliente.filial?.nome || "Não informada"}
                         </td>
                       </motion.tr>
                     ))}
@@ -844,7 +844,7 @@ export default function ClientesPage() {
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">
                         <Building2 className="w-4 h-4 mr-2" />
-                        Filial: {cliente.filial || "Não informada"}
+                        Filial: {cliente.filial?.nome || "Não informada"}
                       </div>
                     </div>
 

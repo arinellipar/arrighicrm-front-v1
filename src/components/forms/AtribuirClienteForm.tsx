@@ -169,7 +169,7 @@ export default function AtribuirClienteForm({
               <option value={0}>Selecione um consultor</option>
               {consultores.map((consultor) => (
                 <option key={consultor.id} value={consultor.id}>
-                  {getConsultorDisplayName(consultor)} - {consultor.filial}
+                                          {getConsultorDisplayName(consultor)} - {consultor.filial?.nome || "Filial não informada"}
                 </option>
               ))}
             </select>

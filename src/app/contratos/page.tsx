@@ -31,7 +31,6 @@ import MainLayout from "@/components/MainLayout";
 import ContratoForm from "@/components/forms/ContratoForm";
 import ContratoDetalhes from "@/components/ContratoDetalhes";
 import MudancaSituacaoModal from "@/components/MudancaSituacaoModal";
-import ErrorDialog from "@/components/ErrorDialog";
 import { Tooltip } from "@/components";
 import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
@@ -123,14 +122,6 @@ export default function ContratosPage() {
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
   const [showDetalhes, setShowDetalhes] = useState(false);
   const [showMudancaSituacao, setShowMudancaSituacao] = useState(false);
-  const [errorDialog, setErrorDialog] = useState<{
-    isOpen: boolean;
-    message: string;
-    onRetry?: () => void;
-  }>({
-    isOpen: false,
-    message: "",
-  });
   const { openForm, closeForm } = useForm();
   const [activeTab, setActiveTab] = useState<"contratos" | "clientes">(
     "contratos"
@@ -252,10 +243,13 @@ export default function ContratosPage() {
   // Estatísticas
   const estatisticas = useMemo(() => {
     const total = contratos.length;
+    // Atualizar para as novas situações
     const emNegociacao = contratos.filter(
-      (c) => c.situacao === "Negociacao"
+      (c) => c.situacao === "Contrato Enviado" || c.situacao === "Prospecto"
     ).length;
-    const fechados = contratos.filter((c) => c.situacao === "Fechado").length;
+    const fechados = contratos.filter(
+      (c) => c.situacao === "Contrato Assinado" || c.situacao === "CLIENTE"
+    ).length;
     const valorTotal = contratos.reduce(
       (acc, c) => acc + (c.valorDevido || 0),
       0
@@ -302,59 +296,35 @@ export default function ContratosPage() {
     if (!selectedContrato) return;
 
     try {
-      console.log("🔧 handleMudarSituacao: Iniciando mudança de situação");
-      console.log("🔧 handleMudarSituacao: Contrato ID:", selectedContrato.id);
-      console.log("🔧 handleMudarSituacao: Dados:", data);
-
       await mudarSituacao(selectedContrato.id, data);
       setShowMudancaSituacao(false);
       setSelectedContrato(null);
-
-      console.log("🔧 handleMudarSituacao: Mudança realizada com sucesso");
-    } catch (error: any) {
-      console.error("🔧 handleMudarSituacao: Erro ao mudar situação:", error);
-
-      // Mostrar erro mais específico para o usuário
-      let errorMessage = "Erro desconhecido ao mudar situação";
-
-      if (error.message) {
-        if (error.message.includes("Failed to fetch")) {
-          errorMessage =
-            "Erro de conexão com o servidor. Verifique sua internet e tente novamente.";
-        } else if (error.message.includes("timeout")) {
-          errorMessage =
-            "A operação demorou muito para responder. Tente novamente.";
-        } else if (error.message.includes("Network error")) {
-          errorMessage =
-            "Erro de rede. Verifique sua conexão e tente novamente.";
-        } else if (error.message.includes("Erro ao ler resposta do servidor")) {
-          errorMessage =
-            "Erro na comunicação com o servidor. Tente novamente em alguns segundos.";
-        } else if (error.message.includes("Conexão interrompida")) {
-          errorMessage =
-            "Conexão interrompida pelo servidor. Tente novamente em alguns segundos.";
-        } else if (error.message.includes("body stream already read")) {
-          errorMessage =
-            "Erro interno na comunicação. Tente novamente.";
-        } else {
-          errorMessage = error.message;
-        }
-      }
-
-      setErrorDialog({
-        isOpen: true,
-        message: errorMessage,
-        onRetry: () => {
-          setErrorDialog({ isOpen: false, message: "" });
-          handleMudarSituacao(data);
-        },
-      });
+    } catch (error) {
+      console.error("Erro ao mudar situação:", error);
     }
   };
 
   const handleDeleteContrato = async (id: number) => {
+    console.log(
+      "🔧 handleDeleteContrato: ID recebido:",
+      id,
+      "Tipo:",
+      typeof id
+    );
+
+    // Validação do ID
+    if (id === undefined || id === null || isNaN(id)) {
+      console.error("🔧 handleDeleteContrato: ID inválido recebido:", id);
+      alert("Erro: ID do contrato inválido");
+      return;
+    }
+
     if (window.confirm("Tem certeza que deseja excluir este contrato?")) {
       try {
+        console.log(
+          "🔧 handleDeleteContrato: Confirmado, chamando deleteContrato com ID:",
+          id
+        );
         await deleteContrato(id);
       } catch (error) {
         console.error("Erro ao excluir contrato:", error);
@@ -450,7 +420,7 @@ export default function ContratosPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-yellow-600">
-                    Em Negociação
+                    Em Andamento
                   </p>
                   <p className="text-2xl font-bold text-yellow-900 mt-1">
                     {estatisticas.emNegociacao}
@@ -468,7 +438,9 @@ export default function ContratosPage() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-medium text-green-600">Fechados</p>
+                  <p className="text-xs font-medium text-green-600">
+                    Concluídos
+                  </p>
                   <p className="text-2xl font-bold text-green-900 mt-1">
                     {estatisticas.fechados}
                   </p>
@@ -1034,7 +1006,7 @@ export default function ContratosPage() {
                         {cliente.telefone1 || "N/A"}
                       </td>
                       <td className="px-4 py-3 text-sm text-neutral-700">
-                        {cliente.filial || "Não informada"}
+                        {cliente.filial?.nome || "Não informada"}
                       </td>
                     </motion.tr>
                   ))}
@@ -1117,16 +1089,6 @@ export default function ContratosPage() {
           }}
         />
       )}
-
-      {/* Dialog de Erro */}
-      <ErrorDialog
-        isOpen={errorDialog.isOpen}
-        onClose={() => setErrorDialog({ isOpen: false, message: "" })}
-        onRetry={errorDialog.onRetry}
-        title="Erro ao Mudar Situação"
-        message={errorDialog.message}
-        showRetry={!!errorDialog.onRetry}
-      />
     </MainLayout>
   );
 }

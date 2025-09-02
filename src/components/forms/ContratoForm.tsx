@@ -12,6 +12,15 @@ import {
   Calendar,
   MessageSquare,
   Loader2,
+  FolderOpen,
+  Briefcase,
+  Target,
+  Percent,
+  DollarSign,
+  CreditCard,
+  Clock,
+  Paperclip,
+  AlertTriangle,
 } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import ClientePickerModal from "@/components/ClientePickerModal";
@@ -23,6 +32,7 @@ import {
   Consultor,
   SituacaoContratoOptions,
   SituacaoContrato,
+  TipoServicoOptions,
 } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -56,6 +66,18 @@ export default function ContratoForm({
     valorDevido: 0,
     valorNegociado: undefined,
     observacoes: "",
+    // Novos campos
+    numeroPasta: "",
+    dataFechamentoContrato: "",
+    tipoServico: "",
+    objetoContrato: "",
+    comissao: undefined,
+    valorEntrada: undefined,
+    valorParcela: undefined,
+    numeroParcelas: undefined,
+    primeiroVencimento: "",
+    anexoDocumento: "",
+    pendencias: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -64,9 +86,37 @@ export default function ContratoForm({
   // Estados controlados para inputs de moeda (permite digitação livre e parse no blur/submit)
   const [valorDevidoText, setValorDevidoText] = useState<string>("");
   const [valorNegociadoText, setValorNegociadoText] = useState<string>("");
+  const [comissaoText, setComissaoText] = useState<string>("");
+  const [valorEntradaText, setValorEntradaText] = useState<string>("");
+  const [valorParcelaText, setValorParcelaText] = useState<string>("");
 
   useEffect(() => {
     if (contrato) {
+      console.log("🔧 ContratoForm: Recebido contrato para edição:", contrato);
+
+      // Log detalhado de cada campo para identificar nulls
+      console.log("🔧 ContratoForm: Análise detalhada dos campos:", {
+        id: contrato.id,
+        clienteId: contrato.clienteId,
+        consultorId: contrato.consultorId,
+        situacao: contrato.situacao,
+        dataUltimoContato: contrato.dataUltimoContato,
+        dataProximoContato: contrato.dataProximoContato,
+        valorDevido: contrato.valorDevido,
+        valorNegociado: contrato.valorNegociado,
+        observacoes: contrato.observacoes,
+        numeroPasta: contrato.numeroPasta,
+        dataFechamentoContrato: contrato.dataFechamentoContrato,
+        tipoServico: contrato.tipoServico,
+        objetoContrato: contrato.objetoContrato,
+        comissao: contrato.comissao,
+        valorEntrada: contrato.valorEntrada,
+        valorParcela: contrato.valorParcela,
+        numeroParcelas: contrato.numeroParcelas,
+        primeiroVencimento: contrato.primeiroVencimento,
+        anexoDocumento: contrato.anexoDocumento,
+        pendencias: contrato.pendencias,
+      });
       setFormData({
         clienteId: contrato.clienteId,
         consultorId: contrato.consultorId,
@@ -80,9 +130,75 @@ export default function ContratoForm({
         valorDevido: contrato.valorDevido,
         valorNegociado: contrato.valorNegociado,
         observacoes: contrato.observacoes || "",
+        // Novos campos
+        numeroPasta: contrato.numeroPasta || "",
+        dataFechamentoContrato: contrato.dataFechamentoContrato
+          ? contrato.dataFechamentoContrato.split("T")[0]
+          : "",
+        tipoServico: contrato.tipoServico || "",
+        objetoContrato: contrato.objetoContrato || "",
+        comissao: contrato.comissao,
+        valorEntrada: contrato.valorEntrada,
+        valorParcela: contrato.valorParcela,
+        numeroParcelas: contrato.numeroParcelas,
+        primeiroVencimento: contrato.primeiroVencimento
+          ? contrato.primeiroVencimento.split("T")[0]
+          : "",
+        anexoDocumento: contrato.anexoDocumento || "",
+        pendencias: contrato.pendencias || "",
       });
-      setValorDevidoText(formatCurrencyInput(contrato.valorDevido));
-      setValorNegociadoText(formatCurrencyInput(contrato.valorNegociado));
+      const valorDevidoFormatted = formatCurrencyInput(contrato.valorDevido);
+      const valorNegociadoFormatted = formatCurrencyInput(
+        contrato.valorNegociado
+      );
+      const comissaoFormatted = formatCurrencyInput(contrato.comissao);
+      const valorEntradaFormatted = formatCurrencyInput(contrato.valorEntrada);
+      const valorParcelaFormatted = formatCurrencyInput(contrato.valorParcela);
+
+      console.log("🔧 ContratoForm: Valores formatados:", {
+        valorDevido: `${contrato.valorDevido} -> ${valorDevidoFormatted}`,
+        valorNegociado: `${contrato.valorNegociado} -> ${valorNegociadoFormatted}`,
+        comissao: `${contrato.comissao} -> ${comissaoFormatted}`,
+        valorEntrada: `${contrato.valorEntrada} -> ${valorEntradaFormatted}`,
+        valorParcela: `${contrato.valorParcela} -> ${valorParcelaFormatted}`,
+      });
+
+      setValorDevidoText(valorDevidoFormatted);
+      setValorNegociadoText(valorNegociadoFormatted);
+      setComissaoText(comissaoFormatted);
+      setValorEntradaText(valorEntradaFormatted);
+      setValorParcelaText(valorParcelaFormatted);
+
+      console.log("🔧 ContratoForm: FormData definido:", {
+        clienteId: contrato.clienteId,
+        consultorId: contrato.consultorId,
+        situacao: contrato.situacao,
+        valorDevido: contrato.valorDevido,
+        valorNegociado: contrato.valorNegociado,
+        dataUltimoContato: contrato.dataUltimoContato,
+        dataProximoContato: contrato.dataProximoContato,
+        observacoes: contrato.observacoes,
+        // Novos campos
+        tipoServico: contrato.tipoServico,
+        dataFechamentoContrato: contrato.dataFechamentoContrato,
+        objetoContrato: contrato.objetoContrato,
+        numeroPasta: contrato.numeroPasta,
+        comissao: contrato.comissao,
+        valorEntrada: contrato.valorEntrada,
+        valorParcela: contrato.valorParcela,
+        numeroParcelas: contrato.numeroParcelas,
+        primeiroVencimento: contrato.primeiroVencimento,
+        anexoDocumento: contrato.anexoDocumento,
+        pendencias: contrato.pendencias,
+      });
+
+      console.log("🔧 ContratoForm: Estados de texto definidos:", {
+        valorDevidoText: valorDevidoFormatted,
+        valorNegociadoText: valorNegociadoFormatted,
+        comissaoText: comissaoFormatted,
+        valorEntradaText: valorEntradaFormatted,
+        valorParcelaText: valorParcelaFormatted,
+      });
     } else {
       // Definir data próximo contato como 3 dias no futuro por padrão
       const proximoContato = new Date();
@@ -95,8 +211,66 @@ export default function ContratoForm({
       // Inicializar textos de moeda a partir dos números atuais
       setValorDevidoText(formatCurrencyInput(formData.valorDevido));
       setValorNegociadoText(formatCurrencyInput(formData.valorNegociado));
+      setComissaoText(formatCurrencyInput(formData.comissao));
+      setValorEntradaText(formatCurrencyInput(formData.valorEntrada));
+      setValorParcelaText(formatCurrencyInput(formData.valorParcela));
     }
   }, [contrato, initialClienteId]);
+
+  // Debug: Monitorar mudanças nos valores
+  useEffect(() => {
+    console.log("🔧 ContratoForm: FormData atual:", {
+      valorDevido: formData.valorDevido,
+      valorNegociado: formData.valorNegociado,
+      dataUltimoContato: formData.dataUltimoContato,
+      dataProximoContato: formData.dataProximoContato,
+      observacoes: formData.observacoes,
+      tipoServico: formData.tipoServico,
+      dataFechamentoContrato: formData.dataFechamentoContrato,
+      objetoContrato: formData.objetoContrato,
+      numeroPasta: formData.numeroPasta,
+      comissao: formData.comissao,
+      valorEntrada: formData.valorEntrada,
+      valorParcela: formData.valorParcela,
+      numeroParcelas: formData.numeroParcelas,
+      primeiroVencimento: formData.primeiroVencimento,
+      anexoDocumento: formData.anexoDocumento,
+      pendencias: formData.pendencias,
+    });
+  }, [
+    formData.valorDevido,
+    formData.valorNegociado,
+    formData.dataUltimoContato,
+    formData.dataProximoContato,
+    formData.observacoes,
+    formData.tipoServico,
+    formData.dataFechamentoContrato,
+    formData.objetoContrato,
+    formData.numeroPasta,
+    formData.comissao,
+    formData.valorEntrada,
+    formData.valorParcela,
+    formData.numeroParcelas,
+    formData.primeiroVencimento,
+    formData.anexoDocumento,
+    formData.pendencias,
+  ]);
+
+  useEffect(() => {
+    console.log("🔧 ContratoForm: Estados de texto atuais:", {
+      valorDevidoText,
+      valorNegociadoText,
+      comissaoText,
+      valorEntradaText,
+      valorParcelaText,
+    });
+  }, [
+    valorDevidoText,
+    valorNegociadoText,
+    comissaoText,
+    valorEntradaText,
+    valorParcelaText,
+  ]);
 
   // Pré-selecionar automaticamente o primeiro consultor disponível (evita envio com consultorId=0)
   useEffect(() => {
@@ -171,6 +345,18 @@ export default function ContratoForm({
           valorNegociadoText && valorNegociadoText.trim() !== ""
             ? parseCurrencyInput(valorNegociadoText)
             : undefined,
+        comissao:
+          comissaoText && comissaoText.trim() !== ""
+            ? parseCurrencyInput(comissaoText)
+            : undefined,
+        valorEntrada:
+          valorEntradaText && valorEntradaText.trim() !== ""
+            ? parseCurrencyInput(valorEntradaText)
+            : undefined,
+        valorParcela:
+          valorParcelaText && valorParcelaText.trim() !== ""
+            ? parseCurrencyInput(valorParcelaText)
+            : undefined,
       };
       await onSubmit(payload);
       onCancel();
@@ -205,7 +391,7 @@ export default function ContratoForm({
 
   // Função para formatar valor monetário
   const formatCurrencyInput = (value: number | undefined) => {
-    if (!value) return "";
+    if (value === undefined || value === null) return "";
     return new Intl.NumberFormat("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -247,6 +433,43 @@ export default function ContratoForm({
     } else if (name === "valorNegociado") {
       setValorNegociadoText(maskCurrencyBR(value));
       return;
+    } else if (name === "comissao") {
+      setComissaoText(maskCurrencyBR(value));
+      return;
+    } else if (name === "valorEntrada") {
+      setValorEntradaText(maskCurrencyBR(value));
+      return;
+    } else if (name === "valorParcela") {
+      setValorParcelaText(maskCurrencyBR(value));
+      return;
+    } else if (type === "file" && name === "anexoDocumento") {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        // Validar se é PDF
+        if (file.type !== "application/pdf") {
+          setErrors((prev) => ({
+            ...prev,
+            anexoDocumento: "Apenas arquivos PDF são permitidos",
+          }));
+          return;
+        }
+
+        // Validar tamanho (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          setErrors((prev) => ({
+            ...prev,
+            anexoDocumento: "Arquivo deve ter no máximo 10MB",
+          }));
+          return;
+        }
+
+        // Armazenar o nome do arquivo
+        setFormData((prev) => ({
+          ...prev,
+          anexoDocumento: file.name,
+        }));
+      }
+      return;
     } else if (type === "number") {
       setFormData((prev) => ({
         ...prev,
@@ -276,12 +499,19 @@ export default function ContratoForm({
     }).format(value);
   };
 
-  const handleCurrencyBlur = (field: "valorDevido" | "valorNegociado") => {
+  const handleCurrencyBlur = (
+    field:
+      | "valorDevido"
+      | "valorNegociado"
+      | "comissao"
+      | "valorEntrada"
+      | "valorParcela"
+  ) => {
     if (field === "valorDevido") {
       const parsed = parseCurrencyInput(valorDevidoText || "0");
       setFormData((prev) => ({ ...prev, valorDevido: parsed }));
       setValorDevidoText(formatCurrencyInput(parsed));
-    } else {
+    } else if (field === "valorNegociado") {
       if (!valorNegociadoText || valorNegociadoText.trim() === "") {
         setFormData((prev) => ({ ...prev, valorNegociado: undefined }));
         setValorNegociadoText("");
@@ -290,6 +520,33 @@ export default function ContratoForm({
       const parsed = parseCurrencyInput(valorNegociadoText);
       setFormData((prev) => ({ ...prev, valorNegociado: parsed }));
       setValorNegociadoText(formatCurrencyInput(parsed));
+    } else if (field === "comissao") {
+      if (!comissaoText || comissaoText.trim() === "") {
+        setFormData((prev) => ({ ...prev, comissao: undefined }));
+        setComissaoText("");
+        return;
+      }
+      const parsed = parseCurrencyInput(comissaoText);
+      setFormData((prev) => ({ ...prev, comissao: parsed }));
+      setComissaoText(formatCurrencyInput(parsed));
+    } else if (field === "valorEntrada") {
+      if (!valorEntradaText || valorEntradaText.trim() === "") {
+        setFormData((prev) => ({ ...prev, valorEntrada: undefined }));
+        setValorEntradaText("");
+        return;
+      }
+      const parsed = parseCurrencyInput(valorEntradaText);
+      setFormData((prev) => ({ ...prev, valorEntrada: parsed }));
+      setValorEntradaText(formatCurrencyInput(parsed));
+    } else if (field === "valorParcela") {
+      if (!valorParcelaText || valorParcelaText.trim() === "") {
+        setFormData((prev) => ({ ...prev, valorParcela: undefined }));
+        setValorParcelaText("");
+        return;
+      }
+      const parsed = parseCurrencyInput(valorParcelaText);
+      setFormData((prev) => ({ ...prev, valorParcela: parsed }));
+      setValorParcelaText(formatCurrencyInput(parsed));
     }
   };
 
@@ -318,7 +575,7 @@ export default function ContratoForm({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
           >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden">
               {/* Header */}
               <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
                 <div className="flex items-center justify-between">
@@ -357,7 +614,7 @@ export default function ContratoForm({
                   </motion.div>
                 )}
 
-                <div className="space-y-6 max-h-[calc(90vh-180px)] overflow-y-auto">
+                <div className="space-y-6 max-h-[calc(95vh-200px)] overflow-y-auto">
                   {/* Cliente e Consultor */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -386,7 +643,9 @@ export default function ContratoForm({
                           <div className="rounded-lg border border-neutral-200 p-4 bg-neutral-50 text-xs text-neutral-700">
                             <div className="space-y-3">
                               <div>
-                                <span className="font-medium text-neutral-800">Email: </span>
+                                <span className="font-medium text-neutral-800">
+                                  Email:{" "}
+                                </span>
                                 <span className="text-neutral-600">
                                   {selectedCliente.pessoaFisica?.email ||
                                     selectedCliente.pessoaJuridica?.email ||
@@ -394,7 +653,9 @@ export default function ContratoForm({
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium text-neutral-800">CPF/CNPJ: </span>
+                                <span className="font-medium text-neutral-800">
+                                  CPF/CNPJ:{" "}
+                                </span>
                                 <span className="text-neutral-600">
                                   {selectedCliente.pessoaFisica?.cpf ||
                                     selectedCliente.pessoaJuridica?.cnpj ||
@@ -402,7 +663,9 @@ export default function ContratoForm({
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium text-neutral-800">Telefones: </span>
+                                <span className="font-medium text-neutral-800">
+                                  Telefones:{" "}
+                                </span>
                                 <div className="mt-1 space-y-1">
                                   {[
                                     selectedCliente.pessoaFisica?.telefone1 ||
@@ -416,10 +679,15 @@ export default function ContratoForm({
                                   ]
                                     .filter(Boolean)
                                     .map((telefone, index) => (
-                                      <div key={index} className="text-neutral-600">
+                                      <div
+                                        key={index}
+                                        className="text-neutral-600"
+                                      >
                                         {telefone}
                                       </div>
-                                    )) || <span className="text-neutral-600">—</span>}
+                                    )) || (
+                                    <span className="text-neutral-600">—</span>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -459,7 +727,7 @@ export default function ContratoForm({
                           {consultores.map((consultor) => (
                             <option key={consultor.id} value={consultor.id}>
                               {consultor.pessoaFisica?.nome || consultor.nome} -{" "}
-                              {consultor.filial}
+                              {consultor.filial?.nome || "Filial não informada"}
                             </option>
                           ))}
                         </select>
@@ -473,34 +741,112 @@ export default function ContratoForm({
                     </div>
                   </div>
 
-                  {/* Situação */}
+                  {/* Situação e Dados Básicos */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Situação *
+                      </label>
+                      <select
+                        name="situacao"
+                        value={formData.situacao}
+                        onChange={handleInputChange}
+                        className={cn(
+                          "w-full px-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                          errors.situacao
+                            ? "border-red-300 bg-red-50"
+                            : "border-neutral-200"
+                        )}
+                      >
+                        {SituacaoContratoOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.situacao && (
+                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" />
+                          {errors.situacao}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Número da Pasta
+                      </label>
+                      <div className="relative">
+                        <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <input
+                          type="text"
+                          name="numeroPasta"
+                          value={formData.numeroPasta}
+                          onChange={handleInputChange}
+                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          placeholder="P-2025-001"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tipo de Serviço e Data de Fechamento */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Tipo de Serviço
+                      </label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <select
+                          name="tipoServico"
+                          value={formData.tipoServico}
+                          onChange={handleInputChange}
+                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                        >
+                          <option value="">Selecione o tipo de serviço</option>
+                          {TipoServicoOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        Data de Fechamento do Contrato
+                      </label>
+                      <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <input
+                          type="date"
+                          name="dataFechamentoContrato"
+                          value={formData.dataFechamentoContrato}
+                          onChange={handleInputChange}
+                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Objeto do Contrato */}
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Situação *
+                      Objeto do Contrato
                     </label>
-                    <select
-                      name="situacao"
-                      value={formData.situacao}
-                      onChange={handleInputChange}
-                      className={cn(
-                        "w-full px-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
-                        errors.situacao
-                          ? "border-red-300 bg-red-50"
-                          : "border-neutral-200"
-                      )}
-                    >
-                      {SituacaoContratoOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.situacao && (
-                      <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors.situacao}
-                      </p>
-                    )}
+                    <div className="relative">
+                      <Target className="absolute left-3 top-3 w-4 h-4 text-neutral-400" />
+                      <textarea
+                        name="objetoContrato"
+                        value={formData.objetoContrato}
+                        onChange={handleInputChange}
+                        rows={3}
+                        className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                        placeholder="Descreva o objeto do contrato..."
+                      />
+                    </div>
                   </div>
 
                   {/* Datas */}
@@ -560,7 +906,7 @@ export default function ContratoForm({
                     </div>
                   </div>
 
-                  {/* Valores */}
+                  {/* Valores Principais */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-2">
@@ -625,6 +971,215 @@ export default function ContratoForm({
                     </div>
                   </div>
 
+                  {/* Dados de Pagamento */}
+                  <div className="border-t border-neutral-200 pt-6">
+                    <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-primary-600" />
+                      Dados de Pagamento
+                    </h4>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Valor de Entrada
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-400">
+                            R$
+                          </span>
+                          <input
+                            type="text"
+                            name="valorEntrada"
+                            value={valorEntradaText}
+                            onChange={handleInputChange}
+                            onBlur={() => handleCurrencyBlur("valorEntrada")}
+                            className={cn(
+                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              errors.valorEntrada
+                                ? "border-red-300 bg-red-50"
+                                : "border-neutral-200"
+                            )}
+                            placeholder="0,00"
+                          />
+                        </div>
+                        {errors.valorEntrada && (
+                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {errors.valorEntrada}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Valor da Parcela
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-400">
+                            R$
+                          </span>
+                          <input
+                            type="text"
+                            name="valorParcela"
+                            value={valorParcelaText}
+                            onChange={handleInputChange}
+                            onBlur={() => handleCurrencyBlur("valorParcela")}
+                            className={cn(
+                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              errors.valorParcela
+                                ? "border-red-300 bg-red-50"
+                                : "border-neutral-200"
+                            )}
+                            placeholder="0,00"
+                          />
+                        </div>
+                        {errors.valorParcela && (
+                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {errors.valorParcela}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Número de Parcelas
+                        </label>
+                        <div className="relative">
+                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                          <input
+                            type="number"
+                            name="numeroParcelas"
+                            value={formData.numeroParcelas || ""}
+                            onChange={handleInputChange}
+                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            placeholder="12"
+                            min="1"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Primeiro Vencimento
+                        </label>
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                          <input
+                            type="date"
+                            name="primeiroVencimento"
+                            value={formData.primeiroVencimento}
+                            onChange={handleInputChange}
+                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Comissão (%)
+                        </label>
+                        <div className="relative">
+                          <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                          <input
+                            type="text"
+                            name="comissao"
+                            value={comissaoText}
+                            onChange={handleInputChange}
+                            onBlur={() => handleCurrencyBlur("comissao")}
+                            className={cn(
+                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              errors.comissao
+                                ? "border-red-300 bg-red-50"
+                                : "border-neutral-200"
+                            )}
+                            placeholder="15,00"
+                          />
+                        </div>
+                        {errors.comissao && (
+                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {errors.comissao}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Outros Campos */}
+                  <div className="border-t border-neutral-200 pt-6">
+                    <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                      <Paperclip className="w-5 h-5 text-primary-600" />
+                      Outros Campos
+                    </h4>
+
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Anexo de Documento (PDF)
+                        </label>
+                        <div className="relative">
+                          <Paperclip className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 z-30" />
+                          <div className="relative overflow-visible">
+                            <input
+                              type="file"
+                              name="anexoDocumento"
+                              accept=".pdf"
+                              onChange={handleInputChange}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 hover:cursor-pointer"
+                              id="anexoDocumento"
+                            />
+                            <div
+                              className={cn(
+                                "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm flex items-center justify-between",
+                                errors.anexoDocumento
+                                  ? "border-red-300 bg-red-50"
+                                  : "border-neutral-200"
+                              )}
+                            >
+                              <span className="text-neutral-500">
+                                {formData.anexoDocumento ||
+                                  "Nenhum arquivo escolhido"}
+                              </span>
+                              <span className="text-primary-600 font-medium text-xs bg-primary-50 px-3 py-1 rounded">
+                                Escolher Arquivo
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        {errors.anexoDocumento && (
+                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            {errors.anexoDocumento}
+                          </p>
+                        )}
+                        <p className="mt-1 text-xs text-neutral-500">
+                          Selecione um arquivo PDF para anexar ao contrato (máx.
+                          10MB)
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Pendências
+                        </label>
+                        <div className="relative">
+                          <AlertTriangle className="absolute left-3 top-3 w-4 h-4 text-neutral-400" />
+                          <textarea
+                            name="pendencias"
+                            value={formData.pendencias}
+                            onChange={handleInputChange}
+                            rows={3}
+                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                            placeholder="Descreva pendências existentes..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Observações */}
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
@@ -645,7 +1200,7 @@ export default function ContratoForm({
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t border-neutral-200">
+                <div className="flex items-center justify-end gap-3 mt-6 pt-6 pb-20 border-t border-neutral-200">
                   <motion.button
                     type="button"
                     whileHover={{ scale: 1.02 }}

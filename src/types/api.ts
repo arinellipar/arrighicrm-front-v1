@@ -160,7 +160,8 @@ export interface Consultor {
   id: number;
   pessoaFisicaId: number;
   pessoaFisica: PessoaFisica;
-  filial: string;
+  filialId: number;
+  filial: Filial;
   dataCadastro: string;
   dataAtualizacao?: string;
   ativo: boolean;
@@ -178,7 +179,7 @@ export interface Consultor {
 
 export interface CreateConsultorDTO {
   pessoaFisicaId: number;
-  filial: string;
+  filialId: number;
   // Propriedades adicionais para o frontend
   nome?: string;
   email?: string;
@@ -203,8 +204,7 @@ export interface Cliente {
   pessoaJuridica?: PessoaJuridica;
   consultorAtualId?: number;
   filialId?: number;
-  filialNavigation?: Filial;
-  filial?: string;
+  filial?: Filial;
   status?: string;
   observacoes?: string;
   valorContrato: number;
@@ -228,7 +228,7 @@ export interface Cliente {
 export interface CreateClienteDTO {
   tipoPessoa: "Fisica" | "Juridica";
   pessoaId: number;
-  filial: string;
+  filialId: number;
   status?: string;
   observacoes?: string;
   valorContrato?: number;
@@ -309,11 +309,15 @@ export const GrupoAcessoOptions = [
 export type SituacaoContrato =
   | "Leed"
   | "Prospecto"
-  | "Negociacao"
-  | "Fechado"
-  | "Perdido"
-  | "Reativacao"
-  | "Suspenso";
+  | "Contrato Enviado"
+  | "Contrato Assinado"
+  | "Retornar"
+  | "Sem Interesse"
+  | "RESCINDIDO"
+  | "RESCINDIDO COM DEBITO"
+  | "SUSPENSO"
+  | "SUSP. C/ DEBITO"
+  | "CLIENTE";
 
 export interface Contrato {
   id: number;
@@ -330,6 +334,18 @@ export interface Contrato {
   dataCadastro: string;
   dataAtualizacao?: string;
   ativo: boolean;
+  // Novos campos adicionados
+  numeroPasta?: string;
+  dataFechamentoContrato?: string;
+  tipoServico?: string;
+  objetoContrato?: string;
+  comissao?: number;
+  valorEntrada?: number;
+  valorParcela?: number;
+  numeroParcelas?: number;
+  primeiroVencimento?: string;
+  anexoDocumento?: string;
+  pendencias?: string;
 }
 
 export interface CreateContratoDTO {
@@ -341,6 +357,18 @@ export interface CreateContratoDTO {
   valorDevido: number;
   valorNegociado?: number;
   observacoes?: string;
+  // Novos campos adicionados
+  numeroPasta?: string;
+  dataFechamentoContrato?: string;
+  tipoServico?: string;
+  objetoContrato?: string;
+  comissao?: number;
+  valorEntrada?: number;
+  valorParcela?: number;
+  numeroParcelas?: number;
+  primeiroVencimento?: string;
+  anexoDocumento?: string;
+  pendencias?: string;
 }
 
 export interface UpdateContratoDTO extends CreateContratoDTO {
@@ -375,21 +403,64 @@ export const SituacaoContratoOptions = [
     color: "bg-indigo-100 text-indigo-800",
   },
   {
-    value: "Negociacao",
-    label: "Em Negociação",
+    value: "Contrato Enviado",
+    label: "Contrato Enviado",
     color: "bg-yellow-100 text-yellow-800",
   },
-  { value: "Fechado", label: "Fechado", color: "bg-green-100 text-green-800" },
-  { value: "Perdido", label: "Perdido", color: "bg-red-100 text-red-800" },
   {
-    value: "Reativacao",
-    label: "Reativação",
-    color: "bg-purple-100 text-purple-800",
+    value: "Contrato Assinado",
+    label: "Contrato Assinado",
+    color: "bg-green-100 text-green-800",
   },
-  { value: "Suspenso", label: "Suspenso", color: "bg-gray-100 text-gray-800" },
+  {
+    value: "Retornar",
+    label: "Retornar",
+    color: "bg-orange-100 text-orange-800",
+  },
+  {
+    value: "Sem Interesse",
+    label: "Sem Interesse",
+    color: "bg-red-100 text-red-800",
+  },
+  {
+    value: "RESCINDIDO",
+    label: "Rescindido",
+    color: "bg-red-200 text-red-900",
+  },
+  {
+    value: "RESCINDIDO COM DEBITO",
+    label: "Rescindido c/ Débito",
+    color: "bg-red-300 text-red-900",
+  },
+  {
+    value: "SUSPENSO",
+    label: "Suspenso",
+    color: "bg-gray-100 text-gray-800",
+  },
+  {
+    value: "SUSP. C/ DEBITO",
+    label: "Susp. c/ Débito",
+    color: "bg-gray-200 text-gray-900",
+  },
+  {
+    value: "CLIENTE",
+    label: "Cliente",
+    color: "bg-green-200 text-green-900",
+  },
 ] as const;
 
 export const TipoPessoaOptions = [
   { value: "Fisica", label: "Pessoa Física" },
   { value: "Juridica", label: "Pessoa Jurídica" },
+] as const;
+
+export const TipoServicoOptions = [
+  { value: "CIVEL", label: "Cível" },
+  { value: "TRIBUTARIO", label: "Tributário" },
+  { value: "PENAL", label: "Penal" },
+  { value: "TRABALHISTA", label: "Trabalhista" },
+  { value: "EMPRESARIAL", label: "Empresarial" },
+  { value: "FAMILIA", label: "Família" },
+  { value: "CONSUMIDOR", label: "Consumidor" },
+  { value: "IMOBILIARIO", label: "Imobiliário" },
 ] as const;

@@ -151,7 +151,7 @@ export default function ClienteDetalhes({
                   <div className="flex items-center space-x-3">
                     <MapPin className="w-4 h-4 text-secondary-400" />
                     <span className="text-sm text-secondary-600">
-                      Filial: {cliente.filial}
+                      Filial: {cliente.filial?.nome || "Não informada"}
                     </span>
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function ClienteDetalhes({
                       {getConsultorAtual()?.pessoaFisica?.nome}
                     </p>
                     <p className="text-sm text-blue-700">
-                      {getConsultorAtual()?.filial}
+                      {getConsultorAtual()?.filial?.nome || "Não informada"}
                     </p>
                   </div>
                 </div>

@@ -45,7 +45,7 @@ export default function ClienteForm({
   const [formData, setFormData] = useState<CreateClienteDTO>({
     tipoPessoa: "Fisica",
     pessoaId: 0,
-    filial: "",
+    filialId: 0,
     nome: "",
     razaoSocial: "",
     email: "",
@@ -131,7 +131,7 @@ export default function ClienteForm({
         tipoPessoa: initialData.tipoPessoa || "Fisica",
         pessoaId:
           initialData.pessoaFisicaId || initialData.pessoaJuridicaId || 0,
-        filial: initialData.filial || "",
+        filialId: initialData.filialId || 0,
         nome: initialData.nome || "",
         razaoSocial: initialData.razaoSocial || "",
         email: initialData.email || "",
@@ -177,8 +177,8 @@ export default function ClienteForm({
       newErrors.telefone1 = "Telefone é obrigatório";
     }
 
-    if (!formData.filial?.trim()) {
-      newErrors.filial = "Filial é obrigatória";
+    if (!formData.filialId || formData.filialId === 0) {
+      newErrors.filialId = "Filial é obrigatória";
     }
 
     setErrors(newErrors);
@@ -575,30 +575,33 @@ export default function ClienteForm({
                 </div>
               ) : (
                 <select
-                  value={formData.filial}
+                  value={formData.filialId}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, filial: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      filialId: parseInt(e.target.value) || 0,
+                    }))
                   }
                   className={cn(
                     "w-full pl-12 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200",
-                    errors.filial
+                    errors.filialId
                       ? "border-red-300 focus:ring-red-500"
                       : "border-secondary-300"
                   )}
                 >
-                  <option value="">Selecione uma filial</option>
+                  <option value={0}>Selecione uma filial</option>
                   {filiais.map((filial) => (
-                    <option key={filial.id} value={filial.nome}>
-                      {filial.nome}
+                    <option key={filial.id} value={filial.id}>
+                      {filial?.nome || `Filial #${filial.id}`}
                     </option>
                   ))}
                 </select>
               )}
             </div>
-            {errors.filial && (
+            {errors.filialId && (
               <p className="mt-1 text-sm text-red-600 flex items-center">
                 <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.filial}
+                {errors.filialId}
               </p>
             )}
           </div>

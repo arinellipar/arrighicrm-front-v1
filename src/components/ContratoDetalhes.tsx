@@ -20,6 +20,13 @@ import {
   MessageSquare,
   TrendingUp,
   Loader2,
+  FolderOpen,
+  Briefcase,
+  Target,
+  Percent,
+  CreditCard,
+  Paperclip,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Contrato,
@@ -110,10 +117,7 @@ export default function ContratoDetalhes({
       console.info("🔧 ContratoDetalhes: Dados recebidos do hook:", data);
       setHistorico(data || []);
     } catch (error) {
-      console.error(
-        "🔧 ContratoDetalhes: Erro ao carregar histórico:",
-        error
-      );
+      console.error("🔧 ContratoDetalhes: Erro ao carregar histórico:", error);
       // Em caso de erro, definir histórico vazio
       setHistorico([]);
     } finally {
@@ -194,7 +198,7 @@ export default function ContratoDetalhes({
         initial={{ opacity: 0, scale: 0.95, x: 100 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         exit={{ opacity: 0, scale: 0.95, x: 100 }}
-        className="fixed right-0 top-0 h-full w-full max-w-2xl bg-white shadow-2xl z-[9999] overflow-hidden"
+        className="fixed right-0 top-0 h-full w-full max-w-4xl bg-white shadow-2xl z-[9999] flex flex-col"
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
@@ -250,9 +254,9 @@ export default function ContratoDetalhes({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-hidden">
           {activeTab === "info" ? (
-            <div className="space-y-6">
+            <div className="p-6 space-y-6 h-full overflow-y-auto">
               {/* Status e Ações */}
               <div className="bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-xl p-4">
                 <div className="flex items-center justify-between">
@@ -292,154 +296,146 @@ export default function ContratoDetalhes({
                   Informações do Cliente
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-neutral-600">Nome</p>
-                    <p className="font-medium text-neutral-900">
-                      {cliente?.pessoaFisica?.nome ||
-                        cliente?.pessoaJuridica?.razaoSocial ||
-                        "Não informado"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600">Documento</p>
-                    <p className="font-medium text-neutral-900">
-                      {cliente?.pessoaFisica?.cpf ||
-                        cliente?.pessoaJuridica?.cnpj ||
-                        "Não informado"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600">E-mail</p>
-                    {loadingCliente ? (
-                      <div className="animate-pulse bg-neutral-200 h-5 w-32 rounded"></div>
-                    ) : (
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-neutral-600">Nome</p>
+                      <p className="font-medium text-neutral-900">
+                        {cliente?.pessoaFisica?.nome ||
+                          cliente?.pessoaJuridica?.razaoSocial ||
+                          "Cliente não identificado"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-600">E-mail</p>
                       <p className="font-medium text-neutral-900 flex items-center gap-2">
                         <Mail className="w-4 h-4 text-neutral-400" />
-                        {cliente?.email ||
-                          cliente?.pessoaFisica?.email ||
+                        {cliente?.pessoaFisica?.email ||
                           cliente?.pessoaJuridica?.email ||
                           "Não informado"}
                       </p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600">Telefones</p>
-                    {loadingCliente ? (
-                      <div className="animate-pulse bg-neutral-200 h-5 w-32 rounded"></div>
-                    ) : (
-                      <div className="space-y-1">
-                        {/* Telefone 1 */}
-                        {(cliente?.telefone1 ||
-                          cliente?.pessoaFisica?.telefone1 ||
-                          cliente?.pessoaJuridica?.telefone1) && (
-                          <p className="font-medium text-neutral-900 flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-neutral-400" />
-                            {cliente?.telefone1 ||
-                              cliente?.pessoaFisica?.telefone1 ||
-                              cliente?.pessoaJuridica?.telefone1}
-                          </p>
-                        )}
-                        {/* Telefone 2 */}
-                        {(cliente?.telefone2 ||
-                          cliente?.pessoaFisica?.telefone2 ||
-                          cliente?.pessoaJuridica?.telefone2) && (
-                          <p className="font-medium text-neutral-900 flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-neutral-400" />
-                            {cliente?.telefone2 ||
-                              cliente?.pessoaFisica?.telefone2 ||
-                              cliente?.pessoaJuridica?.telefone2}
-                          </p>
-                        )}
-                        {/* Telefone 3 e 4 (apenas para pessoa jurídica) */}
-                        {cliente?.telefone3 && (
-                          <p className="font-medium text-neutral-900 flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-neutral-400" />
-                            {cliente.telefone3}
-                          </p>
-                        )}
-                        {cliente?.telefone4 && (
-                          <p className="font-medium text-neutral-900 flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-neutral-400" />
-                            {cliente.telefone4}
-                          </p>
-                        )}
-                        {/* Se não houver nenhum telefone */}
-                        {!cliente?.telefone1 &&
-                          !cliente?.pessoaFisica?.telefone1 &&
-                          !cliente?.pessoaJuridica?.telefone1 &&
-                          !cliente?.telefone2 &&
-                          !cliente?.pessoaFisica?.telefone2 &&
-                          !cliente?.pessoaJuridica?.telefone2 &&
-                          !cliente?.telefone3 &&
-                          !cliente?.telefone4 && (
-                            <p className="font-medium text-neutral-900 flex items-center gap-2">
-                              <Phone className="w-4 h-4 text-neutral-400" />
-                              Não informado
-                            </p>
-                          )}
-                      </div>
-                    )}
-                  </div>
-                  {cliente?.filial && (
+                    </div>
                     <div>
                       <p className="text-sm text-neutral-600">Filial</p>
                       <p className="font-medium text-neutral-900 flex items-center gap-2">
                         <Building2 className="w-4 h-4 text-neutral-400" />
-                        {cliente.filial}
+                        {cliente?.filial?.nome || "Não informada"}
                       </p>
                     </div>
-                  )}
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-neutral-600">Documento</p>
+                      <p className="font-medium text-neutral-900">
+                        {cliente?.pessoaFisica?.cpf ||
+                          cliente?.pessoaJuridica?.cnpj ||
+                          "Não informado"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-600">Telefones</p>
+                      <div className="space-y-1">
+                        {cliente?.pessoaFisica?.telefone1 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {cliente.pessoaFisica.telefone1}
+                          </p>
+                        )}
+                        {cliente?.pessoaFisica?.telefone2 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {cliente.pessoaFisica.telefone2}
+                          </p>
+                        )}
+                        {cliente?.pessoaJuridica?.telefone1 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {cliente.pessoaJuridica.telefone1}
+                          </p>
+                        )}
+                        {cliente?.pessoaJuridica?.telefone2 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {cliente.pessoaJuridica.telefone2}
+                          </p>
+                        )}
+                        {cliente?.pessoaJuridica?.telefone3 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {cliente.pessoaJuridica.telefone3}
+                          </p>
+                        )}
+                        {cliente?.pessoaJuridica?.telefone4 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {cliente.pessoaJuridica.telefone4}
+                          </p>
+                        )}
+                        {!cliente?.pessoaFisica?.telefone1 &&
+                          !cliente?.pessoaFisica?.telefone2 &&
+                          !cliente?.pessoaJuridica?.telefone1 &&
+                          !cliente?.pessoaJuridica?.telefone2 &&
+                          !cliente?.pessoaJuridica?.telefone3 &&
+                          !cliente?.pessoaJuridica?.telefone4 && (
+                            <p className="text-neutral-500">Não informado</p>
+                          )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Informações do Consultor */}
+              {/* Consultor Responsável */}
               <div className="bg-white rounded-xl border border-neutral-200 p-5">
                 <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary-600" />
                   Consultor Responsável
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-neutral-600">Nome</p>
-                    <p className="font-medium text-neutral-900">
-                      {consultor?.pessoaFisica?.nome ||
-                        consultor?.nome ||
-                        "Não atribuído"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600">E-mail</p>
-                    <p className="font-medium text-neutral-900 flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-neutral-400" />
-                      {consultor?.pessoaFisica?.email ||
-                        consultor?.email ||
-                        "Não informado"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600">Telefone</p>
-                    <p className="font-medium text-neutral-900 flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-neutral-400" />
-                      {consultor?.pessoaFisica?.telefone1 ||
-                        consultor?.telefone1 ||
-                        "Não informado"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600">Filial</p>
-                    <p className="font-medium text-neutral-900 flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-neutral-400" />
-                      {consultor?.filial || "Não informada"}
-                    </p>
-                  </div>
-                  {consultor?.oab && (
+                  <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-neutral-600">OAB</p>
+                      <p className="text-sm text-neutral-600">Nome</p>
                       <p className="font-medium text-neutral-900">
-                        {consultor.oab}
+                        {consultor?.pessoaFisica?.nome || "Não atribuído"}
                       </p>
                     </div>
-                  )}
+                    <div>
+                      <p className="text-sm text-neutral-600">E-mail</p>
+                      <p className="font-medium text-neutral-900 flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-neutral-400" />
+                        {consultor?.pessoaFisica?.email || "Não informado"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-neutral-600">Telefones</p>
+                      <div className="space-y-1">
+                        {consultor?.pessoaFisica?.telefone1 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {consultor.pessoaFisica.telefone1}
+                          </p>
+                        )}
+                        {consultor?.pessoaFisica?.telefone2 && (
+                          <p className="font-medium text-neutral-900 flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-neutral-400" />
+                            {consultor.pessoaFisica.telefone2}
+                          </p>
+                        )}
+                        {!consultor?.pessoaFisica?.telefone1 &&
+                          !consultor?.pessoaFisica?.telefone2 && (
+                            <p className="text-neutral-500">Não informado</p>
+                          )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-600">Filial</p>
+                      <p className="font-medium text-neutral-900 flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-neutral-400" />
+                        {consultor?.filial?.nome || "Não informada"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -486,39 +482,190 @@ export default function ContratoDetalhes({
                 </div>
               </div>
 
-              {/* Valores */}
+              {/* Dados Básicos do Contrato */}
+              {(contrato.numeroPasta ||
+                contrato.tipoServico ||
+                contrato.dataFechamentoContrato) && (
+                <div className="bg-white rounded-xl border border-neutral-200 p-5">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary-600" />
+                    Dados do Contrato
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {contrato.numeroPasta && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Número da Pasta
+                        </p>
+                        <p className="font-medium text-neutral-900 flex items-center gap-2">
+                          <FolderOpen className="w-4 h-4 text-neutral-400" />
+                          {contrato.numeroPasta}
+                        </p>
+                      </div>
+                    )}
+                    {contrato.tipoServico && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Tipo de Serviço
+                        </p>
+                        <p className="font-medium text-neutral-900 flex items-center gap-2">
+                          <Briefcase className="w-4 h-4 text-neutral-400" />
+                          {contrato.tipoServico}
+                        </p>
+                      </div>
+                    )}
+                    {contrato.dataFechamentoContrato && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Data de Fechamento
+                        </p>
+                        <p className="font-medium text-neutral-900 flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-neutral-400" />
+                          {formatDate(contrato.dataFechamentoContrato)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {contrato.objetoContrato && (
+                    <div className="mt-4 pt-4 border-t border-neutral-200">
+                      <p className="text-sm text-neutral-600">
+                        Objeto do Contrato
+                      </p>
+                      <p className="font-medium text-neutral-900 flex items-start gap-2 mt-1">
+                        <Target className="w-4 h-4 text-neutral-400 mt-0.5" />
+                        <span>{contrato.objetoContrato}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Valores do Contrato */}
               <div className="bg-white rounded-xl border border-neutral-200 p-5">
                 <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
                   <DollarSign className="w-5 h-5 text-primary-600" />
                   Valores do Contrato
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-neutral-600">Valor Devido</p>
-                    <p className="text-2xl font-bold text-neutral-900">
-                      {formatCurrency(contrato.valorDevido)}
-                    </p>
-                  </div>
-                  {contrato.valorNegociado && (
+                  <div className="space-y-3">
                     <div>
+                      <p className="text-sm text-neutral-600">Valor Devido</p>
+                      <p className="text-lg font-bold text-neutral-900">
+                        {formatCurrency(contrato.valorDevido)}
+                      </p>
+                    </div>
+                    {contrato.valorNegociado && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Valor Negociado
+                        </p>
+                        <p className="text-lg font-bold text-green-600">
+                          {formatCurrency(contrato.valorNegociado)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    {contrato.comissao && (
+                      <div>
+                        <p className="text-sm text-neutral-600">Comissão</p>
+                        <p className="text-lg font-bold text-neutral-900">
+                          {contrato.comissao}%
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Dados de Pagamento */}
+              {(contrato.valorEntrada ||
+                contrato.valorParcela ||
+                contrato.numeroParcelas ||
+                contrato.primeiroVencimento) && (
+                <div className="bg-white rounded-xl border border-neutral-200 p-5">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-primary-600" />
+                    Dados de Pagamento
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {contrato.valorEntrada && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Valor de Entrada
+                        </p>
+                        <p className="text-xl font-bold text-green-600">
+                          {formatCurrency(contrato.valorEntrada)}
+                        </p>
+                      </div>
+                    )}
+                    {contrato.valorParcela && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Valor da Parcela
+                        </p>
+                        <p className="text-xl font-bold text-blue-600">
+                          {formatCurrency(contrato.valorParcela)}
+                        </p>
+                      </div>
+                    )}
+                    {contrato.numeroParcelas && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Número de Parcelas
+                        </p>
+                        <p className="font-medium text-neutral-900 flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-neutral-400" />
+                          {contrato.numeroParcelas}x
+                        </p>
+                      </div>
+                    )}
+                    {contrato.primeiroVencimento && (
+                      <div>
+                        <p className="text-sm text-neutral-600">
+                          Primeiro Vencimento
+                        </p>
+                        <p className="font-medium text-neutral-900 flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-neutral-400" />
+                          {formatDate(contrato.primeiroVencimento)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Anexos e Pendências */}
+              {(contrato.anexoDocumento || contrato.pendencias) && (
+                <div className="bg-white rounded-xl border border-neutral-200 p-5">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                    <Paperclip className="w-5 h-5 text-primary-600" />
+                    Documentos e Pendências
+                  </h3>
+                  {contrato.anexoDocumento && (
+                    <div className="mb-4">
                       <p className="text-sm text-neutral-600">
-                        Valor Negociado
+                        Anexo de Documento
                       </p>
-                      <p className="text-2xl font-bold text-green-600">
-                        {formatCurrency(contrato.valorNegociado)}
+                      <p className="font-medium text-neutral-900 flex items-center gap-2 mt-1">
+                        <Paperclip className="w-4 h-4 text-neutral-400" />
+                        {contrato.anexoDocumento}
                       </p>
-                      <p className="text-xs text-green-600 mt-1">
-                        {(
-                          ((contrato.valorDevido - contrato.valorNegociado) /
-                            contrato.valorDevido) *
-                          100
-                        ).toFixed(1)}
-                        % de desconto
+                    </div>
+                  )}
+                  {contrato.pendencias && (
+                    <div>
+                      <p className="text-sm text-neutral-600">Pendências</p>
+                      <p className="font-medium text-neutral-900 flex items-start gap-2 mt-1">
+                        <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5" />
+                        <span className="whitespace-pre-wrap">
+                          {contrato.pendencias}
+                        </span>
                       </p>
                     </div>
                   )}
                 </div>
-              </div>
+              )}
 
               {/* Observações */}
               {contrato.observacoes && (
@@ -555,7 +702,7 @@ export default function ContratoDetalhes({
             </div>
           ) : (
             /* Tab Histórico */
-            <div className="space-y-4">
+            <div className="p-6 space-y-4 h-full overflow-y-auto">
               {loadingHistorico ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-8 h-8 animate-spin text-primary-600" />

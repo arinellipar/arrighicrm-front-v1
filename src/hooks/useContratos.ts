@@ -105,8 +105,36 @@ export function useContratos() {
       const contratosApi = (response.data as any[]).filter(
         (c) => !isSeedContrato(c)
       ) as Contrato[];
+
+      // Validar que todos os contratos têm IDs válidos
+      const contratosValidos = contratosApi.filter((c) => {
+        if (!c.id || c.id === undefined || c.id === null || isNaN(c.id)) {
+          console.error(
+            "🔧 useContratos: Contrato com ID inválido encontrado:",
+            c
+          );
+          return false;
+        }
+        // Filtrar contratos com ID 999 (mock antigo)
+        if (c.id === 999) {
+          console.warn(
+            "🔧 useContratos: Ignorando contrato com ID mock 999 da API"
+          );
+          return false;
+        }
+        return true;
+      });
+
+      if (contratosValidos.length !== contratosApi.length) {
+        console.warn(
+          `🔧 useContratos: ${
+            contratosApi.length - contratosValidos.length
+          } contratos com IDs inválidos foram filtrados`
+        );
+      }
+
       console.log(
-        `🔧 useContratos: ${contratosApi.length} contratos carregados da API com sucesso`
+        `🔧 useContratos: ${contratosValidos.length} contratos válidos carregados da API com sucesso`
       );
 
       // Merge com contratos criados/atualizados na sessão
@@ -114,12 +142,30 @@ export function useContratos() {
         const byId = new Map<number, Contrato>();
 
         // Primeiro, adicionar contratos da API
-        for (const c of contratosApi) {
+        for (const c of contratosValidos) {
           byId.set(c.id, c);
         }
 
         // Depois, adicionar contratos da sessão (podem sobrescrever os da API)
         for (const sc of prev.sessionContratos) {
+          // Validar ID do contrato da sessão
+          if (!sc.id || sc.id === undefined || sc.id === null || isNaN(sc.id)) {
+            console.error(
+              "🔧 useContratos: Contrato da sessão com ID inválido encontrado:",
+              sc
+            );
+            continue;
+          }
+
+          // Validar se o contrato tem dados básicos
+          if (!sc.clienteId || !sc.consultorId) {
+            console.warn(
+              "🔧 useContratos: Contrato da sessão com dados incompletos, removendo:",
+              sc
+            );
+            continue;
+          }
+
           byId.set(sc.id, sc);
         }
 
@@ -128,6 +174,9 @@ export function useContratos() {
         console.log(
           `🔧 useContratos: Merge realizado - ${contratosApi.length} da API + ${prev.sessionContratos.length} da sessão = ${mergedContratos.length} total`
         );
+
+        // Limpar contratos inválidos da sessão
+        limparContratosInvalidos();
 
         return {
           ...prev,
@@ -208,6 +257,21 @@ export function useContratos() {
             );
           }
 
+          // Tentar preencher dados do consultor
+          try {
+            const consultorResponse = await apiClient.get(
+              `/Consultor/${data.consultorId}`
+            );
+            if (consultorResponse.data) {
+              contratoLocal.consultor = consultorResponse.data as any;
+            }
+          } catch (e) {
+            console.warn(
+              "🔧 createContrato: Não foi possível preencher consultor do contrato local",
+              e
+            );
+          }
+
           setState((prev) => ({
             ...prev,
             contratos: [...prev.contratos, contratoLocal],
@@ -250,6 +314,26 @@ export function useContratos() {
                 ...novoContrato,
                 cliente: clienteCompleto as any,
               };
+            }
+          }
+
+          // Buscar dados completos do consultor se não estiverem presentes
+          if (!novoContrato.consultor && novoContrato.consultorId) {
+            try {
+              const consultorResponse = await apiClient.get(
+                `/Consultor/${novoContrato.consultorId}`
+              );
+              if (consultorResponse.data) {
+                novoContrato = {
+                  ...novoContrato,
+                  consultor: consultorResponse.data as any,
+                };
+              }
+            } catch (e) {
+              console.warn(
+                "🔧 createContrato: Não foi possível buscar dados do consultor:",
+                e
+              );
             }
           }
         } catch (e) {
@@ -369,179 +453,137 @@ export function useContratos() {
   const mudarSituacao = useCallback(
     async (id: number, data: MudancaSituacaoDTO) => {
       setState((prev) => ({ ...prev, changingSituacao: true, error: null }));
+      try {
+        const response = await apiClient.put(`/Contrato/${id}/situacao`, data);
 
-      console.log(
-        "🔧 mudarSituacao: Iniciando mudança de situação para contrato",
-        id
-      );
-      console.log("🔧 mudarSituacao: Dados da mudança:", data);
-
-      // Mecanismo de retry
-      const maxRetries = 3;
-      let lastError: any = null;
-
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`🔧 mudarSituacao: Tentativa ${attempt}/${maxRetries}`);
-
-          const response = await apiClient.put(
-            `/Contrato/${id}/situacao`,
-            data
-          );
-
-          console.log("🔧 mudarSituacao: Resposta da API:", response);
-
-          if (response.error) {
-            console.error("🔧 mudarSituacao: Erro na API:", response.error);
-            lastError = new Error(response.error || "Erro desconhecido na API");
-
-            // Se for erro de validação, não tentar novamente
-            if (response.status === 400) {
-              break;
-            }
-
-            // Se não for a última tentativa, aguardar antes de tentar novamente
-            if (attempt < maxRetries) {
-              await new Promise((resolve) =>
-                setTimeout(resolve, 2000 * attempt)
-              ); // Backoff exponencial
-              continue;
-            }
-
-            setState((prev) => ({
-              ...prev,
-              error: response.error || "Erro desconhecido na API",
-              changingSituacao: false,
-            }));
-            throw lastError;
-          }
-
-          // Verificar se a resposta é um objeto de sucesso (quando não conseguimos ler a resposta completa)
-          if (
-            response.data &&
-            typeof response.data === "object" &&
-            "success" in response.data
-          ) {
-            console.log(
-              "🔧 mudarSituacao: Operação realizada com sucesso (resposta simplificada)"
-            );
-
-            // Buscar o contrato atualizado do estado local
-            const contratoAtual = state.contratos.find((c) => c.id === id);
-            if (contratoAtual) {
-              const contratoAtualizado = {
-                ...contratoAtual,
-                situacao: data.novaSituacao,
-                dataAtualizacao: new Date().toISOString(),
-              };
-
-              setState((prev) => ({
-                ...prev,
-                contratos: prev.contratos.map((contrato) =>
-                  contrato.id === id ? contratoAtualizado : contrato
-                ),
-                sessionContratos: prev.sessionContratos.map((contrato) =>
-                  contrato.id === id ? contratoAtualizado : contrato
-                ),
-                changingSituacao: false,
-              }));
-
-              adicionarAtividade(
-                "Admin User",
-                `Mudou situação do contrato #${id}`,
-                "info",
-                `Nova situação: ${data.novaSituacao}`,
-                "Contratos"
-              );
-
-              await fetchContratos();
-              return contratoAtualizado;
-            }
-          }
-
-          const contratoAtualizado = response.data as Contrato;
+        // O backend retorna { contrato, historico }, então precisamos extrair o contrato
+        let contratoAtualizado: Contrato;
+        if (
+          response.data &&
+          typeof response.data === "object" &&
+          "contrato" in response.data
+        ) {
+          contratoAtualizado = response.data.contrato as Contrato;
           console.log(
-            "🔧 mudarSituacao: Contrato atualizado:",
+            "🔧 mudarSituacao: Contrato extraído da resposta:",
             contratoAtualizado
           );
-
-          setState((prev) => ({
-            ...prev,
-            contratos: prev.contratos.map((contrato) =>
-              contrato.id === id ? contratoAtualizado : contrato
-            ),
-            sessionContratos: prev.sessionContratos.map((contrato) =>
-              contrato.id === id ? contratoAtualizado : contrato
-            ),
-            changingSituacao: false,
-          }));
-
-          adicionarAtividade(
-            "Admin User",
-            `Mudou situação do contrato #${id}`,
-            "info",
-            `Nova situação: ${data.novaSituacao}`,
-            "Contratos"
+        } else {
+          // Fallback para caso a estrutura seja diferente
+          contratoAtualizado = response.data as Contrato;
+          console.log(
+            "🔧 mudarSituacao: Usando resposta direta como contrato:",
+            contratoAtualizado
           );
-
-          await fetchContratos();
-          return contratoAtualizado;
-        } catch (error: any) {
-          console.error(
-            `🔧 mudarSituacao: Erro na tentativa ${attempt}:`,
-            error
-          );
-          lastError = error;
-
-          // Se for erro de rede e não for a última tentativa, tentar novamente
-          if (
-            attempt < maxRetries &&
-            (error.message.includes("Failed to fetch") ||
-              error.message.includes("Network error") ||
-              error.message.includes("timeout") ||
-              error.message.includes("Erro ao ler resposta do servidor") ||
-              error.message.includes("ECONNRESET") ||
-              error.message.includes("terminated") ||
-              error.message.includes("Conexão interrompida") ||
-              error.message.includes("body stream already read"))
-          ) {
-            console.log(
-              `🔧 mudarSituacao: Tentando novamente em ${
-                2 * attempt
-              } segundos...`
-            );
-            await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
-            continue;
-          }
-
-          // Se chegou aqui, é a última tentativa ou erro não recuperável
-          break;
         }
+
+        // Validar se o contrato tem ID válido
+        if (
+          !contratoAtualizado ||
+          !contratoAtualizado.id ||
+          isNaN(contratoAtualizado.id)
+        ) {
+          console.error(
+            "🔧 mudarSituacao: Contrato retornado com ID inválido:",
+            contratoAtualizado
+          );
+          throw new Error("Contrato retornado com ID inválido");
+        }
+
+        setState((prev) => ({
+          ...prev,
+          contratos: prev.contratos.map((contrato) =>
+            contrato.id === id ? contratoAtualizado : contrato
+          ),
+          sessionContratos: prev.sessionContratos.map((contrato) =>
+            contrato.id === id ? contratoAtualizado : contrato
+          ),
+          changingSituacao: false,
+        }));
+
+        adicionarAtividade(
+          "Admin User",
+          `Mudou situação do contrato #${id}`,
+          "info",
+          `Nova situação: ${data.novaSituacao}`,
+          "Contratos"
+        );
+
+        await fetchContratos();
+        return contratoAtualizado;
+      } catch (error: any) {
+        setState((prev) => ({
+          ...prev,
+          error:
+            error.response?.data?.message ||
+            "Erro ao mudar situação do contrato",
+          changingSituacao: false,
+        }));
+        throw error;
       }
-
-      // Se chegou aqui, todas as tentativas falharam
-      console.error("🔧 mudarSituacao: Todas as tentativas falharam");
-      console.error("🔧 mudarSituacao: Último erro:", lastError);
-
-      const errorMessage =
-        lastError?.message ||
-        "Erro ao mudar situação do contrato após múltiplas tentativas";
-
-      setState((prev) => ({
-        ...prev,
-        error: errorMessage,
-        changingSituacao: false,
-      }));
-      throw lastError || new Error(errorMessage);
     },
     [fetchContratos, adicionarAtividade]
   );
 
+  // Função para limpar contratos inválidos da sessão
+  const limparContratosInvalidos = useCallback(() => {
+    setState((prev) => {
+      const contratosValidos = prev.sessionContratos.filter((sc) => {
+        // Remover contratos com ID 999 (mock antigo) ou IDs inválidos
+        if (sc.id === 999) {
+          console.log(
+            "🔧 limparContratosInvalidos: Removendo contrato com ID mock 999"
+          );
+          return false;
+        }
+        return (
+          sc.id &&
+          sc.id !== undefined &&
+          sc.id !== null &&
+          !isNaN(sc.id) &&
+          sc.clienteId &&
+          sc.consultorId
+        );
+      });
+
+      if (contratosValidos.length !== prev.sessionContratos.length) {
+        console.log(
+          `🔧 limparContratosInvalidos: Removidos ${
+            prev.sessionContratos.length - contratosValidos.length
+          } contratos inválidos da sessão`
+        );
+      }
+
+      return {
+        ...prev,
+        sessionContratos: contratosValidos,
+      };
+    });
+  }, []);
+
   const deleteContrato = useCallback(
     async (id: number) => {
+      console.log(
+        "🔧 deleteContrato: Iniciando exclusão do contrato ID:",
+        id,
+        "Tipo:",
+        typeof id
+      );
+
+      // Validação do ID
+      if (id === undefined || id === null || isNaN(id)) {
+        console.error("🔧 deleteContrato: ID inválido recebido:", id);
+        throw new Error(`ID inválido para exclusão: ${id}`);
+      }
+
       setState((prev) => ({ ...prev, deleting: true, error: null }));
       try {
-        await apiClient.delete(`/Contrato/${id}`);
+        console.log(
+          "🔧 deleteContrato: Chamando API para excluir contrato ID:",
+          id
+        );
+        const response = await apiClient.delete(`/Contrato/${id}`);
+        console.log("🔧 deleteContrato: Resposta da API:", response.data);
 
         setState((prev) => ({
           ...prev,
@@ -674,7 +716,7 @@ export function useContratos() {
 
       try {
         const response = await apiClient.get(
-          `/Contrato/${contratoId}/historico`
+          `/HistoricoSituacaoContrato/contrato/${contratoId}`
         );
 
         // Verificar se há erro na resposta
@@ -707,24 +749,6 @@ export function useContratos() {
           "🔧 getHistoricoSituacao: Erro ao buscar histórico:",
           error
         );
-
-        // Se for erro de "Failed to fetch" ou qualquer erro de rede, retornar array vazio sem mostrar erro
-        if (
-          error?.message?.includes("Failed to fetch") ||
-          error?.message?.includes("Network error") ||
-          error?.message?.includes("timeout") ||
-          error?.message?.includes("Erro ao ler resposta do servidor") ||
-          error?.message?.includes("ECONNRESET") ||
-          error?.message?.includes("terminated") ||
-          error?.message?.includes("Conexão interrompida") ||
-          error?.message?.includes("body stream already read")
-        ) {
-          console.warn(
-            "🔧 getHistoricoSituacao: Erro de conexão - retornando array vazio"
-          );
-          return [];
-        }
-
         // Retornar array vazio em caso de erro - sem dados mock
         return [];
       }
@@ -736,8 +760,10 @@ export function useContratos() {
     console.log(
       "🔧 useContratos: useEffect - Carregando contratos na inicialização"
     );
+    // Limpar contratos inválidos antes de buscar novos
+    limparContratosInvalidos();
     fetchContratos();
-  }, [fetchContratos]);
+  }, [fetchContratos, limparContratosInvalidos]);
 
   return {
     contratos: state.contratos,
@@ -755,5 +781,6 @@ export function useContratos() {
     deleteContrato,
     getHistoricoSituacao,
     fetchClienteCompleto,
+    limparContratosInvalidos,
   };
 }
