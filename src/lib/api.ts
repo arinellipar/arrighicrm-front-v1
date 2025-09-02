@@ -3,45 +3,6 @@ import { getApiUrl, isDevelopment } from "../../env.config";
 
 const API_BASE_URL = getApiUrl();
 
-// Função para sanitizar dados e evitar renderização de objetos em produção
-function sanitizeForProduction(data: any): any {
-  if (!data) return data;
-
-  // Se for um array, sanitizar cada item
-  if (Array.isArray(data)) {
-    return data.map(sanitizeForProduction);
-  }
-
-  // Se for um objeto, verificar propriedades críticas
-  if (typeof data === "object" && data !== null) {
-    const sanitized = { ...data };
-
-    // Para objetos Filial, garantir que sempre tenham nome como string
-    if (
-      sanitized.id &&
-      sanitized.dataInclusao &&
-      sanitized.usuarioImportacao !== undefined
-    ) {
-      if (!sanitized.nome || typeof sanitized.nome !== "string") {
-        sanitized.nome = sanitized.nome
-          ? String(sanitized.nome)
-          : `Filial #${sanitized.id}`;
-      }
-    }
-
-    // Recursivamente sanitizar propriedades aninhadas
-    Object.keys(sanitized).forEach((key) => {
-      if (typeof sanitized[key] === "object" && sanitized[key] !== null) {
-        sanitized[key] = sanitizeForProduction(sanitized[key]);
-      }
-    });
-
-    return sanitized;
-  }
-
-  return data;
-}
-
 export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
@@ -196,14 +157,8 @@ class ApiClient {
         });
       }
 
-      // Sanitizar dados em produção para evitar erros de renderização
-      const sanitizedData =
-        process.env.NODE_ENV === "production"
-          ? sanitizeForProduction(data)
-          : data;
-
       return {
-        data: sanitizedData,
+        data,
         status: response.status,
       };
     } catch (error) {

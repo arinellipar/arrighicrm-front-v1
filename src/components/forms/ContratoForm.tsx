@@ -57,8 +57,9 @@ export default function ContratoForm({
   initialClienteId,
 }: ContratoFormProps) {
   const { isFormOpen } = useForm();
-  const [formData, setFormData] = useState<CreateContratoDTO>({
-    clienteId: 0,
+  // Função para obter estado inicial limpo
+  const getInitialFormData = (): CreateContratoDTO => ({
+    clienteId: initialClienteId || 0,
     consultorId: 0,
     situacao: "Leed" as SituacaoContrato,
     dataUltimoContato: new Date().toISOString().split("T")[0],
@@ -66,7 +67,7 @@ export default function ContratoForm({
     valorDevido: 0,
     valorNegociado: undefined,
     observacoes: "",
-    // Novos campos
+    // Novos campos SEMPRE LIMPOS para novo contrato
     numeroPasta: "",
     dataFechamentoContrato: "",
     tipoServico: "",
@@ -80,6 +81,9 @@ export default function ContratoForm({
     pendencias: "",
   });
 
+  const [formData, setFormData] =
+    useState<CreateContratoDTO>(getInitialFormData);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showClientePicker, setShowClientePicker] = useState(false);
@@ -89,6 +93,25 @@ export default function ContratoForm({
   const [comissaoText, setComissaoText] = useState<string>("");
   const [valorEntradaText, setValorEntradaText] = useState<string>("");
   const [valorParcelaText, setValorParcelaText] = useState<string>("");
+
+  // Função para resetar completamente o formulário
+  const resetForm = () => {
+    console.log("🔧 ContratoForm: Resetando formulário completamente");
+    setFormData(getInitialFormData());
+    setValorDevidoText("");
+    setValorNegociadoText("");
+    setComissaoText("");
+    setValorEntradaText("");
+    setValorParcelaText("");
+    setErrors({});
+  };
+
+  // Resetar formulário quando o componente for montado sem contrato
+  useEffect(() => {
+    if (!contrato) {
+      resetForm();
+    }
+  }, []); // Executar apenas uma vez na montagem
 
   useEffect(() => {
     if (contrato) {
@@ -200,20 +223,52 @@ export default function ContratoForm({
         valorParcelaText: valorParcelaFormatted,
       });
     } else {
+      // NOVO CONTRATO: Resetar TODOS os campos para valores em branco/padrão
+      console.log(
+        "🔧 ContratoForm: Configurando NOVO contrato - limpando todos os campos"
+      );
+
       // Definir data próximo contato como 3 dias no futuro por padrão
       const proximoContato = new Date();
       proximoContato.setDate(proximoContato.getDate() + 3);
-      setFormData((prev) => ({
-        ...prev,
+
+      // Resetar formData completamente para novo contrato
+      setFormData({
+        clienteId: initialClienteId || 0,
+        consultorId: 0,
+        situacao: "Leed" as SituacaoContrato,
+        dataUltimoContato: new Date().toISOString().split("T")[0],
         dataProximoContato: proximoContato.toISOString().split("T")[0],
-        clienteId: initialClienteId ? initialClienteId : prev.clienteId,
-      }));
-      // Inicializar textos de moeda a partir dos números atuais
-      setValorDevidoText(formatCurrencyInput(formData.valorDevido));
-      setValorNegociadoText(formatCurrencyInput(formData.valorNegociado));
-      setComissaoText(formatCurrencyInput(formData.comissao));
-      setValorEntradaText(formatCurrencyInput(formData.valorEntrada));
-      setValorParcelaText(formatCurrencyInput(formData.valorParcela));
+        valorDevido: 0,
+        valorNegociado: undefined,
+        observacoes: "",
+        // Novos campos LIMPOS
+        numeroPasta: "",
+        dataFechamentoContrato: "",
+        tipoServico: "",
+        objetoContrato: "",
+        comissao: undefined,
+        valorEntrada: undefined,
+        valorParcela: undefined,
+        numeroParcelas: undefined,
+        primeiroVencimento: "",
+        anexoDocumento: "",
+        pendencias: "",
+      });
+
+      // Limpar TODOS os textos de moeda para novo contrato
+      setValorDevidoText("");
+      setValorNegociadoText("");
+      setComissaoText("");
+      setValorEntradaText("");
+      setValorParcelaText("");
+
+      // Limpar erros
+      setErrors({});
+
+      console.log(
+        "🔧 ContratoForm: Novo contrato configurado - todos os campos limpos"
+      );
     }
   }, [contrato, initialClienteId]);
 
@@ -357,6 +412,16 @@ export default function ContratoForm({
           valorParcelaText && valorParcelaText.trim() !== ""
             ? parseCurrencyInput(valorParcelaText)
             : undefined,
+        // Limpar campos opcionais vazios
+        numeroPasta: formData.numeroPasta?.trim() || undefined,
+        dataFechamentoContrato: formData.dataFechamentoContrato || undefined,
+        tipoServico: formData.tipoServico?.trim() || undefined,
+        objetoContrato: formData.objetoContrato?.trim() || undefined,
+        primeiroVencimento: formData.primeiroVencimento || undefined,
+        anexoDocumento: formData.anexoDocumento?.trim() || undefined,
+        pendencias: formData.pendencias?.trim() || undefined,
+        observacoes: formData.observacoes?.trim() || undefined,
+        numeroParcelas: formData.numeroParcelas || undefined,
       };
       await onSubmit(payload);
       onCancel();

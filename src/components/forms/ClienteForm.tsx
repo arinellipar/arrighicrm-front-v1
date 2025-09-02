@@ -592,7 +592,7 @@ export default function ClienteForm({
                   <option value={0}>Selecione uma filial</option>
                   {filiais.map((filial) => (
                     <option key={filial.id} value={filial.id}>
-                      {filial?.nome || `Filial #${filial.id}`}
+                      {filial.nome}
                     </option>
                   ))}
                 </select>
