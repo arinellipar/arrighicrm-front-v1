@@ -51,6 +51,11 @@ const menuItems: MenuGroup[] = [
         icon: <UserCheck className="w-4 h-4" />,
       },
       {
+        label: "Parceiros",
+        href: "/parceiros",
+        icon: <Scale className="w-4 h-4" />,
+      },
+      {
         label: "Clientes",
         href: "/clientes",
         icon: <Users className="w-4 h-4 text-gold-500" />,

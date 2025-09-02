@@ -395,6 +395,31 @@ export interface HistoricoSituacaoContrato {
   dataCadastro: string;
 }
 
+// Tipos para Parceiro
+export interface Parceiro {
+  id: number;
+  pessoaFisicaId: number;
+  pessoaFisica: PessoaFisica;
+  filialId: number;
+  filial: Filial;
+  oab?: string;
+  dataCadastro: string;
+  dataAtualizacao?: string;
+  ativo: boolean;
+}
+
+export interface CreateParceiroDTO {
+  pessoaFisicaId: number;
+  filialId: number;
+  oab?: string;
+}
+
+export interface UpdateParceiroDTO {
+  id: number;
+  filialId: number;
+  oab?: string;
+}
+
 export const SituacaoContratoOptions = [
   { value: "Leed", label: "Lead", color: "bg-blue-100 text-blue-800" },
   {

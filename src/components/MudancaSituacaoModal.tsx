@@ -384,7 +384,7 @@ export default function MudancaSituacaoModal({
                     }
                     className="mt-1 text-xs text-yellow-600 hover:text-yellow-700 transition-colors"
                   >
-                    Usar sugestão: "{getSugestaoMotivo()}"
+                    Usar sugestão: &quot;{getSugestaoMotivo()}&quot;
                   </button>
                 )}
               </div>
