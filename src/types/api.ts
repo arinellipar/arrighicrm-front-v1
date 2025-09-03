@@ -403,6 +403,8 @@ export interface Parceiro {
   filialId: number;
   filial: Filial;
   oab?: string;
+  email?: string;
+  telefone?: string;
   dataCadastro: string;
   dataAtualizacao?: string;
   ativo: boolean;

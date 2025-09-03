@@ -562,7 +562,9 @@ export default function ParceirosPage() {
                                   </Tooltip>
                                 </div>
                                 <div className="text-sm text-secondary-500">
-                                  {parceiro.pessoaFisica?.email}
+                                  {parceiro.email ||
+                                    parceiro.pessoaFisica?.email ||
+                                    "N/A"}
                                 </div>
                               </div>
                             </div>
@@ -578,7 +580,9 @@ export default function ParceirosPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-secondary-900">
-                              {parceiro.pessoaFisica?.telefone1}
+                              {parceiro.telefone ||
+                                parceiro.pessoaFisica?.telefone1 ||
+                                "N/A"}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -638,11 +642,15 @@ export default function ParceirosPage() {
                     <div className="space-y-3">
                       <div className="flex items-center text-sm text-secondary-600">
                         <Mail className="w-4 h-4 mr-2" />
-                        {parceiro.pessoaFisica?.email}
+                        {parceiro.email ||
+                          parceiro.pessoaFisica?.email ||
+                          "N/A"}
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">
                         <Phone className="w-4 h-4 mr-2" />
-                        {parceiro.pessoaFisica?.telefone1}
+                        {parceiro.telefone ||
+                          parceiro.pessoaFisica?.telefone1 ||
+                          "N/A"}
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">
                         <Building className="w-4 h-4 mr-2" />

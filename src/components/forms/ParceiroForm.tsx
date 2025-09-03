@@ -83,8 +83,9 @@ export default function ParceiroForm({
         pessoaFisicaId: initialData.pessoaFisicaId || 0,
         filialId: initialData.filialId || 0,
         oab: initialData.oab || "",
-        email: initialData.pessoaFisica?.email || "",
-        telefone: initialData.pessoaFisica?.telefone1 || "",
+        email: initialData.email || initialData.pessoaFisica?.email || "",
+        telefone:
+          initialData.telefone || initialData.pessoaFisica?.telefone1 || "",
       });
       setSelectedPessoaFisica(initialData.pessoaFisica || null);
     }
