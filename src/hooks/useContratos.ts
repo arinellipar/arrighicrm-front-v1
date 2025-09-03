@@ -454,7 +454,41 @@ export function useContratos() {
     async (id: number, data: MudancaSituacaoDTO) => {
       setState((prev) => ({ ...prev, changingSituacao: true, error: null }));
       try {
-        const response = await apiClient.put(`/Contrato/${id}/situacao`, data);
+        // Garantir datas padrão se não forem informadas
+        let contratoAtual: Contrato | undefined = state.contratos.find(
+          (c) => c.id === id
+        );
+        if (!contratoAtual) {
+          try {
+            const c = await getContrato(id);
+            contratoAtual = c;
+          } catch {}
+        }
+
+        const nowIso = new Date().toISOString();
+        const plus3Iso = new Date(
+          Date.now() + 3 * 24 * 60 * 60 * 1000
+        ).toISOString();
+
+        const payload: MudancaSituacaoDTO & {
+          dataUltimoContato?: string;
+          dataProximoContato?: string;
+        } = {
+          ...data,
+          dataUltimoContato:
+            data.dataUltimoContato ||
+            (contratoAtual as any)?.dataUltimoContato ||
+            nowIso,
+          dataProximoContato:
+            data.dataProximoContato ||
+            (contratoAtual as any)?.dataProximoContato ||
+            plus3Iso,
+        };
+
+        const response = await apiClient.put(
+          `/Contrato/${id}/situacao`,
+          payload
+        );
 
         // O backend retorna { contrato, historico }, então precisamos extrair o contrato
         let contratoAtualizado: Contrato;

@@ -79,6 +79,29 @@ export default function ContratoDetalhes({
   const [loadingCliente, setLoadingCliente] = useState(false);
   const { getHistoricoSituacao, fetchClienteCompleto } = useContratos();
 
+  const normalizeSituacao = useCallback(
+    (s: string | null | undefined): SituacaoContrato => {
+      if (!s) return "Leed";
+      const m = s.trim().toUpperCase();
+      const map: Record<string, SituacaoContrato> = {
+        LEED: "Leed",
+        LEAD: "Leed",
+        PROSPECTO: "Prospecto",
+        "CONTRATO ENVIADO": "Contrato Enviado",
+        "CONTRATO ASSINADO": "Contrato Assinado",
+        RETORNAR: "Retornar",
+        "SEM INTERESSE": "Sem Interesse",
+        RESCINDIDO: "RESCINDIDO",
+        "RESCINDIDO COM DEBITO": "RESCINDIDO COM DEBITO",
+        SUSPENSO: "SUSPENSO",
+        "SUSP. C/ DEBITO": "Suspensão c/ Débito",
+        CLIENTE: "CLIENTE",
+      };
+      return map[m] ?? "Leed";
+    },
+    []
+  );
+
   const loadClienteCompleto = useCallback(async () => {
     if (!contrato.clienteId) return;
 
@@ -723,9 +746,17 @@ export default function ContratoDetalhes({
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <SituacaoBadge situacao={item.situacaoAnterior} />
+                            <SituacaoBadge
+                              situacao={normalizeSituacao(
+                                item.situacaoAnterior as unknown as string
+                              )}
+                            />
                             <TrendingUp className="w-4 h-4 text-neutral-400" />
-                            <SituacaoBadge situacao={item.novaSituacao} />
+                            <SituacaoBadge
+                              situacao={normalizeSituacao(
+                                item.novaSituacao as unknown as string
+                              )}
+                            />
                           </div>
                           <p className="text-sm text-neutral-700 mb-2">
                             {item.motivoMudanca}

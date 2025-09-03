@@ -464,7 +464,7 @@ export const SituacaoContratoOptions = [
   },
   {
     value: "SUSP. C/ DEBITO",
-    label: "Susp. c/ Débito",
+    label: "Suspensão c/ Débito",
     color: "bg-gray-200 text-gray-900",
   },
   {
