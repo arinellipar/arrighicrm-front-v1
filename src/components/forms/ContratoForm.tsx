@@ -30,6 +30,7 @@ import {
   UpdateContratoDTO,
   Cliente,
   Consultor,
+  Parceiro,
   SituacaoContratoOptions,
   SituacaoContrato,
   TipoServicoOptions,
@@ -61,6 +62,7 @@ export default function ContratoForm({
   const getInitialFormData = (): CreateContratoDTO => ({
     clienteId: initialClienteId || 0,
     consultorId: 0,
+    parceiroId: undefined,
     situacao: "Leed" as SituacaoContrato,
     dataUltimoContato: new Date().toISOString().split("T")[0],
     dataProximoContato: "",
@@ -81,12 +83,16 @@ export default function ContratoForm({
     pendencias: "",
   });
 
-  const [formData, setFormData] =
-    useState<CreateContratoDTO>(getInitialFormData);
+  const [formData, setFormData] = useState<CreateContratoDTO>({
+    ...getInitialFormData(),
+    parceiroId: undefined,
+  });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [showClientePicker, setShowClientePicker] = useState(false);
+  const [hasParceiro, setHasParceiro] = useState(false);
+  const [parceiros, setParceiros] = useState<Parceiro[]>([]);
   // Estados controlados para inputs de moeda (permite digitação livre e parse no blur/submit)
   const [valorDevidoText, setValorDevidoText] = useState<string>("");
   const [valorNegociadoText, setValorNegociadoText] = useState<string>("");
@@ -97,13 +103,14 @@ export default function ContratoForm({
   // Função para resetar completamente o formulário
   const resetForm = () => {
     console.log("🔧 ContratoForm: Resetando formulário completamente");
-    setFormData(getInitialFormData());
+    setFormData({ ...getInitialFormData(), parceiroId: undefined });
     setValorDevidoText("");
     setValorNegociadoText("");
     setComissaoText("");
     setValorEntradaText("");
     setValorParcelaText("");
     setErrors({});
+    setHasParceiro(false);
   };
 
   // Resetar formulário quando o componente for montado sem contrato
@@ -143,6 +150,7 @@ export default function ContratoForm({
       setFormData({
         clienteId: contrato.clienteId,
         consultorId: contrato.consultorId,
+        parceiroId: contrato.parceiroId,
         situacao: contrato.situacao,
         dataUltimoContato: contrato.dataUltimoContato
           ? contrato.dataUltimoContato.split("T")[0]
@@ -170,6 +178,7 @@ export default function ContratoForm({
         anexoDocumento: contrato.anexoDocumento || "",
         pendencias: contrato.pendencias || "",
       });
+      setHasParceiro(!!contrato.parceiroId);
       const valorDevidoFormatted = formatCurrencyInput(contrato.valorDevido);
       const valorNegociadoFormatted = formatCurrencyInput(
         contrato.valorNegociado
@@ -327,12 +336,47 @@ export default function ContratoForm({
     valorParcelaText,
   ]);
 
+  // Buscar parceiros
+  const fetchParceiros = async () => {
+    try {
+      const response = await fetch("http://localhost:5101/api/Parceiro");
+      if (response.ok) {
+        const parceirosData = await response.json();
+        setParceiros(parceirosData);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar parceiros:", error);
+    }
+  };
+
   // Pré-selecionar automaticamente o primeiro consultor disponível (evita envio com consultorId=0)
   useEffect(() => {
     if (!contrato && formData.consultorId === 0 && consultores.length > 0) {
       setFormData((prev) => ({ ...prev, consultorId: consultores[0].id }));
     }
   }, [contrato, consultores, formData.consultorId]);
+
+  // Carregar parceiros quando o componente montar
+  useEffect(() => {
+    fetchParceiros();
+  }, []);
+
+  // Manipular mudança do checkbox de parceiro
+  const handleParceiroCheckboxChange = (checked: boolean) => {
+    setHasParceiro(checked);
+    if (!checked) {
+      // Se desmarcar, limpar o parceiroId
+      setFormData((prev) => ({ ...prev, parceiroId: undefined }));
+    }
+  };
+
+  // Manipular seleção de parceiro
+  const handleParceiroSelect = (parceiroId: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      parceiroId: parceiroId === 0 ? undefined : parceiroId,
+    }));
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -804,6 +848,58 @@ export default function ContratoForm({
                         </p>
                       )}
                     </div>
+
+                    {/* Checkbox de Parceiro */}
+                    <div className="mt-4">
+                      <label className="flex items-center space-x-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={hasParceiro}
+                          onChange={(e) =>
+                            handleParceiroCheckboxChange(e.target.checked)
+                          }
+                          className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2"
+                        />
+                        <span className="text-sm font-medium text-neutral-700">
+                          Há parceiro neste contrato?
+                        </span>
+                      </label>
+                    </div>
+
+                    {/* Seletor de Parceiro */}
+                    {hasParceiro && (
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Parceiro
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={formData.parceiroId || ""}
+                            onChange={(e) =>
+                              handleParceiroSelect(
+                                parseInt(e.target.value) || 0
+                              )
+                            }
+                            className="w-full px-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          >
+                            <option value="">
+                              {parceiros.length === 0
+                                ? "Carregando parceiros..."
+                                : "Selecione um parceiro"}
+                            </option>
+                            {parceiros.map((parceiro) => (
+                              <option key={parceiro.id} value={parceiro.id}>
+                                {parceiro.pessoaFisica?.nome ||
+                                  "Nome não informado"}{" "}
+                                -{" "}
+                                {parceiro.filial?.nome ||
+                                  "Filial não informada"}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Situação e Dados Básicos */}

@@ -239,6 +239,7 @@ export function useContratos() {
             ...data,
             cliente: undefined, // Será preenchido depois
             consultor: undefined, // Será preenchido depois
+            parceiro: undefined, // Será preenchido depois
             dataCadastro: new Date().toISOString(),
             dataAtualizacao: undefined,
             ativo: true,
@@ -270,6 +271,23 @@ export function useContratos() {
               "🔧 createContrato: Não foi possível preencher consultor do contrato local",
               e
             );
+          }
+
+          // Tentar preencher dados do parceiro se houver parceiroId
+          if (data.parceiroId) {
+            try {
+              const parceiroResponse = await apiClient.get(
+                `/Parceiro/${data.parceiroId}`
+              );
+              if (parceiroResponse.data) {
+                contratoLocal.parceiro = parceiroResponse.data as any;
+              }
+            } catch (e) {
+              console.warn(
+                "🔧 createContrato: Não foi possível preencher parceiro do contrato local",
+                e
+              );
+            }
           }
 
           setState((prev) => ({

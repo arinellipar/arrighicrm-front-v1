@@ -325,6 +325,8 @@ export interface Contrato {
   cliente?: Cliente;
   consultorId: number;
   consultor?: Consultor;
+  parceiroId?: number;
+  parceiro?: Parceiro;
   situacao: SituacaoContrato;
   dataUltimoContato: string;
   dataProximoContato: string;
@@ -351,6 +353,7 @@ export interface Contrato {
 export interface CreateContratoDTO {
   clienteId: number;
   consultorId: number;
+  parceiroId?: number;
   situacao: SituacaoContrato;
   dataUltimoContato: string;
   dataProximoContato: string;
@@ -373,6 +376,7 @@ export interface CreateContratoDTO {
 
 export interface UpdateContratoDTO extends CreateContratoDTO {
   id: number;
+  parceiroId?: number;
 }
 
 export interface MudancaSituacaoDTO {

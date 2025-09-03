@@ -27,6 +27,7 @@ import {
   CreditCard,
   Paperclip,
   AlertTriangle,
+  Scale,
 } from "lucide-react";
 import {
   Contrato,
@@ -461,6 +462,68 @@ export default function ContratoDetalhes({
                   </div>
                 </div>
               </div>
+
+              {/* Parceiro (se houver) */}
+              {contrato.parceiro && (
+                <div className="bg-white rounded-xl border border-neutral-200 p-5">
+                  <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                    <Scale className="w-5 h-5 text-primary-600" />
+                    Parceiro
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-neutral-600">Nome</p>
+                        <p className="font-medium text-neutral-900">
+                          {contrato.parceiro.pessoaFisica?.nome ||
+                            "Não informado"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-neutral-600">E-mail</p>
+                        <p className="font-medium text-neutral-900 flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-neutral-400" />
+                          {contrato.parceiro.email ||
+                            contrato.parceiro.pessoaFisica?.email ||
+                            "Não informado"}
+                        </p>
+                      </div>
+                      {contrato.parceiro.oab && (
+                        <div>
+                          <p className="text-sm text-neutral-600">OAB</p>
+                          <p className="font-medium text-neutral-900">
+                            {contrato.parceiro.oab}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm text-neutral-600">Telefone</p>
+                        <div className="space-y-1">
+                          {contrato.parceiro.telefone ||
+                          contrato.parceiro.pessoaFisica?.telefone1 ? (
+                            <p className="font-medium text-neutral-900 flex items-center gap-2">
+                              <Phone className="w-4 h-4 text-neutral-400" />
+                              {contrato.parceiro.telefone ||
+                                contrato.parceiro.pessoaFisica?.telefone1}
+                            </p>
+                          ) : (
+                            <p className="text-neutral-500">Não informado</p>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm text-neutral-600">Filial</p>
+                        <p className="font-medium text-neutral-900 flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-neutral-400" />
+                          {contrato.parceiro.filial?.nome || "Não informada"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Informações de Contato */}
               <div className="bg-white rounded-xl border border-neutral-200 p-5">
