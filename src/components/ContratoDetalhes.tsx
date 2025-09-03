@@ -94,7 +94,7 @@ export default function ContratoDetalhes({
         RESCINDIDO: "RESCINDIDO",
         "RESCINDIDO COM DEBITO": "RESCINDIDO COM DEBITO",
         SUSPENSO: "SUSPENSO",
-        "SUSP. C/ DEBITO": "Suspensão c/ Débito",
+        "SUSP. C/ DEBITO": "SUSP. C/ DEBITO",
         CLIENTE: "CLIENTE",
       };
       return map[m] ?? "Leed";
