@@ -412,12 +412,16 @@ export interface CreateParceiroDTO {
   pessoaFisicaId: number;
   filialId: number;
   oab?: string;
+  email?: string;
+  telefone?: string;
 }
 
 export interface UpdateParceiroDTO {
   id: number;
   filialId: number;
   oab?: string;
+  email?: string;
+  telefone?: string;
 }
 
 export const SituacaoContratoOptions = [
