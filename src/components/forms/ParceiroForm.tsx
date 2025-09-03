@@ -387,6 +387,7 @@ export default function ParceiroForm({
             <label className="block text-sm font-medium text-secondary-700">
               Telefone
             </label>
+
             <div className="relative">
               <input
                 type="tel"
