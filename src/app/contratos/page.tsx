@@ -154,16 +154,57 @@ export default function ContratosPage() {
       // Filtro de busca
       if (searchTerm) {
         const termo = searchTerm.toLowerCase();
+
+        // Buscar em múltiplos campos para maior flexibilidade
         const clienteNome =
           contrato.cliente?.pessoaFisica?.nome ||
           contrato.cliente?.pessoaJuridica?.razaoSocial ||
           "";
         const consultorNome = contrato.consultor?.pessoaFisica?.nome || "";
+        const clienteEmail =
+          contrato.cliente?.pessoaFisica?.email ||
+          contrato.cliente?.pessoaJuridica?.email ||
+          "";
+        const clienteCpfCnpj =
+          contrato.cliente?.pessoaFisica?.cpf ||
+          contrato.cliente?.pessoaJuridica?.cnpj ||
+          "";
+        const numeroPasta = contrato.numeroPasta || "";
+        const tipoServico = contrato.tipoServico || "";
+        const situacao = contrato.situacao || "";
 
-        if (
-          !clienteNome.toLowerCase().includes(termo) &&
-          !consultorNome.toLowerCase().includes(termo)
-        ) {
+        // Debug: log dos dados para verificar estrutura
+        if (searchTerm && contratos.length > 0 && contrato === contratos[0]) {
+          console.log("🔍 Debug busca - Primeiro contrato:", {
+            searchTerm: termo,
+            clienteNome,
+            consultorNome,
+            clienteEmail,
+            clienteCpfCnpj,
+            numeroPasta,
+            tipoServico,
+            situacao,
+            cliente: contrato.cliente,
+            consultor: contrato.consultor,
+          });
+        }
+
+        // Buscar em todos os campos relevantes
+        const campos = [
+          clienteNome,
+          consultorNome,
+          clienteEmail,
+          clienteCpfCnpj,
+          numeroPasta,
+          tipoServico,
+          situacao,
+        ];
+
+        const encontrado = campos.some(
+          (campo) => campo && campo.toLowerCase().includes(termo)
+        );
+
+        if (!encontrado) {
           return false;
         }
       }
@@ -526,7 +567,7 @@ export default function ContratosPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                 <input
                   type="text"
-                  placeholder="Buscar por cliente ou consultor..."
+                  placeholder="Buscar por cliente, consultor, email, CPF/CNPJ, pasta, tipo de serviço..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
