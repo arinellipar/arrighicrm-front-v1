@@ -127,6 +127,13 @@ export default function ContratosPage() {
     "contratos"
   );
 
+  // Debug para produção
+  useEffect(() => {
+    console.log("🔧 ContratosPage: Página carregada");
+    console.log("🔧 ContratosPage: Environment:", process.env.NODE_ENV);
+    console.log("🔧 ContratosPage: API URL:", process.env.NEXT_PUBLIC_API_URL);
+  }, []);
+
   const {
     contratos,
     loading,
@@ -147,6 +154,15 @@ export default function ContratosPage() {
   const [clienteSelecionadoId, setClienteSelecionadoId] = useState<
     number | null
   >(null);
+
+  // Debug para verificar se os hooks estão funcionando
+  useEffect(() => {
+    console.log("🔧 ContratosPage: Contratos carregados:", contratos.length);
+    console.log("🔧 ContratosPage: Loading:", loading);
+    console.log("🔧 ContratosPage: Error:", error);
+    console.log("🔧 ContratosPage: Clientes:", clientes.length);
+    console.log("🔧 ContratosPage: Consultores:", consultores.length);
+  }, [contratos, loading, error, clientes, consultores]);
 
   // Filtrar contratos
   const contratosFiltrados = useMemo(() => {

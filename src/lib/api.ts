@@ -40,10 +40,13 @@ class ApiClient {
         ...options,
       };
 
-      // Log da URL em desenvolvimento
+      // Log da URL sempre (para debug de produção)
+      console.log(`🌐 Making request to: ${url}`);
+      console.log(`🌐 Request method: ${options.method || "GET"}`);
+      console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
+      console.log(`🌐 Base URL: ${this.baseUrl}`);
+
       if (isDevelopment()) {
-        console.log(`🌐 Making request to: ${url}`);
-        console.log(`🌐 Request method: ${options.method || "GET"}`);
         console.log(`🌐 Request headers:`, config.headers);
       }
 

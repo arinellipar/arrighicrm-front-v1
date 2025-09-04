@@ -6,7 +6,7 @@
   "devCommand": "pnpm run dev",
   "regions": ["gru1"],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api"
+    "NEXT_PUBLIC_API_URL": "/api/proxy"
   },
   "functions": {
     "app/api/cep/[cep]/route.ts": {
@@ -17,5 +17,11 @@
     "env": {
       "NODE_ENV": "production"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/proxy/:path*",
+      "destination": "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api/:path*"
+    }
+  ]
 }

@@ -35,33 +35,33 @@ export const getApiUrl = (): string => {
     process.env.NEXT_PUBLIC_API_URL
   );
 
-  // Em desenvolvimento, usar variável de ambiente ou API local
+  // SEMPRE priorizar a variável de ambiente se estiver definida
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    console.log(
+      "🔧 getApiUrl: Usando URL de variável de ambiente:",
+      process.env.NEXT_PUBLIC_API_URL
+    );
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // Em desenvolvimento, usar API local como fallback
   if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
-    // Se NEXT_PUBLIC_API_URL estiver definida, usa ela (permite apontar para produção)
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      console.log(
-        "🔧 getApiUrl: Usando URL de env var:",
-        process.env.NEXT_PUBLIC_API_URL
-      );
-      return process.env.NEXT_PUBLIC_API_URL;
-    }
-    // Senão, usa API local
     const devUrl = "http://localhost:5101/api";
     console.log("🔧 getApiUrl: Usando URL de desenvolvimento padrão:", devUrl);
     return devUrl;
   }
 
-  // In production, always use the production URL
+  // Em produção, usar URL direta do Azure como fallback (caso não tenha proxy)
   if (process.env.NODE_ENV === "production") {
     const productionUrl =
       "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
-    console.log("🔧 getApiUrl: Usando URL de produção:", productionUrl);
+    console.log("🔧 getApiUrl: Usando URL de produção direta:", productionUrl);
     return productionUrl;
   }
 
-  // Development fallback
+  // Development fallback final
   const devUrl = "http://localhost:5101/api";
-  console.log("🔧 getApiUrl: Usando URL de desenvolvimento:", devUrl);
+  console.log("🔧 getApiUrl: Usando URL de desenvolvimento fallback:", devUrl);
   return devUrl;
 };
 
