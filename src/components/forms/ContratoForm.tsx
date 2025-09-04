@@ -37,6 +37,7 @@ import {
 } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useParceiros } from "@/hooks/useParceiros";
 
 interface ContratoFormProps {
   contrato?: Contrato | null;
@@ -92,7 +93,14 @@ export default function ContratoForm({
   const [submitting, setSubmitting] = useState(false);
   const [showClientePicker, setShowClientePicker] = useState(false);
   const [hasParceiro, setHasParceiro] = useState(false);
-  const [parceiros, setParceiros] = useState<Parceiro[]>([]);
+
+  // Usar hook de parceiros
+  const {
+    parceiros,
+    loading: loadingParceiros,
+    error: errorParceiros,
+    fetchParceiros,
+  } = useParceiros();
   // Estados controlados para inputs de moeda (permite digitação livre e parse no blur/submit)
   const [valorDevidoText, setValorDevidoText] = useState<string>("");
   const [valorNegociadoText, setValorNegociadoText] = useState<string>("");
@@ -336,18 +344,12 @@ export default function ContratoForm({
     valorParcelaText,
   ]);
 
-  // Buscar parceiros
-  const fetchParceiros = async () => {
-    try {
-      const response = await fetch("http://localhost:5101/api/Parceiro");
-      if (response.ok) {
-        const parceirosData = await response.json();
-        setParceiros(parceirosData);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar parceiros:", error);
-    }
-  };
+  // Log dos parceiros para debug
+  useEffect(() => {
+    console.log("🔧 ContratoForm: Parceiros carregados:", parceiros.length);
+    console.log("🔧 ContratoForm: Loading parceiros:", loadingParceiros);
+    console.log("🔧 ContratoForm: Erro parceiros:", errorParceiros);
+  }, [parceiros, loadingParceiros, errorParceiros]);
 
   // Pré-selecionar automaticamente o primeiro consultor disponível (evita envio com consultorId=0)
   useEffect(() => {
@@ -356,17 +358,20 @@ export default function ContratoForm({
     }
   }, [contrato, consultores, formData.consultorId]);
 
-  // Carregar parceiros quando o componente montar
-  useEffect(() => {
-    fetchParceiros();
-  }, []);
-
   // Manipular mudança do checkbox de parceiro
   const handleParceiroCheckboxChange = (checked: boolean) => {
+    console.log("🔧 ContratoForm: Checkbox parceiro alterado:", checked);
+    console.log("🔧 ContratoForm: Parceiros disponíveis:", parceiros.length);
     setHasParceiro(checked);
     if (!checked) {
       // Se desmarcar, limpar o parceiroId
       setFormData((prev) => ({ ...prev, parceiroId: undefined }));
+    } else {
+      // Se não há parceiros carregados, tentar buscar novamente
+      if (parceiros.length === 0) {
+        console.log("🔧 ContratoForm: Nenhum parceiro carregado, buscando...");
+        fetchParceiros();
+      }
     }
   };
 
@@ -883,8 +888,12 @@ export default function ContratoForm({
                             className="w-full px-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                           >
                             <option value="">
-                              {parceiros.length === 0
+                              {loadingParceiros
                                 ? "Carregando parceiros..."
+                                : errorParceiros
+                                ? "Erro ao carregar parceiros"
+                                : parceiros.length === 0
+                                ? "Nenhum parceiro cadastrado"
                                 : "Selecione um parceiro"}
                             </option>
                             {parceiros.map((parceiro) => (
