@@ -309,6 +309,7 @@ export const GrupoAcessoOptions = [
 export type SituacaoContrato =
   | "Leed"
   | "Prospecto"
+  | "Em Análise"
   | "Contrato Enviado"
   | "Contrato Assinado"
   | "Retornar"
@@ -438,6 +439,11 @@ export const SituacaoContratoOptions = [
     color: "bg-indigo-100 text-indigo-800",
   },
   {
+    value: "Em Análise",
+    label: "Em Análise",
+    color: "bg-purple-100 text-purple-800",
+  },
+  {
     value: "Contrato Enviado",
     label: "Contrato Enviado",
     color: "bg-yellow-100 text-yellow-800",
@@ -498,4 +504,7 @@ export const TipoServicoOptions = [
   { value: "FAMILIA", label: "Família" },
   { value: "CONSUMIDOR", label: "Consumidor" },
   { value: "IMOBILIARIO", label: "Imobiliário" },
+  { value: "MARCAS", label: "Marcas" },
+  { value: "PI", label: "PI - Propriedade Intelectual" },
+  { value: "EXITO", label: "Êxito" },
 ] as const;
