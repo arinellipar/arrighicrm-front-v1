@@ -34,6 +34,13 @@ export const getApiUrl = (): string => {
     "🔧 getApiUrl: NEXT_PUBLIC_API_URL =",
     process.env.NEXT_PUBLIC_API_URL
   );
+  console.log(
+    "🔧 getApiUrl: window.location =",
+    typeof window !== "undefined" ? window.location.origin : "server-side"
+  );
+
+  // Verificar se estamos no lado do cliente (browser)
+  const isClient = typeof window !== "undefined";
 
   // SEMPRE priorizar a variável de ambiente se estiver definida
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -44,19 +51,34 @@ export const getApiUrl = (): string => {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
+  // Em produção, detectar automaticamente se estamos em Vercel
+  if (process.env.NODE_ENV === "production") {
+    // Se estamos no cliente e a URL contém vercel.app ou arrighicrm.com, usar proxy
+    if (
+      isClient &&
+      (window.location.origin.includes("vercel.app") ||
+        window.location.origin.includes("arrighicrm.com"))
+    ) {
+      const proxyUrl = "/api/proxy";
+      console.log(
+        "🔧 getApiUrl: Detectado Vercel/produção, usando proxy:",
+        proxyUrl
+      );
+      return proxyUrl;
+    }
+
+    // Fallback para URL direta do Azure
+    const productionUrl =
+      "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
+    console.log("🔧 getApiUrl: Usando URL de produção direta:", productionUrl);
+    return productionUrl;
+  }
+
   // Em desenvolvimento, usar API local como fallback
   if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
     const devUrl = "http://localhost:5101/api";
     console.log("🔧 getApiUrl: Usando URL de desenvolvimento padrão:", devUrl);
     return devUrl;
-  }
-
-  // Em produção, usar URL direta do Azure como fallback (caso não tenha proxy)
-  if (process.env.NODE_ENV === "production") {
-    const productionUrl =
-      "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
-    console.log("🔧 getApiUrl: Usando URL de produção direta:", productionUrl);
-    return productionUrl;
   }
 
   // Development fallback final
