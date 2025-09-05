@@ -34,6 +34,7 @@ import { useAtividadeContext } from "@/contexts/AtividadeContext";
 import { formatRelativeTime } from "@/lib/formatUtils";
 import { useClientes } from "@/hooks/useClientes";
 import { useActiveUsers } from "@/hooks/useActiveUsers";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Componente de Card Moderno com Glassmorphism - Otimizado com memo
 const GlassCard = memo(
@@ -198,6 +199,7 @@ NotificationBadge.displayName = "NotificationBadge";
 
 // Componente Principal do Dashboard - Otimizado
 export default function ModernDashboard() {
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("week");
@@ -380,10 +382,18 @@ export default function ModernDashboard() {
                     whileHover={{ scale: 1.02 }}
                     className="flex items-center space-x-3 p-3 bg-white/10 rounded-2xl"
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">
+                        {user?.nome ? user.nome.charAt(0).toUpperCase() : "U"}
+                      </span>
+                    </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900">Admin User</p>
-                      <p className="text-xs text-gray-500">admin@crm2025.com</p>
+                      <p className="font-semibold text-gray-900">
+                        {user?.nome || "Usuário"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {user?.email || "usuario@email.com"}
+                      </p>
                     </div>
                     <LogOut className="w-5 h-5 text-gray-400" />
                   </motion.div>

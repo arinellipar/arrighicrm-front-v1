@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface MenuItem {
   label: string;
@@ -76,6 +77,7 @@ const menuItems: MenuGroup[] = [
 ];
 
 export default function Header() {
+  const { user, logout } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -237,13 +239,17 @@ export default function Header() {
                 >
                   <div className="hidden sm:block text-right">
                     <p className="text-sm font-semibold text-neutral-900">
-                      Admin User
+                      {user?.nome || "Usuário"}
                     </p>
-                    <p className="text-xs text-neutral-500">Administrador</p>
+                    <p className="text-xs text-neutral-500">
+                      {user?.grupoAcesso || "Usuário"}
+                    </p>
                   </div>
                   <div className="relative">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-lg">
-                      <span className="text-white font-bold">A</span>
+                      <span className="text-white font-bold">
+                        {user?.nome ? user.nome.charAt(0).toUpperCase() : "U"}
+                      </span>
                     </div>
                     <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                   </div>

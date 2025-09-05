@@ -125,6 +125,26 @@ export interface UpdateUsuarioDTO extends CreateUsuarioDTO {
   id: number;
 }
 
+// Tipos para Login
+export interface LoginUsuarioDTO {
+  login: string;
+  senha: string;
+}
+
+export interface LoginResponseDTO {
+  message: string;
+  usuario: {
+    id: number;
+    login: string;
+    email: string;
+    grupoAcesso: string;
+    tipoPessoa: string;
+    nome: string;
+    ativo: boolean;
+    ultimoAcesso?: string;
+  };
+}
+
 // Tipos para options de select
 export interface ResponsavelTecnicoOption {
   id: number;
