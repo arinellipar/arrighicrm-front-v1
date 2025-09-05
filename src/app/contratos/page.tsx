@@ -297,6 +297,28 @@ export default function ContratosPage() {
     filtroProximoContato,
   ]);
 
+  // Filtrar clientes na aba de clientes
+  const clientesFiltrados = useMemo(() => {
+    if (!searchTerm) return clientes;
+
+    const termo = searchTerm.toLowerCase();
+    return clientes.filter((cliente) => {
+      const nome = cliente.nome || cliente.razaoSocial || "";
+      const email = cliente.email || "";
+      const cpfCnpj = cliente.cpf || cliente.cnpj || "";
+      const telefone = cliente.telefone1 || "";
+      const filial = cliente.filial?.nome || "";
+
+      return (
+        nome.toLowerCase().includes(termo) ||
+        email.toLowerCase().includes(termo) ||
+        cpfCnpj.toLowerCase().includes(termo) ||
+        telefone.toLowerCase().includes(termo) ||
+        filial.toLowerCase().includes(termo)
+      );
+    });
+  }, [clientes, searchTerm]);
+
   // Estatísticas
   const estatisticas = useMemo(() => {
     const total = contratos.length;
@@ -1010,71 +1032,91 @@ export default function ContratosPage() {
 
         {/* Tabela de Clientes (igual a /clientes, simplificada) */}
         {activeTab === "clientes" && (
-          <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-neutral-50 border-b border-neutral-200">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Cliente
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Tipo
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Documento
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Contato
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
-                      Filial
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-200">
-                  {clientes.map((cliente, index) => (
-                    <motion.tr
-                      key={cliente.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.02 * index }}
-                      onDoubleClick={() => {
-                        setClienteSelecionadoId(cliente.id);
-                        openForm();
-                      }}
-                      className="hover:bg-neutral-50 cursor-pointer"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-neutral-900">
-                          {cliente.nome || cliente.razaoSocial}
-                        </div>
-                        <div className="text-xs text-neutral-500">
-                          {cliente.email || "N/A"}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-neutral-700">
-                        {cliente.tipo === "fisica" ? "Física" : "Jurídica"}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-neutral-700">
-                        {cliente.cpf || cliente.cnpj || "—"}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-neutral-700">
-                        {cliente.telefone1 || "N/A"}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-neutral-700">
-                        {cliente.filial?.nome || "Não informada"}
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <>
+            {clientesFiltrados.length > 0 ? (
+              <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-neutral-50 border-b border-neutral-200">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                          Cliente
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                          Tipo
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                          Documento
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                          Contato
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                          Filial
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-200">
+                      {clientesFiltrados.map((cliente, index) => (
+                        <motion.tr
+                          key={cliente.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.02 * index }}
+                          onDoubleClick={() => {
+                            setClienteSelecionadoId(cliente.id);
+                            openForm();
+                          }}
+                          className="hover:bg-neutral-50 cursor-pointer"
+                        >
+                          <td className="px-4 py-3">
+                            <div className="text-sm font-medium text-neutral-900">
+                              {cliente.nome || cliente.razaoSocial}
+                            </div>
+                            <div className="text-xs text-neutral-500">
+                              {cliente.email || "N/A"}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-neutral-700">
+                            {cliente.tipo === "fisica" ? "Física" : "Jurídica"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-neutral-700">
+                            {cliente.cpf || cliente.cnpj || "—"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-neutral-700">
+                            {cliente.telefone1 || "N/A"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-neutral-700">
+                            {cliente.filial?.nome || "Não informada"}
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-white rounded-xl shadow-sm border border-neutral-200/60 p-12 text-center"
+              >
+                <Users className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+                  Nenhum cliente encontrado
+                </h3>
+                <p className="text-neutral-600 mb-6">
+                  {searchTerm
+                    ? "Tente ajustar o termo de busca para ver mais resultados"
+                    : "Não há clientes cadastrados no sistema"}
+                </p>
+              </motion.div>
+            )}
+          </>
         )}
 
         {/* Mensagem quando não há contratos */}
-        {contratosFiltrados.length === 0 && (
+        {activeTab === "contratos" && contratosFiltrados.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
