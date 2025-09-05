@@ -302,21 +302,43 @@ export default function ContratosPage() {
     if (!searchTerm) return clientes;
 
     const termo = searchTerm.toLowerCase();
-    return clientes.filter((cliente) => {
+    console.log("🔍 Filtro clientes - Termo de busca:", termo);
+    console.log("🔍 Filtro clientes - Total de clientes:", clientes.length);
+
+    const filtrados = clientes.filter((cliente) => {
       const nome = cliente.nome || cliente.razaoSocial || "";
       const email = cliente.email || "";
       const cpfCnpj = cliente.cpf || cliente.cnpj || "";
       const telefone = cliente.telefone1 || "";
-      const filial = cliente.filial?.nome || "";
+      const filial =
+        typeof cliente.filial === "string"
+          ? cliente.filial
+          : cliente.filial?.nome || "";
 
-      return (
+      // Debug do primeiro cliente
+      if (cliente === clientes[0]) {
+        console.log("🔍 Debug primeiro cliente:", {
+          nome,
+          email,
+          cpfCnpj,
+          telefone,
+          filial,
+          clienteCompleto: cliente,
+        });
+      }
+
+      const match =
         nome.toLowerCase().includes(termo) ||
         email.toLowerCase().includes(termo) ||
         cpfCnpj.toLowerCase().includes(termo) ||
         telefone.toLowerCase().includes(termo) ||
-        filial.toLowerCase().includes(termo)
-      );
+        filial.toLowerCase().includes(termo);
+
+      return match;
     });
+
+    console.log("🔍 Filtro clientes - Clientes filtrados:", filtrados.length);
+    return filtrados;
   }, [clientes, searchTerm]);
 
   // Estatísticas
