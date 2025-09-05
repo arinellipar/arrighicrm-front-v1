@@ -266,10 +266,10 @@ export default function Header() {
                     >
                       <div className="p-4 bg-gradient-to-r from-primary-50 to-gold-50 border-b border-neutral-200/60">
                         <p className="text-sm font-semibold text-neutral-900">
-                          Admin User
+                          {user?.nome || "Usuário"}
                         </p>
                         <p className="text-xs text-neutral-600">
-                          admin@arrighi.com
+                          {user?.email || "usuario@email.com"}
                         </p>
                       </div>
                       <div className="p-2">
@@ -277,7 +277,10 @@ export default function Header() {
                           <Settings className="w-4 h-4" />
                           Configurações
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                        <button
+                          onClick={logout}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
                           <LogOut className="w-4 h-4" />
                           Sair
                         </button>

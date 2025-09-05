@@ -8,16 +8,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar se o usuário está autenticado
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-
-    if (isAuthenticated === "true") {
-      // Se estiver autenticado, redirecionar para dashboard
-      router.push("/dashboard");
-    } else {
-      // Se não estiver autenticado, redirecionar para login
-      router.push("/login");
-    }
+    // Sempre redirecionar para login - a página de login já verifica se o usuário está autenticado
+    router.push("/login");
   }, [router]);
 
   // Mostrar loading enquanto redireciona

@@ -6,17 +6,29 @@ import { useForm } from "@/contexts/FormContext";
 import { Calendar, Clock } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useClientes } from "@/hooks/useClientes";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { Loader2, Shield } from "lucide-react";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
   const { isFormOpen } = useForm();
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   // Hook para dados de clientes
   const { clientes, loading: clientesLoading } = useClientes();
+
+  // Verificar autenticação - redirecionar para login se não autenticado
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   // Cálculo de clientes ativos dinâmico
   const clientesAtivos = useMemo(() => {
@@ -54,6 +66,28 @@ export default function MainLayout({ children }: MainLayoutProps) {
       second: "2-digit",
     });
   };
+
+  // Mostrar loading enquanto verifica autenticação
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+          </div>
+          <h2 className="text-xl font-semibold text-neutral-800 mb-2">
+            Verificando autenticação...
+          </h2>
+          <p className="text-neutral-600">Aguarde um momento</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não estiver autenticado, não renderizar nada (redirecionamento já foi feito)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">

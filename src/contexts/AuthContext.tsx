@@ -76,8 +76,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: response.error };
       }
 
-      if (response.data?.usuario) {
-        const userData = response.data.usuario;
+      if (
+        response.data &&
+        typeof response.data === "object" &&
+        "usuario" in response.data
+      ) {
+        const userData = (response.data as any).usuario;
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("isAuthenticated", "true");
