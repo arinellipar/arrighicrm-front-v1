@@ -81,7 +81,8 @@ export function useConsultores() {
             pessoaFisicaId: number;
             pessoaFisica?: {
               nome?: string;
-              email?: string;
+              emailEmpresarial?: string;
+              emailPessoal?: string;
               telefone1?: string;
               telefone2?: string;
             };
@@ -95,7 +96,7 @@ export function useConsultores() {
           return {
             ...c,
             nome: c.pessoaFisica?.nome,
-            email: c.pessoaFisica?.email,
+            email: c.pessoaFisica?.emailEmpresarial,
             telefone1: c.pessoaFisica?.telefone1,
             telefone2: c.pessoaFisica?.telefone2,
             oab: c.oab, // Usando o campo OAB real

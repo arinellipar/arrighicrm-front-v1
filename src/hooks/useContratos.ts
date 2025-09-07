@@ -719,7 +719,7 @@ export function useContratos() {
           nome: clienteData.pessoaFisica?.nome,
           razaoSocial: clienteData.pessoaJuridica?.razaoSocial,
           email:
-            clienteData.pessoaFisica?.email ||
+            clienteData.pessoaFisica?.emailEmpresarial ||
             clienteData.pessoaJuridica?.email,
           cpf: clienteData.pessoaFisica?.cpf,
           cnpj: clienteData.pessoaJuridica?.cnpj,

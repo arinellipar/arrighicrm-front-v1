@@ -114,7 +114,10 @@ export default function ParceirosPage() {
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       parceiro.oab?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      parceiro.pessoaFisica?.email
+      parceiro.pessoaFisica?.emailEmpresarial
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      parceiro.pessoaFisica?.emailPessoal
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
 
@@ -563,7 +566,7 @@ export default function ParceirosPage() {
                                 </div>
                                 <div className="text-sm text-secondary-500">
                                   {parceiro.email ||
-                                    parceiro.pessoaFisica?.email ||
+                                    parceiro.pessoaFisica?.emailEmpresarial ||
                                     "N/A"}
                                 </div>
                               </div>
@@ -643,7 +646,7 @@ export default function ParceirosPage() {
                       <div className="flex items-center text-sm text-secondary-600">
                         <Mail className="w-4 h-4 mr-2" />
                         {parceiro.email ||
-                          parceiro.pessoaFisica?.email ||
+                          parceiro.pessoaFisica?.emailEmpresarial ||
                           "N/A"}
                       </div>
                       <div className="flex items-center text-sm text-secondary-600">

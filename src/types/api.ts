@@ -22,7 +22,8 @@ export interface CreateEnderecoDTO {
 export interface PessoaFisica {
   id: number;
   nome: string;
-  email: string;
+  emailEmpresarial: string;
+  emailPessoal?: string;
   codinome?: string;
   sexo: string;
   dataNascimento: string;
@@ -40,7 +41,8 @@ export interface PessoaFisica {
 
 export interface CreatePessoaFisicaDTO {
   nome: string;
-  email: string;
+  emailEmpresarial: string;
+  emailPessoal?: string;
   codinome?: string;
   sexo: string;
   dataNascimento: string;
@@ -164,7 +166,8 @@ export interface PessoaFisicaOption {
   id: number;
   nome: string;
   cpf: string;
-  email: string;
+  emailEmpresarial: string;
+  emailPessoal?: string;
 }
 
 export interface PessoaJuridicaOption {

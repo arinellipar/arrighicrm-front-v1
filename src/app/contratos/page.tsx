@@ -178,7 +178,7 @@ export default function ContratosPage() {
           "";
         const consultorNome = contrato.consultor?.pessoaFisica?.nome || "";
         const clienteEmail =
-          contrato.cliente?.pessoaFisica?.email ||
+          contrato.cliente?.pessoaFisica?.emailEmpresarial ||
           contrato.cliente?.pessoaJuridica?.email ||
           "";
         const clienteCpfCnpj =

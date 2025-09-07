@@ -26,7 +26,8 @@ export default function ClientePickerModal({
     if (!term) return clientes;
     return clientes.filter((c) => {
       const nome = c.pessoaFisica?.nome || c.pessoaJuridica?.razaoSocial || "";
-      const email = c.pessoaFisica?.email || c.pessoaJuridica?.email || "";
+      const email =
+        c.pessoaFisica?.emailEmpresarial || c.pessoaJuridica?.email || "";
       const cpf = c.pessoaFisica?.cpf || "";
       const cnpj = c.pessoaJuridica?.cnpj || "";
       const f1 = c.pessoaFisica?.telefone1 || c.pessoaJuridica?.telefone1 || "";
@@ -118,7 +119,9 @@ export default function ClientePickerModal({
                       const doc =
                         c.pessoaFisica?.cpf || c.pessoaJuridica?.cnpj || "—";
                       const email =
-                        c.pessoaFisica?.email || c.pessoaJuridica?.email || "—";
+                        c.pessoaFisica?.emailEmpresarial ||
+                        c.pessoaJuridica?.email ||
+                        "—";
                       const tels = [
                         c.pessoaFisica?.telefone1 ||
                           c.pessoaJuridica?.telefone1,

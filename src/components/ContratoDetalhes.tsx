@@ -333,7 +333,7 @@ export default function ContratoDetalhes({
                       <p className="text-sm text-neutral-600">E-mail</p>
                       <p className="font-medium text-neutral-900 flex items-center gap-2">
                         <Mail className="w-4 h-4 text-neutral-400" />
-                        {cliente?.pessoaFisica?.email ||
+                        {cliente?.pessoaFisica?.emailEmpresarial ||
                           cliente?.pessoaJuridica?.email ||
                           "Não informado"}
                       </p>
@@ -426,7 +426,8 @@ export default function ContratoDetalhes({
                       <p className="text-sm text-neutral-600">E-mail</p>
                       <p className="font-medium text-neutral-900 flex items-center gap-2">
                         <Mail className="w-4 h-4 text-neutral-400" />
-                        {consultor?.pessoaFisica?.email || "Não informado"}
+                        {consultor?.pessoaFisica?.emailEmpresarial ||
+                          "Não informado"}
                       </p>
                     </div>
                   </div>
@@ -484,7 +485,7 @@ export default function ContratoDetalhes({
                         <p className="font-medium text-neutral-900 flex items-center gap-2">
                           <Mail className="w-4 h-4 text-neutral-400" />
                           {contrato.parceiro.email ||
-                            contrato.parceiro.pessoaFisica?.email ||
+                            contrato.parceiro.pessoaFisica?.emailEmpresarial ||
                             "Não informado"}
                         </p>
                       </div>

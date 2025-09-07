@@ -1,7 +1,7 @@
 // src/app/cadastros/pessoa-fisica/page.tsx
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -26,7 +26,6 @@ import {
 } from "@/types/api";
 import { cn, truncateText } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
-import { TableNavigation } from "@/components/TableNavigation";
 import { TableSizeToggle } from "@/components/TableSizeToggle";
 
 function StatusBadge({
@@ -129,9 +128,6 @@ export default function PessoaFisicaPage() {
   );
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
 
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const tableRef = useRef<HTMLDivElement>(null);
   const [isTableCompact, setIsTableCompact] = useState(false);
 
   // Filtrar pessoas por termo de busca e ordenar alfabeticamente
@@ -140,7 +136,11 @@ export default function PessoaFisicaPage() {
       (pessoa) =>
         pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
         pessoa.cpf.includes(searchTerm) ||
-        pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
+        pessoa.emailEmpresarial
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (pessoa.emailPessoal &&
+          pessoa.emailPessoal.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 
@@ -234,43 +234,6 @@ export default function PessoaFisicaPage() {
       return cadastro >= mesAtual;
     }).length,
   };
-
-  const handleScrollLeft = () => {
-    if (tableRef.current) {
-      tableRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
-  };
-
-  const handleScrollRight = () => {
-    if (tableRef.current) {
-      tableRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
-
-  const checkScrollPosition = () => {
-    if (tableRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = tableRef.current;
-      const hasHorizontalScroll = scrollWidth > clientWidth;
-
-      setCanScrollLeft(hasHorizontalScroll && scrollLeft > 0);
-      setCanScrollRight(
-        hasHorizontalScroll && scrollLeft < scrollWidth - clientWidth - 1
-      );
-    }
-  };
-
-  useEffect(() => {
-    const tableElement = tableRef.current;
-    if (tableElement) {
-      tableElement.addEventListener("scroll", checkScrollPosition);
-      // Verificar posição inicial
-      setTimeout(checkScrollPosition, 100);
-
-      return () => {
-        tableElement.removeEventListener("scroll", checkScrollPosition);
-      };
-    }
-  }, [pessoas]);
 
   return (
     <MainLayout>
@@ -469,10 +432,7 @@ export default function PessoaFisicaPage() {
                 </div>
 
                 <div className="w-full overflow-x-auto">
-                  <div
-                    ref={tableRef}
-                    className="table-responsive table-container overflow-x-auto min-w-full"
-                  >
+                  <div className="table-responsive table-container overflow-x-auto min-w-full">
                     <table
                       className={`w-full min-w-[1200px] sm:min-w-[1300px] lg:min-w-[1400px] xl:min-w-[1500px] ${
                         isTableCompact ? "table-compact" : ""
@@ -599,7 +559,7 @@ export default function PessoaFisicaPage() {
                                         : "text-[10px] sm:text-xs"
                                     }`}
                                   >
-                                    {pessoa.email}
+                                    {pessoa.emailEmpresarial}
                                   </div>
                                 </div>
                               </div>
@@ -625,7 +585,7 @@ export default function PessoaFisicaPage() {
                                     : "text-[10px] sm:text-xs lg:text-sm"
                                 }`}
                               >
-                                {pessoa.email}
+                                {pessoa.emailEmpresarial}
                               </div>
                               <div
                                 className={`text-secondary-500 ${
@@ -661,13 +621,6 @@ export default function PessoaFisicaPage() {
                       </tbody>
                     </table>
                   </div>
-                  <TableNavigation
-                    onScrollLeft={handleScrollLeft}
-                    onScrollRight={handleScrollRight}
-                    canScrollLeft={canScrollLeft}
-                    canScrollRight={canScrollRight}
-                    pageId="pessoa-fisica"
-                  />
                 </div>
               </div>
             )}

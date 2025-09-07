@@ -173,7 +173,7 @@ export default function ConsultorForm({
       ...prev,
       pessoaFisicaId: pessoa.id,
       nome: pessoa.nome || "",
-      email: pessoa.email || "",
+      email: pessoa.emailEmpresarial || "",
       telefone1: pessoa.telefone1 || "",
       telefone2: pessoa.telefone2 || "",
     }));
@@ -194,7 +194,11 @@ export default function ConsultorForm({
   const filteredPessoasFisicas = pessoasFisicas.filter(
     (pessoa) =>
       pessoa.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pessoa.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      pessoa.emailEmpresarial
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (pessoa.emailPessoal &&
+        pessoa.emailPessoal.toLowerCase().includes(searchTerm.toLowerCase())) ||
       pessoa.cpf?.includes(searchTerm)
   );
 
@@ -382,7 +386,7 @@ export default function ConsultorForm({
                                 {pessoa.nome}
                               </p>
                               <p className="text-sm text-secondary-600">
-                                {pessoa.email}
+                                {pessoa.emailEmpresarial}
                               </p>
                               {pessoa.cpf && (
                                 <p className="text-xs text-secondary-500">

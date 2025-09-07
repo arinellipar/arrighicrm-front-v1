@@ -42,7 +42,8 @@ interface PessoaFisicaFormProps {
 
 interface FormData {
   nome: string;
-  email: string;
+  emailEmpresarial: string;
+  emailPessoal: string;
   codinome: string;
   sexo: string;
   dataNascimento: string;
@@ -76,7 +77,8 @@ interface InputFieldProps {
 
 const initialFormData: FormData = {
   nome: "",
-  email: "",
+  emailEmpresarial: "",
+  emailPessoal: "",
   codinome: "",
   sexo: "",
   dataNascimento: "",
@@ -295,14 +297,14 @@ export default function PessoaFisicaForm({
 }: PessoaFisicaFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [currentStep, setCurrentStep] = useState(0);
 
   // Inicializar dados se for edição
   useEffect(() => {
     if (initialData) {
       setFormData({
         nome: initialData.nome || "",
-        email: initialData.email || "",
+        emailEmpresarial: initialData.emailEmpresarial || "",
+        emailPessoal: initialData.emailPessoal || "",
         codinome: initialData.codinome || "",
         sexo: initialData.sexo || "",
         dataNascimento: initialData.dataNascimento || "",
@@ -476,7 +478,8 @@ export default function PessoaFisicaForm({
 
     // Validações básicas
     if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório";
-    if (!formData.email.trim()) newErrors.email = "E-mail é obrigatório";
+    if (!formData.emailEmpresarial.trim())
+      newErrors.emailEmpresarial = "E-mail empresarial é obrigatório";
     if (!formData.sexo) newErrors.sexo = "Sexo é obrigatório";
     if (!formData.dataNascimento)
       newErrors.dataNascimento = "Data de nascimento é obrigatória";
@@ -526,7 +529,8 @@ export default function PessoaFisicaForm({
 
     const submitData: CreatePessoaFisicaDTO = {
       nome: formData.nome,
-      email: formData.email,
+      emailEmpresarial: formData.emailEmpresarial,
+      emailPessoal: formData.emailPessoal || undefined,
       codinome: formData.codinome || undefined,
       sexo: formData.sexo,
       dataNascimento: dataNascimento,
@@ -566,37 +570,6 @@ export default function PessoaFisicaForm({
     }
   };
 
-  // Indicador de progresso
-  const ProgressIndicator = () => (
-    <div className="flex items-center justify-center mb-8">
-      <div className="flex items-center gap-4">
-        {["Dados Pessoais", "Documentos", "Contato", "Endereço"].map(
-          (step, index) => (
-            <div key={step} className="flex items-center">
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{
-                  scale: currentStep >= index ? 1 : 0.8,
-                  backgroundColor: currentStep >= index ? "#0ea5e9" : "#e2e8f0",
-                }}
-                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-lg"
-              >
-                {index + 1}
-              </motion.div>
-              {index < 3 && (
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: currentStep > index ? 1 : 0 }}
-                  className="w-16 h-1 bg-primary-500 origin-left"
-                />
-              )}
-            </div>
-          )
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -634,9 +607,6 @@ export default function PessoaFisicaForm({
         </motion.button>
       </div>
 
-      {/* Progress Indicator */}
-      <ProgressIndicator />
-
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Dados Pessoais */}
         <FormSection
@@ -655,13 +625,22 @@ export default function PessoaFisicaForm({
               icon={<User className="w-5 h-5" />}
             />
             <InputField
-              label="E-mail"
-              name="email"
+              label="E-mail Empresarial"
+              name="emailEmpresarial"
               type="email"
               required
-              value={formData.email}
-              onChange={(value) => handleFieldChange("email", value)}
-              error={errors.email}
+              value={formData.emailEmpresarial}
+              onChange={(value) => handleFieldChange("emailEmpresarial", value)}
+              error={errors.emailEmpresarial}
+              icon={<Mail className="w-5 h-5" />}
+            />
+            <InputField
+              label="E-mail Pessoal"
+              name="emailPessoal"
+              type="email"
+              value={formData.emailPessoal}
+              onChange={(value) => handleFieldChange("emailPessoal", value)}
+              error={errors.emailPessoal}
               icon={<Mail className="w-5 h-5" />}
             />
             <InputField

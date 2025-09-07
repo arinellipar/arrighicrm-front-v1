@@ -46,7 +46,9 @@ export function useClientes() {
           tipo: cliente.tipoPessoa === "Fisica" ? "fisica" : "juridica",
           nome: cliente.pessoaFisica?.nome,
           razaoSocial: cliente.pessoaJuridica?.razaoSocial,
-          email: cliente.pessoaFisica?.email || cliente.pessoaJuridica?.email,
+          email:
+            cliente.pessoaFisica?.emailEmpresarial ||
+            cliente.pessoaJuridica?.email,
           cpf: cliente.pessoaFisica?.cpf,
           cnpj: cliente.pessoaJuridica?.cnpj,
           telefone1:
@@ -98,7 +100,7 @@ export function useClientes() {
           nome: novoCliente.pessoaFisica?.nome,
           razaoSocial: novoCliente.pessoaJuridica?.razaoSocial,
           email:
-            novoCliente.pessoaFisica?.email ||
+            novoCliente.pessoaFisica?.emailEmpresarial ||
             novoCliente.pessoaJuridica?.email,
           cpf: novoCliente.pessoaFisica?.cpf,
           cnpj: novoCliente.pessoaJuridica?.cnpj,
@@ -168,7 +170,7 @@ export function useClientes() {
           nome: clienteAtualizado.pessoaFisica?.nome,
           razaoSocial: clienteAtualizado.pessoaJuridica?.razaoSocial,
           email:
-            clienteAtualizado.pessoaFisica?.email ||
+            clienteAtualizado.pessoaFisica?.emailEmpresarial ||
             clienteAtualizado.pessoaJuridica?.email,
           cpf: clienteAtualizado.pessoaFisica?.cpf,
           cnpj: clienteAtualizado.pessoaJuridica?.cnpj,

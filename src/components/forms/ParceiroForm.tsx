@@ -83,7 +83,8 @@ export default function ParceiroForm({
         pessoaFisicaId: initialData.pessoaFisicaId || 0,
         filialId: initialData.filialId || 0,
         oab: initialData.oab || "",
-        email: initialData.email || initialData.pessoaFisica?.email || "",
+        email:
+          initialData.email || initialData.pessoaFisica?.emailEmpresarial || "",
         telefone:
           initialData.telefone || initialData.pessoaFisica?.telefone1 || "",
       });
@@ -151,7 +152,7 @@ export default function ParceiroForm({
   const handlePessoaFisicaSelect = (pessoa: PessoaFisica) => {
     setSelectedPessoaFisica(pessoa);
     handleInputChange("pessoaFisicaId", pessoa.id);
-    handleInputChange("email", pessoa.email || "");
+    handleInputChange("email", pessoa.emailEmpresarial || "");
     handleInputChange("telefone", pessoa.telefone1 || "");
     setShowPessoaFisicaSelector(false);
     setSearchTerm("");
@@ -178,7 +179,11 @@ export default function ParceiroForm({
     (pessoa) =>
       pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pessoa.cpf.includes(searchTerm) ||
-      pessoa.email.toLowerCase().includes(searchTerm.toLowerCase())
+      pessoa.emailEmpresarial
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (pessoa.emailPessoal &&
+        pessoa.emailPessoal.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getSelectedPessoaFisicaDisplay = () => {
@@ -447,7 +452,7 @@ export default function ParceiroForm({
                   <span className="font-medium text-secondary-600">Email:</span>
                   <span className="ml-2 text-secondary-900">
                     {formData.email ||
-                      selectedPessoaFisica.email ||
+                      selectedPessoaFisica.emailEmpresarial ||
                       "Não informado"}
                   </span>
                 </div>
@@ -609,7 +614,7 @@ export default function ParceiroForm({
                           </h4>
                           <div className="flex items-center space-x-4 text-sm text-secondary-600">
                             <span>{pessoa.cpf}</span>
-                            <span>{pessoa.email}</span>
+                            <span>{pessoa.emailEmpresarial}</span>
                           </div>
                         </div>
                       </div>

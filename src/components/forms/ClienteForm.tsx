@@ -85,7 +85,7 @@ export default function ClienteForm({
           tipoPessoa: "Fisica",
           pessoaId: pessoa.id,
           nome: pessoa.nome || "",
-          email: pessoa.email || "",
+          email: pessoa.emailEmpresarial || "",
           cpf: pessoa.cpf || "",
           telefone1: pessoa.telefone1 || "",
           telefone2: pessoa.telefone2 || "",

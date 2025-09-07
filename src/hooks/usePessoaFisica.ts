@@ -160,7 +160,7 @@ export function usePessoaFisica() {
           "Admin User",
           `Atualizou pessoa física: ${data.nome}`,
           "info",
-          `Email: ${data.email || "Não informado"}`,
+          `Email: ${data.emailEmpresarial || "Não informado"}`,
           "Pessoa Física"
         );
 

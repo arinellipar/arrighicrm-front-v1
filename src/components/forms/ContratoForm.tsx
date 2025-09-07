@@ -761,7 +761,8 @@ export default function ContratoForm({
                                   Email:{" "}
                                 </span>
                                 <span className="text-neutral-600">
-                                  {selectedCliente.pessoaFisica?.email ||
+                                  {selectedCliente.pessoaFisica
+                                    ?.emailEmpresarial ||
                                     selectedCliente.pessoaJuridica?.email ||
                                     "—"}
                                 </span>
