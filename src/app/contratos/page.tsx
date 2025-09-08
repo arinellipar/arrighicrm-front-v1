@@ -26,6 +26,7 @@ import {
   XCircle,
   History,
   ChevronDown,
+  CreditCard,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import ContratoForm from "@/components/forms/ContratoForm";
@@ -35,6 +36,7 @@ import { Tooltip } from "@/components";
 import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
 import { useConsultores } from "@/hooks/useConsultores";
+import { useBoletos } from "@/hooks/useBoletos";
 import {
   Contrato,
   CreateContratoDTO,
@@ -43,6 +45,10 @@ import {
   SituacaoContratoOptions,
   SituacaoContrato,
 } from "@/types/api";
+import { BoletoCard } from "@/components/boletos/BoletoCard";
+import { BoletoDetailsModal } from "@/components/boletos/BoletoDetailsModal";
+import { BoletoForm } from "@/components/boletos/BoletoForm";
+import { Boleto } from "@/types/boleto";
 import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 import { format, isAfter, isBefore, parseISO } from "date-fns";
@@ -122,6 +128,10 @@ export default function ContratosPage() {
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
   const [showDetalhes, setShowDetalhes] = useState(false);
   const [showMudancaSituacao, setShowMudancaSituacao] = useState(false);
+  const [showBoletos, setShowBoletos] = useState(false);
+  const [showNovoBoleto, setShowNovoBoleto] = useState(false);
+  const [selectedBoleto, setSelectedBoleto] = useState<Boleto | null>(null);
+  const [showBoletoDetails, setShowBoletoDetails] = useState(false);
   const { openForm, closeForm } = useForm();
   const [activeTab, setActiveTab] = useState<"contratos" | "clientes">(
     "contratos"
@@ -151,6 +161,14 @@ export default function ContratosPage() {
 
   const { clientes } = useClientes();
   const { consultores } = useConsultores();
+  const {
+    boletos,
+    loading: loadingBoletos,
+    fetchBoletosPorContrato,
+    createBoleto,
+    syncBoleto,
+    deleteBoleto,
+  } = useBoletos();
   const [clienteSelecionadoId, setClienteSelecionadoId] = useState<
     number | null
   >(null);
@@ -456,6 +474,55 @@ export default function ContratosPage() {
     } catch {
       return false;
     }
+  };
+
+  // Funções para gerenciamento de boletos
+  const handleViewBoletos = async (contrato: Contrato) => {
+    setSelectedContrato(contrato);
+    setShowBoletos(true);
+    await fetchBoletosPorContrato(contrato.id);
+  };
+
+  const handleCreateBoleto = async (data: any) => {
+    try {
+      await createBoleto(data);
+      if (selectedContrato) {
+        await fetchBoletosPorContrato(selectedContrato.id);
+      }
+    } catch (error) {
+      console.error("Erro ao criar boleto:", error);
+    }
+  };
+
+  const handleSyncBoleto = async (boleto: Boleto) => {
+    try {
+      await syncBoleto(boleto.id);
+      if (selectedContrato) {
+        await fetchBoletosPorContrato(selectedContrato.id);
+      }
+    } catch (error) {
+      console.error("Erro ao sincronizar boleto:", error);
+    }
+  };
+
+  const handleDeleteBoleto = async (boleto: Boleto) => {
+    if (!confirm(`Deseja realmente cancelar o boleto #${boleto.id}?`)) {
+      return;
+    }
+
+    try {
+      await deleteBoleto(boleto.id);
+      if (selectedContrato) {
+        await fetchBoletosPorContrato(selectedContrato.id);
+      }
+    } catch (error) {
+      console.error("Erro ao cancelar boleto:", error);
+    }
+  };
+
+  const handleViewBoletoDetails = (boleto: Boleto) => {
+    setSelectedBoleto(boleto);
+    setShowBoletoDetails(true);
   };
 
   if (loading && contratos.length === 0) {
@@ -872,20 +939,15 @@ export default function ContratosPage() {
                           </motion.button>
                         </Tooltip>
 
-                        <Tooltip content="Mudar Situação">
+                        <Tooltip content="Ver Boletos">
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => {
-                              setSelectedContrato(contrato);
-                              setShowMudancaSituacao(true);
-                            }}
-                            className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-yellow-50 text-yellow-600 rounded-lg transition-colors"
+                            onClick={() => handleViewBoletos(contrato)}
+                            className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-green-50 text-green-600 rounded-lg transition-colors"
                           >
-                            <RefreshCcw className="w-4 h-4" />
-                            <span className="text-xs font-medium">
-                              Situação
-                            </span>
+                            <CreditCard className="w-4 h-4" />
+                            <span className="text-xs font-medium">Boletos</span>
                           </motion.button>
                         </Tooltip>
 
@@ -1010,15 +1072,12 @@ export default function ContratosPage() {
                                 <Eye className="w-4 h-4" />
                               </button>
                             </Tooltip>
-                            <Tooltip content="Mudar Situação">
+                            <Tooltip content="Ver Boletos">
                               <button
-                                onClick={() => {
-                                  setSelectedContrato(contrato);
-                                  setShowMudancaSituacao(true);
-                                }}
-                                className="p-1.5 hover:bg-yellow-50 text-yellow-600 rounded transition-colors"
+                                onClick={() => handleViewBoletos(contrato)}
+                                className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors"
                               >
-                                <RefreshCcw className="w-4 h-4" />
+                                <CreditCard className="w-4 h-4" />
                               </button>
                             </Tooltip>
                             <Tooltip content="Editar">
@@ -1210,6 +1269,123 @@ export default function ContratosPage() {
           }}
         />
       )}
+
+      {/* Modal de Boletos do Contrato */}
+      {showBoletos && selectedContrato && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Boletos do Contrato #{selectedContrato.id}
+                </h2>
+                <p className="text-gray-600 mt-1">
+                  {selectedContrato.cliente?.pessoaFisica?.nome ||
+                    selectedContrato.cliente?.pessoaJuridica?.razaoSocial ||
+                    "Cliente não identificado"}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowBoletos(false);
+                  setSelectedContrato(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              {/* Botão Novo Boleto */}
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Boletos</h3>
+                <button
+                  onClick={() => setShowNovoBoleto(true)}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  Novo Boleto
+                </button>
+              </div>
+
+              {/* Loading */}
+              {loadingBoletos && (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-gray-600">
+                    Carregando boletos...
+                  </span>
+                </div>
+              )}
+
+              {/* Lista de Boletos */}
+              {!loadingBoletos && boletos.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {boletos.map((boleto) => (
+                    <BoletoCard
+                      key={boleto.id}
+                      boleto={boleto}
+                      onViewDetails={handleViewBoletoDetails}
+                      onSync={handleSyncBoleto}
+                      onDelete={handleDeleteBoleto}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Sem boletos */}
+              {!loadingBoletos && boletos.length === 0 && (
+                <div className="text-center py-12">
+                  <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg">
+                    Nenhum boleto encontrado
+                  </p>
+                  <p className="text-gray-400 mt-2">
+                    Este contrato ainda não possui boletos registrados
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Novo Boleto */}
+      <BoletoForm
+        isOpen={showNovoBoleto}
+        onClose={() => setShowNovoBoleto(false)}
+        onSubmit={handleCreateBoleto}
+        contratos={
+          selectedContrato
+            ? [
+                {
+                  id: selectedContrato.id,
+                  numeroContrato: `CONT-${selectedContrato.id}`,
+                  clienteNome:
+                    selectedContrato.cliente?.pessoaFisica?.nome ||
+                    selectedContrato.cliente?.pessoaJuridica?.razaoSocial ||
+                    "Cliente não identificado",
+                  valorNegociado: selectedContrato.valorNegociado,
+                },
+              ]
+            : []
+        }
+      />
+
+      {/* Modal de Detalhes do Boleto */}
+      <BoletoDetailsModal
+        boleto={selectedBoleto}
+        isOpen={showBoletoDetails}
+        onClose={() => {
+          setShowBoletoDetails(false);
+          setSelectedBoleto(null);
+        }}
+        onSync={handleSyncBoleto}
+        onDelete={handleDeleteBoleto}
+      />
     </MainLayout>
   );
 }

@@ -23,6 +23,7 @@ import MainLayout from "@/components/MainLayout";
 import PessoaJuridicaForm from "@/components/forms/PessoaJuridicaForm";
 import { Tooltip } from "@/components";
 import { usePessoaJuridica } from "@/hooks/usePessoaJuridica";
+import { usePessoaFisica } from "@/hooks/usePessoaFisica";
 import { PessoaJuridica, ResponsavelTecnicoOption } from "@/types/api";
 import { cn, truncateText } from "@/lib/utils";
 import Link from "next/link";
@@ -119,6 +120,8 @@ export default function PessoaJuridicaPage() {
     clearError,
   } = usePessoaJuridica();
 
+  const { pessoas: pessoasFisicas } = usePessoaFisica();
+
   const { openForm, closeForm } = useForm();
 
   const [showForm, setShowForm] = useState(false);
@@ -142,20 +145,34 @@ export default function PessoaJuridicaPage() {
 
   // Carregar responsáveis técnicos
   useEffect(() => {
-    const loadResponsaveisTecnicos = async () => {
-      try {
-        const response = await fetch("/api/PessoaFisica");
-        if (response.ok) {
-          const data = await response.json();
-          setResponsaveisTecnicos(data);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar responsáveis técnicos:", error);
-      }
-    };
-
-    loadResponsaveisTecnicos();
-  }, []);
+    if (pessoasFisicas && pessoasFisicas.length > 0) {
+      // Mapear pessoas físicas para o formato ResponsavelTecnicoOption
+      const responsaveis = pessoasFisicas.map((pessoa) => ({
+        id: pessoa.id,
+        nome: pessoa.nome,
+        cpf: pessoa.cpf,
+        email: pessoa.emailEmpresarial || pessoa.emailPessoal || "",
+        sexo: pessoa.sexo || "",
+        dataNascimento: pessoa.dataNascimento || "",
+        estadoCivil: pessoa.estadoCivil || "",
+        telefone1: pessoa.telefone1 || "",
+        telefone2: pessoa.telefone2,
+        enderecoId: pessoa.enderecoId || 0,
+        endereco: pessoa.endereco || {
+          id: 0,
+          logradouro: "",
+          numero: "",
+          complemento: "",
+          bairro: "",
+          cidade: "",
+          estado: "",
+          cep: "",
+          dataCadastro: new Date().toISOString(),
+        },
+      }));
+      setResponsaveisTecnicos(responsaveis);
+    }
+  }, [pessoasFisicas]);
 
   // Fechar menu quando clicar fora
   useEffect(() => {

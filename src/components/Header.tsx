@@ -15,6 +15,8 @@ import {
   Menu,
   X as CloseIcon,
   FileText,
+  CreditCard,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -67,10 +69,30 @@ const menuItems: MenuGroup[] = [
     label: "Gestão",
     items: [
       {
+        label: "Contratos",
+        href: "/contratos",
+        icon: <FileText className="w-4 h-4" />,
+      },
+      {
         label: "Usuários",
         href: "/usuarios",
         icon: <UserCheck className="w-4 h-4" />,
         badge: "3",
+      },
+    ],
+  },
+  {
+    label: "Financeiro",
+    items: [
+      {
+        label: "Boletos",
+        href: "/boletos",
+        icon: <CreditCard className="w-4 h-4" />,
+      },
+      {
+        label: "Dashboard Financeiro",
+        href: "/dashboard/financeiro",
+        icon: <TrendingUp className="w-4 h-4" />,
       },
     ],
   },
@@ -122,14 +144,6 @@ export default function Header() {
                   className="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200"
                 >
                   Dashboard
-                </Link>
-
-                <Link
-                  href="/contratos"
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200"
-                >
-                  <FileText className="w-4 h-4 text-primary-600" />
-                  <span>Contratos</span>
                 </Link>
 
                 {menuItems.map((group) => (
@@ -321,13 +335,6 @@ export default function Header() {
                 className="block px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
               >
                 Dashboard
-              </Link>
-              <Link
-                href="/contratos"
-                className="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
-              >
-                <FileText className="w-4 h-4 text-primary-600" />
-                <span>Contratos</span>
               </Link>
               {menuItems.map((group) => (
                 <div key={group.label} className="space-y-1">
