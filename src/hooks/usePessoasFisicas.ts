@@ -170,10 +170,10 @@ export function usePessoasFisicas() {
     setState((prev) => ({ ...prev, error: null }));
   }, []);
 
-  // Removido o useEffect para não carregar automaticamente
-  // useEffect(() => {
-  //   fetchPessoasFisicas();
-  // }, [fetchPessoasFisicas]);
+  // Carregar automaticamente as pessoas físicas quando o hook é usado
+  useEffect(() => {
+    fetchPessoasFisicas();
+  }, [fetchPessoasFisicas]);
 
   return {
     ...state,
