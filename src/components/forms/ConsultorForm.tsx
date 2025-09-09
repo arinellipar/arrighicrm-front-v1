@@ -81,6 +81,19 @@ export default function ConsultorForm({
   const [searchTerm, setSearchTerm] = useState("");
   const [cpfSearch, setCpfSearch] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [selectedPessoaFisica, setSelectedPessoaFisica] =
+    useState<PessoaFisica | null>(null);
+
+  // Função para formatar data no formato brasileiro
+  const formatDateBR = (dateString: string) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("pt-BR");
+    } catch (error) {
+      return "";
+    }
+  };
 
   useEffect(() => {
     if (initialData) {
@@ -95,6 +108,11 @@ export default function ConsultorForm({
         especialidades: initialData.especialidades || [],
         status: initialData.status || "ativo",
       });
+
+      // Se estiver editando e tiver uma pessoa física vinculada, definir ela como selecionada
+      if (initialData.pessoaFisica) {
+        setSelectedPessoaFisica(initialData.pessoaFisica);
+      }
     }
   }, [initialData]);
 
@@ -177,6 +195,7 @@ export default function ConsultorForm({
       telefone1: pessoa.telefone1 || "",
       telefone2: pessoa.telefone2 || "",
     }));
+    setSelectedPessoaFisica(pessoa);
     setShowPessoaFisicaSelector(false);
     setSearchTerm("");
     setCpfSearch("");
@@ -413,12 +432,39 @@ export default function ConsultorForm({
                   )}
                 </div>
 
-                {formData.pessoaFisicaId > 0 && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <p className="text-sm text-green-800">
-                      <span className="font-medium">Pessoa selecionada:</span>{" "}
-                      {formData.nome}
-                    </p>
+                {formData.pessoaFisicaId > 0 && selectedPessoaFisica && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm text-green-800 font-medium mb-2">
+                          Pessoa selecionada:
+                        </p>
+                        <div className="space-y-1">
+                          <p className="text-sm text-green-900 font-semibold">
+                            {selectedPessoaFisica.nome}
+                          </p>
+                          <p className="text-xs text-green-700">
+                            Email: {selectedPessoaFisica.emailEmpresarial}
+                          </p>
+                          {selectedPessoaFisica.cpf && (
+                            <p className="text-xs text-green-700">
+                              CPF: {selectedPessoaFisica.cpf}
+                            </p>
+                          )}
+                          {selectedPessoaFisica.dataNascimento && (
+                            <div className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3 text-green-600" />
+                              <p className="text-xs text-green-700">
+                                Data de Nascimento:{" "}
+                                {formatDateBR(
+                                  selectedPessoaFisica.dataNascimento
+                                )}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </motion.div>
