@@ -27,6 +27,7 @@ import {
   History,
   ChevronDown,
   CreditCard,
+  Settings,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import ContratoForm from "@/components/forms/ContratoForm";
@@ -939,6 +940,23 @@ export default function ContratosPage() {
                           </motion.button>
                         </Tooltip>
 
+                        <Tooltip content="Alterar Situação">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setSelectedContrato(contrato);
+                              setShowMudancaSituacao(true);
+                            }}
+                            className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-orange-50 text-orange-600 rounded-lg transition-colors"
+                          >
+                            <Settings className="w-4 h-4" />
+                            <span className="text-xs font-medium">
+                              Situação
+                            </span>
+                          </motion.button>
+                        </Tooltip>
+
                         <Tooltip content="Ver Boletos">
                           <motion.button
                             whileHover={{ scale: 1.05 }}
@@ -1070,6 +1088,17 @@ export default function ContratosPage() {
                                 className="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors"
                               >
                                 <Eye className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="Alterar Situação">
+                              <button
+                                onClick={() => {
+                                  setSelectedContrato(contrato);
+                                  setShowMudancaSituacao(true);
+                                }}
+                                className="p-1.5 hover:bg-orange-50 text-orange-600 rounded transition-colors"
+                              >
+                                <Settings className="w-4 h-4" />
                               </button>
                             </Tooltip>
                             <Tooltip content="Ver Boletos">

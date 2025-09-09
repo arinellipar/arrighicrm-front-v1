@@ -112,7 +112,34 @@ export function usePessoaFisica() {
         );
 
         if (response.error) {
-          setError(response.error);
+          // Tentar parsear se é uma resposta estruturada do backend
+          try {
+            const errorData = JSON.parse(response.error);
+            if (errorData.message) {
+              setError(errorData.message);
+              return false;
+            }
+          } catch {
+            // Se não for JSON, tratar como string simples
+          }
+
+          const lower = response.error.toLowerCase();
+          if (lower.includes("cpf já cadastrado")) {
+            setError("CPF já cadastrado.");
+          } else if (
+            lower.includes("e-mail empresarial já cadastrado") ||
+            lower.includes("email empresarial já cadastrado")
+          ) {
+            setError("E-mail empresarial já cadastrado.");
+          } else if (
+            lower.includes("dados inválidos") ||
+            lower.includes("modelstate") ||
+            lower.includes("bad request")
+          ) {
+            setError("Dados inválidos. Verifique os campos obrigatórios.");
+          } else {
+            setError(response.error);
+          }
           return false;
         }
 
@@ -192,11 +219,13 @@ export function usePessoaFisica() {
             "Status:",
             response.status
           );
-          // Se for erro 400, pode ser uma validação de negócio (ex: responsável técnico)
+          // Se for erro 400, é uma validação de negócio (dependências)
           if (response.status === 400) {
             setError(response.error);
+          } else if (response.status === 404) {
+            setError("Pessoa física não encontrada.");
           } else {
-            setError("Erro ao excluir pessoa física");
+            setError("Erro ao excluir pessoa física. Tente novamente.");
           }
           return false;
         }

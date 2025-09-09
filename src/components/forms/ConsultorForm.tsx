@@ -191,16 +191,25 @@ export default function ConsultorForm({
     }
   };
 
-  const filteredPessoasFisicas = pessoasFisicas.filter(
-    (pessoa) =>
+  const filteredPessoasFisicas = pessoasFisicas.filter((pessoa) => {
+    const matchesSearch =
       pessoa.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       pessoa.emailEmpresarial
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       (pessoa.emailPessoal &&
-        pessoa.emailPessoal.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      pessoa.cpf?.includes(searchTerm)
-  );
+        pessoa.emailPessoal.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const cpfClean = pessoa.cpf?.replace(/\D/g, "") || "";
+    const searchTermCpfClean = searchTerm.replace(/\D/g, "");
+    const matchesSearchCpf =
+      !searchTermCpfClean || cpfClean.includes(searchTermCpfClean);
+
+    const cpfSearchClean = cpfSearch.replace(/\D/g, "");
+    const matchesCpf = !cpfSearchClean || cpfClean.includes(cpfSearchClean);
+
+    return (matchesSearch || matchesSearchCpf) && matchesCpf;
+  });
 
   return (
     <>

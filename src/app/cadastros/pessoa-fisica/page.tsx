@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -117,6 +118,7 @@ export default function PessoaFisicaPage() {
     deletePessoa,
     clearError,
   } = usePessoaFisica();
+  const router = useRouter();
 
   const { openForm, closeForm } = useForm();
 
@@ -676,6 +678,75 @@ export default function PessoaFisicaPage() {
           )}
         </AnimatePresence>
 
+        {/* Modal: Dados já cadastrados (CPF, E-mail, etc.) */}
+        <AnimatePresence>
+          {error &&
+            (error.toLowerCase().includes("já cadastrado") ||
+              error.toLowerCase().includes("já existe")) && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={() => clearError()}
+              >
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="p-2 bg-amber-100 rounded-full">
+                      <AlertCircle className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-secondary-900">
+                      {error.toLowerCase().includes("cpf")
+                        ? "CPF já cadastrado"
+                        : error.toLowerCase().includes("e-mail") ||
+                          error.toLowerCase().includes("email")
+                        ? "E-mail já cadastrado"
+                        : "Dados já cadastrados"}
+                    </h3>
+                  </div>
+                  <p className="text-secondary-700 mb-6">
+                    {error.toLowerCase().includes("cpf")
+                      ? "Já existe uma pessoa física cadastrada com este CPF. Você pode voltar à página anterior ou corrigir os dados no formulário."
+                      : error.toLowerCase().includes("e-mail") ||
+                        error.toLowerCase().includes("email")
+                      ? "Já existe uma pessoa física cadastrada com este e-mail. Você pode voltar à página anterior ou corrigir os dados no formulário."
+                      : "Já existem dados cadastrados com essas informações. Você pode voltar à página anterior ou corrigir os dados no formulário."}
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        clearError();
+                        setShowForm(false);
+                        setEditingPessoa(null);
+                        // Voltar para a listagem de pessoas físicas
+                        router.push("/cadastros/pessoa-fisica");
+                      }}
+                      className="px-4 py-2 text-secondary-700 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium transition-colors duration-200"
+                    >
+                      Voltar
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => clearError()}
+                      className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors duration-200"
+                    >
+                      Corrigir dados
+                    </motion.button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+        </AnimatePresence>
+
         {/* Modal de Confirmação de Exclusão */}
         <AnimatePresence>
           {showDeleteConfirm !== null && (
@@ -702,8 +773,17 @@ export default function PessoaFisicaPage() {
                   </h3>
                 </div>
                 <p className="text-secondary-600 mb-6">
-                  Tem certeza que deseja excluir esta pessoa? Esta ação não pode
-                  ser desfeita.
+                  Tem certeza que deseja excluir esta pessoa física?
+                  <br />
+                  <strong className="text-secondary-800">
+                    {pessoas.find((p) => p.id === showDeleteConfirm)?.nome}
+                  </strong>
+                  <br />
+                  <span className="text-sm text-red-600 mt-2 block">
+                    Esta ação não pode ser desfeita. A pessoa só poderá ser
+                    excluída se não estiver vinculada a clientes, consultores,
+                    usuários ou como responsável técnico.
+                  </span>
                 </p>
                 <div className="flex justify-end space-x-3">
                   <motion.button

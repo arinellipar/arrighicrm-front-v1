@@ -3,6 +3,21 @@
 import { useState, useEffect, useCallback, memo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  validateCPF,
+  formatCPF,
+  validateEmail,
+  validatePhone,
+  formatPhone,
+  validateCEP,
+  formatCEP,
+  validateFullName,
+  validateRG,
+  validateCNH,
+  validateCodinome,
+  sanitizeString,
+  normalizeEmail,
+} from "../../utils/validators";
+import {
   Save,
   X,
   Loader2,
@@ -476,40 +491,99 @@ export default function PessoaFisicaForm({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Validações básicas
-    if (!formData.nome.trim()) newErrors.nome = "Nome é obrigatório";
-    if (!formData.emailEmpresarial.trim())
-      newErrors.emailEmpresarial = "E-mail empresarial é obrigatório";
-    if (!formData.sexo) newErrors.sexo = "Sexo é obrigatório";
-    if (!formData.dataNascimento)
-      newErrors.dataNascimento = "Data de nascimento é obrigatória";
-    if (!formData.estadoCivil)
-      newErrors.estadoCivil = "Estado civil é obrigatório";
-    if (!formData.cpf.trim()) newErrors.cpf = "CPF é obrigatório";
+    // Validações robustas usando os novos validadores
 
-    // Validação de telefone
-    if (!formData.telefone1.trim()) {
-      newErrors.telefone1 = "Telefone é obrigatório";
-    } else {
-      const telefoneNumeros = formData.telefone1.replace(/\D/g, "");
-      if (telefoneNumeros.length < 10) {
-        newErrors.telefone1 = "Telefone deve ter pelo menos 10 dígitos";
-      } else if (telefoneNumeros.length > 11) {
-        newErrors.telefone1 = "Telefone deve ter no máximo 11 dígitos";
+    // Nome completo
+    if (!validateFullName(formData.nome)) {
+      if (!formData.nome.trim()) {
+        newErrors.nome = "Nome é obrigatório";
+      } else {
+        newErrors.nome =
+          "Informe nome e sobrenome completos (2-200 caracteres)";
       }
     }
 
-    // Validações de endereço
-    if (!formData.endereco.cidade.trim())
+    // E-mail empresarial
+    if (!formData.emailEmpresarial.trim()) {
+      newErrors.emailEmpresarial = "E-mail empresarial é obrigatório";
+    } else if (!validateEmail(formData.emailEmpresarial)) {
+      newErrors.emailEmpresarial = "E-mail empresarial inválido";
+    }
+
+    // E-mail pessoal (opcional)
+    if (formData.emailPessoal && !validateEmail(formData.emailPessoal)) {
+      newErrors.emailPessoal = "E-mail pessoal inválido";
+    }
+
+    // CPF
+    if (!formData.cpf.trim()) {
+      newErrors.cpf = "CPF é obrigatório";
+    } else if (!validateCPF(formData.cpf)) {
+      newErrors.cpf = "CPF inválido";
+    }
+
+    // Data de nascimento e idade
+    if (!formData.dataNascimento) {
+      newErrors.dataNascimento = "Data de nascimento é obrigatória";
+    }
+
+    // Sexo
+    if (!formData.sexo) {
+      newErrors.sexo = "Sexo é obrigatório";
+    }
+
+    // Estado civil
+    if (!formData.estadoCivil) {
+      newErrors.estadoCivil = "Estado civil é obrigatório";
+    }
+
+    // Telefone principal
+    if (!formData.telefone1.trim()) {
+      newErrors.telefone1 = "Telefone principal é obrigatório";
+    } else if (!validatePhone(formData.telefone1)) {
+      newErrors.telefone1 = "Telefone principal inválido";
+    }
+
+    // Telefone secundário (opcional)
+    if (formData.telefone2 && !validatePhone(formData.telefone2)) {
+      newErrors.telefone2 = "Telefone secundário inválido";
+    }
+
+    // Campos opcionais
+    if (!validateCodinome(formData.codinome)) {
+      newErrors.codinome = "Codinome não pode exceder 100 caracteres";
+    }
+
+    if (!validateRG(formData.rg)) {
+      newErrors.rg = "RG não pode exceder 20 caracteres";
+    }
+
+    if (!validateCNH(formData.cnh)) {
+      newErrors.cnh = "CNH não pode exceder 20 caracteres";
+    }
+
+    // Endereço
+    if (!formData.endereco.cidade.trim()) {
       newErrors["endereco.cidade"] = "Cidade é obrigatória";
-    if (!formData.endereco.bairro.trim())
+    }
+
+    if (!formData.endereco.bairro.trim()) {
       newErrors["endereco.bairro"] = "Bairro é obrigatório";
-    if (!formData.endereco.logradouro.trim())
+    }
+
+    if (!formData.endereco.logradouro.trim()) {
       newErrors["endereco.logradouro"] = "Logradouro é obrigatório";
-    if (!formData.endereco.cep.trim())
-      newErrors["endereco.cep"] = "CEP é obrigatório";
-    if (!formData.endereco.numero.trim())
+    }
+
+    if (!formData.endereco.numero.trim()) {
       newErrors["endereco.numero"] = "Número é obrigatório";
+    }
+
+    if (!formData.endereco.cep.trim()) {
+      newErrors["endereco.cep"] = "CEP é obrigatório";
+    } else if (!validateCEP(formData.endereco.cep)) {
+      newErrors["endereco.cep"] = "CEP inválido";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

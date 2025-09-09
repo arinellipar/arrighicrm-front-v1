@@ -138,9 +138,11 @@ export function usePessoasFisicas() {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       console.log("🔧 buscarPorCpf: Buscando CPF:", cpf);
+      const cpfLimpo = cpf.replace(/\D/g, "");
+      console.log("🔧 buscarPorCpf: CPF limpo:", cpfLimpo);
 
       const response = await apiClient.get(
-        `/PessoaFisica/buscar-por-cpf/${cpf}`
+        `/PessoaFisica/buscar-por-cpf/${encodeURIComponent(cpfLimpo)}`
       );
       console.log("🔧 buscarPorCpf: Resposta recebida:", response);
 
