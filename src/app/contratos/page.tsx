@@ -1321,6 +1321,7 @@ export default function ContratosPage() {
         contrato={selectedContrato}
         clientes={clientes}
         consultores={consultores}
+        contratos={contratos}
         onSubmit={
           selectedContrato
             ? (data) => handleUpdateContrato(selectedContrato.id, data)

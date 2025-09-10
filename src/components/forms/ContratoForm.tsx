@@ -43,6 +43,7 @@ interface ContratoFormProps {
   contrato?: Contrato | null;
   clientes: Cliente[];
   consultores: Consultor[];
+  contratos: Contrato[];
   onSubmit: (
     data: CreateContratoDTO | Partial<UpdateContratoDTO>
   ) => Promise<void>;
@@ -54,6 +55,7 @@ export default function ContratoForm({
   contrato,
   clientes,
   consultores,
+  contratos,
   onSubmit,
   onCancel,
   initialClienteId,
@@ -351,12 +353,40 @@ export default function ContratoForm({
     console.log("🔧 ContratoForm: Erro parceiros:", errorParceiros);
   }, [parceiros, loadingParceiros, errorParceiros]);
 
-  // Pré-selecionar automaticamente o primeiro consultor disponível (evita envio com consultorId=0)
+  // Pré-selecionar automaticamente o consultor ativo do cliente ou o primeiro disponível
   useEffect(() => {
     if (!contrato && formData.consultorId === 0 && consultores.length > 0) {
-      setFormData((prev) => ({ ...prev, consultorId: consultores[0].id }));
+      // Se há um cliente selecionado, verificar se ele já tem consultor ativo
+      if (formData.clienteId && formData.clienteId !== 0) {
+        const contratosDoCliente = contratos.filter(
+          (c) => c.clienteId === formData.clienteId && c.ativo
+        );
+        const consultorAtivoId = contratosDoCliente.find((contrato) => {
+          const consultorDoContrato = consultores.find(
+            (c) => c.id === contrato.consultorId
+          );
+          return consultorDoContrato && consultorDoContrato.ativo;
+        })?.consultorId;
+
+        if (consultorAtivoId) {
+          setFormData((prev) => ({ ...prev, consultorId: consultorAtivoId }));
+          return;
+        }
+      }
+
+      // Senão, pré-selecionar o primeiro consultor ativo disponível
+      const consultorAtivo = consultores.find((c) => c.ativo);
+      if (consultorAtivo) {
+        setFormData((prev) => ({ ...prev, consultorId: consultorAtivo.id }));
+      }
     }
-  }, [contrato, consultores, formData.consultorId]);
+  }, [
+    contrato,
+    consultores,
+    formData.consultorId,
+    formData.clienteId,
+    contratos,
+  ]);
 
   // Manipular mudança do checkbox de parceiro
   const handleParceiroCheckboxChange = (checked: boolean) => {
@@ -392,6 +422,45 @@ export default function ContratoForm({
 
     if (!formData.consultorId || formData.consultorId === 0) {
       newErrors.consultorId = "Consultor é obrigatório";
+    } else if (formData.clienteId && formData.clienteId !== 0) {
+      // Verificar se o cliente já tem um consultor ativo (apenas para novos contratos)
+      if (!contrato) {
+        const consultorSelecionado = consultores.find(
+          (c) => c.id === formData.consultorId
+        );
+        const contratosDoCliente = contratos.filter(
+          (c) => c.clienteId === formData.clienteId && c.ativo
+        );
+
+        // Verificar se há contratos ativos com consultores ativos
+        const temConsultorAtivo = contratosDoCliente.some((contrato) => {
+          const consultorDoContrato = consultores.find(
+            (c) => c.id === contrato.consultorId
+          );
+          return consultorDoContrato && consultorDoContrato.ativo;
+        });
+
+        if (temConsultorAtivo) {
+          // Verificar se o consultor atual do cliente é diferente do selecionado
+          const consultorAtualId = contratosDoCliente.find((contrato) => {
+            const consultorDoContrato = consultores.find(
+              (c) => c.id === contrato.consultorId
+            );
+            return consultorDoContrato && consultorDoContrato.ativo;
+          })?.consultorId;
+
+          if (consultorAtualId !== formData.consultorId) {
+            const consultorAtual = consultores.find(
+              (c) => c.id === consultorAtualId
+            );
+            newErrors.consultorId = `Este cliente já possui um consultor ativo: ${
+              consultorAtual?.pessoaFisica?.nome ||
+              consultorAtual?.nome ||
+              "Consultor"
+            }. Para reatribuir, o consultor atual deve estar inativo.`;
+          }
+        }
+      }
     }
 
     if (!formData.situacao) {
@@ -840,9 +909,14 @@ export default function ContratoForm({
                               : "Selecione um consultor"}
                           </option>
                           {consultores.map((consultor) => (
-                            <option key={consultor.id} value={consultor.id}>
+                            <option
+                              key={consultor.id}
+                              value={consultor.id}
+                              disabled={!consultor.ativo}
+                            >
                               {consultor.pessoaFisica?.nome || consultor.nome} -{" "}
                               {consultor.filial?.nome || "Filial não informada"}
+                              {!consultor.ativo && " (INATIVO)"}
                             </option>
                           ))}
                         </select>
@@ -853,6 +927,47 @@ export default function ContratoForm({
                           {errors.consultorId}
                         </p>
                       )}
+                      {/* Mostrar consultor atual do cliente */}
+                      {formData.clienteId &&
+                        formData.clienteId !== 0 &&
+                        !contrato &&
+                        (() => {
+                          const contratosDoCliente = contratos.filter(
+                            (c) => c.clienteId === formData.clienteId && c.ativo
+                          );
+                          const consultorAtivo = contratosDoCliente.find(
+                            (contrato) => {
+                              const consultorDoContrato = consultores.find(
+                                (c) => c.id === contrato.consultorId
+                              );
+                              return (
+                                consultorDoContrato && consultorDoContrato.ativo
+                              );
+                            }
+                          );
+
+                          if (consultorAtivo) {
+                            const consultor = consultores.find(
+                              (c) => c.id === consultorAtivo.consultorId
+                            );
+                            return (
+                              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p className="text-xs text-blue-800 font-medium">
+                                  ℹ️ Consultor atual:{" "}
+                                  {consultor?.pessoaFisica?.nome ||
+                                    consultor?.nome ||
+                                    "Consultor"}
+                                </p>
+                                <p className="text-xs text-blue-600 mt-1">
+                                  Este cliente já possui um consultor ativo.
+                                  Novos contratos serão atribuídos ao mesmo
+                                  consultor.
+                                </p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                     </div>
 
                     {/* Checkbox de Parceiro */}
