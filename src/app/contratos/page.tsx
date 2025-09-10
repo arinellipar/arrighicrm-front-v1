@@ -556,7 +556,18 @@ export default function ContratosPage() {
                 Gerencie contratos e acompanhe negociações
               </p>
             </div>
-            {/* Botão de Novo Contrato removido conforme solicitação */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setClienteSelecionadoId(null);
+                openForm();
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Novo Contrato
+            </motion.button>
           </div>
 
           {/* Cards de Estatísticas */}
@@ -1164,6 +1175,9 @@ export default function ContratosPage() {
                         <th className="px-4 py-3 text-left text-xs font-medium text-neutral-600 uppercase tracking-wider">
                           Filial
                         </th>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-neutral-600 uppercase tracking-wider">
+                          Ações
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-200">
@@ -1173,11 +1187,7 @@ export default function ContratosPage() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.02 * index }}
-                          onDoubleClick={() => {
-                            setClienteSelecionadoId(cliente.id);
-                            openForm();
-                          }}
-                          className="hover:bg-neutral-50 cursor-pointer"
+                          className="hover:bg-neutral-50"
                         >
                           <td className="px-4 py-3">
                             <div className="text-sm font-medium text-neutral-900">
@@ -1185,6 +1195,18 @@ export default function ContratosPage() {
                             </div>
                             <div className="text-xs text-neutral-500">
                               {cliente.email || "N/A"}
+                            </div>
+                            <div className="text-xs text-primary-600 font-medium mt-1">
+                              {(() => {
+                                const qtdContratos = contratos.filter(
+                                  (c) => c.clienteId === cliente.id
+                                ).length;
+                                return qtdContratos > 0
+                                  ? `${qtdContratos} contrato${
+                                      qtdContratos > 1 ? "s" : ""
+                                    }`
+                                  : "Sem contratos";
+                              })()}
                             </div>
                           </td>
                           <td className="px-4 py-3 text-sm text-neutral-700">
@@ -1198,6 +1220,24 @@ export default function ContratosPage() {
                           </td>
                           <td className="px-4 py-3 text-sm text-neutral-700">
                             {cliente.filial?.nome || "Não informada"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-center gap-2">
+                              <Tooltip content="Novo Contrato">
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => {
+                                    setClienteSelecionadoId(cliente.id);
+                                    openForm();
+                                  }}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs rounded-lg font-medium transition-colors"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  Contrato
+                                </motion.button>
+                              </Tooltip>
+                            </div>
                           </td>
                         </motion.tr>
                       ))}
@@ -1220,6 +1260,13 @@ export default function ContratosPage() {
                     ? "Tente ajustar o termo de busca para ver mais resultados"
                     : "Não há clientes cadastrados no sistema"}
                 </p>
+                {!searchTerm && (
+                  <p className="text-sm text-neutral-500">
+                    Cada cliente pode ter múltiplos contratos. Use o botão
+                    "Contrato" ao lado de cada cliente para criar novos
+                    contratos.
+                  </p>
+                )}
               </motion.div>
             )}
           </>
@@ -1244,7 +1291,27 @@ export default function ContratosPage() {
                 ? "Tente ajustar os filtros para ver mais resultados"
                 : "Comece criando um novo contrato"}
             </p>
-            {/* Removido botão "Criar Primeiro Contrato" conforme solicitação */}
+            {!(
+              searchTerm ||
+              filtroSituacao !== "todas" ||
+              filtroConsultor !== "todos" ||
+              filtroProximoContato !== "todos"
+            ) && (
+              <div className="text-sm text-neutral-500 space-y-2">
+                <p>
+                  💡 <strong>Dica:</strong> Você pode criar quantos contratos
+                  forem necessários para cada cliente.
+                </p>
+                <p>
+                  • Use o botão "Novo Contrato" acima para criar um contrato do
+                  zero
+                </p>
+                <p>
+                  • Na aba "Clientes", clique em "Contrato" ao lado de um
+                  cliente específico
+                </p>
+              </div>
+            )}
           </motion.div>
         )}
       </div>
