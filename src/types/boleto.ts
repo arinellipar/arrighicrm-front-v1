@@ -11,6 +11,7 @@ export interface Boleto {
   dueDate: string;
   issueDate: string;
   nominalValue: number;
+  value: number; // Alias for nominalValue for compatibility
   documentKind: string;
   status: BoletoStatus;
 
