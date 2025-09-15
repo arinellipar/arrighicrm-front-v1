@@ -7,7 +7,6 @@ import {
   UpdatePessoaJuridicaDTO,
 } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface UsePessoaJuridicaState {
   pessoas: PessoaJuridica[];
@@ -29,7 +28,6 @@ export function usePessoaJuridica() {
   });
 
   const { adicionarAtividade } = useAtividadeContext();
-  const { user } = useAuth();
 
   const setLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -111,7 +109,7 @@ export function usePessoaJuridica() {
 
         // Registrar atividade
         adicionarAtividade(
-          user?.nome || "Usuário",
+          "Admin User",
           `Cadastrou nova pessoa jurídica: ${data.razaoSocial}`,
           "success",
           `CNPJ: ${data.cnpj || "Não informado"}`,
@@ -147,7 +145,7 @@ export function usePessoaJuridica() {
 
         // Registrar atividade
         adicionarAtividade(
-          user?.nome || "Usuário",
+          "Admin User",
           `Atualizou pessoa jurídica: ${data.razaoSocial}`,
           "info",
           `Email: ${data.email || "Não informado"}`,
@@ -187,7 +185,7 @@ export function usePessoaJuridica() {
         // Registrar atividade
         if (pessoaParaDeletar) {
           adicionarAtividade(
-            user?.nome || "Usuário",
+            "Admin User",
             `Excluiu pessoa jurídica: ${pessoaParaDeletar.razaoSocial}`,
             "warning",
             `CNPJ: ${pessoaParaDeletar.cnpj || "Não informado"}`,

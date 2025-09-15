@@ -22,7 +22,7 @@
   "rewrites": [
     {
       "source": "/api/proxy/:path*",
-      "destination": "https://arrighi-bk-test-c2bth2axeacqasc3.brazilsouth-01.azurewebsites.net/api/:path*"
+      "destination": "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api/:path*"
     }
   ]
 }

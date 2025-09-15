@@ -10,7 +10,6 @@ import {
   HistoricoSituacaoContrato,
 } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface UseContratosState {
   contratos: Contrato[];
@@ -36,7 +35,6 @@ export function useContratos() {
   });
 
   const { adicionarAtividade } = useAtividadeContext();
-  const { user } = useAuth();
 
   const fetchContratos = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
@@ -46,18 +44,7 @@ export function useContratos() {
         "🔧 useContratos: sessionContratos atuais:",
         state.sessionContratos.length
       );
-
-      // Construir URL com filtro por consultor se necessário
-      let url = "/Contrato";
-      if (user && user.grupoAcesso === "Consultores" && user.consultorId) {
-        url += `?consultorId=${user.consultorId}`;
-        console.log(
-          "🔧 useContratos: Filtrando contratos para consultor ID:",
-          user.consultorId
-        );
-      }
-
-      const response = await apiClient.get(url);
+      const response = await apiClient.get("/Contrato");
 
       // Verificar se há erro na resposta
       if (response.error) {
@@ -206,7 +193,7 @@ export function useContratos() {
         loading: false,
       }));
     }
-  }, [user]);
+  }, []);
 
   const getContrato = useCallback(async (id: number) => {
     try {
@@ -311,7 +298,7 @@ export function useContratos() {
           }));
 
           adicionarAtividade(
-            user?.nome || "Usuário",
+            "Admin User",
             `Criou novo contrato para cliente ID ${data.clienteId}`,
             "success",
             `Situação: ${data.situacao}`,

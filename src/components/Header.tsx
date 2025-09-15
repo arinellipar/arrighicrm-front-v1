@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -27,7 +27,6 @@ interface MenuItem {
   href: string;
   icon: React.ReactNode;
   badge?: string;
-  allowedGroups?: string[];
 }
 
 interface MenuGroup {
@@ -35,7 +34,7 @@ interface MenuGroup {
   items: MenuItem[];
 }
 
-const getAllMenuItems = (): MenuGroup[] => [
+const menuItems: MenuGroup[] = [
   {
     label: "Cadastros",
     items: [
@@ -43,64 +42,26 @@ const getAllMenuItems = (): MenuGroup[] => [
         label: "Pessoa Física",
         href: "/cadastros/pessoa-fisica",
         icon: <Users className="w-4 h-4" />,
-        allowedGroups: [
-          "Administrador",
-          "Faturamento",
-          "Cobrança/Financeiro",
-          "Gestor de Filial",
-          "Administrativo de Filial",
-          "Consultores",
-        ],
       },
       {
         label: "Pessoa Jurídica",
         href: "/cadastros/pessoa-juridica",
         icon: <Building2 className="w-4 h-4" />,
-        allowedGroups: [
-          "Administrador",
-          "Faturamento",
-          "Cobrança/Financeiro",
-          "Gestor de Filial",
-          "Administrativo de Filial",
-          "Consultores",
-        ],
       },
       {
         label: "Consultores",
         href: "/consultores",
         icon: <UserCheck className="w-4 h-4" />,
-        allowedGroups: [
-          "Administrador",
-          "Faturamento",
-          "Cobrança/Financeiro",
-          "Gestor de Filial",
-          // Consultores NÃO podem ver outros consultores
-        ],
       },
       {
         label: "Parceiros",
         href: "/parceiros",
         icon: <Scale className="w-4 h-4" />,
-        allowedGroups: [
-          "Administrador",
-          "Faturamento",
-          "Cobrança/Financeiro",
-          "Gestor de Filial",
-          // Consultores e Administrativo de Filial NÃO podem ver parceiros
-        ],
       },
       {
         label: "Clientes",
         href: "/clientes",
         icon: <Users className="w-4 h-4 text-gold-500" />,
-        allowedGroups: [
-          "Administrador",
-          "Faturamento",
-          "Cobrança/Financeiro",
-          "Gestor de Filial",
-          "Administrativo de Filial",
-          "Consultores",
-        ],
       },
     ],
   },
@@ -111,21 +72,12 @@ const getAllMenuItems = (): MenuGroup[] => [
         label: "Contratos",
         href: "/contratos",
         icon: <FileText className="w-4 h-4" />,
-        allowedGroups: [
-          "Administrador",
-          "Faturamento",
-          "Cobrança/Financeiro",
-          "Gestor de Filial",
-          "Administrativo de Filial",
-          "Consultores",
-        ],
       },
       {
         label: "Usuários",
         href: "/usuarios",
         icon: <UserCheck className="w-4 h-4" />,
         badge: "3",
-        allowedGroups: ["Administrador", "Faturamento", "Cobrança/Financeiro"],
       },
     ],
   },
@@ -136,18 +88,11 @@ const getAllMenuItems = (): MenuGroup[] => [
         label: "Boletos",
         href: "/boletos",
         icon: <CreditCard className="w-4 h-4" />,
-        allowedGroups: [
-          "Administrador",
-          "Faturamento",
-          "Cobrança/Financeiro",
-          "Gestor de Filial",
-        ],
       },
       {
         label: "Dashboard Financeiro",
         href: "/dashboard/financeiro",
         icon: <TrendingUp className="w-4 h-4" />,
-        allowedGroups: ["Administrador", "Faturamento", "Cobrança/Financeiro"],
       },
     ],
   },
@@ -159,21 +104,6 @@ export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Filtrar itens do menu baseado no grupo do usuário
-  const menuItems = useMemo(() => {
-    if (!user) return [];
-
-    return getAllMenuItems()
-      .map((group) => ({
-        ...group,
-        items: group.items.filter(
-          (item) =>
-            !item.allowedGroups || item.allowedGroups.includes(user.grupoAcesso)
-        ),
-      }))
-      .filter((group) => group.items.length > 0);
-  }, [user]);
 
   const handleDropdownToggle = (label: string) => {
     setActiveDropdown(activeDropdown === label ? null : label);

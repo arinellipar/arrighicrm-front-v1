@@ -54,8 +54,6 @@ import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 import { format, isAfter, isBefore, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { usePermissions } from "@/hooks/usePermissions";
-import ReadOnlyMessage from "@/components/ReadOnlyMessage";
 
 function SituacaoBadge({ situacao }: { situacao: SituacaoContrato }) {
   const config = SituacaoContratoOptions.find((opt) => opt.value === situacao);
@@ -135,14 +133,10 @@ export default function ContratosPage() {
   const [showNovoBoleto, setShowNovoBoleto] = useState(false);
   const [selectedBoleto, setSelectedBoleto] = useState<Boleto | null>(null);
   const [showBoletoDetails, setShowBoletoDetails] = useState(false);
-  const [showReadOnlyMessage, setShowReadOnlyMessage] = useState(false);
   const { openForm, closeForm } = useForm();
   const [activeTab, setActiveTab] = useState<"contratos" | "clientes">(
     "contratos"
   );
-
-  // Hook de permissões
-  const { canAccessModule, isReadOnly } = usePermissions();
 
   // Debug para produção
   useEffect(() => {
@@ -394,20 +388,9 @@ export default function ContratosPage() {
     };
   }, [contratos]);
 
-  // Função para verificar se pode editar
-  const checkCanEdit = (action: string = "editar contratos"): boolean => {
-    if (isReadOnly()) {
-      setShowReadOnlyMessage(true);
-      setTimeout(() => setShowReadOnlyMessage(false), 5000);
-      return false;
-    }
-    return true;
-  };
-
   const handleCreateContrato = async (
     data: CreateContratoDTO | Partial<UpdateContratoDTO>
   ) => {
-    if (!checkCanEdit("criar contratos")) return;
     try {
       await createContrato(data as CreateContratoDTO);
       closeForm();
@@ -420,7 +403,6 @@ export default function ContratosPage() {
     id: number,
     data: Partial<UpdateContratoDTO>
   ) => {
-    if (!checkCanEdit("atualizar contratos")) return;
     try {
       await updateContrato(id, data);
       closeForm();
@@ -443,8 +425,6 @@ export default function ContratosPage() {
   };
 
   const handleDeleteContrato = async (id: number) => {
-    if (!checkCanEdit("excluir contratos")) return;
-
     console.log(
       "🔧 handleDeleteContrato: ID recebido:",
       id,
@@ -576,20 +556,18 @@ export default function ContratosPage() {
                 Gerencie contratos e acompanhe negociações
               </p>
             </div>
-            {!isReadOnly() && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  setClienteSelecionadoId(null);
-                  openForm();
-                }}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all shadow-sm"
-              >
-                <Plus className="w-4 h-4" />
-                Novo Contrato
-              </motion.button>
-            )}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                setClienteSelecionadoId(null);
+                openForm();
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Novo Contrato
+            </motion.button>
           </div>
 
           {/* Cards de Estatísticas */}
@@ -990,50 +968,42 @@ export default function ContratosPage() {
                           </motion.button>
                         </Tooltip>
 
-                        {canAccessModule("boletos") && (
-                          <Tooltip content="Ver Boletos">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => handleViewBoletos(contrato)}
-                              className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-green-50 text-green-600 rounded-lg transition-colors"
-                            >
-                              <CreditCard className="w-4 h-4" />
-                              <span className="text-xs font-medium">
-                                Boletos
-                              </span>
-                            </motion.button>
-                          </Tooltip>
-                        )}
+                        <Tooltip content="Ver Boletos">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleViewBoletos(contrato)}
+                            className="flex-1 flex items-center justify-center gap-1 p-2 bg-white hover:bg-green-50 text-green-600 rounded-lg transition-colors"
+                          >
+                            <CreditCard className="w-4 h-4" />
+                            <span className="text-xs font-medium">Boletos</span>
+                          </motion.button>
+                        </Tooltip>
 
-                        {!isReadOnly() && (
-                          <Tooltip content="Editar">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => {
-                                setSelectedContrato(contrato);
-                                openForm();
-                              }}
-                              className="p-2 bg-white hover:bg-primary-50 text-primary-600 rounded-lg transition-colors"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </motion.button>
-                          </Tooltip>
-                        )}
+                        <Tooltip content="Editar">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              setSelectedContrato(contrato);
+                              openForm();
+                            }}
+                            className="p-2 bg-white hover:bg-primary-50 text-primary-600 rounded-lg transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </motion.button>
+                        </Tooltip>
 
-                        {!isReadOnly() && (
-                          <Tooltip content="Excluir">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => handleDeleteContrato(contrato.id)}
-                              className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </motion.button>
-                          </Tooltip>
-                        )}
+                        <Tooltip content="Excluir">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleDeleteContrato(contrato.id)}
+                            className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </motion.button>
+                        </Tooltip>
                       </div>
                     </div>
                   </motion.div>
@@ -1142,41 +1112,35 @@ export default function ContratosPage() {
                                 <Settings className="w-4 h-4" />
                               </button>
                             </Tooltip>
-                            {canAccessModule("boletos") && (
-                              <Tooltip content="Ver Boletos">
-                                <button
-                                  onClick={() => handleViewBoletos(contrato)}
-                                  className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors"
-                                >
-                                  <CreditCard className="w-4 h-4" />
-                                </button>
-                              </Tooltip>
-                            )}
-                            {!isReadOnly() && (
-                              <Tooltip content="Editar">
-                                <button
-                                  onClick={() => {
-                                    setSelectedContrato(contrato);
-                                    openForm();
-                                  }}
-                                  className="p-1.5 hover:bg-primary-50 text-primary-600 rounded transition-colors"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </button>
-                              </Tooltip>
-                            )}
-                            {!isReadOnly() && (
-                              <Tooltip content="Excluir">
-                                <button
-                                  onClick={() =>
-                                    handleDeleteContrato(contrato.id)
-                                  }
-                                  className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </Tooltip>
-                            )}
+                            <Tooltip content="Ver Boletos">
+                              <button
+                                onClick={() => handleViewBoletos(contrato)}
+                                className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors"
+                              >
+                                <CreditCard className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="Editar">
+                              <button
+                                onClick={() => {
+                                  setSelectedContrato(contrato);
+                                  openForm();
+                                }}
+                                className="p-1.5 hover:bg-primary-50 text-primary-600 rounded transition-colors"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
+                            <Tooltip content="Excluir">
+                              <button
+                                onClick={() =>
+                                  handleDeleteContrato(contrato.id)
+                                }
+                                className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </Tooltip>
                           </div>
                         </td>
                       </tr>
@@ -1259,22 +1223,20 @@ export default function ContratosPage() {
                           </td>
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-2">
-                              {!isReadOnly() && (
-                                <Tooltip content="Novo Contrato">
-                                  <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => {
-                                      setClienteSelecionadoId(cliente.id);
-                                      openForm();
-                                    }}
-                                    className="flex items-center gap-1 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs rounded-lg font-medium transition-colors"
-                                  >
-                                    <Plus className="w-3 h-3" />
-                                    Contrato
-                                  </motion.button>
-                                </Tooltip>
-                              )}
+                              <Tooltip content="Novo Contrato">
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  onClick={() => {
+                                    setClienteSelecionadoId(cliente.id);
+                                    openForm();
+                                  }}
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs rounded-lg font-medium transition-colors"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  Contrato
+                                </motion.button>
+                              </Tooltip>
                             </div>
                           </td>
                         </motion.tr>
@@ -1521,15 +1483,6 @@ export default function ContratosPage() {
         onSync={handleSyncBoleto}
         onDelete={handleDeleteBoleto}
       />
-
-      {/* Modal de Mensagem Somente Leitura */}
-      {showReadOnlyMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div onClick={() => setShowReadOnlyMessage(false)}>
-            <ReadOnlyMessage action="editar ou excluir" module="contratos" />
-          </div>
-        </div>
-      )}
     </MainLayout>
   );
 }

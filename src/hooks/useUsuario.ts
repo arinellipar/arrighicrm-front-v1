@@ -9,7 +9,6 @@ import {
   PessoaJuridicaOption,
 } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface UseUsuarioState {
   usuarios: Usuario[];
@@ -31,7 +30,6 @@ export function useUsuario() {
   });
 
   const { adicionarAtividade } = useAtividadeContext();
-  const { user } = useAuth();
 
   const setLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -56,12 +54,7 @@ export function useUsuario() {
       if (response.error) {
         setError(response.error);
       } else {
-        // Mapear os dados do backend para o formato esperado pelo frontend
-        const usuariosMapeados = (response.data || []).map((usuario: any) => ({
-          ...usuario,
-          grupoAcesso: usuario.grupoAcessoNome || usuario.grupoAcesso, // Mapear grupoAcessoNome para grupoAcesso
-        }));
-        setUsuarios(usuariosMapeados);
+        setUsuarios(response.data || []);
       }
     } catch (error) {
       setError("Erro ao carregar usuários");
@@ -84,16 +77,7 @@ export function useUsuario() {
           return null;
         }
 
-        // Mapear os dados do backend para o formato esperado pelo frontend
-        const usuario = response.data;
-        if (usuario) {
-          return {
-            ...usuario,
-            grupoAcesso: usuario.grupoAcessoNome || usuario.grupoAcesso, // Mapear grupoAcessoNome para grupoAcesso
-          } as any;
-        }
-
-        return null;
+        return response.data || null;
       } catch (error) {
         setError("Erro ao carregar usuário");
         return null;
@@ -152,13 +136,7 @@ export function useUsuario() {
       setState((prev) => ({ ...prev, creating: true, error: null }));
 
       try {
-        // Validar dados antes de enviar
-        const payload = {
-          ...data,
-          filialId: data.filialId === 0 ? null : data.filialId, // Converter 0 para null (Sem Filial)
-        };
-
-        const response = await apiClient.post<Usuario>("/Usuario", payload);
+        const response = await apiClient.post<Usuario>("/Usuario", data);
 
         if (response.error) {
           setError(response.error);
@@ -170,10 +148,10 @@ export function useUsuario() {
 
         // Registrar atividade
         adicionarAtividade(
-          user?.nome || "Usuário",
+          "Admin User",
           `Cadastrou novo usuário: ${data.login}`,
           "success",
-          `Email: ${data.email} | Grupo: ${data.grupoAcesso}`,
+          `Email: ${data.email}`,
           "Usuários"
         );
 
@@ -194,16 +172,7 @@ export function useUsuario() {
       setState((prev) => ({ ...prev, updating: true, error: null }));
 
       try {
-        // Validar dados antes de enviar
-        const payload = {
-          ...data,
-          filialId: data.filialId === 0 ? null : data.filialId, // Converter 0 para null (Sem Filial)
-        };
-
-        console.log("🔧 updateUsuario: Dados sendo enviados:", payload);
-        console.log("🔧 updateUsuario: URL:", `/Usuario/${id}`);
-
-        const response = await apiClient.put(`/Usuario/${id}`, payload);
+        const response = await apiClient.put(`/Usuario/${id}`, data);
 
         if (response.error) {
           setError(response.error);
@@ -215,12 +184,12 @@ export function useUsuario() {
 
         // Registrar atividade
         adicionarAtividade(
-          user?.nome || "Usuário",
+          "Admin User",
           `Atualizou usuário: ${data.login}`,
           "info",
           `Tipo: ${
             data.tipoPessoa === "Fisica" ? "Pessoa Física" : "Pessoa Jurídica"
-          } | Grupo: ${data.grupoAcesso}`,
+          }`,
           "Usuários"
         );
 
@@ -257,7 +226,7 @@ export function useUsuario() {
         // Registrar atividade
         if (usuarioParaDeletar) {
           adicionarAtividade(
-            user?.nome || "Usuário",
+            "Admin User",
             `Excluiu usuário: ${usuarioParaDeletar.login}`,
             "warning",
             `Email: ${usuarioParaDeletar.email}`,

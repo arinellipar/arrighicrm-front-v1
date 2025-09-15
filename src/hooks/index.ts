@@ -9,6 +9,4 @@ export { usePessoasFisicas } from "./usePessoasFisicas";
 export { usePessoasJuridicas } from "./usePessoasJuridicas";
 export { useHistoricoConsultores } from "./useHistoricoConsultores";
 export { useFiliais } from "./useFiliais";
-export { useActiveUsers } from "./useActiveUsers";
-export { useHeartbeat } from "./useHeartbeat";
 export * from "./useAtividades";

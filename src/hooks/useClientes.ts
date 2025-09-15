@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api";
 import { Cliente, CreateClienteDTO, UpdateClienteDTO } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface UseClientesState {
   clientes: Cliente[];
@@ -25,7 +24,6 @@ export function useClientes() {
   });
 
   const { adicionarAtividade } = useAtividadeContext();
-  const { user } = useAuth();
 
   const fetchClientes = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
@@ -133,7 +131,7 @@ export function useClientes() {
           clienteTransformado.razaoSocial ||
           "Cliente";
         adicionarAtividade(
-          user?.nome || "Usuário",
+          "Admin User",
           `Cadastrou novo cliente: ${nomeCliente}`,
           "success",
           `Tipo: ${
@@ -201,7 +199,7 @@ export function useClientes() {
           clienteTransformado.razaoSocial ||
           "Cliente";
         adicionarAtividade(
-          user?.nome || "Usuário",
+          "Admin User",
           `Atualizou cliente: ${nomeCliente}`,
           "info",
           `Valor do contrato: R$ ${
@@ -244,7 +242,7 @@ export function useClientes() {
             clienteParaDeletar.razaoSocial ||
             "Cliente";
           adicionarAtividade(
-            user?.nome || "Usuário",
+            "Admin User",
             `Excluiu cliente: ${nomeCliente}`,
             "warning",
             `Tipo: ${

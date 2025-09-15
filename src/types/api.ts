@@ -99,22 +99,13 @@ export interface Usuario {
   id: number;
   login: string;
   email: string;
-  senha?: string;
-  grupoAcesso?: string; // Para compatibilidade
-  grupoAcessoId?: number;
-  grupoAcessoNome?: string; // Novo campo do DTO
+  senha: string;
+  grupoAcesso: string;
   tipoPessoa: string; // "Fisica" ou "Juridica"
   pessoaFisicaId?: number;
   pessoaFisica?: PessoaFisica;
   pessoaJuridicaId?: number;
   pessoaJuridica?: PessoaJuridica;
-  nomePessoa?: string; // Novo campo do DTO
-  filialId?: number | null;
-  filial?: Filial;
-  filialNome?: string; // Novo campo do DTO
-  consultorId?: number;
-  consultor?: Consultor;
-  consultorNome?: string; // Novo campo do DTO
   ativo: boolean;
   dataCadastro: string;
   dataAtualizacao?: string;
@@ -129,22 +120,11 @@ export interface CreateUsuarioDTO {
   tipoPessoa: string;
   pessoaFisicaId?: number;
   pessoaJuridicaId?: number;
-  filialId?: number | null;
-  consultorId?: number;
   ativo?: boolean;
 }
 
-export interface UpdateUsuarioDTO {
-  login?: string;
-  email?: string;
-  senha?: string;
-  grupoAcesso?: string;
-  tipoPessoa?: string;
-  pessoaFisicaId?: number;
-  pessoaJuridicaId?: number;
-  filialId?: number | null;
-  consultorId?: number;
-  ativo?: boolean;
+export interface UpdateUsuarioDTO extends CreateUsuarioDTO {
+  id: number;
 }
 
 // Tipos para Login
@@ -344,12 +324,8 @@ export const EstadoCivilOptions = [
 
 export const GrupoAcessoOptions = [
   { value: "Administrador", label: "Administrador" },
-  { value: "Usuário", label: "Usuário" },
-  { value: "Consultores", label: "Consultores" },
-  { value: "Administrativo de Filial", label: "Administrativo de Filial" },
-  { value: "Gestor de Filial", label: "Gestor de Filial" },
-  { value: "Cobrança/Financeiro", label: "Cobrança/Financeiro" },
-  { value: "Faturamento", label: "Faturamento" },
+  { value: "Usuario", label: "Usuário" },
+  { value: "Visualizador", label: "Visualizador" },
 ] as const;
 
 // Tipos para Contrato
@@ -555,49 +531,3 @@ export const TipoServicoOptions = [
   { value: "PI", label: "PI - Propriedade Intelectual" },
   { value: "EXITO", label: "Êxito" },
 ] as const;
-
-// Tipos para Sistema de Grupos de Acesso e Filiais
-export interface GrupoAcesso {
-  id: number;
-  nome: string;
-  descricao?: string;
-  permissoes?: string[];
-}
-
-export interface FilialInfo {
-  filialId: number;
-  filialNome: string;
-  consultorId?: number;
-  parceiroId?: number;
-  isConsultor: boolean;
-  isParceiro: boolean;
-  oab?: string;
-}
-
-export interface PessoaFisicaInfo {
-  pessoaFisica: PessoaFisicaOption;
-  filialInfo?: FilialInfo;
-}
-
-export interface FilialSuggestion {
-  id: number;
-  nome: string;
-  isSuggested: boolean;
-  reason?: string;
-}
-
-export interface ValidationResult {
-  isValid: boolean;
-  errorMessage?: string;
-  warningMessage?: string;
-  filialRequired: boolean;
-  canBeNull: boolean;
-  suggestedFilial?: FilialInfo;
-}
-
-export interface ValidateGrupoFilialDTO {
-  grupoAcessoId: number;
-  filialId: number | null;
-  pessoaFisicaId: number | null;
-  pessoaJuridicaId?: number | null;
-}

@@ -1,103 +1,101 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { apiClient } from "@/lib/api";
+import { useUsuario } from "./useUsuario";
 
-// Interfaces para o novo endpoint
-interface SessaoAtiva {
-  usuarioId: number;
-  login: string;
-  nome: string;
-  email: string;
-  grupoAcesso: string;
-  filialNome?: string;
-  ultimoAcesso: string;
-  tipoPessoa: string;
-  minutosOnline: number;
-}
-
-interface SessoesAtivasResponse {
-  totalSessoes: number;
-  dataConsulta: string;
-  sessoes: SessaoAtiva[];
-}
+// Considerar usuário "online" se teve atividade nos últimos 15 minutos
+const ONLINE_THRESHOLD_MINUTES = 15;
 
 export function useActiveUsers() {
-  const [sessions, setSessions] = useState<SessoesAtivasResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { usuarios, loading, fetchUsuarios } = useUsuario();
+  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
-  // Função para buscar sessões ativas do endpoint dedicado
-  const fetchActiveSessions = useCallback(async () => {
-    try {
-      setError(null);
-      const response = await apiClient.get<SessoesAtivasResponse>(
-        "/Auth/sessoes-ativas"
-      );
-      if (response.data) {
-        setSessions(response.data);
-      }
-      setLoading(false);
-    } catch (error: any) {
-      console.error("Erro ao buscar sessões ativas:", error);
-      setError(error.message || "Erro ao carregar sessões ativas");
-      setLoading(false);
-    }
-  }, []);
-
-  // Contagem de sessões ativas
-  const activeSessions = useMemo(() => {
-    return sessions?.totalSessoes || 0;
-  }, [sessions]);
-
-  // Lista de usuários ativos com detalhes
+  // Calcular usuários únicos que estão realmente ativos/online
   const activeUsers = useMemo(() => {
-    return sessions?.sessoes || [];
-  }, [sessions]);
+    if (!usuarios || usuarios.length === 0) return [];
 
-  // Informações detalhadas dos usuários online (compatibilidade)
-  const onlineUserDetails = useMemo(() => {
-    return activeUsers.map((sessao) => ({
-      id: sessao.usuarioId,
-      name: sessao.nome,
-      login: sessao.login,
-      email: sessao.email,
-      lastAccess: sessao.ultimoAcesso,
-      userType: sessao.tipoPessoa,
-      grupo: sessao.grupoAcesso,
-      filial: sessao.filialNome,
-      minutosOnline: sessao.minutosOnline,
-    }));
+    const now = new Date();
+    const thresholdTime = new Date(
+      now.getTime() - ONLINE_THRESHOLD_MINUTES * 60 * 1000
+    );
+
+    return usuarios.filter((usuario) => {
+      // Usuário deve estar ativo no sistema
+      if (!usuario.ativo) return false;
+
+      // Se não tem ultimoAcesso, considerar como offline
+      if (!usuario.ultimoAcesso) return false;
+
+      // Verificar se o último acesso foi dentro do threshold
+      const lastAccess = new Date(usuario.ultimoAcesso);
+      return lastAccess >= thresholdTime;
+    });
+  }, [usuarios]);
+
+  // Contagem de sessões ativas (usuários únicos online)
+  const activeSessions = useMemo(() => {
+    return activeUsers.length;
   }, [activeUsers]);
 
-  // Função de refresh manual
+  // Função para atualizar dados
   const refreshData = useCallback(async () => {
-    setLoading(true);
-    await fetchActiveSessions();
-  }, [fetchActiveSessions]);
+    try {
+      await fetchUsuarios();
+    } catch (error) {
+      console.error("Erro ao atualizar dados de usuários ativos:", error);
+    }
+  }, [fetchUsuarios]);
 
   // Inicializar e configurar refresh automático
   useEffect(() => {
     // Buscar dados iniciais
-    fetchActiveSessions();
+    refreshData();
 
-    // Configurar refresh a cada 1 minuto para dados em tempo real
+    // Configurar refresh a cada 2 minutos para dados em tempo real
     const interval = setInterval(() => {
-      fetchActiveSessions();
-    }, 60 * 1000); // 1 minuto
+      refreshData();
+    }, 2 * 60 * 1000); // 2 minutos
+
+    setRefreshInterval(interval);
 
     return () => {
-      clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
     };
-  }, [fetchActiveSessions]);
+  }, [refreshData]);
+
+  // Cleanup no unmount
+  useEffect(() => {
+    return () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+    };
+  }, [refreshInterval]);
+
+  // Informações detalhadas dos usuários online
+  const onlineUserDetails = useMemo(() => {
+    return activeUsers.map((usuario) => ({
+      id: usuario.id,
+      name:
+        usuario.pessoaFisica?.nome ||
+        usuario.pessoaJuridica?.razaoSocial ||
+        usuario.login,
+      login: usuario.login,
+      email: usuario.email,
+      lastAccess: usuario.ultimoAcesso,
+      userType: usuario.tipoPessoa,
+    }));
+  }, [activeUsers]);
 
   return {
     activeSessions,
     activeUsers,
     onlineUserDetails,
     loading,
-    error,
     refreshData,
-    lastUpdated: sessions?.dataConsulta
-      ? new Date(sessions.dataConsulta)
-      : new Date(),
+    lastUpdated: new Date(),
   };
 }
+

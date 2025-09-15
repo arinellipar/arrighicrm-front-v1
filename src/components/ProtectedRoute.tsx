@@ -2,25 +2,20 @@
 "use client";
 
 import { useAuth } from "@/contexts/AuthContext";
-import { usePermissions } from "@/hooks/usePermissions";
 import { useRouter } from "next/navigation";
 import { useEffect, ReactNode } from "react";
-import { Loader2 } from "lucide-react";
-import AccessDeniedMessage from "./AccessDeniedMessage";
+import { Loader2, Shield } from "lucide-react";
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: string;
-  requiredModule?: string; // Nome do módulo para verificar acesso
+  requiredRole?: string; // Para futuras implementações de níveis de acesso
 }
 
 export default function ProtectedRoute({
   children,
   requiredRole,
-  requiredModule,
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
-  const { canAccessModule } = usePermissions();
   const router = useRouter();
 
   useEffect(() => {
@@ -51,16 +46,7 @@ export default function ProtectedRoute({
     return null;
   }
 
-  // Verificar acesso por módulo
-  if (requiredModule && !canAccessModule(requiredModule)) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center p-4">
-        <AccessDeniedMessage module={requiredModule} />
-      </div>
-    );
-  }
-
-  // Verificar nível de acesso por role (mantido para compatibilidade)
+  // Verificar nível de acesso se especificado
   if (
     requiredRole &&
     user?.grupoAcesso !== requiredRole &&
@@ -68,7 +54,23 @@ export default function ProtectedRoute({
   ) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center p-4">
-        <AccessDeniedMessage module="generic" />
+        <div className="text-center bg-white rounded-3xl shadow-lg p-8 max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-neutral-800 mb-2">
+            Acesso Negado
+          </h2>
+          <p className="text-neutral-600 mb-6">
+            Você não tem permissão para acessar esta página.
+          </p>
+          <button
+            onClick={() => router.back()}
+            className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          >
+            Voltar
+          </button>
+        </div>
       </div>
     );
   }
