@@ -61,7 +61,7 @@ export function usePermissions() {
         "Administrativo de Filial",
         "Consultores",
       ],
-      usuarios: ["Administrador", "Faturamento", "Cobrança/Financeiro"],
+      usuarios: ["Administrador", "Cobrança/Financeiro"],
       boletos: [
         "Administrador",
         "Faturamento",
@@ -82,8 +82,11 @@ export function usePermissions() {
   const canEdit = (module: string): boolean => {
     if (!user) return false;
 
-    // Cobrança/Financeiro tem acesso SOMENTE LEITURA - não pode editar nada
-    if (user.grupoAcesso === "Cobrança/Financeiro") {
+    // Cobrança/Financeiro e Administrativo de Filial têm acesso SOMENTE LEITURA - não podem editar nada
+    if (
+      user.grupoAcesso === "Cobrança/Financeiro" ||
+      user.grupoAcesso === "Administrativo de Filial"
+    ) {
       return false;
     }
 
@@ -127,8 +130,11 @@ export function usePermissions() {
   const canDelete = (module: string): boolean => {
     if (!user) return false;
 
-    // Cobrança/Financeiro tem acesso SOMENTE LEITURA - não pode excluir nada
-    if (user.grupoAcesso === "Cobrança/Financeiro") {
+    // Cobrança/Financeiro e Administrativo de Filial têm acesso SOMENTE LEITURA - não podem excluir nada
+    if (
+      user.grupoAcesso === "Cobrança/Financeiro" ||
+      user.grupoAcesso === "Administrativo de Filial"
+    ) {
       return false;
     }
 
