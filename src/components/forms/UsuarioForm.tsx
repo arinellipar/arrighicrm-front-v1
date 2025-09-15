@@ -28,8 +28,16 @@ import {
   PessoaJuridicaOption,
   GrupoAcessoOptions,
   TipoPessoaOptions,
+  FilialSuggestion,
+  GrupoAcesso,
+  Filial,
 } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { useGrupoFilialValidation } from "@/hooks/useGrupoFilialValidation";
+import {
+  ValidationMessages,
+  PessoaInfoCard,
+} from "@/components/ValidationMessages";
 
 interface UsuarioFormProps {
   initialData?: Usuario | null;
@@ -46,9 +54,12 @@ interface FormData {
   senha: string;
   confirmarSenha: string;
   grupoAcesso: string;
+  grupoAcessoId: string;
   tipoPessoa: string;
   pessoaFisicaId: string;
   pessoaJuridicaId: string;
+  filialId: string;
+  consultorId: string;
   ativo: boolean;
 }
 
@@ -70,9 +81,12 @@ const initialFormData: FormData = {
   senha: "",
   confirmarSenha: "",
   grupoAcesso: "",
+  grupoAcessoId: "",
   tipoPessoa: "",
   pessoaFisicaId: "",
   pessoaJuridicaId: "",
+  filialId: "",
+  consultorId: "",
   ativo: true,
 };
 
@@ -335,6 +349,36 @@ export default function UsuarioForm({
 }: UsuarioFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [gruposAcesso, setGruposAcesso] = useState<GrupoAcesso[]>([]);
+  const [filiais, setFiliais] = useState<Filial[]>([]);
+  const [filiaisDisponiveis, setFiliaisDisponiveis] = useState<
+    FilialSuggestion[]
+  >([]);
+
+  const {
+    validation,
+    pessoaInfo,
+    loading: validationLoading,
+    fetchPessoaFisicaInfo,
+    fetchFiliaisPorGrupo,
+    validateGrupoFilial,
+    fetchGruposAcesso,
+    fetchFiliais,
+    clearValidation,
+  } = useGrupoFilialValidation();
+
+  // Carregar dados auxiliares
+  useEffect(() => {
+    const loadAuxData = async () => {
+      const [grupos, todasFiliais] = await Promise.all([
+        fetchGruposAcesso(),
+        fetchFiliais(),
+      ]);
+      setGruposAcesso(grupos);
+      setFiliais(todasFiliais);
+    };
+    loadAuxData();
+  }, [fetchGruposAcesso, fetchFiliais]);
 
   // Inicializar dados se for edição
   useEffect(() => {
@@ -344,14 +388,59 @@ export default function UsuarioForm({
         email: initialData.email,
         senha: "", // Não preencher senha na edição
         confirmarSenha: "",
-        grupoAcesso: initialData.grupoAcesso,
+        grupoAcesso:
+          initialData.grupoAcessoNome || initialData.grupoAcesso || "",
+        grupoAcessoId: initialData.grupoAcessoId?.toString() || "",
         tipoPessoa: initialData.tipoPessoa,
         pessoaFisicaId: initialData.pessoaFisicaId?.toString() || "",
         pessoaJuridicaId: initialData.pessoaJuridicaId?.toString() || "",
+        filialId: initialData.filialId?.toString() || "",
+        consultorId: initialData.consultorId?.toString() || "",
         ativo: initialData.ativo,
       });
     }
   }, [initialData]);
+
+  // Carregar dados da pessoa vinculada quando for edição
+  useEffect(() => {
+    if (initialData && formData.pessoaFisicaId) {
+      handlePessoaFisicaSelect(Number(formData.pessoaFisicaId));
+    }
+  }, [initialData, formData.pessoaFisicaId]);
+
+  // Carregar filiais disponíveis quando for edição
+  useEffect(() => {
+    if (initialData && formData.grupoAcessoId) {
+      handleGrupoSelect(Number(formData.grupoAcessoId));
+    }
+  }, [initialData, formData.grupoAcessoId]);
+
+  // Executar validação após carregar todos os dados necessários
+  useEffect(() => {
+    if (
+      initialData &&
+      formData.grupoAcessoId &&
+      formData.pessoaFisicaId &&
+      filiaisDisponiveis.length > 0
+    ) {
+      // Aguardar um pouco para garantir que todos os dados estejam carregados
+      setTimeout(() => {
+        validateGrupoFilial(
+          Number(formData.grupoAcessoId),
+          formData.filialId ? Number(formData.filialId) : null,
+          Number(formData.pessoaFisicaId),
+          null
+        );
+      }, 100);
+    }
+  }, [
+    initialData,
+    formData.grupoAcessoId,
+    formData.filialId,
+    formData.pessoaFisicaId,
+    filiaisDisponiveis,
+    validateGrupoFilial,
+  ]);
 
   const handleFieldChange = useCallback(
     (field: string, value: string | boolean) => {
@@ -366,7 +455,25 @@ export default function UsuarioForm({
           ...prev,
           pessoaFisicaId: "",
           pessoaJuridicaId: "",
+          filialId: "",
+          consultorId: "",
         }));
+        clearValidation();
+      }
+
+      // Quando mudar a pessoa física, buscar informações
+      if (field === "pessoaFisicaId" && value) {
+        handlePessoaFisicaSelect(Number(value));
+      }
+
+      // Quando mudar o grupo de acesso, buscar filiais disponíveis
+      if (field === "grupoAcessoId" && value) {
+        handleGrupoSelect(Number(value));
+      }
+
+      // Quando mudar a filial, validar combinação
+      if (field === "filialId") {
+        handleFilialSelect(value ? Number(value) : null);
       }
 
       // Limpar erro do campo
@@ -378,8 +485,74 @@ export default function UsuarioForm({
         });
       }
     },
-    [errors]
+    [errors, clearValidation]
   );
+
+  // Quando pessoa física é selecionada
+  const handlePessoaFisicaSelect = async (pessoaId: number) => {
+    const info = await fetchPessoaFisicaInfo(pessoaId, initialData?.id);
+
+    if (info) {
+      // Atualizar email automaticamente
+      setFormData((prev) => ({
+        ...prev,
+        email: info.pessoaFisica.emailEmpresarial || prev.email,
+      }));
+
+      // Se há sugestão de filial, aplicar automaticamente
+      if (info.filialInfo) {
+        setFormData((prev) => ({
+          ...prev,
+          filialId: info.filialInfo?.filialId.toString() || "",
+          consultorId: info.filialInfo?.consultorId?.toString() || "",
+        }));
+      }
+
+      // Validar combinação se grupo já foi selecionado
+      if (formData.grupoAcessoId) {
+        await validateGrupoFilial(
+          Number(formData.grupoAcessoId),
+          info.filialInfo?.filialId || null,
+          pessoaId,
+          null
+        );
+      }
+    }
+  };
+
+  // Quando grupo de acesso é selecionado
+  const handleGrupoSelect = async (grupoId: number) => {
+    const filiais = await fetchFiliaisPorGrupo(grupoId);
+    setFiliaisDisponiveis(filiais);
+
+    // Se há sugestão, selecionar automaticamente
+    const sugestao = filiais.find((f) => f.isSuggested);
+    if (sugestao) {
+      setFormData((prev) => ({ ...prev, filialId: sugestao.id.toString() }));
+    }
+
+    // Validar combinação se pessoa já foi selecionada
+    if (formData.pessoaFisicaId) {
+      await validateGrupoFilial(
+        grupoId,
+        sugestao?.id || null,
+        Number(formData.pessoaFisicaId),
+        null
+      );
+    }
+  };
+
+  // Quando filial é selecionada
+  const handleFilialSelect = async (filialId: number | null) => {
+    if (formData.grupoAcessoId && formData.pessoaFisicaId) {
+      await validateGrupoFilial(
+        Number(formData.grupoAcessoId),
+        filialId,
+        Number(formData.pessoaFisicaId),
+        null
+      );
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -405,7 +578,7 @@ export default function UsuarioForm({
       }
     }
 
-    if (!formData.grupoAcesso)
+    if (!formData.grupoAcesso && !formData.grupoAcessoId)
       newErrors.grupoAcesso = "Grupo de acesso é obrigatório";
     if (!formData.tipoPessoa)
       newErrors.tipoPessoa = "Tipo de pessoa é obrigatório";
@@ -420,6 +593,13 @@ export default function UsuarioForm({
       newErrors.pessoaJuridicaId = "Pessoa jurídica é obrigatória";
     }
 
+    // Validação de filial baseada no resultado da validação do hook
+    if (
+      validation?.filialRequired &&
+      (!formData.filialId || formData.filialId === "")
+    ) {
+      newErrors.filialId = "Filial é obrigatória para este grupo";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -445,18 +625,72 @@ export default function UsuarioForm({
         formData.tipoPessoa === "Juridica"
           ? parseInt(formData.pessoaJuridicaId)
           : undefined,
+      filialId: formData.filialId ? parseInt(formData.filialId) : null,
+      consultorId: formData.consultorId
+        ? parseInt(formData.consultorId)
+        : undefined,
     };
 
     if (initialData) {
-      const updateData: UpdateUsuarioDTO = {
-        ...submitData,
-        id: initialData.id,
-        ativo: formData.ativo,
-      };
-      // Se for edição e a senha estiver vazia, não enviar
-      if (!formData.senha) {
-        updateData.senha = initialData.senha;
+      // Para atualizações, enviar apenas campos que foram alterados
+      const updateData: UpdateUsuarioDTO = {};
+
+      console.log("🔧 UsuarioForm: Dados do formulário:", formData);
+      console.log("🔧 UsuarioForm: Dados iniciais:", initialData);
+
+      // Verificar cada campo se foi alterado (com verificação de null/undefined)
+      if (formData.login && formData.login !== initialData.login) {
+        updateData.login = formData.login;
       }
+      if (formData.email && formData.email !== initialData.email) {
+        updateData.email = formData.email;
+      }
+      if (formData.senha && formData.senha !== "") {
+        updateData.senha = formData.senha;
+      }
+      if (formData.grupoAcesso !== initialData.grupoAcesso) {
+        updateData.grupoAcesso = formData.grupoAcesso;
+      }
+      if (formData.tipoPessoa !== initialData.tipoPessoa) {
+        updateData.tipoPessoa = formData.tipoPessoa;
+      }
+      if (formData.ativo !== initialData.ativo) {
+        updateData.ativo = formData.ativo;
+      }
+
+      // Verificar IDs (convertendo strings para números)
+      const newPessoaFisicaId =
+        formData.tipoPessoa === "Fisica" && formData.pessoaFisicaId
+          ? parseInt(formData.pessoaFisicaId)
+          : undefined;
+      if (newPessoaFisicaId !== initialData.pessoaFisicaId) {
+        updateData.pessoaFisicaId = newPessoaFisicaId;
+      }
+
+      const newPessoaJuridicaId =
+        formData.tipoPessoa === "Juridica" && formData.pessoaJuridicaId
+          ? parseInt(formData.pessoaJuridicaId)
+          : undefined;
+      if (newPessoaJuridicaId !== initialData.pessoaJuridicaId) {
+        updateData.pessoaJuridicaId = newPessoaJuridicaId;
+      }
+
+      const newFilialId = formData.filialId
+        ? parseInt(formData.filialId)
+        : null;
+      if (newFilialId !== initialData.filialId) {
+        updateData.filialId = newFilialId;
+      }
+
+      const newConsultorId = formData.consultorId
+        ? parseInt(formData.consultorId)
+        : undefined;
+      if (newConsultorId !== initialData.consultorId) {
+        updateData.consultorId = newConsultorId;
+      }
+
+      console.log("🔧 UsuarioForm: Dados que serão enviados:", updateData);
+
       const success = await onSubmit(updateData);
       if (success) {
         onCancel();
@@ -582,17 +816,6 @@ export default function UsuarioForm({
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
-              label="Grupo de Acesso"
-              name="grupoAcesso"
-              options={GrupoAcessoOptions}
-              required
-              value={formData.grupoAcesso}
-              onChange={(value) => handleFieldChange("grupoAcesso", value)}
-              error={errors.grupoAcesso}
-              icon={<Shield className="w-5 h-5" />}
-              description="Define as permissões do usuário no sistema"
-            />
-            <InputField
               label="Tipo de Pessoa"
               name="tipoPessoa"
               options={TipoPessoaOptions}
@@ -634,6 +857,56 @@ export default function UsuarioForm({
               />
             )}
 
+            <InputField
+              label="Grupo de Acesso"
+              name="grupoAcessoId"
+              options={gruposAcesso.map((g) => ({
+                value: g.id.toString(),
+                label: g.nome,
+              }))}
+              required
+              value={formData.grupoAcessoId}
+              onChange={(value) => {
+                const grupo = gruposAcesso.find(
+                  (g) => g.id.toString() === value
+                );
+                handleFieldChange("grupoAcessoId", value);
+                handleFieldChange("grupoAcesso", grupo?.nome || "");
+              }}
+              error={errors.grupoAcesso}
+              icon={<Shield className="w-5 h-5" />}
+              description="Define as permissões do usuário no sistema"
+            />
+
+            <InputField
+              label="Filial"
+              name="filialId"
+              options={
+                filiaisDisponiveis.length > 0
+                  ? filiaisDisponiveis.map((f) => ({
+                      value: f.id.toString(),
+                      label: `${f.nome}${
+                        f.isSuggested ? " (✓ Recomendada)" : ""
+                      }${f.reason ? ` - ${f.reason}` : ""}`,
+                    }))
+                  : filiais.map((f) => ({
+                      value: f.id.toString(),
+                      label: f.nome,
+                    }))
+              }
+              required={validation?.filialRequired}
+              value={formData.filialId}
+              onChange={(value) => handleFieldChange("filialId", value)}
+              error={errors.filialId}
+              icon={<Building2 className="w-5 h-5" />}
+              description={
+                validation?.filialRequired
+                  ? "Filial obrigatória para este grupo"
+                  : "Filial opcional (recomendado deixar vazio para visão geral)"
+              }
+              disabled={validationLoading}
+            />
+
             {initialData && (
               <InputField
                 label="Usuário Ativo"
@@ -644,6 +917,20 @@ export default function UsuarioForm({
               />
             )}
           </div>
+
+          {/* Informações da Pessoa */}
+          {pessoaInfo && (
+            <div className="mt-6">
+              <PessoaInfoCard pessoaInfo={pessoaInfo} />
+            </div>
+          )}
+
+          {/* Mensagens de Validação */}
+          {validation && (
+            <div className="mt-6">
+              <ValidationMessages validation={validation} />
+            </div>
+          )}
         </FormSection>
 
         {/* Botões */}
@@ -664,7 +951,12 @@ export default function UsuarioForm({
           </motion.button>
           <motion.button
             type="submit"
-            disabled={loading}
+            disabled={
+              loading ||
+              validationLoading ||
+              (validation && !validation.isValid) ||
+              false
+            }
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={cn(

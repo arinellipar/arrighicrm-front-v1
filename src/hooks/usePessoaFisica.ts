@@ -8,6 +8,7 @@ import {
   ResponsavelTecnicoOption,
 } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UsePessoaFisicaState {
   pessoas: PessoaFisica[];
@@ -29,6 +30,7 @@ export function usePessoaFisica() {
   });
 
   const { adicionarAtividade } = useAtividadeContext();
+  const { user } = useAuth();
 
   const setLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -148,7 +150,7 @@ export function usePessoaFisica() {
 
         // Registrar atividade
         adicionarAtividade(
-          "Admin User",
+          user?.nome || "Usuário",
           `Cadastrou nova pessoa física: ${data.nome}`,
           "success",
           `CPF: ${data.cpf || "Não informado"}`,
@@ -184,7 +186,7 @@ export function usePessoaFisica() {
 
         // Registrar atividade
         adicionarAtividade(
-          "Admin User",
+          user?.nome || "Usuário",
           `Atualizou pessoa física: ${data.nome}`,
           "info",
           `Email: ${data.emailEmpresarial || "Não informado"}`,
@@ -247,7 +249,7 @@ export function usePessoaFisica() {
         // Registrar atividade
         if (pessoaParaDeletar) {
           adicionarAtividade(
-            "Admin User",
+            user?.nome || "Usuário",
             `Excluiu pessoa física: ${pessoaParaDeletar.nome}`,
             "warning",
             `CPF: ${pessoaParaDeletar.cpf || "Não informado"}`,

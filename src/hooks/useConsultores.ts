@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api";
 import { Consultor, CreateConsultorDTO, UpdateConsultorDTO } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UseConsultoresState {
   consultores: Consultor[];
@@ -24,6 +25,7 @@ export function useConsultores() {
   });
 
   const { adicionarAtividade } = useAtividadeContext();
+  const { user } = useAuth();
 
   const fetchConsultores = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
@@ -156,7 +158,7 @@ export function useConsultores() {
 
         // Registrar atividade
         adicionarAtividade(
-          "Admin User",
+          user?.nome || "Usuário",
           `Cadastrou novo consultor: ${data.nome}`,
           "success",
           `OAB: ${data.oab || "Não informado"}`,
@@ -207,7 +209,7 @@ export function useConsultores() {
 
         // Registrar atividade
         adicionarAtividade(
-          "Admin User",
+          user?.nome || "Usuário",
           `Atualizou consultor: ${data.nome}`,
           "info",
           `Filial ID: ${data.filialId}`,
@@ -249,7 +251,7 @@ export function useConsultores() {
         // Registrar atividade
         if (consultorParaDeletar) {
           adicionarAtividade(
-            "Admin User",
+            user?.nome || "Usuário",
             `Excluiu consultor: ${consultorParaDeletar.nome}`,
             "warning",
             `OAB: ${consultorParaDeletar.oab || "Não informado"}`,

@@ -20,6 +20,7 @@ interface User {
   nome: string;
   ativo: boolean;
   ultimoAcesso?: string;
+  consultorId?: number;
 }
 
 interface AuthContextType {
@@ -70,20 +71,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     senha: string;
   }): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await apiClient.post("/Usuario/login", loginData);
+      const response = await apiClient.post("/Auth/login", loginData);
 
       if (response.error) {
         return { success: false, error: response.error };
       }
 
-      if (
-        response.data &&
-        typeof response.data === "object" &&
-        "usuario" in response.data
-      ) {
-        const userData = (response.data as any).usuario;
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+      if (response.data && typeof response.data === "object") {
+        const userData = response.data as any;
+        // Mapear campos do backend para o frontend
+        const userFormatted = {
+          id: userData.usuarioId,
+          login: userData.login,
+          email: userData.email,
+          grupoAcesso: userData.grupoAcesso,
+          tipoPessoa: userData.tipoPessoa,
+          nome: userData.nome,
+          ativo: userData.ativo,
+          ultimoAcesso: userData.ultimoAcesso,
+          consultorId: userData.consultorId,
+        };
+        setUser(userFormatted);
+        localStorage.setItem("user", JSON.stringify(userFormatted));
         localStorage.setItem("isAuthenticated", "true");
         return { success: true };
       }

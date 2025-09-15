@@ -69,7 +69,7 @@ export const getApiUrl = (): string => {
 
     // Fallback para URL direta do Azure
     const productionUrl =
-      "https://arrighi-bk-bzfmgxavaxbyh5ej.brazilsouth-01.azurewebsites.net/api";
+      "https://arrighi-bk-test-c2bth2axeacqasc3.brazilsouth-01.azurewebsites.net/api";
     console.log("🔧 getApiUrl: Usando URL de produção direta:", productionUrl);
     return productionUrl;
   }

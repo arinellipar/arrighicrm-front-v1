@@ -27,14 +27,16 @@ import {
   Shield,
   Sparkles,
   Sun,
-  Upload,
+  UserPlus,
   X,
 } from "lucide-react";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
 import { formatRelativeTime } from "@/lib/formatUtils";
 import { useClientes } from "@/hooks/useClientes";
 import { useActiveUsers } from "@/hooks/useActiveUsers";
+import { useHeartbeat } from "@/hooks/useHeartbeat";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 // Componente de Card Moderno com Glassmorphism - Otimizado com memo
 const GlassCard = memo(
@@ -200,10 +202,12 @@ NotificationBadge.displayName = "NotificationBadge";
 // Componente Principal do Dashboard - Otimizado
 export default function ModernDashboard() {
   const { user } = useAuth();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("week");
   const [refreshing, setRefreshing] = useState(false);
+  const [showActiveUsers, setShowActiveUsers] = useState(false);
 
   // Contexto de atividades
   const { obterAtividadesRecentes } = useAtividadeContext();
@@ -212,7 +216,15 @@ export default function ModernDashboard() {
   const { clientes, loading: clientesLoading } = useClientes();
 
   // Hook para usuários ativos/autenticados
-  const { activeSessions } = useActiveUsers();
+  const {
+    activeSessions,
+    onlineUserDetails,
+    loading: sessionsLoading,
+    error: sessionsError,
+  } = useActiveUsers();
+
+  // Hook para heartbeat (manter sessão ativa)
+  useHeartbeat();
 
   // Cálculo de clientes ativos dinâmico
   const clientesAtivos = useMemo(() => {
@@ -267,6 +279,149 @@ export default function ModernDashboard() {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 2000);
   }, []);
+
+  // Função para verificar permissões de usuários
+  const canAccessUsuarios = useMemo(() => {
+    const allowedGroups = [
+      "Administrador",
+      "Faturamento",
+      "Cobrança/Financeiro",
+    ];
+    return user?.grupoAcesso && allowedGroups.includes(user.grupoAcesso);
+  }, [user?.grupoAcesso]);
+
+  // Função para lidar com ações rápidas
+  const handleQuickAction = useCallback(
+    (actionLabel: string) => {
+      switch (actionLabel) {
+        case "Criar Usuário":
+          if (canAccessUsuarios) {
+            router.push("/usuarios");
+          } else {
+            // Mostrar mensagem de permissão negada ou não fazer nada
+            console.warn(
+              "Usuário não tem permissão para acessar página de usuários"
+            );
+          }
+          break;
+        case "Novo Cliente":
+          router.push("/clientes");
+          break;
+        case "Exportar Relatório":
+          // Implementar lógica de exportação
+          console.log("Exportar relatório");
+          break;
+        case "Configurar Segurança":
+          // Implementar lógica de segurança
+          console.log("Configurar segurança");
+          break;
+        default:
+          break;
+      }
+    },
+    [canAccessUsuarios, router]
+  );
+
+  // Componente Modal para Sessões Ativas
+  const ActiveUsersModal = () => (
+    <AnimatePresence>
+      {showActiveUsers && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowActiveUsers(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-white/90 backdrop-blur-xl rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800">
+                  Sessões Ativas
+                </h3>
+                <p className="text-gray-600">
+                  {activeSessions} usuários online agora
+                </p>
+              </div>
+              <button
+                onClick={() => setShowActiveUsers(false)}
+                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
+
+            {sessionsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
+                <span className="ml-2 text-gray-600">
+                  Carregando sessões...
+                </span>
+              </div>
+            ) : sessionsError ? (
+              <div className="flex items-center justify-center py-8 text-red-500">
+                <AlertCircle className="w-8 h-8 mr-2" />
+                <span>Erro ao carregar sessões ativas</span>
+              </div>
+            ) : onlineUserDetails.length === 0 ? (
+              <div className="flex items-center justify-center py-8 text-gray-500">
+                <Users className="w-8 h-8 mr-2" />
+                <span>Nenhum usuário online no momento</span>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {onlineUserDetails.map((user) => (
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-white/20"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          {user.name}
+                        </p>
+                        <p className="text-sm text-gray-600">{user.email}</p>
+                        {user.grupo && (
+                          <p className="text-xs text-blue-600 font-medium">
+                            {user.grupo}
+                          </p>
+                        )}
+                        {user.filial && (
+                          <p className="text-xs text-gray-500">{user.filial}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center text-green-600 mb-1">
+                        <Activity className="w-4 h-4 mr-1" />
+                        <span className="text-sm font-medium">Online</span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {user.minutosOnline === 0
+                          ? "Agora mesmo"
+                          : `${user.minutosOnline} min atrás`}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <div className="min-h-screen">
@@ -329,11 +484,12 @@ export default function ModernDashboard() {
                 {/* Menu Items */}
                 <nav className="space-y-2">
                   {[
-                    { icon: Home, label: "Dashboard", active: true },
-                    { icon: Users, label: "Clientes", badge: 12 },
-                    { icon: Building2, label: "Empresas" },
-                    { icon: BarChart3, label: "Analytics" },
-                    { icon: Settings, label: "Configurações" },
+                    {
+                      icon: Home,
+                      label: "Dashboard",
+                      active: true,
+                      badge: undefined,
+                    },
                   ].map((item) => (
                     <motion.button
                       key={item.label}
@@ -508,8 +664,12 @@ export default function ModernDashboard() {
               {
                 title: "Sessões Ativas",
                 value: stats.activeSessions,
-                change: "Em tempo real",
-                changeType: "neutral",
+                change: sessionsLoading
+                  ? "Carregando..."
+                  : sessionsError
+                  ? "Erro ao carregar"
+                  : `${onlineUserDetails.length} usuários online`,
+                changeType: sessionsError ? "negative" : "positive",
                 icon: Activity,
                 color: "from-purple-500 to-pink-500",
                 bgColor: "from-purple-500/20 to-pink-500/20",
@@ -525,8 +685,23 @@ export default function ModernDashboard() {
                 suffix: "%",
               },
             ].map((stat, index) => (
-              <GlassCard key={stat.title} delay={index * 0.1}>
-                <div className="flex items-start justify-between mb-4">
+              <GlassCard
+                key={stat.title}
+                delay={index * 0.1}
+                className={
+                  stat.title === "Sessões Ativas"
+                    ? "cursor-pointer hover:scale-105"
+                    : ""
+                }
+              >
+                <div
+                  className="flex items-start justify-between mb-4"
+                  onClick={
+                    stat.title === "Sessões Ativas"
+                      ? () => setShowActiveUsers(true)
+                      : undefined
+                  }
+                >
                   <div
                     className={`p-3 rounded-2xl bg-gradient-to-r ${stat.bgColor}`}
                   >
@@ -834,8 +1009,8 @@ export default function ModernDashboard() {
                     color: "from-blue-500 to-cyan-500",
                   },
                   {
-                    icon: Upload,
-                    label: "Upload Arquivo",
+                    icon: UserPlus,
+                    label: "Criar Usuário",
                     color: "from-green-500 to-emerald-500",
                   },
                   {
@@ -856,9 +1031,15 @@ export default function ModernDashboard() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: 1 + index * 0.1 }}
-                    className="w-full flex items-center space-x-3 p-3 rounded-2xl
+                    onClick={() => handleQuickAction(action.label)}
+                    className={`w-full flex items-center space-x-3 p-3 rounded-2xl
                                bg-white/10 hover:bg-white/20
-                               transition-all group"
+                               transition-all group ${
+                                 action.label === "Criar Usuário" &&
+                                 !canAccessUsuarios
+                                   ? "opacity-50 cursor-not-allowed"
+                                   : "cursor-pointer"
+                               }`}
                   >
                     <div
                       className={`p-2 rounded-xl bg-gradient-to-r ${action.color}
@@ -880,6 +1061,9 @@ export default function ModernDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Sessões Ativas */}
+      <ActiveUsersModal />
     </div>
   );
 }
