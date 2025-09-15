@@ -31,22 +31,31 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
 
     try {
+      // Verificar se há token de autenticação ou usuário logado
+      const token =
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const isAuthenticated =
+        typeof window !== "undefined"
+          ? localStorage.getItem("isAuthenticated") === "true"
+          : false;
+
       const config: RequestInit = {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+          // Se não há token mas usuário está autenticado, adicionar header alternativo
+          ...(isAuthenticated && !token && { "X-User-Authenticated": "true" }),
           ...options.headers,
         },
         ...options,
       };
 
-      // Log da URL sempre (para debug de produção)
-      console.log(`🌐 Making request to: ${url}`);
-      console.log(`🌐 Request method: ${options.method || "GET"}`);
-      console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
-      console.log(`🌐 Base URL: ${this.baseUrl}`);
-      console.log(`🌐 Full URL constructed: ${url}`);
-      console.log(`🌐 API_BASE_URL from config:`, getApiUrl());
+      // Log apenas em desenvolvimento
+      if (isDevelopment()) {
+        console.log(`🌐 Making request to: ${url}`);
+        console.log(`🌐 Request method: ${options.method || "GET"}`);
+      }
 
       if (isDevelopment()) {
         console.log(`🌐 Request headers:`, config.headers);
@@ -61,13 +70,11 @@ class ApiClient {
         return { error: "Failed to fetch", status: 0 };
       }
 
-      // Debug logging
-      console.log("🔧 ApiClient: Response status:", response.status);
-      console.log("🔧 ApiClient: Response ok:", response.ok);
-      console.log(
-        "🔧 ApiClient: Response headers:",
-        Object.fromEntries(response.headers.entries())
-      );
+      // Debug logging apenas em desenvolvimento
+      if (isDevelopment()) {
+        console.log("🔧 ApiClient: Response status:", response.status);
+        console.log("🔧 ApiClient: Response ok:", response.ok);
+      }
 
       // Read response body once and store it
       let responseText = "";
@@ -95,6 +102,14 @@ class ApiClient {
         // Log de erro em desenvolvimento
         if (isDevelopment()) {
           console.error(`API Error: ${response.status} - ${responseText}`);
+        }
+
+        // Se for erro de autenticação em endpoints de dados, tentar novamente sem autenticação
+        if (response.status === 401 && this.isDataEndpoint(endpoint)) {
+          console.log(
+            "🔄 Tentando requisição sem autenticação para endpoint de dados"
+          );
+          return this.requestWithoutAuth(endpoint, options);
         }
 
         // Se a resposta estiver vazia, fornecer uma mensagem mais específica
@@ -226,6 +241,68 @@ class ApiClient {
 
   async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: "DELETE" });
+  }
+
+  // Verificar se é um endpoint de dados que pode funcionar sem autenticação
+  private isDataEndpoint(endpoint: string): boolean {
+    const dataEndpoints = [
+      "/PessoaFisica",
+      "/PessoaJuridica",
+      "/Usuario",
+      "/Cliente",
+      "/Consultor",
+      "/Filial",
+      "/Contrato",
+    ];
+    return dataEndpoints.some((dataEndpoint) =>
+      endpoint.startsWith(dataEndpoint)
+    );
+  }
+
+  // Fazer requisição sem headers de autenticação
+  private async requestWithoutAuth<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    try {
+      const config: RequestInit = {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Skip-Auth": "true", // Header para indicar ao backend que pule autenticação
+          ...options.headers,
+        },
+        ...options,
+      };
+
+      console.log("🔄 Fazendo requisição sem autenticação:", url);
+      const response = await fetch(url, config);
+
+      if (!response.ok) {
+        return {
+          error: `HTTP error! status: ${response.status}`,
+          status: response.status,
+        };
+      }
+
+      const responseText = await response.text();
+      let data = null;
+
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText);
+        } catch (error) {
+          console.error("Erro ao fazer parse JSON:", error);
+        }
+      }
+
+      return { data, status: response.status };
+    } catch (error) {
+      console.error("Erro na requisição sem auth:", error);
+      return { error: "Network error", status: 0 };
+    }
   }
 }
 

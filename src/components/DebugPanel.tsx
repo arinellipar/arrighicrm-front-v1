@@ -20,6 +20,11 @@ interface DebugInfo {
   apiUrl: string;
   connectivity: "checking" | "connected" | "error";
   lastCheck: Date;
+  auth: {
+    hasToken: boolean;
+    tokenLength?: number;
+    tokenPreview?: string;
+  };
   endpoints: {
     [key: string]: {
       status: "checking" | "success" | "error";
@@ -36,6 +41,9 @@ export default function DebugPanel() {
     apiUrl: getApiUrl(),
     connectivity: "checking",
     lastCheck: new Date(),
+    auth: {
+      hasToken: false,
+    },
     endpoints: {},
   });
 
@@ -76,10 +84,18 @@ export default function DebugPanel() {
   };
 
   const runFullCheck = async () => {
+    // Verificar autenticação
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    
     setDebugInfo((prev) => ({
       ...prev,
       connectivity: "checking",
       lastCheck: new Date(),
+      auth: {
+        hasToken: !!token,
+        tokenLength: token?.length,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : undefined,
+      },
     }));
 
     const endpoints = [
@@ -176,6 +192,36 @@ export default function DebugPanel() {
                       Última verificação:{" "}
                       {debugInfo.lastCheck.toLocaleTimeString()}
                     </div>
+                  </div>
+                </div>
+
+                {/* Status de Autenticação */}
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h3 className="font-semibold mb-2">Autenticação</h3>
+                  <div className="text-sm space-y-1">
+                    <div className="flex items-center gap-2">
+                      {debugInfo.auth.hasToken ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-green-700">Token presente</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle className="w-4 h-4 text-red-500" />
+                          <span className="text-red-700">Sem token</span>
+                        </>
+                      )}
+                    </div>
+                    {debugInfo.auth.hasToken && (
+                      <>
+                        <div className="text-xs">
+                          Tamanho: {debugInfo.auth.tokenLength} caracteres
+                        </div>
+                        <div className="text-xs">
+                          Preview: <code>{debugInfo.auth.tokenPreview}</code>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 

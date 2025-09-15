@@ -84,28 +84,6 @@ export function useDashboard() {
       const pessoasJuridicas = pessoasJuridicasResponse.data || [];
       const usuarios = usuariosResponse.data || [];
 
-      // Log detalhado para debug de produção
-      console.log("📊 useDashboard - Dados recebidos:", {
-        pessoasFisicas: {
-          length: pessoasFisicas.length,
-          isArray: Array.isArray(pessoasFisicas),
-          hasData: !!pessoasFisicasResponse.data,
-          rawData: pessoasFisicasResponse.data,
-        },
-        pessoasJuridicas: {
-          length: pessoasJuridicas.length,
-          isArray: Array.isArray(pessoasJuridicas),
-          hasData: !!pessoasJuridicasResponse.data,
-          rawData: pessoasJuridicasResponse.data,
-        },
-        usuarios: {
-          length: usuarios.length,
-          isArray: Array.isArray(usuarios),
-          hasData: !!usuariosResponse.data,
-          rawData: usuariosResponse.data,
-        },
-      });
-
       // Calcular estatísticas
       const totalPessoasFisicas = pessoasFisicas.length;
       const totalPessoasJuridicas = pessoasJuridicas.length;

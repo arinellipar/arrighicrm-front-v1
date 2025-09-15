@@ -39,14 +39,6 @@ export function useClientes() {
         console.warn("Erro ao buscar filiais:", filiaisError);
       }
 
-      // Log detalhado para debug de produção
-      console.log("📊 useClientes - Resposta da API:", {
-        hasData: !!response.data,
-        isArray: Array.isArray(response.data),
-        length: Array.isArray(response.data) ? response.data.length : 0,
-        rawData: response.data,
-      });
-
       // Transformar os dados para o formato esperado pelo frontend
       const clientesTransformados = (response.data as any[]).map(
         (cliente: any) => ({

@@ -82,9 +82,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         "usuario" in response.data
       ) {
         const userData = (response.data as any).usuario;
+        const token = (response.data as any).token;
+
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("isAuthenticated", "true");
+
+        // Salvar token se fornecido pelo backend
+        if (token) {
+          localStorage.setItem("token", token);
+        }
+
         return { success: true };
       }
 
@@ -98,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("token");
     router.push("/login");
   };
 
