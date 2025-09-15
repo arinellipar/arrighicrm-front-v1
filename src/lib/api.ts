@@ -31,10 +31,28 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
 
     try {
+      // Obter usuário logado para incluir no header
+      let userHeaders = {};
+      if (typeof window !== "undefined") {
+        try {
+          const storedUser = localStorage.getItem("user");
+          const isAuth = localStorage.getItem("isAuthenticated");
+          if (storedUser && isAuth === "true") {
+            const userData = JSON.parse(storedUser);
+            userHeaders = {
+              "X-Usuario-Id": userData.id.toString(),
+            };
+          }
+        } catch (error) {
+          console.warn("Erro ao obter usuário para header:", error);
+        }
+      }
+
       const config: RequestInit = {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...userHeaders,
           ...options.headers,
         },
         ...options,

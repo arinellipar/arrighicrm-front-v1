@@ -82,6 +82,11 @@ export function usePermissions() {
   const canEdit = (module: string): boolean => {
     if (!user) return false;
 
+    // Cobrança/Financeiro tem acesso SOMENTE LEITURA - não pode editar nada
+    if (user.grupoAcesso === "Cobrança/Financeiro") {
+      return false;
+    }
+
     const editPermissions: Record<string, string[]> = {
       "pessoa-fisica": [
         "Administrador",
@@ -121,6 +126,11 @@ export function usePermissions() {
 
   const canDelete = (module: string): boolean => {
     if (!user) return false;
+
+    // Cobrança/Financeiro tem acesso SOMENTE LEITURA - não pode excluir nada
+    if (user.grupoAcesso === "Cobrança/Financeiro") {
+      return false;
+    }
 
     // Apenas Administrador e Faturamento podem excluir na maioria dos casos
     const deletePermissions: Record<string, string[]> = {
