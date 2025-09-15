@@ -42,6 +42,13 @@ class ApiClient {
             userHeaders = {
               "X-Usuario-Id": userData.id.toString(),
             };
+            console.log(
+              `🔧 ApiClient: Enviando X-Usuario-Id: ${userData.id} (${userData.grupoAcesso})`
+            );
+          } else {
+            console.warn(
+              "🔧 ApiClient: Usuário não autenticado, não enviando X-Usuario-Id"
+            );
           }
         } catch (error) {
           console.warn("Erro ao obter usuário para header:", error);
