@@ -9,6 +9,7 @@ import { useClientes } from "@/hooks/useClientes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Loader2, Shield } from "lucide-react";
+import DebugPanel from "./DebugPanel";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -277,6 +278,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </motion.footer>
         )}
       </AnimatePresence>
+
+      {/* Debug Panel para produção */}
+      <DebugPanel />
     </div>
   );
 }

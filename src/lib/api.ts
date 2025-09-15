@@ -45,6 +45,8 @@ class ApiClient {
       console.log(`🌐 Request method: ${options.method || "GET"}`);
       console.log(`🌐 Environment: ${process.env.NODE_ENV}`);
       console.log(`🌐 Base URL: ${this.baseUrl}`);
+      console.log(`🌐 Full URL constructed: ${url}`);
+      console.log(`🌐 API_BASE_URL from config:`, getApiUrl());
 
       if (isDevelopment()) {
         console.log(`🌐 Request headers:`, config.headers);
@@ -144,9 +146,18 @@ class ApiClient {
         data = null;
       }
 
-      // Log de sucesso em desenvolvimento
-      if (isDevelopment()) {
-        console.log(`API Success: ${response.status} - ${endpoint}`, data);
+      // Log de sucesso sempre (para debug de produção)
+      console.log(`✅ API Success: ${response.status} - ${endpoint}`);
+      console.log(
+        `✅ Data type: ${
+          Array.isArray(data) ? `Array[${data.length}]` : typeof data
+        }`
+      );
+      if (Array.isArray(data)) {
+        console.log(`✅ Array length: ${data.length}`);
+        if (data.length > 0) {
+          console.log(`✅ First item keys:`, Object.keys(data[0] || {}));
+        }
       }
 
       // Log adicional para debug em desenvolvimento

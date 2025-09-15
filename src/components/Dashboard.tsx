@@ -487,8 +487,8 @@ export default function ModernDashboard() {
             {[
               {
                 title: "Clientes Ativos",
-                value: clientesLoading ? 0 : stats.clientesAtivos,
-                change: `+${stats.novosClientes}`,
+                value: clientesLoading ? 0 : stats.clientesAtivos || 0,
+                change: `+${stats.novosClientes || 0}`,
                 changeType: "positive",
                 icon: Users,
                 color: "from-blue-500 to-cyan-500",
