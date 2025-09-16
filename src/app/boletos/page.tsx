@@ -116,10 +116,14 @@ export default function BoletosPage() {
     const searchLower = searchTerm.toLowerCase();
     return (
       boleto.id.toString().includes(searchLower) ||
-      boleto.nsuCode.toLowerCase().includes(searchLower) ||
-      boleto.payerName.toLowerCase().includes(searchLower) ||
-      boleto.contrato?.clienteNome?.toLowerCase().includes(searchLower) ||
-      boleto.contrato?.numeroContrato?.toLowerCase().includes(searchLower)
+      (boleto.nsuCode?.toLowerCase() || "").includes(searchLower) ||
+      (boleto.payerName?.toLowerCase() || "").includes(searchLower) ||
+      (boleto.contrato?.clienteNome?.toLowerCase() || "").includes(
+        searchLower
+      ) ||
+      (boleto.contrato?.numeroContrato?.toLowerCase() || "").includes(
+        searchLower
+      )
     );
   });
 
@@ -133,7 +137,7 @@ export default function BoletosPage() {
           new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
         break;
       case "value":
-        comparison = a.value - b.value;
+        comparison = a.nominalValue - b.nominalValue;
         break;
       case "status":
         comparison = a.status.localeCompare(b.status);
@@ -157,7 +161,7 @@ export default function BoletosPage() {
   // Estatísticas rápidas
   const stats = {
     total: boletos.length,
-    totalValue: boletos.reduce((sum, b) => sum + b.value, 0),
+    totalValue: boletos.reduce((sum, b) => sum + b.nominalValue, 0),
     pendentes: boletos.filter((b) => b.status === "PENDENTE").length,
     registrados: boletos.filter((b) => b.status === "REGISTRADO").length,
     liquidados: boletos.filter((b) => b.status === "LIQUIDADO").length,
@@ -539,7 +543,7 @@ export default function BoletosPage() {
                           <div>
                             <p className="text-sm text-gray-500">Valor</p>
                             <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                              {formatCurrency(boleto.value)}
+                              {formatCurrency(boleto.nominalValue)}
                             </p>
                           </div>
                           <div className="text-right">
@@ -664,7 +668,7 @@ export default function BoletosPage() {
                         </td>
                         <td className="px-6 py-4">
                           <p className="font-semibold text-gray-900">
-                            {formatCurrency(boleto.value)}
+                            {formatCurrency(boleto.nominalValue)}
                           </p>
                         </td>
                         <td className="px-6 py-4">

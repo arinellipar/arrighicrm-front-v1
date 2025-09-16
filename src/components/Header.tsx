@@ -21,96 +21,126 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigationFilter } from "@/hooks/useNavigationFilter";
 
 interface MenuItem {
   label: string;
   href: string;
   icon: React.ReactNode;
   badge?: string;
+  requiredModule?: string;
+  requiredAction?: string;
 }
 
 interface MenuGroup {
   label: string;
   items: MenuItem[];
+  requiredGroup?: string[];
+  hiddenForGroups?: string[];
 }
 
 const menuItems: MenuGroup[] = [
   {
     label: "Cadastros",
+    hiddenForGroups: ["Usuario", "Usuário"], // Ocultar para grupo Usuario
     items: [
       {
         label: "Pessoa Física",
         href: "/cadastros/pessoa-fisica",
         icon: <Users className="w-4 h-4" />,
+        requiredModule: "PessoaFisica",
+        requiredAction: "Visualizar",
       },
       {
         label: "Pessoa Jurídica",
         href: "/cadastros/pessoa-juridica",
         icon: <Building2 className="w-4 h-4" />,
+        requiredModule: "PessoaJuridica",
+        requiredAction: "Visualizar",
       },
       {
         label: "Consultores",
         href: "/consultores",
         icon: <UserCheck className="w-4 h-4" />,
+        requiredModule: "Consultor",
+        requiredAction: "Visualizar",
       },
       {
         label: "Parceiros",
         href: "/parceiros",
         icon: <Scale className="w-4 h-4" />,
+        requiredModule: "Parceiro",
+        requiredAction: "Visualizar",
       },
       {
         label: "Clientes",
         href: "/clientes",
         icon: <Users className="w-4 h-4 text-gold-500" />,
+        requiredModule: "Cliente",
+        requiredAction: "Visualizar",
       },
     ],
   },
   {
     label: "Gestão",
+    hiddenForGroups: ["Usuario", "Usuário"], // Ocultar para grupo Usuario
     items: [
       {
         label: "Contratos",
         href: "/contratos",
         icon: <FileText className="w-4 h-4" />,
+        requiredModule: "Contrato",
+        requiredAction: "Visualizar",
       },
       {
         label: "Usuários",
         href: "/usuarios",
         icon: <UserCheck className="w-4 h-4" />,
         badge: "3",
+        requiredModule: "Usuario",
+        requiredAction: "Visualizar",
       },
     ],
   },
   {
     label: "Financeiro",
+    hiddenForGroups: ["Usuario", "Usuário"], // Ocultar para grupo Usuario
     items: [
       {
         label: "Boletos",
         href: "/boletos",
         icon: <CreditCard className="w-4 h-4" />,
+        requiredModule: "Boleto",
+        requiredAction: "Visualizar",
       },
       {
         label: "Dashboard Financeiro",
         href: "/dashboard/financeiro",
         icon: <TrendingUp className="w-4 h-4" />,
+        requiredModule: "Boleto",
+        requiredAction: "Visualizar",
       },
     ],
   },
 ];
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, permissoes } = useAuth();
+  const { filterMenuGroups, isUsuarioGroup, userGroup } = useNavigationFilter();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Filtrar menus baseado no grupo do usuário
+  const filteredMenuItems = filterMenuGroups(menuItems);
 
   const handleDropdownToggle = (label: string) => {
     setActiveDropdown(activeDropdown === label ? null : label);
   };
 
   return (
-    <header className="relative z-50 bg-white border-b border-neutral-200/60">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b border-neutral-200/60">
       {/* Top bar - Linha dourada premium */}
       <div className="h-1 bg-gradient-to-r from-primary-500 via-gold-500 to-primary-500" />
 
@@ -146,7 +176,14 @@ export default function Header() {
                   Dashboard
                 </Link>
 
-                {menuItems.map((group) => (
+                {/* Indicador para grupo Usuario */}
+                {isUsuarioGroup && (
+                  <div className="px-3 py-1 text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-lg">
+                    Acesso Limitado
+                  </div>
+                )}
+
+                {filteredMenuItems.map((group) => (
                   <div key={group.label} className="relative">
                     <button
                       onClick={() => handleDropdownToggle(group.label)}
@@ -285,6 +322,38 @@ export default function Header() {
                         <p className="text-xs text-neutral-600">
                           {user?.email || "usuario@email.com"}
                         </p>
+                        <div className="mt-2">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${(() => {
+                              const grupo =
+                                permissoes?.grupo || user?.grupoAcesso || "";
+                              switch (grupo.toLowerCase()) {
+                                case "administrador":
+                                  return "bg-red-100 text-red-800 border border-red-200";
+                                case "faturamento":
+                                  return "bg-purple-100 text-purple-800 border border-purple-200";
+                                case "gestor de filial":
+                                  return "bg-orange-100 text-orange-800 border border-orange-200";
+                                case "consultores":
+                                  return "bg-blue-100 text-blue-800 border border-blue-200";
+                                case "cobrança e financeiro":
+                                case "cobrança/financeiro":
+                                  return "bg-green-100 text-green-800 border border-green-200";
+                                case "administrativo de filial":
+                                  return "bg-yellow-100 text-yellow-800 border border-yellow-200";
+                                case "usuario":
+                                case "usuário":
+                                  return "bg-gray-100 text-gray-800 border border-gray-200";
+                                default:
+                                  return "bg-neutral-100 text-neutral-800 border border-neutral-200";
+                              }
+                            })()}`}
+                          >
+                            {permissoes?.grupo ||
+                              user?.grupoAcesso ||
+                              "Carregando..."}
+                          </span>
+                        </div>
                       </div>
                       <div className="p-2">
                         <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 rounded-lg transition-colors">
@@ -336,7 +405,7 @@ export default function Header() {
               >
                 Dashboard
               </Link>
-              {menuItems.map((group) => (
+              {filteredMenuItems.map((group) => (
                 <div key={group.label} className="space-y-1">
                   <p className="px-4 py-2 text-xs font-semibold text-neutral-500 uppercase">
                     {group.label}

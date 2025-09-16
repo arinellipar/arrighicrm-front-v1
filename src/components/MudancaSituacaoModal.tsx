@@ -1,7 +1,8 @@
 // src/components/MudancaSituacaoModal.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -53,6 +54,12 @@ export default function MudancaSituacaoModal({
   onSubmit,
   onClose,
 }: MudancaSituacaoModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [formData, setFormData] = useState<MudancaSituacaoDTO>({
     novaSituacao: contrato.situacao,
     motivoMudanca: "",
@@ -237,7 +244,9 @@ export default function MudancaSituacaoModal({
     return sugestoes[chave] || "";
   };
 
-  return (
+  if (!mounted) return null;
+
+  const modalContent = (
     <AnimatePresence>
       {/* Overlay */}
       <motion.div
@@ -245,7 +254,7 @@ export default function MudancaSituacaoModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9999]"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[99999]"
         onClick={onClose}
       />
 
@@ -255,7 +264,7 @@ export default function MudancaSituacaoModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
+        className="fixed inset-0 flex items-center justify-center z-[99999] p-4"
       >
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
           {/* Header */}
@@ -524,4 +533,6 @@ export default function MudancaSituacaoModal({
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }

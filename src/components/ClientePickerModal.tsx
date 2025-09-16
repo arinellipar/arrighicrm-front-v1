@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Cliente } from "@/types/api";
 import { X, Search, Users, Building2, Phone, Mail, IdCard } from "lucide-react";
@@ -19,7 +20,12 @@ export default function ClientePickerModal({
   onClose,
   onSelect,
 }: ClientePickerModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -47,7 +53,9 @@ export default function ClientePickerModal({
     });
   }, [clientes, search]);
 
-  return (
+  if (!mounted) return null;
+
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -56,7 +64,7 @@ export default function ClientePickerModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9999]"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[99999]"
             onClick={onClose}
           />
           <motion.div
@@ -64,7 +72,7 @@ export default function ClientePickerModal({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
+            className="fixed inset-0 flex items-center justify-center z-[99999] p-4"
           >
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
               <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4 flex items-center justify-between">
@@ -183,4 +191,6 @@ export default function ClientePickerModal({
       )}
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }

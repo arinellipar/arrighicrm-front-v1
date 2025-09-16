@@ -8,6 +8,7 @@ import {
   ResponsavelTecnicoOption,
 } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UsePessoaFisicaState {
   pessoas: PessoaFisica[];
@@ -27,8 +28,10 @@ export function usePessoaFisica() {
     updating: false,
     deleting: false,
   });
+  const [initialized, setInitialized] = useState(false);
 
   const { adicionarAtividade } = useAtividadeContext();
+  const { user } = useAuth();
 
   const setLoading = (loading: boolean) => {
     setState((prev) => ({ ...prev, loading }));
@@ -42,36 +45,55 @@ export function usePessoaFisica() {
     setState((prev) => ({ ...prev, pessoas }));
   };
 
-  // Listar todas as pessoas físicas
-  const fetchPessoas = useCallback(async () => {
-    console.log("🔄 Iniciando fetchPessoas");
-    setLoading(true);
-    setError(null);
+  // Listar pessoas físicas com busca otimizada
+  const fetchPessoas = useCallback(
+    async (termo: string = "", limit: number = 1000) => {
+      console.log(
+        "🔄 Iniciando fetchPessoas com termo:",
+        termo,
+        "limit:",
+        limit
+      );
+      setLoading(true);
+      setError(null);
 
-    try {
-      const response = await apiClient.get<PessoaFisica[]>("/PessoaFisica");
-      console.log("📡 Resposta fetchPessoas:", response);
+      try {
+        // Usar endpoint otimizado de busca que já filtra e ordena no backend
+        const endpoint = termo
+          ? `/PessoaFisica/buscar?termo=${encodeURIComponent(
+              termo
+            )}&limit=${limit}`
+          : `/PessoaFisica/buscar?limit=${limit}`;
 
-      if (response.error) {
-        console.error("❌ Erro em fetchPessoas:", response.error);
-        setError(response.error);
-      } else if (!response.data) {
-        console.warn("⚠️ fetchPessoas: dados vazios ou nulos");
-        setPessoas([]);
-      } else {
+        const response = await apiClient.get<PessoaFisica[]>(endpoint);
         console.log(
-          "✅ fetchPessoas bem-sucedido, dados:",
-          response.data.length
+          "📡 Resposta fetchPessoas:",
+          response.data?.length,
+          "pessoas"
         );
-        setPessoas(response.data);
+
+        if (response.error) {
+          console.error("❌ Erro em fetchPessoas:", response.error);
+          setError(response.error);
+        } else if (!response.data) {
+          console.warn("⚠️ fetchPessoas: dados vazios ou nulos");
+          setPessoas([]);
+        } else {
+          console.log(
+            "✅ fetchPessoas bem-sucedido, dados:",
+            response.data.length
+          );
+          setPessoas(response.data);
+        }
+      } catch (error) {
+        console.error("💥 Erro em fetchPessoas:", error);
+        setError("Erro ao carregar pessoas físicas");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("💥 Erro em fetchPessoas:", error);
-      setError("Erro ao carregar pessoas físicas");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Buscar pessoa física por ID
   const fetchPessoaById = useCallback(
@@ -148,7 +170,7 @@ export function usePessoaFisica() {
 
         // Registrar atividade
         adicionarAtividade(
-          "Admin User",
+          user?.nome || user?.login || "Usuário",
           `Cadastrou nova pessoa física: ${data.nome}`,
           "success",
           `CPF: ${data.cpf || "Não informado"}`,
@@ -184,7 +206,7 @@ export function usePessoaFisica() {
 
         // Registrar atividade
         adicionarAtividade(
-          "Admin User",
+          user?.nome || user?.login || "Usuário",
           `Atualizou pessoa física: ${data.nome}`,
           "info",
           `Email: ${data.emailEmpresarial || "Não informado"}`,
@@ -247,7 +269,7 @@ export function usePessoaFisica() {
         // Registrar atividade
         if (pessoaParaDeletar) {
           adicionarAtividade(
-            "Admin User",
+            user?.nome || user?.login || "Usuário",
             `Excluiu pessoa física: ${pessoaParaDeletar.nome}`,
             "warning",
             `CPF: ${pessoaParaDeletar.cpf || "Não informado"}`,
@@ -291,10 +313,13 @@ export function usePessoaFisica() {
     }
   }, []);
 
-  // Carregar dados iniciais
+  // Carregar dados iniciais - Proteção contra loops infinitos
   useEffect(() => {
-    fetchPessoas();
-  }, []); // Remover fetchPessoas da dependência para evitar loops
+    if (!initialized) {
+      fetchPessoas();
+      setInitialized(true);
+    }
+  }, [initialized, fetchPessoas]);
 
   return {
     ...state,

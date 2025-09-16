@@ -29,12 +29,18 @@ import {
   Sun,
   Upload,
   X,
+  Calendar,
+  FileCheck,
+  CreditCard,
 } from "lucide-react";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
 import { formatRelativeTime } from "@/lib/formatUtils";
 import { useClientes } from "@/hooks/useClientes";
 import { useActiveUsers } from "@/hooks/useActiveUsers";
+import { useSessoesAtivas } from "@/hooks/useSessoesAtivas";
+import { useEstatisticas } from "@/hooks/useEstatisticas";
 import { useAuth } from "@/contexts/AuthContext";
+import { SessoesAtivasModal } from "./SessoesAtivasModal";
 
 // Componente de Card Moderno com Glassmorphism - Otimizado com memo
 const GlassCard = memo(
@@ -42,10 +48,12 @@ const GlassCard = memo(
     children,
     className = "",
     delay = 0,
+    onClick,
   }: {
     children: React.ReactNode;
     className?: string;
     delay?: number;
+    onClick?: () => void;
   }) => (
     <motion.div
       initial={{ opacity: 0, y: 20, rotateX: -10 }}
@@ -71,6 +79,7 @@ const GlassCard = memo(
       hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)]
       ${className}
     `}
+      onClick={onClick}
       style={{
         transformStyle: "preserve-3d",
         transform: "perspective(1000px)",
@@ -199,11 +208,12 @@ NotificationBadge.displayName = "NotificationBadge";
 
 // Componente Principal do Dashboard - Otimizado
 export default function ModernDashboard() {
-  const { user } = useAuth();
+  const { user, permissoes } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("week");
   const [refreshing, setRefreshing] = useState(false);
+  const [sessoesModalOpen, setSessoesModalOpen] = useState(false);
 
   // Contexto de atividades
   const { obterAtividadesRecentes } = useAtividadeContext();
@@ -213,6 +223,23 @@ export default function ModernDashboard() {
 
   // Hook para usuários ativos/autenticados
   const { activeSessions } = useActiveUsers();
+
+  // Hook para sessões ativas em tempo real (incluindo usuários inativos)
+  const {
+    sessoes,
+    count: sessoesCount,
+    countOnline: sessoesOnline,
+    loading: sessoesLoading,
+  } = useSessoesAtivas(true);
+
+  // Hook para estatísticas e receita
+  const {
+    receita,
+    dashboard,
+    loading: estatisticasLoading,
+    error: estatisticasError,
+    refreshData: refreshEstatisticas,
+  } = useEstatisticas();
 
   // Cálculo de clientes ativos dinâmico
   const clientesAtivos = useMemo(() => {
@@ -225,7 +252,7 @@ export default function ModernDashboard() {
     ).length;
   }, [clientes]);
 
-  // Dados mockados - Memoizados para performance
+  // Dados reais calculados - Memoizados para performance
   const stats = useMemo(
     () => ({
       clientesAtivos: clientesAtivos,
@@ -233,14 +260,21 @@ export default function ModernDashboard() {
         0,
         clientesAtivos - Math.floor(clientesAtivos * 0.9)
       ), // Estimativa de novos clientes
-      revenue: 48650,
-      revenueGrowth: 12.5,
-      activeSessions: activeSessions,
-      conversionRate: 3.48,
-      totalOrders: 524,
-      orderGrowth: 8.3,
+      revenue: receita?.ReceitaTotal || 0,
+      revenueGrowth: receita?.CrescimentoMes || 0,
+      activeSessions: sessoesOnline,
+      conversionRate: receita?.TaxaConversao || 0,
+      totalOrders: dashboard?.Contratos?.TotalContratos || 0,
+      orderGrowth: receita?.ContratosMesAtual || 0,
+      // Novos campos baseados em dados reais
+      receitaMesAtual: receita?.ReceitaMesAtual || 0,
+      receitaAnoAtual: receita?.ReceitaAnoAtual || 0,
+      contratosFechados: receita?.ContratosFechados || 0,
+      valorBoletosLiquidados: receita?.ValorBoletosLiquidados || 0,
+      valorBoletosPendentes: receita?.ValorBoletosPendentes || 0,
+      comissaoTotal: receita?.ComissaoTotal || 0,
     }),
-    [clientesAtivos, activeSessions]
+    [clientesAtivos, sessoesCount, receita, dashboard]
   );
 
   const chartData = useMemo(
@@ -263,10 +297,16 @@ export default function ModernDashboard() {
   );
 
   // Função de refresh memoizada
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 2000);
-  }, []);
+    try {
+      await refreshEstatisticas();
+    } catch (error) {
+      console.error("Erro ao atualizar estatísticas:", error);
+    } finally {
+      setTimeout(() => setRefreshing(false), 2000);
+    }
+  }, [refreshEstatisticas]);
 
   return (
     <div className="min-h-screen">
@@ -328,52 +368,38 @@ export default function ModernDashboard() {
 
                 {/* Menu Items */}
                 <nav className="space-y-2">
-                  {[
-                    { icon: Home, label: "Dashboard", active: true },
-                    { icon: Users, label: "Clientes", badge: 12 },
-                    { icon: Building2, label: "Empresas" },
-                    { icon: BarChart3, label: "Analytics" },
-                    { icon: Settings, label: "Configurações" },
-                  ].map((item) => (
-                    <motion.button
-                      key={item.label}
-                      whileHover={{ x: 5 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl
+                  {[{ icon: Home, label: "Dashboard", active: true }].map(
+                    (item) => (
+                      <motion.button
+                        key={item.label}
+                        whileHover={{ x: 5 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl
                                   transition-all duration-300 group
                                   ${
                                     item.active
                                       ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30"
                                       : "hover:bg-white/10"
                                   }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <item.icon
-                          className={`w-5 h-5 ${
-                            item.active ? "text-blue-500" : "text-gray-600"
-                          }`}
-                        />
-                        <span
-                          className={`font-medium ${
-                            item.active ? "text-gray-900" : "text-gray-600"
-                          }`}
-                        >
-                          {item.label}
-                        </span>
-                      </div>
-                      {item.badge && (
-                        <span
-                          className="px-2 py-1 bg-gradient-to-r from-red-500 to-pink-500
-                                         text-white text-xs rounded-full font-bold"
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                      {!item.badge && (
+                      >
+                        <div className="flex items-center space-x-3">
+                          <item.icon
+                            className={`w-5 h-5 ${
+                              item.active ? "text-blue-500" : "text-gray-600"
+                            }`}
+                          />
+                          <span
+                            className={`font-medium ${
+                              item.active ? "text-gray-900" : "text-gray-600"
+                            }`}
+                          >
+                            {item.label}
+                          </span>
+                        </div>
                         <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      )}
-                    </motion.button>
-                  ))}
+                      </motion.button>
+                    )
+                  )}
                 </nav>
 
                 {/* User Profile */}
@@ -496,36 +522,92 @@ export default function ModernDashboard() {
                 loading: clientesLoading,
               },
               {
-                title: "Receita",
-                value: stats.revenue,
-                change: `${stats.revenueGrowth}%`,
-                changeType: "positive",
+                title: "Receita Total",
+                value: estatisticasLoading ? 0 : stats.revenue,
+                change: `${stats.revenueGrowth > 0 ? "+" : ""}${
+                  stats.revenueGrowth
+                }%`,
+                changeType: stats.revenueGrowth >= 0 ? "positive" : "negative",
                 icon: DollarSign,
                 color: "from-green-500 to-emerald-500",
                 bgColor: "from-green-500/20 to-emerald-500/20",
                 prefix: "R$ ",
+                loading: estatisticasLoading,
               },
-              {
-                title: "Sessões Ativas",
-                value: stats.activeSessions,
-                change: "Em tempo real",
-                changeType: "neutral",
-                icon: Activity,
-                color: "from-purple-500 to-pink-500",
-                bgColor: "from-purple-500/20 to-pink-500/20",
-              },
+              // Sessões Ativas - apenas para usuários com grupo de acesso
+              ...(permissoes?.grupo &&
+              permissoes.grupo !== "Usuario" &&
+              permissoes.grupo !== "Usuário"
+                ? [
+                    {
+                      title: "Sessões Ativas",
+                      value: stats.activeSessions,
+                      change: "Em tempo real",
+                      changeType: "neutral" as const,
+                      icon: Activity,
+                      color: "from-purple-500 to-pink-500",
+                      bgColor: "from-purple-500/20 to-pink-500/20",
+                      clickable: true,
+                      onClick: () => setSessoesModalOpen(true),
+                    },
+                  ]
+                : []),
               {
                 title: "Taxa de Conversão",
-                value: stats.conversionRate,
-                change: "+0.5%",
-                changeType: "positive",
+                value: estatisticasLoading ? 0 : stats.conversionRate,
+                change: `${stats.conversionRate > 0 ? "+" : ""}${
+                  stats.conversionRate
+                }%`,
+                changeType: stats.conversionRate >= 0 ? "positive" : "negative",
                 icon: Target,
                 color: "from-orange-500 to-red-500",
                 bgColor: "from-orange-500/20 to-red-500/20",
                 suffix: "%",
+                loading: estatisticasLoading,
+              },
+              {
+                title: "Receita do Mês",
+                value: estatisticasLoading ? 0 : stats.receitaMesAtual,
+                change: `Mês atual`,
+                changeType: "neutral",
+                icon: Calendar,
+                color: "from-blue-500 to-indigo-500",
+                bgColor: "from-blue-500/20 to-indigo-500/20",
+                prefix: "R$ ",
+                loading: estatisticasLoading,
+              },
+              {
+                title: "Contratos Fechados",
+                value: estatisticasLoading ? 0 : stats.contratosFechados,
+                change: `Total: ${stats.totalOrders}`,
+                changeType: "positive",
+                icon: FileCheck,
+                color: "from-emerald-500 to-teal-500",
+                bgColor: "from-emerald-500/20 to-teal-500/20",
+                loading: estatisticasLoading,
+              },
+              {
+                title: "Boletos Liquidados",
+                value: estatisticasLoading ? 0 : stats.valorBoletosLiquidados,
+                change: `Pendentes: R$ ${stats.valorBoletosPendentes.toLocaleString()}`,
+                changeType: "positive",
+                icon: CreditCard,
+                color: "from-green-500 to-lime-500",
+                bgColor: "from-green-500/20 to-lime-500/20",
+                prefix: "R$ ",
+                loading: estatisticasLoading,
               },
             ].map((stat, index) => (
-              <GlassCard key={stat.title} delay={index * 0.1}>
+              <GlassCard
+                key={stat.title}
+                delay={index * 0.1}
+                className={
+                  stat.clickable
+                    ? "cursor-pointer hover:scale-105 transition-transform"
+                    : ""
+                }
+                onClick={stat.onClick}
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div
                     className={`p-3 rounded-2xl bg-gradient-to-r ${stat.bgColor}`}
@@ -880,6 +962,15 @@ export default function ModernDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Sessões Ativas */}
+      <SessoesAtivasModal
+        isOpen={sessoesModalOpen}
+        onClose={() => setSessoesModalOpen(false)}
+        sessoes={sessoes}
+        loading={sessoesLoading}
+        countOnline={sessoesOnline}
+      />
     </div>
   );
 }

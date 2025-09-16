@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, memo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDebouncedCallback } from "@/hooks/useDebounce";
 import {
   Save,
   X,
@@ -26,9 +27,10 @@ import {
   Usuario,
   PessoaFisicaOption,
   PessoaJuridicaOption,
-  GrupoAcessoOptions,
   TipoPessoaOptions,
 } from "@/types/api";
+import { useGruposAcessoOptions } from "@/hooks/useGruposAcesso";
+import { useFilialOptions } from "@/hooks/useFiliais";
 import { cn } from "@/lib/utils";
 
 interface UsuarioFormProps {
@@ -46,6 +48,7 @@ interface FormData {
   senha: string;
   confirmarSenha: string;
   grupoAcesso: string;
+  filial: string;
   tipoPessoa: string;
   pessoaFisicaId: string;
   pessoaJuridicaId: string;
@@ -70,6 +73,7 @@ const initialFormData: FormData = {
   senha: "",
   confirmarSenha: "",
   grupoAcesso: "",
+  filial: "",
   tipoPessoa: "",
   pessoaFisicaId: "",
   pessoaJuridicaId: "",
@@ -170,7 +174,7 @@ const InputField = memo(
                   ref={inputRef as React.RefObject<HTMLSelectElement>}
                   id={fieldId}
                   name={name}
-                  value={value as string}
+                  value={typeof value === "string" ? value : ""}
                   onChange={handleChange}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
@@ -335,23 +339,95 @@ export default function UsuarioForm({
 }: UsuarioFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { options: grupoAcessoOptions, loading: gruposLoading } =
+    useGruposAcessoOptions();
+  const { options: filialOptions, loading: filiaisLoading } =
+    useFilialOptions();
 
   // Inicializar dados se for edição
   useEffect(() => {
-    if (initialData) {
+    if (initialData && grupoAcessoOptions.length > 0) {
+      // Encontrar o grupo correto nas opções
+      const grupoEncontrado = grupoAcessoOptions.find(
+        (grupo) =>
+          grupo.value === initialData.grupoAcesso?.nome ||
+          grupo.id === initialData.grupoAcessoId
+      );
+
+      // Encontrar a filial correta nas opções (se as filiais já carregaram)
+      const filialEncontrada = filialOptions.find(
+        (filial) => filial.id === initialData.filialId
+      );
+
+      console.log("🔍 DEBUG - Dados de inicialização:", {
+        initialData,
+        grupoEncontrado,
+        filialEncontrada,
+        grupoAcessoOptions,
+        filialOptions,
+        filialId: initialData.filialId,
+      });
+
       setFormData({
-        login: initialData.login,
-        email: initialData.email,
+        login: initialData.login ?? "",
+        email: initialData.email ?? "",
         senha: "", // Não preencher senha na edição
         confirmarSenha: "",
-        grupoAcesso: initialData.grupoAcesso,
-        tipoPessoa: initialData.tipoPessoa,
-        pessoaFisicaId: initialData.pessoaFisicaId?.toString() || "",
-        pessoaJuridicaId: initialData.pessoaJuridicaId?.toString() || "",
+        grupoAcesso: grupoEncontrado?.value ?? "",
+        filial: filialEncontrada?.value ?? "",
+        tipoPessoa: initialData.tipoPessoa ?? "",
+        pessoaFisicaId: initialData.pessoaFisicaId?.toString() ?? "",
+        pessoaJuridicaId: initialData.pessoaJuridicaId?.toString() ?? "",
         ativo: initialData.ativo,
       });
     }
-  }, [initialData]);
+  }, [initialData, grupoAcessoOptions, filialOptions]);
+
+  // Validação em tempo real com debounce
+  const validateFieldDebounced = useDebouncedCallback(
+    (field: string, value: string | boolean) => {
+      const newErrors: Record<string, string> = {};
+
+      // Validar campo específico
+      switch (field) {
+        case "login":
+          if (typeof value === "string" && !value.trim()) {
+            newErrors.login = "Login é obrigatório";
+          }
+          break;
+        case "email":
+          if (typeof value === "string") {
+            if (!value.trim()) {
+              newErrors.email = "E-mail é obrigatório";
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+              newErrors.email = "E-mail inválido";
+            }
+          }
+          break;
+        case "senha":
+          if (typeof value === "string" && (!initialData || value)) {
+            if (!value) {
+              newErrors.senha = "Senha é obrigatória";
+            } else if (value.length < 6) {
+              newErrors.senha = "Senha deve ter pelo menos 6 caracteres";
+            }
+          }
+          break;
+      }
+
+      // Atualizar erros apenas para o campo validado
+      setErrors((prev) => {
+        const updated = { ...prev };
+        if (Object.keys(newErrors).length > 0) {
+          Object.assign(updated, newErrors);
+        } else {
+          delete updated[field];
+        }
+        return updated;
+      });
+    },
+    300 // 300ms de debounce para validação em tempo real
+  );
 
   const handleFieldChange = useCallback(
     (field: string, value: string | boolean) => {
@@ -369,17 +445,28 @@ export default function UsuarioForm({
         }));
       }
 
-      // Limpar erro do campo
-      if (errors[field]) {
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
-        });
+      // Validação em tempo real com debounce (apenas para campos de texto)
+      if (["login", "email", "senha"].includes(field)) {
+        validateFieldDebounced(field, value);
+      } else {
+        // Limpar erro imediatamente para outros campos
+        if (errors[field]) {
+          setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[field];
+            return newErrors;
+          });
+        }
       }
     },
-    [errors]
+    [errors, validateFieldDebounced, initialData]
   );
+
+  // Função para verificar se filial é obrigatória baseado no grupo
+  // Todos os grupos exceto "Administrador" precisam de filial
+  const isFilialObrigatoria = (grupoAcesso: string): boolean => {
+    return !grupoAcesso.toLowerCase().includes("administrador");
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -405,8 +492,18 @@ export default function UsuarioForm({
       }
     }
 
-    if (!formData.grupoAcesso)
+    // Grupo de acesso é obrigatório apenas na edição
+    if (initialData && !formData.grupoAcesso) {
       newErrors.grupoAcesso = "Grupo de acesso é obrigatório";
+    }
+
+    // Validação de filial baseada no grupo
+    if (formData.grupoAcesso && isFilialObrigatoria(formData.grupoAcesso)) {
+      if (!formData.filial) {
+        newErrors.filial = "Filial é obrigatória para este grupo de acesso";
+      }
+    }
+
     if (!formData.tipoPessoa)
       newErrors.tipoPessoa = "Tipo de pessoa é obrigatório";
 
@@ -431,11 +528,22 @@ export default function UsuarioForm({
       return;
     }
 
+    // Encontrar o ID do grupo de acesso selecionado
+    const grupoSelecionado = grupoAcessoOptions.find(
+      (grupo) => grupo.value === formData.grupoAcesso
+    );
+
+    // Encontrar o ID da filial selecionada
+    const filialSelecionada = filialOptions.find(
+      (filial) => filial.value === formData.filial
+    );
+
     const submitData: CreateUsuarioDTO = {
       login: formData.login,
       email: formData.email,
       senha: formData.senha,
-      grupoAcesso: formData.grupoAcesso,
+      grupoAcessoId: grupoSelecionado?.id,
+      filialId: filialSelecionada?.id,
       tipoPessoa: formData.tipoPessoa,
       pessoaFisicaId:
         formData.tipoPessoa === "Fisica"
@@ -584,13 +692,38 @@ export default function UsuarioForm({
             <InputField
               label="Grupo de Acesso"
               name="grupoAcesso"
-              options={GrupoAcessoOptions}
-              required
+              options={grupoAcessoOptions}
+              required={false}
               value={formData.grupoAcesso}
               onChange={(value) => handleFieldChange("grupoAcesso", value)}
               error={errors.grupoAcesso}
               icon={<Shield className="w-5 h-5" />}
-              description="Define as permissões do usuário no sistema"
+              description={
+                initialData
+                  ? "Define as permissões do usuário no sistema"
+                  : "Novos usuários recebem automaticamente o grupo 'Usuario' (acesso limitado)"
+              }
+              disabled={gruposLoading}
+            />
+            <InputField
+              label="Filial"
+              name="filial"
+              options={filialOptions}
+              required={
+                !!formData.grupoAcesso &&
+                isFilialObrigatoria(formData.grupoAcesso)
+              }
+              value={formData.filial}
+              onChange={(value) => handleFieldChange("filial", value)}
+              error={errors.filial}
+              icon={<Building2 className="w-5 h-5" />}
+              description={
+                formData.grupoAcesso &&
+                isFilialObrigatoria(formData.grupoAcesso)
+                  ? "Filial obrigatória para este grupo de acesso"
+                  : "Filial do usuário (opcional apenas para Administrador)"
+              }
+              disabled={filiaisLoading}
             />
             <InputField
               label="Tipo de Pessoa"

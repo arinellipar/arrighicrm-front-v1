@@ -100,7 +100,27 @@ export interface Usuario {
   login: string;
   email: string;
   senha: string;
-  grupoAcesso: string;
+  grupoAcessoId?: number;
+  grupoAcesso?: {
+    id: number;
+    nome: string;
+    descricao: string;
+    ativo: boolean;
+    dataCadastro: string;
+    dataAtualizacao?: string;
+  }; // Objeto do grupo (para exibição)
+  filialId?: number;
+  filial?: {
+    id: number;
+    nome: string;
+    dataInclusao: string;
+    usuarioImportacao?: string;
+  };
+  consultorId?: number;
+  consultor?: {
+    id: number;
+    nome: string;
+  };
   tipoPessoa: string; // "Fisica" ou "Juridica"
   pessoaFisicaId?: number;
   pessoaFisica?: PessoaFisica;
@@ -116,7 +136,9 @@ export interface CreateUsuarioDTO {
   login: string;
   email: string;
   senha: string;
-  grupoAcesso: string;
+  grupoAcessoId?: number;
+  filialId?: number;
+  consultorId?: number;
   tipoPessoa: string;
   pessoaFisicaId?: number;
   pessoaJuridicaId?: number;
@@ -176,6 +198,12 @@ export interface PessoaJuridicaOption {
   nomeFantasia?: string;
   cnpj: string;
   email: string;
+}
+
+export interface FilialOption {
+  id: number;
+  nome: string;
+  codigo: string;
 }
 
 // Tipos para Consultor
@@ -323,9 +351,13 @@ export const EstadoCivilOptions = [
 ] as const;
 
 export const GrupoAcessoOptions = [
-  { value: "Administrador", label: "Administrador" },
   { value: "Usuario", label: "Usuário" },
-  { value: "Visualizador", label: "Visualizador" },
+  { value: "Administrador", label: "Administrador" },
+  { value: "Consultores", label: "Consultores" },
+  { value: "Administrativo de Filial", label: "Administrativo de Filial" },
+  { value: "Gestor de Filial", label: "Gestor de Filial" },
+  { value: "Cobrança e Financeiro", label: "Cobrança e Financeiro" },
+  { value: "Faturamento", label: "Faturamento" },
 ] as const;
 
 // Tipos para Contrato

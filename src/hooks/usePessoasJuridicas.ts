@@ -26,24 +26,46 @@ export function usePessoasJuridicas() {
     deleting: false,
   });
 
-  const fetchPessoasJuridicas = useCallback(async () => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    try {
-      const response = await apiClient.get("/PessoaJuridica");
-      setState((prev) => ({
-        ...prev,
-        pessoas: response.data as PessoaJuridica[],
-        loading: false,
-      }));
-    } catch (error: any) {
-      setState((prev) => ({
-        ...prev,
-        error:
-          error.response?.data?.message || "Erro ao carregar pessoas jurídicas",
-        loading: false,
-      }));
-    }
-  }, []);
+  const fetchPessoasJuridicas = useCallback(
+    async (termo?: string, limit: number = 50) => {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      try {
+        console.log(
+          "🔧 fetchPessoasJuridicas: Iniciando busca com termo:",
+          termo
+        );
+
+        // Usar novo endpoint de busca otimizado
+        const endpoint = termo
+          ? `/PessoaJuridica/buscar?termo=${encodeURIComponent(
+              termo
+            )}&limit=${limit}`
+          : `/PessoaJuridica/buscar?limit=${limit}`;
+
+        const response = await apiClient.get(endpoint);
+        console.log(
+          "🔧 fetchPessoasJuridicas: Resposta recebida:",
+          Array.isArray(response.data) ? response.data.length : 0,
+          "pessoas"
+        );
+
+        setState((prev) => ({
+          ...prev,
+          pessoas: response.data as PessoaJuridica[],
+          loading: false,
+        }));
+      } catch (error: any) {
+        setState((prev) => ({
+          ...prev,
+          error:
+            error.response?.data?.message ||
+            "Erro ao carregar pessoas jurídicas",
+          loading: false,
+        }));
+      }
+    },
+    []
+  );
 
   const createPessoaJuridica = useCallback(
     async (data: CreatePessoaJuridicaDTO) => {
@@ -135,9 +157,8 @@ export function usePessoasJuridicas() {
     setState((prev) => ({ ...prev, error: null }));
   }, []);
 
-  useEffect(() => {
-    fetchPessoasJuridicas();
-  }, [fetchPessoasJuridicas]);
+  // NÃO carregar automaticamente - apenas quando necessário
+  // Remover o useEffect que carrega automaticamente para melhor performance
 
   return {
     ...state,

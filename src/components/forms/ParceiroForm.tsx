@@ -93,9 +93,33 @@ export default function ParceiroForm({
   }, [initialData]);
 
   useEffect(() => {
-    fetchPessoasFisicas();
+    // NÃO carregar pessoas físicas automaticamente para melhor performance
+    // Busca será feita apenas quando o usuário abrir o modal de seleção
     fetchFiliais();
-  }, [fetchPessoasFisicas, fetchFiliais]);
+  }, [fetchFiliais]);
+
+  // Busca automática com debounce quando o usuário digita
+  useEffect(() => {
+    if (!searchTerm || searchTerm.length < 3 || !showPessoaFisicaSelector) {
+      // Só busca se tiver 3+ caracteres e o modal estiver aberto
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      console.log("🔍 Buscando pessoa física:", searchTerm);
+      fetchPessoasFisicas(searchTerm, 50);
+    }, 500); // Debounce de 500ms
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, showPessoaFisicaSelector, fetchPessoasFisicas]);
+
+  // Carregar algumas pessoas quando abrir o modal (se não houver busca)
+  useEffect(() => {
+    if (showPessoaFisicaSelector && pessoasFisicas.length === 0) {
+      console.log("🔍 Carregando pessoas físicas iniciais (limite: 20)");
+      fetchPessoasFisicas("", 20);
+    }
+  }, [showPessoaFisicaSelector]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -175,16 +199,9 @@ export default function ParceiroForm({
     }
   };
 
-  const filteredPessoasFisicas = pessoasFisicas.filter(
-    (pessoa) =>
-      pessoa.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pessoa.cpf.includes(searchTerm) ||
-      pessoa.emailEmpresarial
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      (pessoa.emailPessoal &&
-        pessoa.emailPessoal.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // ✅ REMOVIDO FILTRO CLIENT-SIDE - Backend já filtra os dados otimizadamente
+  // Os dados vêm pré-filtrados do endpoint /buscar
+  const filteredPessoasFisicas = pessoasFisicas;
 
   const getSelectedPessoaFisicaDisplay = () => {
     if (selectedPessoaFisica) {

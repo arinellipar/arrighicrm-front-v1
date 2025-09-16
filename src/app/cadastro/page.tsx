@@ -191,10 +191,18 @@ export default function CadastroPage() {
       // Aqui você implementaria a criação do usuário
       const cleanCPF = formData.cpf.replace(/\D/g, "");
 
-      // Simular criação de usuário (implementar endpoint real)
-      const response = await apiClient.post("/Usuario/cadastro", {
-        cpf: cleanCPF,
-        senha: formData.senha,
+      // Criar usuário usando o endpoint correto
+      const response = await apiClient.post("/Usuario/create", {
+        Login: cleanCPF,
+        Email: `${cleanCPF}@temp.com`, // Email temporário, será atualizado depois
+        Senha: formData.senha,
+        TipoPessoa: "Fisica",
+        PessoaFisicaId: null, // Será criado automaticamente se necessário
+        PessoaJuridicaId: null,
+        FilialId: null,
+        ConsultorId: null,
+        GrupoAcessoId: null, // Usará grupo padrão "Usuario"
+        Ativo: true,
       });
 
       if (response.error) {

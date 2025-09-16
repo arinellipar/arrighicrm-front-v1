@@ -52,6 +52,7 @@ import { BoletoForm } from "@/components/boletos/BoletoForm";
 import { Boleto } from "@/types/boleto";
 import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
+import { PermissionWrapper } from "@/components/permissions";
 import { format, isAfter, isBefore, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -236,7 +237,7 @@ export default function ContratosPage() {
         ];
 
         const encontrado = campos.some(
-          (campo) => campo && campo.toLowerCase().includes(termo)
+          (campo) => campo && (campo.toLowerCase() || "").includes(termo)
         );
 
         if (!encontrado) {
@@ -347,11 +348,11 @@ export default function ContratosPage() {
       }
 
       const match =
-        nome.toLowerCase().includes(termo) ||
-        email.toLowerCase().includes(termo) ||
-        cpfCnpj.toLowerCase().includes(termo) ||
-        telefone.toLowerCase().includes(termo) ||
-        filial.toLowerCase().includes(termo);
+        (nome?.toLowerCase() || "").includes(termo) ||
+        (email?.toLowerCase() || "").includes(termo) ||
+        (cpfCnpj?.toLowerCase() || "").includes(termo) ||
+        (telefone?.toLowerCase() || "").includes(termo) ||
+        (filial?.toLowerCase() || "").includes(termo);
 
       return match;
     });
@@ -845,8 +846,8 @@ export default function ContratosPage() {
                   >
                     {/* Header do Card */}
                     <div className="p-4 border-b border-neutral-100">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-neutral-900 truncate">
                             {(() => {
                               const nome =
@@ -863,7 +864,9 @@ export default function ContratosPage() {
                             #{index + 1} • {formatDate(contrato.dataCadastro)}
                           </p>
                         </div>
-                        <SituacaoBadge situacao={contrato.situacao} />
+                        <div className="flex-shrink-0">
+                          <SituacaoBadge situacao={contrato.situacao} />
+                        </div>
                       </div>
                     </div>
 

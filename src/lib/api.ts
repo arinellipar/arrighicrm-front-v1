@@ -38,14 +38,42 @@ class ApiClient {
         typeof window !== "undefined"
           ? localStorage.getItem("isAuthenticated") === "true"
           : false;
+      const user =
+        typeof window !== "undefined" ? localStorage.getItem("user") : null;
+
+      // Tentar obter ID do usuário
+      let usuarioId = null;
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          // Tentar diferentes propriedades possíveis para o ID do usuário
+          usuarioId =
+            userData.UsuarioId ||
+            userData.usuarioId ||
+            userData.id ||
+            userData.Id ||
+            userData.userId;
+        } catch (e) {
+          console.warn("Erro ao fazer parse do usuário:", e);
+        }
+      }
+
+      // Log para debug em desenvolvimento
+      if (isDevelopment()) {
+        console.log("🔧 ApiClient: Dados do usuário:", {
+          user,
+          usuarioId,
+          isAuthenticated,
+        });
+      }
 
       const config: RequestInit = {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
           ...(token && { Authorization: `Bearer ${token}` }),
-          // Se não há token mas usuário está autenticado, adicionar header alternativo
-          ...(isAuthenticated && !token && { "X-User-Authenticated": "true" }),
+          // Só enviar X-Usuario-Id se tivermos um ID válido
+          ...(usuarioId && { "X-Usuario-Id": usuarioId.toString() }),
           ...options.headers,
         },
         ...options,
@@ -55,9 +83,6 @@ class ApiClient {
       if (isDevelopment()) {
         console.log(`🌐 Making request to: ${url}`);
         console.log(`🌐 Request method: ${options.method || "GET"}`);
-      }
-
-      if (isDevelopment()) {
         console.log(`🌐 Request headers:`, config.headers);
       }
 
@@ -161,18 +186,14 @@ class ApiClient {
         data = null;
       }
 
-      // Log de sucesso sempre (para debug de produção)
-      console.log(`✅ API Success: ${response.status} - ${endpoint}`);
-      console.log(
-        `✅ Data type: ${
-          Array.isArray(data) ? `Array[${data.length}]` : typeof data
-        }`
-      );
-      if (Array.isArray(data)) {
-        console.log(`✅ Array length: ${data.length}`);
-        if (data.length > 0) {
-          console.log(`✅ First item keys:`, Object.keys(data[0] || {}));
-        }
+      // Log apenas em desenvolvimento
+      if (isDevelopment()) {
+        console.log(`✅ API Success: ${response.status} - ${endpoint}`);
+        console.log(
+          `✅ Data type: ${
+            Array.isArray(data) ? `Array[${data.length}]` : typeof data
+          }`
+        );
       }
 
       // Log adicional para debug em desenvolvimento
@@ -239,8 +260,11 @@ class ApiClient {
     });
   }
 
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: "DELETE" });
+  async delete<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: "DELETE", ...options });
   }
 
   // Verificar se é um endpoint de dados que pode funcionar sem autenticação

@@ -1,6 +1,7 @@
 // src/hooks/useContratos.ts
 import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "@/lib/api";
+import { retryOperation } from "@/hooks/useRetry";
 import {
   Contrato,
   Cliente,
@@ -10,6 +11,7 @@ import {
   HistoricoSituacaoContrato,
 } from "@/types/api";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UseContratosState {
   contratos: Contrato[];
@@ -35,6 +37,7 @@ export function useContratos() {
   });
 
   const { adicionarAtividade } = useAtividadeContext();
+  const { user } = useAuth();
 
   const fetchContratos = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
@@ -44,7 +47,25 @@ export function useContratos() {
         "🔧 useContratos: sessionContratos atuais:",
         state.sessionContratos.length
       );
-      const response = await apiClient.get("/Contrato");
+
+      // Adicionar cache-busting para garantir dados atualizados
+      const timestamp = Date.now();
+
+      // Usar retry para buscar contratos com resiliência
+      const response = await retryOperation(
+        () => apiClient.get(`/Contrato?t=${timestamp}`),
+        {
+          maxAttempts: 3,
+          delay: 1000,
+          backoff: true,
+          onRetry: (attempt, error) => {
+            console.warn(
+              `Tentativa ${attempt} de buscar contratos falhou:`,
+              error
+            );
+          },
+        }
+      );
 
       // Verificar se há erro na resposta
       if (response.error) {
@@ -245,11 +266,21 @@ export function useContratos() {
             ativo: true,
           };
 
-          // Tentar preencher dados do cliente
+          // Buscar dados do cliente (uma única vez para tudo)
+          let clienteCompleto: any = null;
+          let nomeCliente = "Cliente";
+
           try {
-            const clienteCompleto = await fetchClienteCompleto(data.clienteId);
+            clienteCompleto = await fetchClienteCompleto(data.clienteId);
             if (clienteCompleto) {
               contratoLocal.cliente = clienteCompleto as any;
+              // Extrair nome do cliente para a atividade
+              nomeCliente =
+                clienteCompleto.pessoaFisica?.nome ||
+                clienteCompleto.pessoaJuridica?.razaoSocial ||
+                clienteCompleto.nome ||
+                clienteCompleto.razaoSocial ||
+                `Cliente ID ${data.clienteId}`;
             }
           } catch (e) {
             console.warn(
@@ -298,8 +329,8 @@ export function useContratos() {
           }));
 
           adicionarAtividade(
-            "Admin User",
-            `Criou novo contrato para cliente ID ${data.clienteId}`,
+            user?.nome || user?.login || "Usuário",
+            `Criou novo contrato para ${nomeCliente}`,
             "success",
             `Situação: ${data.situacao}`,
             "Contratos"
@@ -322,6 +353,8 @@ export function useContratos() {
         );
 
         // Se o backend não retornou o objeto do cliente/consultor, tentar completar
+        let nomeCliente = "Cliente";
+
         try {
           if (!novoContrato.cliente && novoContrato.clienteId) {
             const clienteCompleto = await fetchClienteCompleto(
@@ -332,7 +365,22 @@ export function useContratos() {
                 ...novoContrato,
                 cliente: clienteCompleto as any,
               };
+              // Extrair nome do cliente para a atividade (reutilizando a mesma busca)
+              nomeCliente =
+                clienteCompleto.pessoaFisica?.nome ||
+                clienteCompleto.pessoaJuridica?.razaoSocial ||
+                clienteCompleto.nome ||
+                clienteCompleto.razaoSocial ||
+                `Cliente ID ${data.clienteId}`;
             }
+          } else if (novoContrato.cliente) {
+            // Cliente já veio do backend, extrair nome dele
+            nomeCliente =
+              novoContrato.cliente.pessoaFisica?.nome ||
+              novoContrato.cliente.pessoaJuridica?.razaoSocial ||
+              novoContrato.cliente.nome ||
+              novoContrato.cliente.razaoSocial ||
+              `Cliente ID ${data.clienteId}`;
           }
 
           // Buscar dados completos do consultor se não estiverem presentes
@@ -389,8 +437,8 @@ export function useContratos() {
         });
 
         adicionarAtividade(
-          "Admin User",
-          `Criou novo contrato para cliente ID ${data.clienteId}`,
+          user?.nome || user?.login || "Usuário",
+          `Criou novo contrato para ${nomeCliente}`,
           "success",
           `Situação: ${data.situacao}`,
           "Contratos"
@@ -447,7 +495,7 @@ export function useContratos() {
         }));
 
         adicionarAtividade(
-          "Admin User",
+          user?.nome || user?.login || "Usuário",
           `Atualizou contrato #${id}`,
           "info",
           "",
@@ -554,7 +602,7 @@ export function useContratos() {
         }));
 
         adicionarAtividade(
-          "Admin User",
+          user?.nome || user?.login || "Usuário",
           `Mudou situação do contrato #${id}`,
           "info",
           `Nova situação: ${data.novaSituacao}`,
@@ -647,7 +695,7 @@ export function useContratos() {
         }));
 
         adicionarAtividade(
-          "Admin User",
+          user?.nome || user?.login || "Usuário",
           `Excluiu contrato #${id}`,
           "warning",
           "",

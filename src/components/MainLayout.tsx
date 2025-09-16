@@ -145,7 +145,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <main className="relative z-10 flex-1">
+      <main className="relative z-10 flex-1 pt-[68px]">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

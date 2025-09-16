@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -61,30 +62,49 @@ export default function ContratoForm({
   initialClienteId,
 }: ContratoFormProps) {
   const { isFormOpen } = useForm();
-  // Função para obter estado inicial limpo
-  const getInitialFormData = (): CreateContratoDTO => ({
-    clienteId: initialClienteId || 0,
-    consultorId: 0,
-    parceiroId: undefined,
-    situacao: "Leed" as SituacaoContrato,
-    dataUltimoContato: new Date().toISOString().split("T")[0],
-    dataProximoContato: "",
-    valorDevido: 0,
-    valorNegociado: undefined,
-    observacoes: "",
-    // Novos campos SEMPRE LIMPOS para novo contrato
-    numeroPasta: "",
-    dataFechamentoContrato: "",
-    tipoServico: "",
-    objetoContrato: "",
-    comissao: undefined,
-    valorEntrada: undefined,
-    valorParcela: undefined,
-    numeroParcelas: undefined,
-    primeiroVencimento: "",
-    anexoDocumento: "",
-    pendencias: "",
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Ordenar consultores alfabeticamente por nome
+  const consultoresOrdenados = [...consultores].sort((a, b) => {
+    const nomeA = (a.pessoaFisica?.nome || a.nome || "").toLowerCase();
+    const nomeB = (b.pessoaFisica?.nome || b.nome || "").toLowerCase();
+    return nomeA.localeCompare(nomeB, "pt-BR");
   });
+
+  // Função para obter estado inicial limpo
+  const getInitialFormData = (): CreateContratoDTO => {
+    // Definir data próximo contato como 3 dias no futuro por padrão
+    const proximoContato = new Date();
+    proximoContato.setDate(proximoContato.getDate() + 3);
+
+    return {
+      clienteId: initialClienteId || 0,
+      consultorId: 0,
+      parceiroId: undefined,
+      situacao: "Leed" as SituacaoContrato,
+      dataUltimoContato: new Date().toISOString().split("T")[0],
+      dataProximoContato: proximoContato.toISOString().split("T")[0],
+      valorDevido: 0,
+      valorNegociado: undefined,
+      observacoes: "",
+      // Novos campos SEMPRE LIMPOS para novo contrato
+      numeroPasta: "",
+      dataFechamentoContrato: "",
+      tipoServico: "",
+      objetoContrato: "",
+      comissao: undefined,
+      valorEntrada: undefined,
+      valorParcela: undefined,
+      numeroParcelas: undefined,
+      primeiroVencimento: "",
+      anexoDocumento: "",
+      pendencias: "",
+    };
+  };
 
   const [formData, setFormData] = useState<CreateContratoDTO>({
     ...getInitialFormData(),
@@ -241,6 +261,24 @@ export default function ContratoForm({
         valorEntradaText: valorEntradaFormatted,
         valorParcelaText: valorParcelaFormatted,
       });
+
+      // Log específico dos campos mencionados pelo usuário
+      console.log("🔧 ContratoForm: Campos específicos para edição:", {
+        tipoServico: contrato.tipoServico,
+        dataFechamentoContrato: contrato.dataFechamentoContrato,
+        valorEntrada: contrato.valorEntrada,
+        valorParcela: contrato.valorParcela,
+        numeroParcelas: contrato.numeroParcelas,
+        primeiroVencimento: contrato.primeiroVencimento,
+        comissao: contrato.comissao,
+        anexoDocumento: contrato.anexoDocumento,
+        pendencias: contrato.pendencias,
+      });
+
+      console.log(
+        "🔧 ContratoForm: Todos os campos do contrato recebido:",
+        contrato
+      );
     } else {
       // NOVO CONTRATO: Resetar TODOS os campos para valores em branco/padrão
       console.log(
@@ -496,6 +534,11 @@ export default function ContratoForm({
       }
     }
 
+    // ✅ Validar tamanho das observações
+    if (formData.observacoes && formData.observacoes.length > 1000) {
+      newErrors.observacoes = `Observações muito longas (${formData.observacoes.length}/1000 caracteres)`;
+    }
+
     const parsedDevido = parseCurrencyInput(valorDevidoText || "0");
     const parsedNegociado = valorNegociadoText
       ? parseCurrencyInput(valorNegociadoText)
@@ -748,7 +791,9 @@ export default function ContratoForm({
   const selectedCliente =
     clientes.find((c) => c.id === formData.clienteId) || null;
 
-  return (
+  if (!mounted) return null;
+
+  const modalContent = (
     <AnimatePresence>
       {isFormOpen && clientes.length > 0 && consultores.length > 0 && (
         <>
@@ -758,7 +803,7 @@ export default function ContratoForm({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9999]"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[99999]"
             onClick={onCancel}
           />
 
@@ -768,7 +813,7 @@ export default function ContratoForm({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 flex items-center justify-center z-[9999] p-4"
+            className="fixed inset-0 flex items-center justify-center z-[99999] p-4"
           >
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden">
               {/* Header */}
@@ -916,11 +961,11 @@ export default function ContratoForm({
                           )}
                         >
                           <option value={0}>
-                            {consultores.length === 0
+                            {consultoresOrdenados.length === 0
                               ? "Carregando consultores..."
                               : "Selecione um consultor"}
                           </option>
-                          {consultores.map((consultor) => (
+                          {consultoresOrdenados.map((consultor) => (
                             <option
                               key={consultor.id}
                               value={consultor.id}
@@ -1480,8 +1525,21 @@ export default function ContratoForm({
 
                   {/* Observações */}
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      Observações
+                    <label className="flex items-center justify-between text-sm font-medium text-neutral-700 mb-2">
+                      <span>Observações</span>
+                      <span
+                        className={`text-xs ${
+                          formData.observacoes &&
+                          formData.observacoes.length > 1000
+                            ? "text-red-500 font-bold"
+                            : formData.observacoes &&
+                              formData.observacoes.length > 900
+                            ? "text-orange-500"
+                            : "text-neutral-400"
+                        }`}
+                      >
+                        {formData.observacoes?.length || 0}/1000
+                      </span>
                     </label>
                     <div className="relative">
                       <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-neutral-400" />
@@ -1490,10 +1548,25 @@ export default function ContratoForm({
                         value={formData.observacoes}
                         onChange={handleInputChange}
                         rows={4}
-                        className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                        maxLength={1000}
+                        className={`w-full pl-12 pr-4 py-2.5 bg-white border ${
+                          errors.observacoes
+                            ? "border-red-300"
+                            : "border-neutral-200"
+                        } rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                          errors.observacoes
+                            ? "focus:ring-red-500"
+                            : "focus:ring-primary-500"
+                        } focus:border-transparent transition-all resize-none`}
                         placeholder="Adicione observações sobre o contrato..."
                       />
                     </div>
+                    {errors.observacoes && (
+                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.observacoes}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -1555,4 +1628,6 @@ export default function ContratoForm({
       )}
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }

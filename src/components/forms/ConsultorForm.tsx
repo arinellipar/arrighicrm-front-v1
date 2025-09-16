@@ -116,6 +116,29 @@ export default function ConsultorForm({
     }
   }, [initialData]);
 
+  // Carrega algumas pessoas físicas quando abrir o modal (se não houver registros)
+  useEffect(() => {
+    if (showPessoaFisicaSelector && pessoasFisicas.length === 0) {
+      console.log("🔍 Carregando pessoas físicas iniciais (limite: 20)");
+      fetchPessoasFisicas("", 20);
+    }
+  }, [showPessoaFisicaSelector]);
+
+  // Busca automática com debounce quando o usuário digita
+  useEffect(() => {
+    if (!searchTerm || searchTerm.length < 3 || !showPessoaFisicaSelector) {
+      // Só busca se tiver 3+ caracteres e o modal estiver aberto
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      console.log("🔍 Buscando pessoa física:", searchTerm);
+      fetchPessoasFisicas(searchTerm, 50);
+    }, 500); // Debounce de 500ms
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, showPessoaFisicaSelector, fetchPessoasFisicas]);
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -210,25 +233,9 @@ export default function ConsultorForm({
     }
   };
 
-  const filteredPessoasFisicas = pessoasFisicas.filter((pessoa) => {
-    const matchesSearch =
-      pessoa.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      pessoa.emailEmpresarial
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      (pessoa.emailPessoal &&
-        pessoa.emailPessoal.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const cpfClean = pessoa.cpf?.replace(/\D/g, "") || "";
-    const searchTermCpfClean = searchTerm.replace(/\D/g, "");
-    const matchesSearchCpf =
-      !searchTermCpfClean || cpfClean.includes(searchTermCpfClean);
-
-    const cpfSearchClean = cpfSearch.replace(/\D/g, "");
-    const matchesCpf = !cpfSearchClean || cpfClean.includes(cpfSearchClean);
-
-    return (matchesSearch || matchesSearchCpf) && matchesCpf;
-  });
+  // ✅ REMOVIDO FILTRO CLIENT-SIDE - Backend já filtra os dados otimizadamente
+  // Os dados vêm pré-filtrados do endpoint /buscar
+  const filteredPessoasFisicas = pessoasFisicas;
 
   return (
     <>
@@ -302,9 +309,7 @@ export default function ConsultorForm({
               <button
                 type="button"
                 onClick={() => {
-                  if (!showPessoaFisicaSelector) {
-                    fetchPessoasFisicas();
-                  }
+                  // NÃO carregar tudo automaticamente - usar debounce e lazy load
                   setShowPessoaFisicaSelector(!showPessoaFisicaSelector);
                 }}
                 className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium"

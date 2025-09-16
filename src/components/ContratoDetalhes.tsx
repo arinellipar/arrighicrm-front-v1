@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -73,11 +74,16 @@ export default function ContratoDetalhes({
   onEdit,
   onMudarSituacao,
 }: ContratoDetalhesProps) {
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"info" | "historico">("info");
   const [historico, setHistorico] = useState<HistoricoSituacaoContrato[]>([]);
   const [loadingHistorico, setLoadingHistorico] = useState(false);
   const [clienteCompleto, setClienteCompleto] = useState<Cliente | null>(null);
   const [loadingCliente, setLoadingCliente] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const { getHistoricoSituacao, fetchClienteCompleto } = useContratos();
 
   const normalizeSituacao = useCallback(
@@ -204,7 +210,9 @@ export default function ContratoDetalhes({
     ? new Date(contrato.dataProximoContato) < new Date()
     : false;
 
-  return (
+  if (!mounted) return null;
+
+  const modalContent = (
     <AnimatePresence>
       {/* Overlay */}
       <motion.div
@@ -212,7 +220,7 @@ export default function ContratoDetalhes({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9999]"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[99999]"
         onClick={onClose}
       />
 
@@ -222,7 +230,7 @@ export default function ContratoDetalhes({
         initial={{ opacity: 0, scale: 0.95, x: 100 }}
         animate={{ opacity: 1, scale: 1, x: 0 }}
         exit={{ opacity: 0, scale: 0.95, x: 100 }}
-        className="fixed right-0 top-0 h-full w-full max-w-4xl bg-white shadow-2xl z-[9999] flex flex-col"
+        className="fixed right-0 top-0 h-full w-full max-w-4xl bg-white shadow-2xl z-[99999] flex flex-col"
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
@@ -848,4 +856,6 @@ export default function ContratoDetalhes({
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 import { FormProvider } from "@/contexts/FormContext";
 import { AtividadeProvider } from "@/contexts/AtividadeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import ConditionalRouteGuard from "@/components/ConditionalRouteGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +43,9 @@ export default function RootLayout({
       >
         <AuthProvider>
           <AtividadeProvider>
-            <FormProvider>{children}</FormProvider>
+            <FormProvider>
+              <ConditionalRouteGuard>{children}</ConditionalRouteGuard>
+            </FormProvider>
           </AtividadeProvider>
         </AuthProvider>
       </body>
