@@ -52,6 +52,8 @@ export default function BoletosPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"date" | "value" | "status">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedBoleto, setSelectedBoleto] = useState<Boleto | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
     fetchBoletos();
@@ -90,7 +92,13 @@ export default function BoletosPage() {
   };
 
   const handleViewDetails = (boleto: Boleto) => {
-    console.log("Ver detalhes do boleto:", boleto);
+    setSelectedBoleto(boleto);
+    setShowDetailsModal(true);
+  };
+
+  const closeDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedBoleto(null);
   };
 
   const handleFilterChange = (key: keyof BoletoFilters, value: any) => {
@@ -760,6 +768,273 @@ export default function BoletosPage() {
               )}
             </motion.div>
           )}
+
+          {/* Modal de Detalhes */}
+          <AnimatePresence>
+            {showDetailsModal && selectedBoleto && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                onClick={closeDetailsModal}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                >
+                  {/* Header */}
+                  <div className="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-t-2xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-2xl font-bold mb-1">
+                          Detalhes do Boleto #{selectedBoleto.id}
+                        </h2>
+                        <p className="text-green-100">
+                          {selectedBoleto.payerName}
+                        </p>
+                      </div>
+                      <button
+                        onClick={closeDetailsModal}
+                        className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                      >
+                        <XCircle className="w-6 h-6" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Conteúdo */}
+                  <div className="p-6 space-y-6">
+                    {/* Status e Valor */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-sm text-gray-600 mb-2">Status</p>
+                        <StatusBadge status={selectedBoleto.status} />
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-sm text-gray-600 mb-2">Valor</p>
+                        <p className="text-2xl font-bold text-green-600">
+                          {formatCurrency(selectedBoleto.nominalValue)}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Informações do Santander */}
+                    {selectedBoleto.status === "REGISTRADO" && (
+                      <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-6 border border-red-100">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <CreditCard className="w-5 h-5 text-red-600" />
+                          Informações Santander
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {selectedBoleto.barCode && (
+                            <div>
+                              <p className="text-sm text-gray-600 mb-1">
+                                Código de Barras
+                              </p>
+                              <p className="font-mono text-sm bg-white p-2 rounded border border-red-200">
+                                {selectedBoleto.barCode}
+                              </p>
+                            </div>
+                          )}
+                          {selectedBoleto.digitableLine && (
+                            <div>
+                              <p className="text-sm text-gray-600 mb-1">
+                                Linha Digitável
+                              </p>
+                              <p className="font-mono text-sm bg-white p-2 rounded border border-red-200">
+                                {selectedBoleto.digitableLine}
+                              </p>
+                            </div>
+                          )}
+                          {selectedBoleto.qrCodePix && (
+                            <div className="md:col-span-2">
+                              <p className="text-sm text-gray-600 mb-1">
+                                QR Code PIX
+                              </p>
+                              <div className="bg-white p-4 rounded border border-red-200">
+                                <p className="font-mono text-xs break-all">
+                                  {selectedBoleto.qrCodePix}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                          {selectedBoleto.qrCodeUrl && (
+                            <div className="md:col-span-2">
+                              <p className="text-sm text-gray-600 mb-2">
+                                QR Code
+                              </p>
+                              <img
+                                src={selectedBoleto.qrCodeUrl}
+                                alt="QR Code"
+                                className="w-48 h-48 mx-auto border-2 border-red-200 rounded-lg"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dados do Boleto */}
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <h3 className="text-lg font-bold text-gray-900 mb-4">
+                        Dados do Boleto
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600">NSU Code</p>
+                          <p className="font-mono text-gray-900">
+                            {selectedBoleto.nsuCode || "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Nosso Número</p>
+                          <p className="font-mono text-gray-900">
+                            {selectedBoleto.bankNumber || "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            Código do Convênio
+                          </p>
+                          <p className="font-mono text-gray-900">
+                            {selectedBoleto.covenantCode || "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            Data de Vencimento
+                          </p>
+                          <p className="text-gray-900">
+                            {formatDate(selectedBoleto.dueDate)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            Data de Emissão
+                          </p>
+                          <p className="text-gray-900">
+                            {formatDate(selectedBoleto.issueDate)}
+                          </p>
+                        </div>
+                        {selectedBoleto.entryDate && (
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              Data de Entrada
+                            </p>
+                            <p className="text-gray-900">
+                              {formatDate(selectedBoleto.entryDate)}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Dados do Pagador */}
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <User className="w-5 h-5" />
+                        Dados do Pagador
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Nome</p>
+                          <p className="text-gray-900">
+                            {selectedBoleto.payerName}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Documento</p>
+                          <p className="font-mono text-gray-900">
+                            {selectedBoleto.payerDocumentNumber}
+                          </p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <p className="text-sm text-gray-600">Endereço</p>
+                          <p className="text-gray-900">
+                            {selectedBoleto.payerAddress},{" "}
+                            {selectedBoleto.payerNeighborhood}
+                          </p>
+                          <p className="text-gray-900">
+                            {selectedBoleto.payerCity} -{" "}
+                            {selectedBoleto.payerState} - CEP:{" "}
+                            {selectedBoleto.payerZipCode}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contrato */}
+                    {selectedBoleto.contrato && (
+                      <div className="bg-gray-50 rounded-xl p-6">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <FileText className="w-5 h-5" />
+                          Contrato
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm text-gray-600">Cliente</p>
+                            <p className="text-gray-900">
+                              {selectedBoleto.contrato.clienteNome}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">
+                              Número do Contrato
+                            </p>
+                            <p className="font-mono text-gray-900">
+                              {selectedBoleto.contrato.numeroContrato}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer com Ações */}
+                  <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
+                    <div className="flex items-center gap-3">
+                      {selectedBoleto.status === "REGISTRADO" && (
+                        <button
+                          onClick={() => {
+                            handleSync(selectedBoleto);
+                            closeDetailsModal();
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                        >
+                          <RefreshCw className="w-5 h-5" />
+                          Sincronizar
+                        </button>
+                      )}
+                      {selectedBoleto.digitableLine && (
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              selectedBoleto.digitableLine!
+                            );
+                            alert("Linha digitável copiada!");
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                        >
+                          <Download className="w-5 h-5" />
+                          Copiar Linha
+                        </button>
+                      )}
+                      <button
+                        onClick={closeDetailsModal}
+                        className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-medium transition-colors"
+                      >
+                        Fechar
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Erro */}
           {error && (
