@@ -101,6 +101,39 @@ export default function BoletosPage() {
     setSelectedBoleto(null);
   };
 
+  const handleDownloadPdf = async (boleto: Boleto) => {
+    if (boleto.status !== "REGISTRADO") {
+      alert("Apenas boletos registrados podem ter o PDF gerado");
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/Boleto/${boleto.id}/pdf`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao baixar PDF");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Boleto_${boleto.id}_${boleto.payerName}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Erro ao baixar PDF:", error);
+      alert("Erro ao baixar PDF do boleto");
+    }
+  };
+
   const handleFilterChange = (key: keyof BoletoFilters, value: any) => {
     setFilters((prev) => ({
       ...prev,
@@ -574,33 +607,46 @@ export default function BoletosPage() {
 
                       {/* Ações */}
                       <div className="p-4 bg-gray-50 border-t border-gray-100">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <button
                             onClick={() => handleViewDetails(boleto)}
-                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-blue-50 text-blue-600 rounded-lg transition-colors font-medium text-sm"
+                            className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-blue-50 text-blue-600 rounded-lg transition-colors font-medium text-sm"
                           >
                             <Eye className="w-4 h-4" />
                             Detalhes
                           </button>
                           {boleto.status === "REGISTRADO" && (
-                            <button
-                              onClick={() => handleSync(boleto)}
-                              disabled={syncingId === boleto.id}
-                              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-green-50 text-green-600 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
-                            >
-                              <RefreshCw
-                                className={`w-4 h-4 ${
-                                  syncingId === boleto.id ? "animate-spin" : ""
-                                }`}
-                              />
-                              Sincronizar
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleDownloadPdf(boleto)}
+                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors font-medium text-sm"
+                                title="Baixar PDF oficial do Santander"
+                              >
+                                <Download className="w-4 h-4" />
+                                PDF
+                              </button>
+                              <button
+                                onClick={() => handleSync(boleto)}
+                                disabled={syncingId === boleto.id}
+                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-green-50 text-green-600 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
+                              >
+                                <RefreshCw
+                                  className={`w-4 h-4 ${
+                                    syncingId === boleto.id
+                                      ? "animate-spin"
+                                      : ""
+                                  }`}
+                                />
+                                Sync
+                              </button>
+                            </>
                           )}
                           {boleto.status !== "LIQUIDADO" && (
                             <button
                               onClick={() => handleDelete(boleto)}
                               disabled={deletingId === boleto.id}
                               className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors disabled:opacity-50"
+                              title="Cancelar boleto"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -689,29 +735,41 @@ export default function BoletosPage() {
                             <button
                               onClick={() => handleViewDetails(boleto)}
                               className="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors"
+                              title="Ver detalhes"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                             {boleto.status === "REGISTRADO" && (
-                              <button
-                                onClick={() => handleSync(boleto)}
-                                disabled={syncingId === boleto.id}
-                                className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors disabled:opacity-50"
-                              >
-                                <RefreshCw
-                                  className={`w-4 h-4 ${
-                                    syncingId === boleto.id
-                                      ? "animate-spin"
-                                      : ""
-                                  }`}
-                                />
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleDownloadPdf(boleto)}
+                                  className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors"
+                                  title="Baixar PDF oficial do Santander"
+                                >
+                                  <Download className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleSync(boleto)}
+                                  disabled={syncingId === boleto.id}
+                                  className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors disabled:opacity-50"
+                                  title="Sincronizar"
+                                >
+                                  <RefreshCw
+                                    className={`w-4 h-4 ${
+                                      syncingId === boleto.id
+                                        ? "animate-spin"
+                                        : ""
+                                    }`}
+                                  />
+                                </button>
+                              </>
                             )}
                             {boleto.status !== "LIQUIDADO" && (
                               <button
                                 onClick={() => handleDelete(boleto)}
                                 disabled={deletingId === boleto.id}
                                 className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors disabled:opacity-50"
+                                title="Cancelar boleto"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -996,18 +1054,29 @@ export default function BoletosPage() {
 
                   {/* Footer com Ações */}
                   <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       {selectedBoleto.status === "REGISTRADO" && (
-                        <button
-                          onClick={() => {
-                            handleSync(selectedBoleto);
-                            closeDetailsModal();
-                          }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
-                        >
-                          <RefreshCw className="w-5 h-5" />
-                          Sincronizar
-                        </button>
+                        <>
+                          <button
+                            onClick={() => {
+                              handleDownloadPdf(selectedBoleto);
+                            }}
+                            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                          >
+                            <Download className="w-5 h-5" />
+                            Baixar PDF
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleSync(selectedBoleto);
+                              closeDetailsModal();
+                            }}
+                            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                          >
+                            <RefreshCw className="w-5 h-5" />
+                            Sincronizar
+                          </button>
+                        </>
                       )}
                       {selectedBoleto.digitableLine && (
                         <button
@@ -1017,9 +1086,9 @@ export default function BoletosPage() {
                             );
                             alert("Linha digitável copiada!");
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                          className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
                         >
-                          <Download className="w-5 h-5" />
+                          <FileText className="w-5 h-5" />
                           Copiar Linha
                         </button>
                       )}
