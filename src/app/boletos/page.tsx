@@ -894,54 +894,190 @@ export default function BoletosPage() {
 
                     {/* Informações do Santander */}
                     {selectedBoleto.status === "REGISTRADO" && (
-                      <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-6 border border-red-100">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                          <CreditCard className="w-5 h-5 text-red-600" />
-                          Informações Santander
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {selectedBoleto.barCode && (
-                            <div>
-                              <p className="text-sm text-gray-600 mb-1">
-                                Código de Barras
-                              </p>
-                              <p className="font-mono text-sm bg-white p-2 rounded border border-red-200">
-                                {selectedBoleto.barCode}
-                              </p>
-                            </div>
-                          )}
-                          {selectedBoleto.digitableLine && (
-                            <div>
-                              <p className="text-sm text-gray-600 mb-1">
-                                Linha Digitável
-                              </p>
-                              <p className="font-mono text-sm bg-white p-2 rounded border border-red-200">
-                                {selectedBoleto.digitableLine}
-                              </p>
-                            </div>
-                          )}
-                          {selectedBoleto.qrCodePix && (
-                            <div className="md:col-span-2">
-                              <p className="text-sm text-gray-600 mb-1">
-                                QR Code PIX
-                              </p>
-                              <div className="bg-white p-4 rounded border border-red-200">
-                                <p className="font-mono text-xs break-all">
-                                  {selectedBoleto.qrCodePix}
-                                </p>
+                      <div className="bg-gradient-to-br from-red-50 via-orange-50 to-red-50 rounded-2xl p-6 border-2 border-red-200 shadow-lg">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="p-3 bg-gradient-to-br from-red-600 to-red-700 rounded-xl shadow-md">
+                            <CreditCard className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900">
+                              Informações Santander
+                            </h3>
+                            <p className="text-sm text-gray-600">
+                              Dados para pagamento
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                          {/* Coluna 1: Códigos */}
+                          <div className="lg:col-span-2 space-y-4">
+                            {selectedBoleto.barCode && (
+                              <div className="bg-white rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                  <p className="text-sm font-semibold text-gray-700">
+                                    Código de Barras
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-mono text-sm text-gray-900 flex-1 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                    {selectedBoleto.barCode}
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        selectedBoleto.barCode!
+                                      );
+                                      alert("Código copiado!");
+                                    }}
+                                    className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                                    title="Copiar código"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 text-red-600"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+
+                            {selectedBoleto.digitableLine && (
+                              <div className="bg-white rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                  <p className="text-sm font-semibold text-gray-700">
+                                    Linha Digitável
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-mono text-sm text-gray-900 flex-1 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                    {selectedBoleto.digitableLine}
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        selectedBoleto.digitableLine!
+                                      );
+                                      alert("Linha digitável copiada!");
+                                    }}
+                                    className="p-2 hover:bg-orange-100 rounded-lg transition-colors"
+                                    title="Copiar linha"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 text-orange-600"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {selectedBoleto.qrCodePix && (
+                              <div className="bg-white rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                  <p className="text-sm font-semibold text-gray-700">
+                                    Código PIX Copia e Cola
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="font-mono text-xs text-gray-900 flex-1 bg-gray-50 p-3 rounded-lg border border-gray-200 break-all max-h-24 overflow-y-auto">
+                                    {selectedBoleto.qrCodePix}
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        selectedBoleto.qrCodePix!
+                                      );
+                                      alert("Código PIX copiado!");
+                                    }}
+                                    className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+                                    title="Copiar código PIX"
+                                  >
+                                    <svg
+                                      className="w-5 h-5 text-green-600"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Coluna 2: QR Code */}
                           {selectedBoleto.qrCodeUrl && (
-                            <div className="md:col-span-2">
-                              <p className="text-sm text-gray-600 mb-2">
-                                QR Code
-                              </p>
-                              <img
-                                src={selectedBoleto.qrCodeUrl}
-                                alt="QR Code"
-                                className="w-48 h-48 mx-auto border-2 border-red-200 rounded-lg"
-                              />
+                            <div className="flex flex-col items-center justify-center">
+                              <div className="bg-white rounded-2xl p-6 border-2 border-red-300 shadow-xl">
+                                <div className="relative">
+                                  <img
+                                    src={selectedBoleto.qrCodeUrl}
+                                    alt="QR Code PIX"
+                                    className="w-56 h-56 rounded-xl"
+                                    onError={(e) => {
+                                      console.error(
+                                        "Erro ao carregar QR Code da URL"
+                                      );
+                                      const target = e.currentTarget;
+                                      target.style.display = "none";
+                                      const errorDiv =
+                                        target.nextElementSibling as HTMLElement;
+                                      if (errorDiv)
+                                        errorDiv.style.display = "flex";
+                                    }}
+                                  />
+                                  <div className="hidden flex-col items-center justify-center w-56 h-56 bg-red-50 border-2 border-red-200 rounded-xl">
+                                    <AlertTriangle className="w-12 h-12 text-red-500 mb-2" />
+                                    <p className="text-red-600 text-sm font-medium text-center px-4">
+                                      QR Code indisponível
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="mt-4 text-center">
+                                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-medium shadow-md">
+                                    <svg
+                                      className="w-4 h-4"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                                      <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                                    </svg>
+                                    Pague com PIX
+                                  </div>
+                                  <p className="text-xs text-gray-500 mt-2">
+                                    Escaneie com seu app
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>
