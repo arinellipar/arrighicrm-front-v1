@@ -1034,18 +1034,18 @@ export default function BoletosPage() {
                           </div>
 
                           {/* Coluna 2: QR Code */}
-                          {selectedBoleto.qrCodeUrl && (
+                          {selectedBoleto.qrCodePix && (
                             <div className="flex flex-col items-center justify-center">
                               <div className="bg-white rounded-2xl p-6 border-2 border-red-300 shadow-xl">
                                 <div className="relative">
                                   <img
-                                    src={selectedBoleto.qrCodeUrl}
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+                                      selectedBoleto.qrCodePix
+                                    )}`}
                                     alt="QR Code PIX"
                                     className="w-56 h-56 rounded-xl"
                                     onError={(e) => {
-                                      console.error(
-                                        "Erro ao carregar QR Code da URL"
-                                      );
+                                      console.error("Erro ao gerar QR Code");
                                       const target = e.currentTarget;
                                       target.style.display = "none";
                                       const errorDiv =
