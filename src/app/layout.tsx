@@ -1,19 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { FormProvider } from "@/contexts/FormContext";
 import { AtividadeProvider } from "@/contexts/AtividadeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { QueryProvider } from "@/core/providers/QueryProvider";
 import ConditionalRouteGuard from "@/components/ConditionalRouteGuard";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
+  variable: "--font-plus-jakarta",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -39,15 +44,17 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+        className={`${inter.variable} ${plusJakartaSans.variable} h-full antialiased`}
       >
-        <AuthProvider>
-          <AtividadeProvider>
-            <FormProvider>
-              <ConditionalRouteGuard>{children}</ConditionalRouteGuard>
-            </FormProvider>
-          </AtividadeProvider>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <AtividadeProvider>
+              <FormProvider>
+                <ConditionalRouteGuard>{children}</ConditionalRouteGuard>
+              </FormProvider>
+            </AtividadeProvider>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );
