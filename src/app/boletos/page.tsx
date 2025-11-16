@@ -108,29 +108,41 @@ export default function BoletosPage() {
     }
 
     try {
-      const response = await fetch(`/api/Boleto/${boleto.id}/pdf`, {
+      // Usar a URL base da API do ambiente
+      const apiUrl =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101/api";
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${apiUrl}/Boleto/${boleto.id}/pdf`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao baixar PDF");
+        const errorText = await response.text();
+        console.error("Erro ao baixar PDF:", errorText);
+        throw new Error(`Erro ao baixar PDF: ${response.status}`);
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Boleto_${boleto.id}_${boleto.payerName}.pdf`;
+      a.download = `Boleto_${boleto.id}_${boleto.payerName.replace(
+        /[^a-zA-Z0-9]/g,
+        "_"
+      )}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
       console.error("Erro ao baixar PDF:", error);
-      alert("Erro ao baixar PDF do boleto");
+      alert(
+        "Erro ao baixar PDF do boleto. Verifique se o boleto está registrado no Santander."
+      );
     }
   };
 
