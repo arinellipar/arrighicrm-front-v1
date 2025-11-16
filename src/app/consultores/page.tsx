@@ -66,6 +66,19 @@ function EspecialidadeBadge({ especialidade }: { especialidade: string }) {
   );
 }
 
+function AdvogadoBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-md">
+      <Award className="w-3 h-3" />
+      Advogado
+    </span>
+  );
+}
+
+function isAdvogado(email: string | undefined): boolean {
+  return email?.toLowerCase().endsWith("@arrighiadvogados.com.br") || false;
+}
+
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center py-12">
@@ -573,19 +586,25 @@ export default function ConsultoresPage() {
                                 </span>
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-secondary-900">
-                                  <Tooltip
-                                    content={
-                                      consultor.nome || "Nome não informado"
-                                    }
-                                  >
-                                    <span className="cursor-help">
-                                      {truncateText(
-                                        consultor.nome || "Nome não informado",
-                                        20
-                                      )}
-                                    </span>
-                                  </Tooltip>
+                                <div className="flex items-center gap-2">
+                                  <div className="text-sm font-medium text-secondary-900">
+                                    <Tooltip
+                                      content={
+                                        consultor.nome || "Nome não informado"
+                                      }
+                                    >
+                                      <span className="cursor-help">
+                                        {truncateText(
+                                          consultor.nome ||
+                                            "Nome não informado",
+                                          20
+                                        )}
+                                      </span>
+                                    </Tooltip>
+                                  </div>
+                                  {isAdvogado(consultor.email) && (
+                                    <AdvogadoBadge />
+                                  )}
                                 </div>
                                 <div className="text-sm text-secondary-500">
                                   {consultor.email}
@@ -656,18 +675,27 @@ export default function ConsultoresPage() {
                             </span>
                           </div>
                           <div className="ml-3">
-                            <h4 className="text-lg font-semibold text-secondary-900">
-                              <Tooltip
-                                content={consultor.nome || "Nome não informado"}
-                              >
-                                <span className="cursor-help">
-                                  {truncateText(
-                                    consultor.nome || "Nome não informado",
-                                    25
-                                  )}
-                                </span>
-                              </Tooltip>
-                            </h4>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="text-lg font-semibold text-secondary-900">
+                                <Tooltip
+                                  content={
+                                    consultor.nome || "Nome não informado"
+                                  }
+                                >
+                                  <span className="cursor-help">
+                                    {truncateText(
+                                      consultor.nome || "Nome não informado",
+                                      25
+                                    )}
+                                  </span>
+                                </Tooltip>
+                              </h4>
+                              {isAdvogado(consultor.email) && (
+                                <div className="mt-1">
+                                  <AdvogadoBadge />
+                                </div>
+                              )}
+                            </div>
                             <p className="text-sm text-secondary-500">
                               {consultor.oab}
                             </p>
