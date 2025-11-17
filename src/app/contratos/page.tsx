@@ -1476,16 +1476,16 @@ export default function ContratosPage() {
       />
 
       {/* Modal de Detalhes do Boleto */}
-      <BoletoDetailsModal
-        boleto={selectedBoleto}
-        isOpen={showBoletoDetails}
-        onClose={() => {
-          setShowBoletoDetails(false);
-          setSelectedBoleto(null);
-        }}
-        onSync={handleSyncBoleto}
-        onDelete={handleDeleteBoleto}
-      />
+      {selectedBoleto && (
+        <BoletoDetailsModal
+          boletoId={selectedBoleto.id}
+          isOpen={showBoletoDetails}
+          onClose={() => {
+            setShowBoletoDetails(false);
+            setSelectedBoleto(null);
+          }}
+        />
+      )}
     </MainLayout>
   );
 }
