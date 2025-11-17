@@ -238,6 +238,30 @@ export default function BoletosPage() {
     return new Date(date).toLocaleDateString("pt-BR");
   };
 
+  // Calcular dias de atraso para boletos vencidos
+  const calcularDiasAtraso = (dueDate: string): number | null => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const vencimento = new Date(dueDate);
+    vencimento.setHours(0, 0, 0, 0);
+
+    if (vencimento < hoje) {
+      const diffTime = hoje.getTime() - vencimento.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+    return null;
+  };
+
+  // Verificar se boleto está vencido
+  const isVencido = (boleto: Boleto): boolean => {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const vencimento = new Date(boleto.dueDate);
+    vencimento.setHours(0, 0, 0, 0);
+    return vencimento < hoje && boleto.status !== "LIQUIDADO";
+  };
+
   // Estatísticas rápidas
   const stats = {
     total: boletos.length,
@@ -372,7 +396,7 @@ export default function BoletosPage() {
                 color: "from-purple-500 to-pink-600",
               },
               {
-                label: "Liquidados",
+                label: "Pagos",
                 value: stats.liquidados,
                 icon: CheckCircle,
                 color: "from-emerald-500 to-green-600",
@@ -532,7 +556,7 @@ export default function BoletosPage() {
                         <option value="">Todos</option>
                         <option value="PENDENTE">Cancelado</option>
                         <option value="REGISTRADO">Registrado</option>
-                        <option value="LIQUIDADO">Liquidado</option>
+                        <option value="LIQUIDADO">Pago</option>
                         <option value="VENCIDO">Vencido</option>
                         <option value="CANCELADO">Cancelado (Banco)</option>
                       </select>
@@ -613,7 +637,14 @@ export default function BoletosPage() {
                               {boleto.payerName}
                             </h3>
                           </div>
-                          <StatusBadge status={boleto.status} />
+                          <div className="flex flex-col items-end gap-1">
+                            <StatusBadge status={boleto.status} />
+                            {isVencido(boleto) && (
+                              <span className="text-xs font-bold text-red-600">
+                                {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''} de atraso
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           <Building className="w-4 h-4" />
@@ -637,8 +668,25 @@ export default function BoletosPage() {
                             <p className="text-lg font-semibold text-gray-900">
                               {formatDate(boleto.dueDate)}
                             </p>
+                            {isVencido(boleto) && (
+                              <p className="text-xs font-bold text-red-600 mt-1">
+                                Vencido há {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''}
+                              </p>
+                            )}
                           </div>
                         </div>
+
+                        {/* Alerta de Vencimento */}
+                        {isVencido(boleto) && (
+                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <AlertTriangle className="w-4 h-4 text-red-600" />
+                              <p className="text-sm font-semibold text-red-800">
+                                Boleto vencido há {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          </div>
+                        )}
 
                         {boleto.nsuCode && (
                           <div className="p-3 bg-gray-50 rounded-lg">
@@ -772,7 +820,14 @@ export default function BoletosPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <StatusBadge status={boleto.status} />
+                          <div className="flex flex-col gap-1">
+                            <StatusBadge status={boleto.status} />
+                            {isVencido(boleto) && (
+                              <span className="text-xs font-bold text-red-600">
+                                {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''} de atraso
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <p className="font-semibold text-gray-900">
@@ -780,9 +835,16 @@ export default function BoletosPage() {
                           </p>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-gray-700">
-                            {formatDate(boleto.dueDate)}
-                          </p>
+                          <div>
+                            <p className="text-gray-700">
+                              {formatDate(boleto.dueDate)}
+                            </p>
+                            {isVencido(boleto) && (
+                              <p className="text-xs font-bold text-red-600 mt-1">
+                                ⚠️ Vencido há {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''}
+                              </p>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-center gap-1">

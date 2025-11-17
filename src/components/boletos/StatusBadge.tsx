@@ -15,7 +15,7 @@ export function StatusBadge({
         return {
           color: "bg-green-100 text-green-800 border-green-300",
           icon: "✅",
-          text: "Liquidado",
+          text: "Pago",
         };
       case "BAIXADO":
         return {
