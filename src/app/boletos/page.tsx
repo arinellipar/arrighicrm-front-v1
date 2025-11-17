@@ -7,6 +7,8 @@ import { useBoletos } from "@/hooks/useBoletos";
 import { BoletoCard } from "@/components/boletos/BoletoCard";
 import { Boleto, BoletoStatus, BoletoFilters } from "@/types/boleto";
 import { StatusBadge } from "@/components/boletos/StatusBadge";
+import { SincronizarTodosButton } from "@/components/boletos/SincronizarTodosButton";
+import { BoletoDetailsModal } from "@/components/boletos/BoletoDetailsModal";
 import MainLayout from "@/components/MainLayout";
 import {
   Plus,
@@ -323,6 +325,9 @@ export default function BoletosPage() {
                   Atualizar
                 </span>
               </motion.button>
+
+              <SincronizarTodosButton onSincronizacaoConcluida={() => fetchBoletos()} />
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -1402,6 +1407,13 @@ export default function BoletosPage() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Modal de Detalhes com Status da API */}
+          <BoletoDetailsModal
+            boletoId={selectedBoleto?.id || 0}
+            isOpen={showDetailsModal}
+            onClose={closeDetailsModal}
+          />
         </div>
       </div>
     </MainLayout>

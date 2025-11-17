@@ -1,409 +1,289 @@
-// src/components/boletos/BoletoDetailsModal.tsx
-import { Boleto } from "@/types/boleto";
+import { useState, useEffect } from "react";
+import { X, Copy, CheckCircle, AlertCircle } from "lucide-react";
+import { consultarStatusBoleto, BoletoStatus } from "@/services/boletoService";
 import { StatusBadge } from "./StatusBadge";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import {
-  X,
-  Copy,
-  Download,
-  ExternalLink,
-  RefreshCw,
-  Trash2,
-  Calendar,
-  DollarSign,
-  User,
-  FileText,
-  CreditCard,
-} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface BoletoDetailsModalProps {
-  boleto: Boleto | null;
+  boletoId: number;
   isOpen: boolean;
   onClose: () => void;
-  onSync?: (boleto: Boleto) => void;
-  onDelete?: (boleto: Boleto) => void;
 }
 
 export function BoletoDetailsModal({
-  boleto,
+  boletoId,
   isOpen,
   onClose,
-  onSync,
-  onDelete,
 }: BoletoDetailsModalProps) {
-  if (!isOpen || !boleto) return null;
+  const [status, setStatus] = useState<BoletoStatus | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
+  useEffect(() => {
+    if (isOpen) {
+      carregarStatus();
+    }
+  }, [isOpen, boletoId]);
 
-  const formatDate = (dateString: string) => {
+  const carregarStatus = async () => {
+    setLoading(true);
     try {
-      return format(new Date(dateString), "dd/MM/yyyy HH:mm", { locale: ptBR });
-    } catch {
-      return dateString;
+      const statusAtual = await consultarStatusBoleto(boletoId);
+      setStatus(statusAtual);
+    } catch (error) {
+      console.error("Erro ao carregar status:", error);
+      alert("Erro ao carregar detalhes do boleto");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copiarParaClipboard = (texto: string, tipo: string) => {
+    navigator.clipboard.writeText(texto);
+    alert(`${tipo} copiado para área de transferência!`);
   };
 
-  const isVencido =
-    new Date(boleto.dueDate) < new Date() &&
-    boleto.status !== "LIQUIDADO" &&
-    boleto.status !== "CANCELADO";
-  const canSync = boleto.status === "REGISTRADO";
-  const canDelete = boleto.status !== "LIQUIDADO";
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999] p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Boleto #{boleto.id}
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.95, opacity: 0 }}
+          className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
+            <h2 className="text-2xl font-bold">
+              📄 Detalhes do Boleto #{boletoId}
             </h2>
-            <StatusBadge status={boleto.status} />
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Informações Principais */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Valor e Vencimento */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-green-600" />
-                <span className="font-semibold text-gray-900">Valor</span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatCurrency(boleto.nominalValue)}
-              </p>
-
-              <div className="flex items-center gap-2 mt-4">
-                <Calendar className="w-5 h-5 text-blue-600" />
-                <span className="font-semibold text-gray-900">Vencimento</span>
-              </div>
-              <p
-                className={`text-lg ${
-                  isVencido ? "text-red-600 font-semibold" : "text-gray-900"
-                }`}
-              >
-                {format(new Date(boleto.dueDate), "dd/MM/yyyy", {
-                  locale: ptBR,
-                })}
-                {isVencido && <span className="ml-2 text-sm">(VENCIDO)</span>}
-              </p>
-            </div>
-
-            {/* Informações do Boleto */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-gray-900">
-                Informações do Boleto
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">NSU Code:</span>
-                  <span className="font-mono text-gray-900">
-                    {boleto.nsuCode}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Nosso Número:</span>
-                  <span className="font-mono text-gray-900">
-                    {boleto.bankNumber}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Seu Número:</span>
-                  <span className="font-mono text-gray-900">
-                    {boleto.clientNumber || "-"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Convênio:</span>
-                  <span className="font-mono text-gray-900">
-                    {boleto.covenantCode}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Datas */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-gray-900">Datas</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <span className="text-gray-600">Emissão:</span>
-                  <p className="text-gray-900">
-                    {format(new Date(boleto.issueDate), "dd/MM/yyyy", {
-                      locale: ptBR,
-                    })}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Cadastro:</span>
-                  <p className="text-gray-900">
-                    {formatDate(boleto.dataCadastro)}
-                  </p>
-                </div>
-                {boleto.dataAtualizacao && (
-                  <div>
-                    <span className="text-gray-600">Última Atualização:</span>
-                    <p className="text-gray-900">
-                      {formatDate(boleto.dataAtualizacao)}
-                    </p>
-                  </div>
-                )}
-                {boleto.entryDate && (
-                  <div>
-                    <span className="text-gray-600">Registro Santander:</span>
-                    <p className="text-gray-900">
-                      {format(new Date(boleto.entryDate), "dd/MM/yyyy", {
-                        locale: ptBR,
-                      })}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+            <button
+              onClick={onClose}
+              className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
 
-          {/* Informações do Pagador */}
-          <div className="border-t border-gray-200 pt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <User className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                Dados do Pagador
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <div>
-                  <span className="text-sm text-gray-600">Nome:</span>
-                  <p className="text-gray-900 font-medium">
-                    {boleto.payerName}
+          <div className="p-6">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="text-6xl mb-4"
+                >
+                  ⏳
+                </motion.div>
+                <p className="text-gray-600">Carregando detalhes...</p>
+              </div>
+            ) : status ? (
+              <div className="space-y-6">
+                {/* Status Atual */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200">
+                  <h3 className="font-bold text-lg mb-3 text-gray-800">
+                    📊 Status Atual
+                  </h3>
+                  <StatusBadge
+                    status={status.status}
+                    statusDescription={status.statusDescription}
+                    size="lg"
+                  />
+                  <p className="text-sm text-gray-600 mt-3">
+                    {status.statusDescription}
                   </p>
                 </div>
-                <div>
-                  <span className="text-sm text-gray-600">Documento:</span>
-                  <p className="text-gray-900 font-medium">
-                    {boleto.payerDocumentType}: {boleto.payerDocumentNumber}
-                  </p>
-                </div>
-              </div>
 
-              <div className="space-y-3">
-                <div>
-                  <span className="text-sm text-gray-600">Endereço:</span>
-                  <p className="text-gray-900">{boleto.payerAddress}</p>
-                  <p className="text-gray-900">
-                    {boleto.payerNeighborhood}, {boleto.payerCity} -{" "}
-                    {boleto.payerState}
-                  </p>
-                  <p className="text-gray-900">CEP: {boleto.payerZipCode}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Informações do Contrato */}
-          {boleto.contrato && (
-            <div className="border-t border-gray-200 pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-5 h-5 text-green-600" />
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Contrato Relacionado
-                </h3>
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <span className="text-sm text-gray-600">
-                      Número do Contrato:
-                    </span>
-                    <p className="text-gray-900 font-medium">
-                      {boleto.contrato.numeroContrato}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">Cliente:</span>
-                    <p className="text-gray-900 font-medium">
-                      {boleto.contrato.clienteNome}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">
-                      Valor do Contrato:
-                    </span>
-                    <p className="text-gray-900 font-medium">
-                      {boleto.contrato.valorContrato
-                        ? formatCurrency(boleto.contrato.valorContrato)
-                        : "-"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Dados Santander */}
-          {(boleto.barCode || boleto.digitableLine || boleto.qrCodePix) && (
-            <div className="border-t border-gray-200 pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <CreditCard className="w-5 h-5 text-purple-600" />
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Dados Santander
-                </h3>
-              </div>
-
-              <div className="space-y-4">
-                {/* Código de Barras */}
-                {boleto.barCode && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">
-                        Código de Barras:
-                      </span>
-                      <button
-                        onClick={() => copyToClipboard(boleto.barCode!)}
-                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
-                      >
-                        <Copy className="w-4 h-4" />
-                        Copiar
-                      </button>
+                {/* Informações de Pagamento (se pago) */}
+                {status.paidValue && (
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-300 shadow-lg"
+                  >
+                    <h3 className="font-bold text-lg mb-4 text-green-800 flex items-center gap-2">
+                      <CheckCircle className="w-6 h-6" />
+                      ✅ Informações de Pagamento
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-green-700 font-medium">
+                          Valor Pago
+                        </p>
+                        <p className="text-2xl font-bold text-green-900">
+                          R$ {status.paidValue.toFixed(2)}
+                        </p>
+                      </div>
+                      {status.settlementDate && (
+                        <div>
+                          <p className="text-sm text-green-700 font-medium">
+                            Data de Pagamento
+                          </p>
+                          <p className="text-xl font-bold text-green-900">
+                            {new Date(status.settlementDate).toLocaleDateString(
+                              "pt-BR"
+                            )}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <p className="font-mono text-sm bg-gray-50 p-2 rounded break-all">
-                      {boleto.barCode}
-                    </p>
+                  </motion.div>
+                )}
+
+                {/* Informações Básicas */}
+                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                  <h3 className="font-bold text-lg mb-4 text-gray-800">
+                    📋 Informações Básicas
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-600 font-medium">Valor Nominal</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        R$ {status.nominalValue?.toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 font-medium">Vencimento</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        {status.dueDate
+                          ? new Date(status.dueDate).toLocaleDateString(
+                              "pt-BR"
+                            )
+                          : "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 font-medium">Nosso Número</p>
+                      <p className="font-mono text-gray-900 font-semibold">
+                        {status.bankNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600 font-medium">
+                        Código do Convênio
+                      </p>
+                      <p className="font-mono text-gray-900 font-semibold">
+                        {status.beneficiaryCode}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dados do Pagador */}
+                {status.payer && (
+                  <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                    <h3 className="font-bold text-lg mb-4 text-blue-800">
+                      👤 Dados do Pagador
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div>
+                        <p className="text-blue-700 font-medium">Nome</p>
+                        <p className="text-gray-900 font-semibold">
+                          {status.payer.name}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-blue-700 font-medium">Documento</p>
+                        <p className="font-mono text-gray-900 font-semibold">
+                          {status.payer.documentNumber}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* PIX */}
+                {status.qrCodePix && (
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border-2 border-purple-300">
+                    <h3 className="font-bold text-lg mb-4 text-purple-800 flex items-center gap-2">
+                      💳 Pagamento via PIX
+                    </h3>
+                    <button
+                      onClick={() =>
+                        copiarParaClipboard(status.qrCodePix!, "Código PIX")
+                      }
+                      className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                    >
+                      <Copy className="w-5 h-5" />
+                      📋 Copiar Código PIX
+                    </button>
                   </div>
                 )}
 
                 {/* Linha Digitável */}
-                {boleto.digitableLine && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">
-                        Linha Digitável:
-                      </span>
-                      <button
-                        onClick={() => copyToClipboard(boleto.digitableLine!)}
-                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
-                      >
-                        <Copy className="w-4 h-4" />
-                        Copiar
-                      </button>
-                    </div>
-                    <p className="font-mono text-sm bg-gray-50 p-2 rounded break-all">
-                      {boleto.digitableLine}
+                {status.digitableLine && (
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-300">
+                    <h3 className="font-bold text-lg mb-3 text-blue-800 flex items-center gap-2">
+                      🔢 Linha Digitável
+                    </h3>
+                    <p className="font-mono text-sm bg-white p-3 rounded border border-blue-200 break-all mb-3 text-gray-800">
+                      {status.digitableLine}
                     </p>
-                  </div>
-                )}
-
-                {/* QR Code PIX */}
-                {boleto.qrCodePix && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">
-                        QR Code PIX:
-                      </span>
-                      <button
-                        onClick={() => copyToClipboard(boleto.qrCodePix!)}
-                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
-                      >
-                        <Copy className="w-4 h-4" />
-                        Copiar
-                      </button>
-                    </div>
-                    <p className="font-mono text-xs bg-gray-50 p-2 rounded break-all">
-                      {boleto.qrCodePix}
-                    </p>
-                  </div>
-                )}
-
-                {/* URL QR Code */}
-                {boleto.qrCodeUrl && (
-                  <div className="flex items-center gap-2">
-                    <ExternalLink className="w-4 h-4 text-gray-600" />
-                    <a
-                      href={boleto.qrCodeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 underline"
+                    <button
+                      onClick={() =>
+                        copiarParaClipboard(
+                          status.digitableLine!,
+                          "Linha digitável"
+                        )
+                      }
+                      className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
                     >
-                      Visualizar QR Code
-                    </a>
+                      <Copy className="w-5 h-5" />
+                      📋 Copiar
+                    </button>
                   </div>
                 )}
-              </div>
-            </div>
-          )}
 
-          {/* Mensagens de Erro */}
-          {(boleto.errorCode || boleto.errorMessage) && (
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold text-red-600 mb-4">Erros</h3>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                {boleto.errorCode && (
-                  <p className="text-sm text-red-800">
-                    <strong>Código:</strong> {boleto.errorCode}
-                  </p>
+                {/* Código de Barras */}
+                {status.barCode && (
+                  <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                    <h3 className="font-bold text-lg mb-3 text-gray-800">
+                      📊 Código de Barras
+                    </h3>
+                    <p className="font-mono text-sm bg-white p-3 rounded border border-gray-200 break-all text-gray-800">
+                      {status.barCode}
+                    </p>
+                  </div>
                 )}
-                {boleto.errorMessage && (
-                  <p className="text-sm text-red-800 mt-2">
-                    <strong>Mensagem:</strong> {boleto.errorMessage}
-                  </p>
-                )}
+
+                {/* Botão Atualizar */}
+                <button
+                  onClick={carregarStatus}
+                  disabled={loading}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
+                >
+                  🔄 Atualizar Status
+                </button>
               </div>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="text-center py-12">
+                <AlertCircle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500 text-lg">
+                  Nenhum dado disponível
+                </p>
+              </div>
+            )}
+          </div>
 
-        {/* Footer com ações */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
-          {canSync && onSync && (
+          {/* Footer */}
+          <div className="sticky bottom-0 bg-gray-50 p-4 rounded-b-2xl border-t border-gray-200">
             <button
-              onClick={() => onSync(boleto)}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              onClick={onClose}
+              className="w-full px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
             >
-              <RefreshCw className="w-4 h-4" />
-              Sincronizar
+              Fechar
             </button>
-          )}
-
-          {canDelete && onDelete && (
-            <button
-              onClick={() => onDelete(boleto)}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-              Cancelar Boleto
-            </button>
-          )}
-
-          <button
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Fechar
-          </button>
-        </div>
-      </div>
-    </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
