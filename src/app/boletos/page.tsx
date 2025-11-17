@@ -129,24 +129,12 @@ export default function BoletosPage() {
         const errorText = await response.text();
         console.error("Erro ao baixar PDF:", response.status, errorText);
 
-        // Mensagem específica baseada no status do boleto
+        // Mensagem de erro genérica (boleto já foi validado como REGISTRADO)
         let errorMessage = "⚠️ Erro ao baixar PDF do boleto.\n\n";
-
-        if (boleto.status === "LIQUIDADO") {
-          errorMessage += "⚠️ Este boleto foi LIQUIDADO (pago).\n\n";
-          errorMessage += "Possíveis causas:\n";
-          errorMessage +=
-            "• O PDF pode não estar mais disponível no Santander\n";
-          errorMessage +=
-            "• Boletos liquidados podem ter prazo de disponibilidade limitado\n";
-          errorMessage +=
-            "• Entre em contato com o suporte se precisar do comprovante";
-        } else {
-          errorMessage += "Possíveis causas:\n";
-          errorMessage += "• O boleto pode não estar registrado no Santander\n";
-          errorMessage += "• Pode haver um problema temporário com o banco\n";
-          errorMessage += "• Tente novamente em alguns instantes";
-        }
+        errorMessage += "Possíveis causas:\n";
+        errorMessage += "• Pode haver um problema temporário com o banco\n";
+        errorMessage += "• O boleto pode estar em processamento\n";
+        errorMessage += "• Tente novamente em alguns instantes";
 
         alert(errorMessage);
         return;
@@ -168,18 +156,9 @@ export default function BoletosPage() {
       console.error("Erro ao baixar PDF:", error);
 
       let errorMessage = "Erro ao baixar PDF do boleto.\n\n";
-
-      if (boleto.status === "LIQUIDADO") {
-        errorMessage += "⚠️ Este boleto foi LIQUIDADO (pago).\n\n";
-        errorMessage +=
-          "O PDF pode não estar mais disponível pois o boleto já foi pago.\n";
-        errorMessage +=
-          "Boletos liquidados podem ter prazo de disponibilidade limitado no banco.";
-      } else {
-        errorMessage += "Verifique sua conexão e tente novamente.\n";
-        errorMessage +=
-          "Se o problema persistir, entre em contato com o suporte.";
-      }
+      errorMessage += "Verifique sua conexão e tente novamente.\n";
+      errorMessage +=
+        "Se o problema persistir, entre em contato com o suporte.";
 
       alert(errorMessage);
     } finally {
