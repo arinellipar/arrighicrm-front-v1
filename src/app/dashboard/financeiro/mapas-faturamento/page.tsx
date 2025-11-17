@@ -509,7 +509,8 @@ export default function MapasFaturamentoPage() {
                           <Eye className="w-4 h-4 text-blue-600" />
                         </button>
                         {fatura.boleto &&
-                          fatura.boleto.status === "REGISTRADO" && (
+                          (fatura.boleto.status === "REGISTRADO" ||
+                            fatura.boleto.status === "VENCIDO") && (
                             <button
                               onClick={() => handleDownloadPdf(fatura.boleto!)}
                               disabled={downloadingPdfId === fatura.boleto.id}
@@ -860,7 +861,7 @@ export default function MapasFaturamentoPage() {
                 <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
                   <div className="flex items-center gap-3 flex-wrap">
                     {(selectedBoleto.status === "REGISTRADO" ||
-                      selectedBoleto.status === "LIQUIDADO") && (
+                      selectedBoleto.status === "VENCIDO") && (
                       <button
                         onClick={() => {
                           handleDownloadPdf(selectedBoleto);

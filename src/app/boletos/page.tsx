@@ -105,7 +105,9 @@ export default function BoletosPage() {
 
   const handleDownloadPdf = async (boleto: Boleto) => {
     if (boleto.status !== "REGISTRADO") {
-      alert("⚠️ Apenas boletos REGISTRADOS (não pagos) podem ter o PDF baixado.\n\nBoletos pagos não estão mais disponíveis na API do Santander.");
+      alert(
+        "⚠️ Apenas boletos REGISTRADOS (não pagos) podem ter o PDF baixado.\n\nBoletos pagos não estão mais disponíveis na API do Santander."
+      );
       return;
     }
 
@@ -648,7 +650,8 @@ export default function BoletosPage() {
                             <Eye className="w-4 h-4" />
                             Detalhes
                           </button>
-                          {boleto.status === "REGISTRADO" && (
+                          {(boleto.status === "REGISTRADO" ||
+                            boleto.status === "VENCIDO") && (
                             <>
                               <button
                                 onClick={() => handleDownloadPdf(boleto)}
@@ -661,7 +664,9 @@ export default function BoletosPage() {
                                 ) : (
                                   <Download className="w-4 h-4" />
                                 )}
-                                {downloadingPdfId === boleto.id ? "Baixando..." : "PDF"}
+                                {downloadingPdfId === boleto.id
+                                  ? "Baixando..."
+                                  : "PDF"}
                               </button>
                               <button
                                 onClick={() => handleSync(boleto)}
@@ -777,13 +782,18 @@ export default function BoletosPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {boleto.status === "REGISTRADO" && (
+                            {(boleto.status === "REGISTRADO" ||
+                              boleto.status === "VENCIDO") && (
                               <>
                                 <button
                                   onClick={() => handleDownloadPdf(boleto)}
                                   disabled={downloadingPdfId === boleto.id}
                                   className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                  title={downloadingPdfId === boleto.id ? "Baixando PDF..." : "Baixar PDF oficial do Santander"}
+                                  title={
+                                    downloadingPdfId === boleto.id
+                                      ? "Baixando PDF..."
+                                      : "Baixar PDF oficial do Santander"
+                                  }
                                 >
                                   {downloadingPdfId === boleto.id ? (
                                     <RefreshCw className="w-4 h-4 animate-spin" />
@@ -1234,7 +1244,8 @@ export default function BoletosPage() {
                   {/* Footer com Ações */}
                   <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
                     <div className="flex items-center gap-3 flex-wrap">
-                      {selectedBoleto.status === "REGISTRADO" && (
+                      {(selectedBoleto.status === "REGISTRADO" ||
+                        selectedBoleto.status === "VENCIDO") && (
                         <>
                           <button
                             onClick={() => {
@@ -1248,7 +1259,9 @@ export default function BoletosPage() {
                             ) : (
                               <Download className="w-5 h-5" />
                             )}
-                            {downloadingPdfId === selectedBoleto.id ? "Baixando..." : "Baixar PDF"}
+                            {downloadingPdfId === selectedBoleto.id
+                              ? "Baixando..."
+                              : "Baixar PDF"}
                           </button>
                           <button
                             onClick={() => {
