@@ -54,6 +54,7 @@ export default function BoletosPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedBoleto, setSelectedBoleto] = useState<Boleto | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [downloadingPdfId, setDownloadingPdfId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchBoletos();
@@ -102,15 +103,17 @@ export default function BoletosPage() {
   };
 
   const handleDownloadPdf = async (boleto: Boleto) => {
-    if (boleto.status !== "REGISTRADO") {
-      alert("Apenas boletos registrados podem ter o PDF gerado");
+    if (boleto.status !== "REGISTRADO" && boleto.status !== "LIQUIDADO") {
+      alert("Apenas boletos registrados ou liquidados podem ter o PDF gerado");
       return;
     }
 
+    setDownloadingPdfId(boleto.id);
+
     try {
-      // Usar a URL base da API do ambiente
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101/api";
+      // Importar dinamicamente para evitar problemas de SSR
+      const { getApiUrl } = await import("@/../env.config");
+      const apiUrl = getApiUrl();
       const token = localStorage.getItem("token");
 
       const response = await fetch(`${apiUrl}/Boleto/${boleto.id}/pdf`, {
@@ -122,8 +125,29 @@ export default function BoletosPage() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Erro ao baixar PDF:", errorText);
-        throw new Error(`Erro ao baixar PDF: ${response.status}`);
+        console.error("Erro ao baixar PDF:", response.status, errorText);
+
+        // Mensagem específica baseada no status do boleto
+        let errorMessage = "⚠️ Erro ao baixar PDF do boleto.\n\n";
+
+        if (boleto.status === "LIQUIDADO") {
+          errorMessage += "⚠️ Este boleto foi LIQUIDADO (pago).\n\n";
+          errorMessage += "Possíveis causas:\n";
+          errorMessage +=
+            "• O PDF pode não estar mais disponível no Santander\n";
+          errorMessage +=
+            "• Boletos liquidados podem ter prazo de disponibilidade limitado\n";
+          errorMessage +=
+            "• Entre em contato com o suporte se precisar do comprovante";
+        } else {
+          errorMessage += "Possíveis causas:\n";
+          errorMessage += "• O boleto pode não estar registrado no Santander\n";
+          errorMessage += "• Pode haver um problema temporário com o banco\n";
+          errorMessage += "• Tente novamente em alguns instantes";
+        }
+
+        alert(errorMessage);
+        return;
       }
 
       const blob = await response.blob();
@@ -140,9 +164,24 @@ export default function BoletosPage() {
       document.body.removeChild(a);
     } catch (error) {
       console.error("Erro ao baixar PDF:", error);
-      alert(
-        "Erro ao baixar PDF do boleto. Verifique se o boleto está registrado no Santander."
-      );
+
+      let errorMessage = "Erro ao baixar PDF do boleto.\n\n";
+
+      if (boleto.status === "LIQUIDADO") {
+        errorMessage += "⚠️ Este boleto foi LIQUIDADO (pago).\n\n";
+        errorMessage +=
+          "O PDF pode não estar mais disponível pois o boleto já foi pago.\n";
+        errorMessage +=
+          "Boletos liquidados podem ter prazo de disponibilidade limitado no banco.";
+      } else {
+        errorMessage += "Verifique sua conexão e tente novamente.\n";
+        errorMessage +=
+          "Se o problema persistir, entre em contato com o suporte.";
+      }
+
+      alert(errorMessage);
+    } finally {
+      setDownloadingPdfId(null);
     }
   };
 
@@ -627,15 +666,21 @@ export default function BoletosPage() {
                             <Eye className="w-4 h-4" />
                             Detalhes
                           </button>
-                          {boleto.status === "REGISTRADO" && (
+                          {(boleto.status === "REGISTRADO" ||
+                            boleto.status === "LIQUIDADO") && (
                             <>
                               <button
                                 onClick={() => handleDownloadPdf(boleto)}
-                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors font-medium text-sm"
+                                disabled={downloadingPdfId === boleto.id}
+                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Baixar PDF oficial do Santander"
                               >
-                                <Download className="w-4 h-4" />
-                                PDF
+                                {downloadingPdfId === boleto.id ? (
+                                  <RefreshCw className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Download className="w-4 h-4" />
+                                )}
+                                {downloadingPdfId === boleto.id ? "Baixando..." : "PDF"}
                               </button>
                               <button
                                 onClick={() => handleSync(boleto)}
@@ -751,14 +796,20 @@ export default function BoletosPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {boleto.status === "REGISTRADO" && (
+                            {(boleto.status === "REGISTRADO" ||
+                              boleto.status === "LIQUIDADO") && (
                               <>
                                 <button
                                   onClick={() => handleDownloadPdf(boleto)}
-                                  className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors"
-                                  title="Baixar PDF oficial do Santander"
+                                  disabled={downloadingPdfId === boleto.id}
+                                  className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  title={downloadingPdfId === boleto.id ? "Baixando PDF..." : "Baixar PDF oficial do Santander"}
                                 >
-                                  <Download className="w-4 h-4" />
+                                  {downloadingPdfId === boleto.id ? (
+                                    <RefreshCw className="w-4 h-4 animate-spin" />
+                                  ) : (
+                                    <Download className="w-4 h-4" />
+                                  )}
                                 </button>
                                 <button
                                   onClick={() => handleSync(boleto)}
@@ -893,7 +944,8 @@ export default function BoletosPage() {
                     </div>
 
                     {/* Informações do Santander */}
-                    {selectedBoleto.status === "REGISTRADO" && (
+                    {(selectedBoleto.status === "REGISTRADO" ||
+                      selectedBoleto.status === "LIQUIDADO") && (
                       <div className="bg-gradient-to-br from-red-50 via-orange-50 to-red-50 rounded-2xl p-6 border-2 border-red-200 shadow-lg">
                         <div className="flex items-center gap-3 mb-6">
                           <div className="p-3 bg-gradient-to-br from-red-600 to-red-700 rounded-xl shadow-md">
@@ -1203,16 +1255,22 @@ export default function BoletosPage() {
                   {/* Footer com Ações */}
                   <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
                     <div className="flex items-center gap-3 flex-wrap">
-                      {selectedBoleto.status === "REGISTRADO" && (
+                      {(selectedBoleto.status === "REGISTRADO" ||
+                        selectedBoleto.status === "LIQUIDADO") && (
                         <>
                           <button
                             onClick={() => {
                               handleDownloadPdf(selectedBoleto);
                             }}
-                            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                            disabled={downloadingPdfId === selectedBoleto.id}
+                            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                           >
-                            <Download className="w-5 h-5" />
-                            Baixar PDF
+                            {downloadingPdfId === selectedBoleto.id ? (
+                              <RefreshCw className="w-5 h-5 animate-spin" />
+                            ) : (
+                              <Download className="w-5 h-5" />
+                            )}
+                            {downloadingPdfId === selectedBoleto.id ? "Baixando..." : "Baixar PDF"}
                           </button>
                           <button
                             onClick={() => {

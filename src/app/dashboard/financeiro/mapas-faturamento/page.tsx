@@ -21,6 +21,7 @@ import {
   Eye,
   X,
   CreditCard,
+  RefreshCw,
 } from "lucide-react";
 
 interface Fatura {
@@ -44,6 +45,7 @@ export default function MapasFaturamentoPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBoleto, setSelectedBoleto] = useState<Boleto | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [downloadingPdfId, setDownloadingPdfId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchBoletos();
@@ -111,6 +113,8 @@ export default function MapasFaturamentoPage() {
       return;
     }
 
+    setDownloadingPdfId(boleto.id);
+
     try {
       // Importar dinamicamente para evitar problemas de SSR
       const { getApiUrl } = await import("@/../env.config");
@@ -128,68 +132,10 @@ export default function MapasFaturamentoPage() {
         const errorText = await response.text();
         console.error("Erro ao baixar PDF:", response.status, errorText);
 
-        // Tentar parsear a resposta de erro do backend
-        let backendError = null;
-        try {
-          backendError = JSON.parse(errorText);
-        } catch (e) {
-          // Não é JSON, usar texto direto
-        }
+        // Mensagem específica baseada no status do boleto
+        let errorMessage = "⚠️ Erro ao baixar PDF do boleto.\n\n";
 
-        // Mensagem específica baseada no erro do backend
-        let errorMessage = "❌ Erro ao baixar PDF do boleto.\n\n";
-
-        // Verificar se é boleto liquidado (verificado no Santander)
-        if (
-          backendError?.tipo === "BoletoLiquidado" ||
-          backendError?.status === "LIQUIDADO"
-        ) {
-          errorMessage = "✅ Boleto já foi PAGO!\n\n";
-          errorMessage +=
-            "💰 Este boleto foi liquidado (pago) no Santander.\n\n";
-          errorMessage += "📄 O PDF não está mais disponível porque:\n";
-          errorMessage +=
-            "• Boletos pagos têm prazo de disponibilidade limitado\n";
-          errorMessage += "• O Santander remove PDFs após a liquidação\n\n";
-          if (backendError?.dataLiquidacao) {
-            errorMessage += `📅 Data de liquidação: ${new Date(
-              backendError.dataLiquidacao
-            ).toLocaleDateString("pt-BR")}\n\n`;
-          }
-          errorMessage +=
-            "💡 Se precisar do comprovante de pagamento, entre em contato com o suporte.";
-        }
-        // Verificar se é endpoint não autorizado
-        else if (
-          backendError?.tipo === "EndpointNaoAutorizado" ||
-          response.status === 403
-        ) {
-          errorMessage = "🔒 Funcionalidade não disponível\n\n";
-          errorMessage +=
-            "📄 O download de PDF não está habilitado na sua conta Santander.\n\n";
-          errorMessage += "O que você pode fazer:\n";
-          errorMessage +=
-            "• Use o QR Code PIX para pagamento (disponível nos detalhes)\n";
-          errorMessage += "• Use a linha digitável para pagamento\n";
-          errorMessage +=
-            "• Entre em contato com o Santander para habilitar o endpoint de PDF\n\n";
-          errorMessage +=
-            "💡 Nota: O registro de boletos está funcionando normalmente.";
-        }
-        // Verificar se é erro de autenticação com Santander
-        else if (
-          backendError?.detalhes?.includes("access token") ||
-          backendError?.detalhes?.includes("Forbidden") ||
-          response.status === 500
-        ) {
-          errorMessage += "🔐 Erro de autenticação com o Santander.\n\n";
-          errorMessage += "Detalhes técnicos:\n";
-          errorMessage += `• ${
-            backendError?.detalhes || "Erro interno do servidor"
-          }\n\n`;
-          errorMessage += "⚠️ Este é um problema de configuração do backend.\n";
-          errorMessage += "Entre em contato com o administrador do sistema.";
-        } else if (boleto.status === "LIQUIDADO") {
+        if (boleto.status === "LIQUIDADO") {
           errorMessage += "⚠️ Este boleto foi LIQUIDADO (pago).\n\n";
           errorMessage += "Possíveis causas:\n";
           errorMessage +=
@@ -239,6 +185,8 @@ export default function MapasFaturamentoPage() {
       }
 
       alert(errorMessage);
+    } finally {
+      setDownloadingPdfId(null);
     }
   };
 
@@ -576,15 +524,25 @@ export default function MapasFaturamentoPage() {
                         >
                           <Eye className="w-4 h-4 text-blue-600" />
                         </button>
-                        {fatura.boleto?.status === "REGISTRADO" && (
+                        {(fatura.boleto?.status === "REGISTRADO" ||
+                          fatura.boleto?.status === "LIQUIDADO") && (
                           <button
                             onClick={() =>
                               fatura.boleto && handleDownloadPdf(fatura.boleto)
                             }
-                            className="p-2 hover:bg-red-100 rounded-lg transition-colors"
-                            title="Baixar PDF"
+                            disabled={downloadingPdfId === fatura.boleto?.id}
+                            className="p-2 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={
+                              downloadingPdfId === fatura.boleto?.id
+                                ? "Baixando PDF..."
+                                : "Baixar PDF"
+                            }
                           >
-                            <Download className="w-4 h-4 text-red-600" />
+                            {downloadingPdfId === fatura.boleto?.id ? (
+                              <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
+                            ) : (
+                              <Download className="w-4 h-4 text-red-600" />
+                            )}
                           </button>
                         )}
                       </div>
@@ -925,10 +883,17 @@ export default function MapasFaturamentoPage() {
                         onClick={() => {
                           handleDownloadPdf(selectedBoleto);
                         }}
-                        className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all"
+                        disabled={downloadingPdfId === selectedBoleto.id}
+                        className="flex-1 min-w-[150px] flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                       >
-                        <Download className="w-5 h-5" />
-                        Baixar PDF
+                        {downloadingPdfId === selectedBoleto.id ? (
+                          <RefreshCw className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Download className="w-5 h-5" />
+                        )}
+                        {downloadingPdfId === selectedBoleto.id
+                          ? "Baixando..."
+                          : "Baixar PDF"}
                       </button>
                     )}
                     {selectedBoleto.digitableLine && (
