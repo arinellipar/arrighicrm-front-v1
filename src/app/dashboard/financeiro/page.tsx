@@ -329,11 +329,11 @@ export default function DashboardFinanceiroPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <StatusCard
-                title="Pendentes"
+                title="Cancelados"
                 value={stats?.boletosPendentes || 0}
                 icon={Clock}
-                color="text-orange-600"
-                bgColor="bg-orange-500"
+                color="text-gray-600"
+                bgColor="bg-gray-500"
                 delay={0.5}
               />
 

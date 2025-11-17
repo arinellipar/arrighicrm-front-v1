@@ -50,6 +50,7 @@ export interface ContratoInfo {
   clienteNome?: string;
   clienteDocumento?: string;
   valorContrato?: number;
+  filialNome?: string;
 }
 
 export interface CreateBoletoDTO {
@@ -131,8 +132,8 @@ export interface BoletoFilters {
 export const BoletoStatusOptions = [
   {
     value: "PENDENTE" as BoletoStatus,
-    label: "Aguardando Registro",
-    color: "bg-orange-100 text-orange-800 border-orange-200",
+    label: "Cancelado",
+    color: "bg-gray-100 text-gray-800 border-gray-200",
   },
   {
     value: "REGISTRADO" as BoletoStatus,
@@ -151,8 +152,8 @@ export const BoletoStatusOptions = [
   },
   {
     value: "CANCELADO" as BoletoStatus,
-    label: "Cancelado",
-    color: "bg-gray-100 text-gray-800 border-gray-200",
+    label: "Cancelado (Banco)",
+    color: "bg-red-100 text-red-800 border-red-200",
   },
   {
     value: "ERRO" as BoletoStatus,

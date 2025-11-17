@@ -1,4 +1,5 @@
 "use client";
+// BUILD: 2025-11-17T06:00:00 - Status PENDENTE exibido como CANCELADO
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,6 +23,7 @@ import {
   X,
   CreditCard,
   RefreshCw,
+  Map,
 } from "lucide-react";
 
 interface Fatura {
@@ -32,7 +34,13 @@ interface Fatura {
   numeroContrato: string;
   valor: number;
   dataVencimento: string;
-  status: "PENDENTE" | "VENCIDO" | "PAGO" | "LIQUIDADO" | "REGISTRADO";
+  status:
+    | "PENDENTE"
+    | "VENCIDO"
+    | "PAGO"
+    | "LIQUIDADO"
+    | "REGISTRADO"
+    | "CANCELADO";
   diasAtraso?: number;
   boleto?: Boleto;
 }
@@ -41,11 +49,11 @@ export default function MapasFaturamentoPage() {
   const { boletos, loading, fetchBoletos } = useBoletos();
   const [faturas, setFaturas] = useState<Fatura[]>([]);
   const [filtroStatus, setFiltroStatus] = useState<string>("TODOS");
-  const [filtroFilial, setFiltroFilial] = useState<string>("TODAS");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBoleto, setSelectedBoleto] = useState<Boleto | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [downloadingPdfId, setDownloadingPdfId] = useState<number | null>(null);
+  const [downloadingPdfName, setDownloadingPdfName] = useState<string>("");
 
   useEffect(() => {
     fetchBoletos();
@@ -78,7 +86,7 @@ export default function MapasFaturamentoPage() {
           id: boleto.id,
           boletoId: boleto.id,
           clienteNome: boleto.payerName,
-          filialNome: boleto.contrato?.clienteNome ?? "",
+          filialNome: boleto.contrato?.filialNome ?? "Sem filial",
           numeroContrato: boleto.contrato?.numeroContrato ?? "",
           valor: boleto.nominalValue,
           dataVencimento: boleto.dueDate,
@@ -108,12 +116,21 @@ export default function MapasFaturamentoPage() {
   };
 
   const handleDownloadPdf = async (boleto: Boleto) => {
-    if (boleto.status !== "REGISTRADO" && boleto.status !== "LIQUIDADO") {
-      alert("Apenas boletos registrados ou liquidados podem ter o PDF gerado");
+    console.log("🔍 handleDownloadPdf chamado para boleto:", {
+      id: boleto.id,
+      status: boleto.status,
+      payerName: boleto.payerName,
+    });
+
+    if (boleto.status !== "REGISTRADO" && boleto.status !== "VENCIDO") {
+      alert(
+        "⚠️ Apenas boletos REGISTRADOS ou VENCIDOS (não pagos) podem ter o PDF baixado.\n\nBoletos pagos não estão mais disponíveis na API do Santander."
+      );
       return;
     }
 
     setDownloadingPdfId(boleto.id);
+    setDownloadingPdfName(boleto.payerName);
 
     try {
       // Importar dinamicamente para evitar problemas de SSR
@@ -134,22 +151,10 @@ export default function MapasFaturamentoPage() {
 
         // Mensagem específica baseada no status do boleto
         let errorMessage = "⚠️ Erro ao baixar PDF do boleto.\n\n";
-
-        if (boleto.status === "LIQUIDADO") {
-          errorMessage += "⚠️ Este boleto foi LIQUIDADO (pago).\n\n";
-          errorMessage += "Possíveis causas:\n";
-          errorMessage +=
-            "• O PDF pode não estar mais disponível no Santander\n";
-          errorMessage +=
-            "• Boletos liquidados podem ter prazo de disponibilidade limitado\n";
-          errorMessage +=
-            "• Entre em contato com o suporte se precisar do comprovante";
-        } else {
-          errorMessage += "Possíveis causas:\n";
-          errorMessage += "• O boleto pode não estar registrado no Santander\n";
-          errorMessage += "• Pode haver um problema temporário com o banco\n";
-          errorMessage += "• Tente novamente em alguns instantes";
-        }
+        errorMessage += "Possíveis causas:\n";
+        errorMessage += "• O boleto pode não estar registrado no Santander\n";
+        errorMessage += "• Pode haver um problema temporário com o banco\n";
+        errorMessage += "• Tente novamente em alguns instantes";
 
         alert(errorMessage);
         return;
@@ -171,22 +176,14 @@ export default function MapasFaturamentoPage() {
       console.error("Erro ao baixar PDF:", error);
 
       let errorMessage = "Erro ao baixar PDF do boleto.\n\n";
-
-      if (boleto.status === "LIQUIDADO") {
-        errorMessage += "⚠️ Este boleto foi LIQUIDADO (pago).\n\n";
-        errorMessage +=
-          "O PDF pode não estar mais disponível pois o boleto já foi pago.\n";
-        errorMessage +=
-          "Boletos liquidados podem ter prazo de disponibilidade limitado no banco.";
-      } else {
-        errorMessage += "Verifique sua conexão e tente novamente.\n";
-        errorMessage +=
-          "Se o problema persistir, entre em contato com o suporte.";
-      }
+      errorMessage += "Verifique sua conexão e tente novamente.\n";
+      errorMessage +=
+        "Se o problema persistir, entre em contato com o suporte.";
 
       alert(errorMessage);
     } finally {
       setDownloadingPdfId(null);
+      setDownloadingPdfName("");
     }
   };
 
@@ -201,13 +198,14 @@ export default function MapasFaturamentoPage() {
     return new Date(date).toLocaleDateString("pt-BR");
   };
 
+  // Status badges - PENDENTE exibido como "Cancelado" (v2.0)
   const getStatusBadge = (status: string, diasAtraso?: number) => {
     const badges = {
       PENDENTE: {
-        bg: "bg-yellow-100",
-        text: "text-yellow-800",
-        border: "border-yellow-200",
-        label: "Pendente",
+        bg: "bg-gray-100",
+        text: "text-gray-800",
+        border: "border-gray-200",
+        label: "Cancelado",
       },
       REGISTRADO: {
         bg: "bg-blue-100",
@@ -236,6 +234,8 @@ export default function MapasFaturamentoPage() {
     };
 
     const badge = badges[status as keyof typeof badges] || badges.PENDENTE;
+
+    // FORÇAR REBUILD: v2.0.1 - Status PENDENTE = Cancelado em Cinza
     return (
       <span
         className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${badge.bg} ${badge.text} ${badge.border}`}
@@ -248,15 +248,26 @@ export default function MapasFaturamentoPage() {
   const faturasFiltradas = faturas.filter((fatura) => {
     const matchStatus =
       filtroStatus === "TODOS" || fatura.status === filtroStatus;
-    const matchFilial =
-      filtroFilial === "TODAS" || fatura.filialNome === filtroFilial;
     const matchSearch =
       !searchTerm ||
       fatura.clienteNome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       fatura.numeroContrato.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return matchStatus && matchFilial && matchSearch;
+    return matchStatus && matchSearch;
   });
+
+  // Debug: verificar boletos com botão de PDF
+  useEffect(() => {
+    const boletosComPdf = faturasFiltradas.filter(
+      (f) => f.boleto?.status === "REGISTRADO"
+    );
+    console.log(
+      "🔍 Mapas-Faturamento: Boletos com botão PDF:",
+      boletosComPdf.length,
+      "de",
+      faturasFiltradas.length
+    );
+  }, [faturasFiltradas]);
 
   const stats = {
     total: faturas.length,
@@ -273,8 +284,6 @@ export default function MapasFaturamentoPage() {
       .filter((f) => f.status === "LIQUIDADO")
       .reduce((sum, f) => sum + f.valor, 0),
   };
-
-  const filiais = Array.from(new Set(faturas.map((f) => f.filialNome)));
 
   if (loading) {
     return (
@@ -302,14 +311,14 @@ export default function MapasFaturamentoPage() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <div className="p-3 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl shadow-lg">
-                  <FileText className="w-8 h-8 text-white" />
+                  <Map className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent">
                     Mapas de Faturamento
                   </h1>
                   <p className="text-gray-600">
-                    Visualize faturas pendentes e vencidas por cliente e filial
+                    Visualize faturas canceladas e vencidas por cliente
                   </p>
                 </div>
               </div>
@@ -331,10 +340,10 @@ export default function MapasFaturamentoPage() {
               color: "from-blue-500 to-blue-600",
             },
             {
-              label: "Pendentes",
+              label: "Cancelados",
               value: stats.pendentes,
               icon: Clock,
-              color: "from-yellow-500 to-amber-600",
+              color: "from-gray-500 to-gray-600",
             },
             {
               label: "Vencidas",
@@ -406,24 +415,10 @@ export default function MapasFaturamentoPage() {
               className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="TODOS">Todos os Status</option>
-              <option value="PENDENTE">Pendentes</option>
+              <option value="PENDENTE">Cancelados</option>
               <option value="REGISTRADO">Registrados</option>
               <option value="VENCIDO">Vencidas</option>
               <option value="LIQUIDADO">Liquidadas</option>
-            </select>
-
-            {/* Filtro Filial */}
-            <select
-              value={filtroFilial}
-              onChange={(e) => setFiltroFilial(e.target.value)}
-              className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="TODAS">Todas as Filiais</option>
-              {filiais.map((filial) => (
-                <option key={filial} value={filial}>
-                  {filial}
-                </option>
-              ))}
             </select>
           </div>
         </motion.div>
@@ -441,9 +436,6 @@ export default function MapasFaturamentoPage() {
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Cliente
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                    Filial
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Contrato
@@ -487,14 +479,6 @@ export default function MapasFaturamentoPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Building className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-700">
-                          {fatura.filialNome}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
                       <span className="font-mono text-sm text-gray-900">
                         {fatura.numeroContrato}
                       </span>
@@ -524,27 +508,25 @@ export default function MapasFaturamentoPage() {
                         >
                           <Eye className="w-4 h-4 text-blue-600" />
                         </button>
-                        {(fatura.boleto?.status === "REGISTRADO" ||
-                          fatura.boleto?.status === "LIQUIDADO") && (
-                          <button
-                            onClick={() =>
-                              fatura.boleto && handleDownloadPdf(fatura.boleto)
-                            }
-                            disabled={downloadingPdfId === fatura.boleto?.id}
-                            className="p-2 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={
-                              downloadingPdfId === fatura.boleto?.id
-                                ? "Baixando PDF..."
-                                : "Baixar PDF"
-                            }
-                          >
-                            {downloadingPdfId === fatura.boleto?.id ? (
-                              <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
-                            ) : (
-                              <Download className="w-4 h-4 text-red-600" />
-                            )}
-                          </button>
-                        )}
+                        {fatura.boleto &&
+                          fatura.boleto.status === "REGISTRADO" && (
+                            <button
+                              onClick={() => handleDownloadPdf(fatura.boleto!)}
+                              disabled={downloadingPdfId === fatura.boleto.id}
+                              className="p-2 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={
+                                downloadingPdfId === fatura.boleto.id
+                                  ? "Baixando PDF..."
+                                  : "Baixar PDF"
+                              }
+                            >
+                              {downloadingPdfId === fatura.boleto.id ? (
+                                <RefreshCw className="w-4 h-4 text-red-600 animate-spin" />
+                              ) : (
+                                <Download className="w-4 h-4 text-red-600" />
+                              )}
+                            </button>
+                          )}
                       </div>
                     </td>
                   </motion.tr>
@@ -919,6 +901,79 @@ export default function MapasFaturamentoPage() {
                   </div>
                 </div>
               </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Toast de Download em Progresso */}
+        <AnimatePresence>
+          {downloadingPdfId && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.3 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+              className="fixed bottom-8 right-8 z-50"
+            >
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-2xl shadow-2xl p-6 min-w-[320px]">
+                <div className="flex items-center gap-4">
+                  {/* Ícone Animado */}
+                  <div className="relative">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="w-12 h-12 rounded-full border-4 border-white/30 border-t-white flex items-center justify-center"
+                    >
+                      <Download className="w-6 h-6" />
+                    </motion.div>
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                      className="absolute inset-0 bg-white/20 rounded-full blur-md"
+                    />
+                  </div>
+
+                  {/* Texto */}
+                  <div className="flex-1">
+                    <p className="font-bold text-lg mb-1">Baixando PDF...</p>
+                    <p className="text-white/90 text-sm">
+                      Boleto #{downloadingPdfId}
+                    </p>
+                    <p className="text-white/70 text-xs mt-1 truncate max-w-[200px]">
+                      {downloadingPdfName}
+                    </p>
+                  </div>
+
+                  {/* Animação de Progresso */}
+                  <motion.div
+                    className="absolute bottom-0 left-0 h-1 bg-white/40 rounded-full"
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 3, ease: "easeInOut" }}
+                  />
+                </div>
+
+                {/* Barra de progresso indeterminada */}
+                <div className="mt-3 w-full bg-white/20 rounded-full h-1 overflow-hidden">
+                  <motion.div
+                    className="h-full bg-white rounded-full"
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    style={{ width: "50%" }}
+                  />
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

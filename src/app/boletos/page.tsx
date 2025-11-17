@@ -55,6 +55,7 @@ export default function BoletosPage() {
   const [selectedBoleto, setSelectedBoleto] = useState<Boleto | null>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [downloadingPdfId, setDownloadingPdfId] = useState<number | null>(null);
+  const [downloadingPdfName, setDownloadingPdfName] = useState<string>("");
 
   useEffect(() => {
     fetchBoletos();
@@ -103,12 +104,13 @@ export default function BoletosPage() {
   };
 
   const handleDownloadPdf = async (boleto: Boleto) => {
-    if (boleto.status !== "REGISTRADO" && boleto.status !== "LIQUIDADO") {
-      alert("Apenas boletos registrados ou liquidados podem ter o PDF gerado");
+    if (boleto.status !== "REGISTRADO") {
+      alert("⚠️ Apenas boletos REGISTRADOS (não pagos) podem ter o PDF baixado.\n\nBoletos pagos não estão mais disponíveis na API do Santander.");
       return;
     }
 
     setDownloadingPdfId(boleto.id);
+    setDownloadingPdfName(boleto.payerName);
 
     try {
       // Importar dinamicamente para evitar problemas de SSR
@@ -182,6 +184,7 @@ export default function BoletosPage() {
       alert(errorMessage);
     } finally {
       setDownloadingPdfId(null);
+      setDownloadingPdfName("");
     }
   };
 
@@ -366,10 +369,10 @@ export default function BoletosPage() {
                 color: "from-green-500 to-emerald-600",
               },
               {
-                label: "Pendentes",
+                label: "Cancelados",
                 value: stats.pendentes,
                 icon: Clock,
-                color: "from-orange-500 to-amber-600",
+                color: "from-gray-500 to-gray-600",
               },
               {
                 label: "Registrados",
@@ -536,11 +539,11 @@ export default function BoletosPage() {
                         className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         <option value="">Todos</option>
-                        <option value="PENDENTE">Pendente</option>
+                        <option value="PENDENTE">Cancelado</option>
                         <option value="REGISTRADO">Registrado</option>
                         <option value="LIQUIDADO">Liquidado</option>
                         <option value="VENCIDO">Vencido</option>
-                        <option value="CANCELADO">Cancelado</option>
+                        <option value="CANCELADO">Cancelado (Banco)</option>
                       </select>
                     </div>
 
@@ -666,8 +669,7 @@ export default function BoletosPage() {
                             <Eye className="w-4 h-4" />
                             Detalhes
                           </button>
-                          {(boleto.status === "REGISTRADO" ||
-                            boleto.status === "LIQUIDADO") && (
+                          {boleto.status === "REGISTRADO" && (
                             <>
                               <button
                                 onClick={() => handleDownloadPdf(boleto)}
@@ -796,8 +798,7 @@ export default function BoletosPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {(boleto.status === "REGISTRADO" ||
-                              boleto.status === "LIQUIDADO") && (
+                            {boleto.status === "REGISTRADO" && (
                               <>
                                 <button
                                   onClick={() => handleDownloadPdf(boleto)}
@@ -944,8 +945,7 @@ export default function BoletosPage() {
                     </div>
 
                     {/* Informações do Santander */}
-                    {(selectedBoleto.status === "REGISTRADO" ||
-                      selectedBoleto.status === "LIQUIDADO") && (
+                    {selectedBoleto.status === "REGISTRADO" && (
                       <div className="bg-gradient-to-br from-red-50 via-orange-50 to-red-50 rounded-2xl p-6 border-2 border-red-200 shadow-lg">
                         <div className="flex items-center gap-3 mb-6">
                           <div className="p-3 bg-gradient-to-br from-red-600 to-red-700 rounded-xl shadow-md">
@@ -1255,8 +1255,7 @@ export default function BoletosPage() {
                   {/* Footer com Ações */}
                   <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
                     <div className="flex items-center gap-3 flex-wrap">
-                      {(selectedBoleto.status === "REGISTRADO" ||
-                        selectedBoleto.status === "LIQUIDADO") && (
+                      {selectedBoleto.status === "REGISTRADO" && (
                         <>
                           <button
                             onClick={() => {
@@ -1316,7 +1315,7 @@ export default function BoletosPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-xl p-4 shadow-lg max-w-md"
+              className="fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-xl p-4 shadow-lg max-w-md z-40"
             >
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -1335,6 +1334,82 @@ export default function BoletosPage() {
               </div>
             </motion.div>
           )}
+
+          {/* Toast de Download em Progresso */}
+          <AnimatePresence>
+            {downloadingPdfId && (
+              <motion.div
+                initial={{ opacity: 0, y: 50, scale: 0.3 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
+                className="fixed bottom-8 right-8 z-50"
+              >
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl shadow-2xl p-6 min-w-[320px]">
+                  <div className="flex items-center gap-4">
+                    {/* Ícone Animado */}
+                    <div className="relative">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="w-12 h-12 rounded-full border-4 border-white/30 border-t-white flex items-center justify-center"
+                      >
+                        <Download className="w-6 h-6" />
+                      </motion.div>
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.2, 1],
+                          opacity: [0.5, 0.8, 0.5],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="absolute inset-0 bg-white/20 rounded-full blur-md"
+                      />
+                    </div>
+
+                    {/* Texto */}
+                    <div className="flex-1">
+                      <p className="font-bold text-lg mb-1">Baixando PDF...</p>
+                      <p className="text-white/90 text-sm">
+                        Boleto #{downloadingPdfId}
+                      </p>
+                      <p className="text-white/70 text-xs mt-1 truncate max-w-[200px]">
+                        {downloadingPdfName}
+                      </p>
+                    </div>
+
+                    {/* Animação de Progresso */}
+                    <motion.div
+                      className="absolute bottom-0 left-0 h-1 bg-white/40 rounded-full"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 3, ease: "easeInOut" }}
+                    />
+                  </div>
+
+                  {/* Barra de progresso indeterminada */}
+                  <div className="mt-3 w-full bg-white/20 rounded-full h-1 overflow-hidden">
+                    <motion.div
+                      className="h-full bg-white rounded-full"
+                      animate={{ x: ["-100%", "100%"] }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                      style={{ width: "50%" }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </MainLayout>

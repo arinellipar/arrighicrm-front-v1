@@ -587,7 +587,7 @@ export default function ModernDashboard() {
               {
                 title: "Boletos Liquidados",
                 value: estatisticasLoading ? 0 : stats.valorBoletosLiquidados,
-                change: `Pendentes: R$ ${stats.valorBoletosPendentes.toLocaleString()}`,
+                change: `Cancelados: R$ ${stats.valorBoletosPendentes.toLocaleString()}`,
                 changeType: "positive",
                 icon: CreditCard,
                 color: "from-green-500 to-lime-500",
