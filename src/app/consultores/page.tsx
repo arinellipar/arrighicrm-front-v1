@@ -149,21 +149,27 @@ export default function ConsultoresPage() {
     null
   );
 
-  // Filtrar consultores
-  const filteredConsultores = consultores.filter((consultor: Consultor) => {
-    const matchesSearch =
-      consultor.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      consultor.oab?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      consultor.email?.toLowerCase().includes(searchTerm.toLowerCase());
+  // Filtrar e ordenar consultores
+  const filteredConsultores = consultores
+    .filter((consultor: Consultor) => {
+      const matchesSearch =
+        consultor.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        consultor.oab?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        consultor.email?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesEspecialidade =
-      !filterEspecialidade ||
-      consultor.especialidades?.includes(filterEspecialidade);
+      const matchesEspecialidade =
+        !filterEspecialidade ||
+        consultor.especialidades?.includes(filterEspecialidade);
 
-    const matchesStatus = !filterStatus || consultor.status === filterStatus;
+      const matchesStatus = !filterStatus || consultor.status === filterStatus;
 
-    return matchesSearch && matchesEspecialidade && matchesStatus;
-  });
+      return matchesSearch && matchesEspecialidade && matchesStatus;
+    })
+    .sort((a, b) => {
+      const nomeA = a.nome?.toLowerCase() || "";
+      const nomeB = b.nome?.toLowerCase() || "";
+      return nomeA.localeCompare(nomeB, "pt-BR");
+    });
 
   const handleCreateOrUpdate = async (data: any) => {
     if (editingConsultor) {

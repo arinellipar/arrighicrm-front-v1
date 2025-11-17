@@ -120,6 +120,13 @@ const menuItems: MenuGroup[] = [
         requiredModule: "Boleto",
         requiredAction: "Visualizar",
       },
+      {
+        label: "Mapas de Faturamento",
+        href: "/dashboard/financeiro/mapas-faturamento",
+        icon: <FileText className="w-4 h-4" />,
+        requiredModule: "Boleto",
+        requiredAction: "Visualizar",
+      },
     ],
   },
 ];

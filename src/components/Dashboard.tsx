@@ -534,10 +534,8 @@ export default function ModernDashboard() {
                 prefix: "R$ ",
                 loading: estatisticasLoading,
               },
-              // Sessões Ativas - apenas para usuários com grupo de acesso
-              ...(permissoes?.grupo &&
-              permissoes.grupo !== "Usuario" &&
-              permissoes.grupo !== "Usuário"
+              // Sessões Ativas - apenas para administradores
+              ...(permissoes?.grupo === "Administrador"
                 ? [
                     {
                       title: "Sessões Ativas",

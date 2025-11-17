@@ -11,8 +11,10 @@ import {
   Search,
   Filter,
   Users as UsersIcon,
+  AlertTriangle,
 } from "lucide-react";
 import { SessaoAtiva } from "@/hooks/useSessoesAtivas";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SessoesAtivasModalProps {
   isOpen: boolean;
@@ -29,6 +31,8 @@ export function SessoesAtivasModal({
   loading,
   countOnline = 0,
 }: SessoesAtivasModalProps) {
+  const { permissoes } = useAuth();
+  const isAdmin = permissoes?.grupo === "Administrador";
   const [filtroStatus, setFiltroStatus] = useState<
     "todos" | "online" | "offline"
   >("todos");
@@ -142,6 +146,11 @@ export function SessoesAtivasModal({
   }, [sessoes, filtroStatus, searchTerm]);
 
   const countOffline = sessoes.length - countOnline;
+
+  // Se não for administrador, não mostrar o modal
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

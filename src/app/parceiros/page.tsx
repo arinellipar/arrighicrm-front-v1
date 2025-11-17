@@ -120,30 +120,36 @@ export default function ParceirosPage() {
     null
   );
 
-  // Filtrar parceiros
-  const filteredParceiros = parceiros.filter((parceiro: Parceiro) => {
-    const matchesSearch =
-      parceiro.pessoaFisica?.nome
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      parceiro.oab?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      parceiro.pessoaFisica?.emailEmpresarial
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      parceiro.pessoaFisica?.emailPessoal
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase());
+  // Filtrar e ordenar parceiros
+  const filteredParceiros = parceiros
+    .filter((parceiro: Parceiro) => {
+      const matchesSearch =
+        parceiro.pessoaFisica?.nome
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        parceiro.oab?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        parceiro.pessoaFisica?.emailEmpresarial
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        parceiro.pessoaFisica?.emailPessoal
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase());
 
-    const matchesFilial =
-      !filterFilial || parceiro.filial?.nome?.includes(filterFilial);
+      const matchesFilial =
+        !filterFilial || parceiro.filial?.nome?.includes(filterFilial);
 
-    const matchesStatus =
-      !filterStatus ||
-      (filterStatus === "ativo" && parceiro.ativo) ||
-      (filterStatus === "inativo" && !parceiro.ativo);
+      const matchesStatus =
+        !filterStatus ||
+        (filterStatus === "ativo" && parceiro.ativo) ||
+        (filterStatus === "inativo" && !parceiro.ativo);
 
-    return matchesSearch && matchesFilial && matchesStatus;
-  });
+      return matchesSearch && matchesFilial && matchesStatus;
+    })
+    .sort((a, b) => {
+      const nomeA = a.pessoaFisica?.nome?.toLowerCase() || "";
+      const nomeB = b.pessoaFisica?.nome?.toLowerCase() || "";
+      return nomeA.localeCompare(nomeB, "pt-BR");
+    });
 
   const handleCreateOrUpdate = async (data: any) => {
     try {

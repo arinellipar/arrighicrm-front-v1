@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiClient } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface SessaoAtiva {
   id: number;
@@ -17,6 +18,7 @@ export interface SessaoAtiva {
 }
 
 export function useSessoesAtivas(incluirInativos: boolean = false) {
+  const { permissoes } = useAuth();
   const [sessoes, setSessoes] = useState<SessaoAtiva[]>([]);
   const [count, setCount] = useState(0);
   const [countOnline, setCountOnline] = useState(0);
@@ -24,7 +26,20 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
   const [error, setError] = useState<string | null>(null);
   const [countError, setCountError] = useState(false);
 
+  // Verificar se o usuário é administrador
+  const isAdmin = permissoes?.grupo === "Administrador";
+
   const fetchSessoes = async () => {
+    // Apenas administradores podem buscar sessões
+    if (!isAdmin) {
+      setSessoes([]);
+      setCount(0);
+      setCountOnline(0);
+      setLoading(false);
+      setError("Apenas administradores podem visualizar sessões ativas");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -64,6 +79,11 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
   };
 
   const fetchCount = async () => {
+    // Apenas administradores podem buscar contagem
+    if (!isAdmin) {
+      return;
+    }
+
     // Se já houve erro de contagem, não tentar novamente
     if (countError) {
       return;
@@ -84,6 +104,12 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
   };
 
   useEffect(() => {
+    // Apenas buscar se for administrador
+    if (!isAdmin) {
+      setLoading(false);
+      return;
+    }
+
     fetchSessoes();
 
     // Atualizar a cada 30 segundos
@@ -95,7 +121,7 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [countError, incluirInativos]);
+  }, [countError, incluirInativos, isAdmin]);
 
   return {
     sessoes,

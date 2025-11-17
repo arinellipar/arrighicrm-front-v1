@@ -2,13 +2,28 @@
 
 import React from "react";
 import { useSessoesAtivas } from "@/hooks/useSessoesAtivas";
-import { Users, AlertTriangle, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Users, AlertTriangle, Loader2, Shield } from "lucide-react";
 
 /**
  * Componente para mostrar o status das sessões ativas
+ * Apenas administradores podem visualizar
  */
 export const SessoesAtivasStatus: React.FC = () => {
+  const { permissoes } = useAuth();
   const { sessoes, count, loading, error, countError } = useSessoesAtivas();
+
+  // Verificar se é administrador
+  const isAdmin = permissoes?.grupo === "Administrador";
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center text-gray-400">
+        <Shield className="h-4 w-4 mr-2" />
+        <span className="text-sm">Acesso restrito</span>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -45,9 +60,28 @@ export const SessoesAtivasStatus: React.FC = () => {
 
 /**
  * Componente para mostrar lista de sessões ativas
+ * Apenas administradores podem visualizar
  */
 export const SessoesAtivasList: React.FC = () => {
+  const { permissoes } = useAuth();
   const { sessoes, loading, error, countError } = useSessoesAtivas();
+
+  // Verificar se é administrador
+  const isAdmin = permissoes?.grupo === "Administrador";
+
+  if (!isAdmin) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div className="flex items-center">
+          <Shield className="h-5 w-5 text-yellow-600 mr-2" />
+          <h3 className="text-yellow-800 font-medium">Acesso Restrito</h3>
+        </div>
+        <p className="text-yellow-700 text-sm mt-2">
+          Apenas administradores podem visualizar sessões ativas.
+        </p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
