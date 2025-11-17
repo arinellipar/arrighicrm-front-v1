@@ -93,6 +93,7 @@ export interface DescontoValorDTO {
 export type BoletoStatus =
   | "PENDENTE"
   | "REGISTRADO"
+  | "ATIVO"
   | "LIQUIDADO"
   | "VENCIDO"
   | "CANCELADO"

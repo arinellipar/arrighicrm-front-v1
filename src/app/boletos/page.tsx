@@ -326,7 +326,9 @@ export default function BoletosPage() {
                 </span>
               </motion.button>
 
-              <SincronizarTodosButton onSincronizacaoConcluida={() => fetchBoletos()} />
+              <SincronizarTodosButton
+                onSincronizacaoConcluida={() => fetchBoletos()}
+              />
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -656,6 +658,7 @@ export default function BoletosPage() {
                             Detalhes
                           </button>
                           {(boleto.status === "REGISTRADO" ||
+                            boleto.status === "ATIVO" ||
                             boleto.status === "VENCIDO") && (
                             <>
                               <button

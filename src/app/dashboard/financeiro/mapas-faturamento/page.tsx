@@ -510,6 +510,7 @@ export default function MapasFaturamentoPage() {
                         </button>
                         {fatura.boleto &&
                           (fatura.boleto.status === "REGISTRADO" ||
+                            fatura.boleto.status === "ATIVO" ||
                             fatura.boleto.status === "VENCIDO") && (
                             <button
                               onClick={() => handleDownloadPdf(fatura.boleto!)}
