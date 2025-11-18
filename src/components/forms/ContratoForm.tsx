@@ -397,25 +397,26 @@ export default function ContratoForm({
       // Se há um cliente selecionado, verificar se ele já tem consultor ativo
       if (formData.clienteId && formData.clienteId !== 0) {
         const contratosDoCliente = contratos.filter(
-          (c) => c.clienteId === formData.clienteId && c.ativo
+          (c) => c && c.clienteId === formData.clienteId && c.ativo
         );
         const consultorAtivoId = contratosDoCliente.find((contrato) => {
+          if (!contrato || !contrato.consultorId) return false;
           const consultorDoContrato = consultores.find(
-            (c) => c.id === contrato.consultorId
+            (c) => c && c.id && Number(c.id) === Number(contrato.consultorId)
           );
           return consultorDoContrato && consultorDoContrato.ativo;
         })?.consultorId;
 
         if (consultorAtivoId) {
-          setFormData((prev) => ({ ...prev, consultorId: consultorAtivoId }));
+          setFormData((prev) => ({ ...prev, consultorId: Number(consultorAtivoId) }));
           return;
         }
       }
 
       // Senão, pré-selecionar o primeiro consultor ativo disponível
-      const consultorAtivo = consultores.find((c) => c.ativo);
-      if (consultorAtivo) {
-        setFormData((prev) => ({ ...prev, consultorId: consultorAtivo.id }));
+      const consultorAtivo = consultores.find((c) => c && c.ativo);
+      if (consultorAtivo && consultorAtivo.id) {
+        setFormData((prev) => ({ ...prev, consultorId: Number(consultorAtivo.id) }));
       }
     }
   }, [
@@ -473,60 +474,62 @@ export default function ContratoForm({
 
     if (!formData.consultorId || formData.consultorId === 0) {
       newErrors.consultorId = "Consultor é obrigatório";
-    } else if (formData.clienteId && formData.clienteId !== 0) {
-      // Verificar se o cliente já tem um consultor ativo (para novos contratos e edição)
-      {
-        const consultorSelecionado = consultores.find(
-          (c) => c && c.id && c.id === formData.consultorId
+    } else {
+      // Converter ambos os IDs para números para garantir comparação correta
+      const consultorIdNumero = Number(formData.consultorId);
+
+      // Verificar se o consultor selecionado existe na lista
+      const consultorSelecionado = consultores.find(
+        (c) => c && c.id && Number(c.id) === consultorIdNumero
+      );
+
+      // Verificar se o consultor selecionado existe e está ativo
+      if (!consultorSelecionado) {
+        newErrors.consultorId = "Consultor selecionado não encontrado. Por favor, selecione outro consultor.";
+      } else if (!consultorSelecionado.ativo) {
+        newErrors.consultorId =
+          "O consultor selecionado está inativo. Selecione um consultor ativo.";
+      } else if (formData.clienteId && formData.clienteId !== 0) {
+        // Verificar se o cliente já tem um consultor ativo (para novos contratos e edição)
+        // Para edição: filtrar contratos excluindo o contrato atual sendo editado
+        // Validar se contratos é um array válido
+        const contratosValidos = contratos && Array.isArray(contratos) ? contratos : [];
+        const contratosDoCliente = contratosValidos.filter(
+          (c) =>
+            c &&
+            c.clienteId === formData.clienteId &&
+            c.ativo &&
+            (contrato ? c.id !== contrato.id : true) // Excluir contrato atual se editando
         );
 
-        // Verificar se o consultor selecionado existe e está ativo
-        if (!consultorSelecionado) {
-          newErrors.consultorId = "Consultor selecionado não encontrado. Por favor, selecione outro consultor.";
-        } else if (!consultorSelecionado.ativo) {
-          newErrors.consultorId =
-            "O consultor selecionado está inativo. Selecione um consultor ativo.";
-        } else {
-          // Para edição: filtrar contratos excluindo o contrato atual sendo editado
-          // Validar se contratos é um array válido
-          const contratosValidos = contratos && Array.isArray(contratos) ? contratos : [];
-          const contratosDoCliente = contratosValidos.filter(
-            (c) =>
-              c &&
-              c.clienteId === formData.clienteId &&
-              c.ativo &&
-              (contrato ? c.id !== contrato.id : true) // Excluir contrato atual se editando
-          );
+        // Verificar se há outros contratos ativos com consultores ativos
+        const contratoComConsultorAtivo = contratosDoCliente.find(
+          (contratoItem) => {
+            if (!contratoItem || !contratoItem.consultorId) return false;
+            const consultorDoContrato = consultores.find(
+              (c) => c && c.id && Number(c.id) === Number(contratoItem.consultorId)
+            );
+            return consultorDoContrato && consultorDoContrato.ativo;
+          }
+        );
 
-          // Verificar se há outros contratos ativos com consultores ativos
-          const contratoComConsultorAtivo = contratosDoCliente.find(
-            (contratoItem) => {
-              if (!contratoItem || !contratoItem.consultorId) return false;
-              const consultorDoContrato = consultores.find(
-                (c) => c && c.id && c.id === contratoItem.consultorId
-              );
-              return consultorDoContrato && consultorDoContrato.ativo;
-            }
-          );
+        if (contratoComConsultorAtivo) {
+          const consultorAtualId = contratoComConsultorAtivo.consultorId;
 
-          if (contratoComConsultorAtivo) {
-            const consultorAtualId = contratoComConsultorAtivo.consultorId;
+          // Garantir comparação correta (convertendo ambos para números)
+          const consultorAtualNumero = Number(consultorAtualId);
+          const consultorSelecionadoNumero = Number(formData.consultorId);
 
-            // Garantir comparação correta (convertendo ambos para números)
-            const consultorAtualNumero = Number(consultorAtualId);
-            const consultorSelecionadoNumero = Number(formData.consultorId);
-
-            if (consultorAtualNumero !== consultorSelecionadoNumero) {
-              const consultorAtual = consultores.find(
-                (c) => c.id === consultorAtualId
-              );
-              const tipoOperacao = contrato ? "editar" : "criar";
-              newErrors.consultorId = `Este cliente já possui um consultor ativo: ${
-                consultorAtual?.pessoaFisica?.nome ||
-                consultorAtual?.nome ||
-                "Consultor"
-              }. Para ${tipoOperacao} contrato com consultor diferente, o consultor atual deve estar inativo.`;
-            }
+          if (consultorAtualNumero !== consultorSelecionadoNumero) {
+            const consultorAtual = consultores.find(
+              (c) => c && c.id && Number(c.id) === consultorAtualNumero
+            );
+            const tipoOperacao = contrato ? "editar" : "criar";
+            newErrors.consultorId = `Este cliente já possui um consultor ativo: ${
+              consultorAtual?.pessoaFisica?.nome ||
+              consultorAtual?.nome ||
+              "Consultor"
+            }. Para ${tipoOperacao} contrato com consultor diferente, o consultor atual deve estar inativo.`;
           }
         }
       }
@@ -758,6 +761,12 @@ export default function ContratoForm({
       setFormData((prev) => ({
         ...prev,
         [name]: value === "" ? 0 : parseFloat(value),
+      }));
+    } else if (name === "consultorId" || name === "clienteId" || name === "parceiroId") {
+      // Converter IDs de select para número
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === "" || value === "0" ? 0 : Number(value),
       }));
     } else {
       setFormData((prev) => ({
