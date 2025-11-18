@@ -120,7 +120,7 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
 
     fetchSessoes();
 
-    // Atualizar a cada 10 segundos para tempo real (página atual)
+    // Atualizar a cada 30 segundos
     const interval = setInterval(() => {
       if (isAdmin) {
         fetchSessoes();
@@ -128,7 +128,7 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
           fetchCount();
         }
       }
-    }, 10000); // 10 segundos para atualização mais frequente
+    }, 30000); // 30 segundos
 
     return () => clearInterval(interval);
   }, [countError, incluirInativos, isAdmin, permissoes?.grupo]);

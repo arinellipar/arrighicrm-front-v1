@@ -428,7 +428,7 @@ export function SessoesAtivasModal({
                 </span>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Atualização automática a cada 10 segundos (tempo real)</span>
+                  <span>Atualização automática a cada 30 segundos</span>
                 </div>
               </div>
             </div>
