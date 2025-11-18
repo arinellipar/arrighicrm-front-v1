@@ -38,9 +38,11 @@ export function BoletoCard({
   const isVencido =
     new Date(boleto.dueDate) < new Date() &&
     boleto.status !== "LIQUIDADO" &&
+    boleto.status !== "BAIXADO" &&
     boleto.status !== "CANCELADO";
   const canSync = boleto.status === "REGISTRADO";
-  const canDelete = boleto.status !== "LIQUIDADO";
+  const canDelete =
+    boleto.status !== "LIQUIDADO" && boleto.status !== "BAIXADO";
 
   return (
     <div

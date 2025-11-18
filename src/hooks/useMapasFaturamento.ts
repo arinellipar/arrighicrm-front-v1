@@ -57,13 +57,17 @@ export function useMapasFaturamento() {
     const cliente = clientesMap.get(clienteDoc)!;
 
     // Verificar se está vencido
-    // Não considerar vencidos os boletos que já foram pagos (LIQUIDADO) ou cancelados (CANCELADO)
+    // Não considerar vencidos os boletos que já foram pagos ou cancelados
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const vencimento = new Date(boleto.dueDate);
     vencimento.setHours(0, 0, 0, 0);
-    // Se o boleto já foi pago ou cancelado, não está vencido
-    const vencido = boleto.status !== "LIQUIDADO" && boleto.status !== "CANCELADO" && hoje > vencimento;
+    // Se o boleto já foi pago (LIQUIDADO ou BAIXADO) ou cancelado, não está vencido
+    const vencido =
+      boleto.status !== "LIQUIDADO" &&
+      boleto.status !== "BAIXADO" &&
+      boleto.status !== "CANCELADO" &&
+      hoje > vencimento;
 
     // Criar resumo do boleto
     const boletoResumido: BoletoResumido = {
@@ -79,7 +83,8 @@ export function useMapasFaturamento() {
     };
 
     // Classificar boleto
-    if (boleto.status === "LIQUIDADO") {
+    // LIQUIDADO = Pago, BAIXADO = Pago (PIX)
+    if (boleto.status === "LIQUIDADO" || boleto.status === "BAIXADO") {
       cliente.boletosPagos.push(boletoResumido);
       cliente.totalPagos++;
       cliente.valorTotalPago += boleto.nominalValue;

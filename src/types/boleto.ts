@@ -95,6 +95,7 @@ export type BoletoStatus =
   | "REGISTRADO"
   | "ATIVO"
   | "LIQUIDADO"
+  | "BAIXADO"
   | "VENCIDO"
   | "CANCELADO"
   | "ERRO";
@@ -144,6 +145,11 @@ export const BoletoStatusOptions = [
   {
     value: "LIQUIDADO" as BoletoStatus,
     label: "Pago",
+    color: "bg-green-100 text-green-800 border-green-200",
+  },
+  {
+    value: "BAIXADO" as BoletoStatus,
+    label: "Pago (PIX)",
     color: "bg-green-100 text-green-800 border-green-200",
   },
   {

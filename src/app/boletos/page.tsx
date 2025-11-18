@@ -80,7 +80,8 @@ export default function BoletosPage() {
   };
 
   const handleDelete = async (boleto: Boleto) => {
-    if (boleto.status === "LIQUIDADO") return;
+    // Não permitir deletar boletos pagos (LIQUIDADO ou BAIXADO)
+    if (boleto.status === "LIQUIDADO" || boleto.status === "BAIXADO") return;
 
     if (!confirm(`Deseja realmente cancelar o boleto #${boleto.id}?`)) {
       return;
@@ -254,10 +255,15 @@ export default function BoletosPage() {
   };
 
   // Verificar se boleto está vencido
-  // Não considerar vencidos os boletos que já foram pagos (LIQUIDADO) ou cancelados (CANCELADO)
+  // Não considerar vencidos os boletos que já foram pagos ou cancelados
   const isVencido = (boleto: Boleto): boolean => {
-    // Se o boleto já foi pago ou cancelado, não está vencido
-    if (boleto.status === "LIQUIDADO" || boleto.status === "CANCELADO") {
+    // Se o boleto já foi pago (LIQUIDADO ou BAIXADO) ou cancelado, não está vencido
+    // LIQUIDADO = Pago, BAIXADO = Pago (PIX), CANCELADO = Cancelado
+    if (
+      boleto.status === "LIQUIDADO" ||
+      boleto.status === "BAIXADO" ||
+      boleto.status === "CANCELADO"
+    ) {
       return false;
     }
 
@@ -274,9 +280,12 @@ export default function BoletosPage() {
     totalValue: boletos.reduce((sum, b) => sum + b.nominalValue, 0),
     pendentes: boletos.filter((b) => b.status === "PENDENTE").length,
     registrados: boletos.filter((b) => b.status === "REGISTRADO").length,
-    liquidados: boletos.filter((b) => b.status === "LIQUIDADO").length,
+    // Liquidados: inclui boletos pagos (LIQUIDADO) e pagos com PIX (BAIXADO)
+    liquidados: boletos.filter(
+      (b) => b.status === "LIQUIDADO" || b.status === "BAIXADO"
+    ).length,
     // Vencidos: apenas boletos não pagos e não cancelados que estão vencidos
-    // Não contar boletos LIQUIDADO (Pagos/Pagos com Pix) ou CANCELADO como vencidos
+    // Não contar boletos LIQUIDADO (Pago), BAIXADO (Pago com PIX) ou CANCELADO como vencidos
     vencidos: boletos.filter((b) => isVencido(b)).length,
   };
 
@@ -287,6 +296,8 @@ export default function BoletosPage() {
       case "REGISTRADO":
         return <FileText className="w-4 h-4" />;
       case "LIQUIDADO":
+        return <CheckCircle className="w-4 h-4" />;
+      case "BAIXADO":
         return <CheckCircle className="w-4 h-4" />;
       case "VENCIDO":
         return <AlertTriangle className="w-4 h-4" />;
@@ -630,10 +641,10 @@ export default function BoletosPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ delay: index * 0.02 }}
-                    className="relative group"
+                    className="relative group h-full"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-500 rounded-2xl" />
-                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col">
                       {/* Header do Card */}
                       <div className="p-5 border-b border-gray-100">
                         <div className="flex items-start justify-between mb-3">
@@ -663,7 +674,7 @@ export default function BoletosPage() {
                       </div>
 
                       {/* Corpo do Card */}
-                      <div className="p-5 space-y-4">
+                      <div className="p-5 space-y-4 flex-1">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-gray-500">Valor</p>
@@ -696,18 +707,17 @@ export default function BoletosPage() {
                           </div>
                         )}
 
-                        {boleto.nsuCode && (
-                          <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-xs text-gray-500 mb-1">NSU</p>
-                            <p className="font-mono text-sm text-gray-700">
-                              {boleto.nsuCode}
-                            </p>
-                          </div>
-                        )}
+                        {/* NSU - sempre mostra com altura fixa */}
+                        <div className="p-3 bg-gray-50 rounded-lg min-h-[60px]">
+                          <p className="text-xs text-gray-500 mb-1">NSU</p>
+                          <p className="font-mono text-sm text-gray-700">
+                            {boleto.nsuCode || "N/A"}
+                          </p>
+                        </div>
                       </div>
 
                       {/* Ações */}
-                      <div className="p-4 bg-gray-50 border-t border-gray-100">
+                      <div className="p-4 bg-gray-50 border-t border-gray-100 mt-auto">
                         <div className="flex items-center gap-2 flex-wrap">
                           <button
                             onClick={() => handleViewDetails(boleto)}
@@ -751,16 +761,17 @@ export default function BoletosPage() {
                               </button>
                             </>
                           )}
-                          {boleto.status !== "LIQUIDADO" && (
-                            <button
-                              onClick={() => handleDelete(boleto)}
-                              disabled={deletingId === boleto.id}
-                              className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors disabled:opacity-50"
-                              title="Cancelar boleto"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
+                          {boleto.status !== "LIQUIDADO" &&
+                            boleto.status !== "BAIXADO" && (
+                              <button
+                                onClick={() => handleDelete(boleto)}
+                                disabled={deletingId === boleto.id}
+                                className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors disabled:opacity-50"
+                                title="Cancelar boleto"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -898,16 +909,17 @@ export default function BoletosPage() {
                                 </button>
                               </>
                             )}
-                            {boleto.status !== "LIQUIDADO" && (
-                              <button
-                                onClick={() => handleDelete(boleto)}
-                                disabled={deletingId === boleto.id}
-                                className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors disabled:opacity-50"
-                                title="Cancelar boleto"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
+                            {boleto.status !== "LIQUIDADO" &&
+                              boleto.status !== "BAIXADO" && (
+                                <button
+                                  onClick={() => handleDelete(boleto)}
+                                  disabled={deletingId === boleto.id}
+                                  className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors disabled:opacity-50"
+                                  title="Cancelar boleto"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
                           </div>
                         </td>
                       </tr>
