@@ -254,12 +254,18 @@ export default function BoletosPage() {
   };
 
   // Verificar se boleto está vencido
+  // Não considerar vencidos os boletos que já foram pagos (LIQUIDADO)
   const isVencido = (boleto: Boleto): boolean => {
+    // Se o boleto já foi pago, não está vencido
+    if (boleto.status === "LIQUIDADO") {
+      return false;
+    }
+
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
     const vencimento = new Date(boleto.dueDate);
     vencimento.setHours(0, 0, 0, 0);
-    return vencimento < hoje && boleto.status !== "LIQUIDADO";
+    return vencimento < hoje;
   };
 
   // Estatísticas rápidas
@@ -269,7 +275,9 @@ export default function BoletosPage() {
     pendentes: boletos.filter((b) => b.status === "PENDENTE").length,
     registrados: boletos.filter((b) => b.status === "REGISTRADO").length,
     liquidados: boletos.filter((b) => b.status === "LIQUIDADO").length,
-    vencidos: boletos.filter((b) => b.status === "VENCIDO").length,
+    // Vencidos: apenas boletos não pagos que estão vencidos
+    // Não contar boletos LIQUIDADO (Pagos/Pagos com Pix) como vencidos
+    vencidos: boletos.filter((b) => isVencido(b)).length,
   };
 
   const StatusIcon = ({ status }: { status: BoletoStatus }) => {

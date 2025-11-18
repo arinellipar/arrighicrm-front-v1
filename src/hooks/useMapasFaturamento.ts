@@ -57,9 +57,13 @@ export function useMapasFaturamento() {
     const cliente = clientesMap.get(clienteDoc)!;
 
     // Verificar se está vencido
+    // Não considerar vencidos os boletos que já foram pagos (LIQUIDADO)
     const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
     const vencimento = new Date(boleto.dueDate);
-    const vencido = hoje > vencimento;
+    vencimento.setHours(0, 0, 0, 0);
+    // Se o boleto já foi pago, não está vencido
+    const vencido = boleto.status !== "LIQUIDADO" && hoje > vencimento;
 
     // Criar resumo do boleto
     const boletoResumido: BoletoResumido = {
