@@ -454,6 +454,19 @@ export default function ContratoForm({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
+    // Validar se arrays são válidos
+    if (!clientes || !Array.isArray(clientes) || clientes.length === 0) {
+      newErrors.general = "Nenhum cliente disponível. Por favor, cadastre um cliente primeiro.";
+      setErrors(newErrors);
+      return false;
+    }
+
+    if (!consultores || !Array.isArray(consultores) || consultores.length === 0) {
+      newErrors.general = "Nenhum consultor disponível. Por favor, cadastre um consultor primeiro.";
+      setErrors(newErrors);
+      return false;
+    }
+
     if (!formData.clienteId || formData.clienteId === 0) {
       newErrors.clienteId = "Cliente é obrigatório";
     }
@@ -464,17 +477,22 @@ export default function ContratoForm({
       // Verificar se o cliente já tem um consultor ativo (para novos contratos e edição)
       {
         const consultorSelecionado = consultores.find(
-          (c) => c.id === formData.consultorId
+          (c) => c && c.id && c.id === formData.consultorId
         );
 
-        // Verificar se o consultor selecionado está ativo
-        if (consultorSelecionado && !consultorSelecionado.ativo) {
+        // Verificar se o consultor selecionado existe e está ativo
+        if (!consultorSelecionado) {
+          newErrors.consultorId = "Consultor selecionado não encontrado. Por favor, selecione outro consultor.";
+        } else if (!consultorSelecionado.ativo) {
           newErrors.consultorId =
             "O consultor selecionado está inativo. Selecione um consultor ativo.";
         } else {
           // Para edição: filtrar contratos excluindo o contrato atual sendo editado
-          const contratosDoCliente = contratos.filter(
+          // Validar se contratos é um array válido
+          const contratosValidos = contratos && Array.isArray(contratos) ? contratos : [];
+          const contratosDoCliente = contratosValidos.filter(
             (c) =>
+              c &&
               c.clienteId === formData.clienteId &&
               c.ativo &&
               (contrato ? c.id !== contrato.id : true) // Excluir contrato atual se editando
@@ -483,8 +501,9 @@ export default function ContratoForm({
           // Verificar se há outros contratos ativos com consultores ativos
           const contratoComConsultorAtivo = contratosDoCliente.find(
             (contratoItem) => {
+              if (!contratoItem || !contratoItem.consultorId) return false;
               const consultorDoContrato = consultores.find(
-                (c) => c.id === contratoItem.consultorId
+                (c) => c && c.id && c.id === contratoItem.consultorId
               );
               return consultorDoContrato && consultorDoContrato.ativo;
             }
@@ -539,17 +558,22 @@ export default function ContratoForm({
       newErrors.observacoes = `Observações muito longas (${formData.observacoes.length}/1000 caracteres)`;
     }
 
-    const parsedDevido = parseCurrencyInput(valorDevidoText || "0");
+    const parsedDevido = parseCurrencyInput(valorDevidoText || "0", true);
     const parsedNegociado = valorNegociadoText
-      ? parseCurrencyInput(valorNegociadoText)
+      ? parseCurrencyInput(valorNegociadoText, true)
       : undefined;
 
-    if (!parsedDevido || parsedDevido <= 0) {
+    // Validar se o parse foi bem-sucedido
+    if (isNaN(parsedDevido) || parsedDevido <= 0) {
       newErrors.valorDevido = "Valor devido deve ser maior que zero";
     }
 
-    if (parsedNegociado !== undefined && parsedNegociado < 0) {
-      newErrors.valorNegociado = "Valor negociado não pode ser negativo";
+    if (parsedNegociado !== undefined) {
+      if (isNaN(parsedNegociado)) {
+        newErrors.valorNegociado = "Valor negociado inválido";
+      } else if (parsedNegociado < 0) {
+        newErrors.valorNegociado = "Valor negociado não pode ser negativo";
+      }
     }
 
     setErrors(newErrors);
@@ -566,24 +590,44 @@ export default function ContratoForm({
     setSubmitting(true);
     try {
       // Sincronizar valores numéricos a partir dos textos antes de enviar
+      // Validar valores antes de enviar
+      const parsedDevido = parseCurrencyInput(valorDevidoText || "0", true);
+      if (isNaN(parsedDevido) || parsedDevido <= 0) {
+        setErrors({ valorDevido: "Valor devido deve ser maior que zero" });
+        setSubmitting(false);
+        return;
+      }
+
       const payload: CreateContratoDTO = {
         ...formData,
-        valorDevido: parseCurrencyInput(valorDevidoText || "0"),
+        valorDevido: parsedDevido,
         valorNegociado:
           valorNegociadoText && valorNegociadoText.trim() !== ""
-            ? parseCurrencyInput(valorNegociadoText)
+            ? (() => {
+                const parsed = parseCurrencyInput(valorNegociadoText, true);
+                return isNaN(parsed) ? undefined : parsed;
+              })()
             : undefined,
         comissao:
           comissaoText && comissaoText.trim() !== ""
-            ? parseCurrencyInput(comissaoText)
+            ? (() => {
+                const parsed = parseCurrencyInput(comissaoText, true);
+                return isNaN(parsed) ? undefined : parsed;
+              })()
             : undefined,
         valorEntrada:
           valorEntradaText && valorEntradaText.trim() !== ""
-            ? parseCurrencyInput(valorEntradaText)
+            ? (() => {
+                const parsed = parseCurrencyInput(valorEntradaText, true);
+                return isNaN(parsed) ? undefined : parsed;
+              })()
             : undefined,
         valorParcela:
           valorParcelaText && valorParcelaText.trim() !== ""
-            ? parseCurrencyInput(valorParcelaText)
+            ? (() => {
+                const parsed = parseCurrencyInput(valorParcelaText, true);
+                return isNaN(parsed) ? undefined : parsed;
+              })()
             : undefined,
         // Limpar campos opcionais vazios
         numeroPasta: formData.numeroPasta?.trim() || undefined,
@@ -637,12 +681,14 @@ export default function ContratoForm({
   };
 
   // Função para fazer parse do valor monetário
-  const parseCurrencyInput = (value: string) => {
-    if (!value) return 0;
+  const parseCurrencyInput = (value: string, allowNaN: boolean = false): number => {
+    if (!value || typeof value !== "string") return allowNaN ? NaN : 0;
     // Remove pontos e substitui vírgula por ponto
-    const cleanValue = value.replace(/\./g, "").replace(",", ".");
+    const cleanValue = value.replace(/\./g, "").replace(",", ".").trim();
+    if (!cleanValue) return allowNaN ? NaN : 0;
     const parsed = parseFloat(cleanValue);
-    return isNaN(parsed) ? 0 : parsed;
+    // Retornar NaN apenas se allowNaN for true (para validação), senão retornar 0
+    return isNaN(parsed) ? (allowNaN ? NaN : 0) : parsed;
   };
 
   // Máscara amigável de moeda pt-BR durante digitação (milhares com ponto e decimais com vírgula)
@@ -789,13 +835,24 @@ export default function ContratoForm({
   };
 
   const selectedCliente =
-    clientes.find((c) => c.id === formData.clienteId) || null;
+    clientes && Array.isArray(clientes)
+      ? clientes.find((c) => c && c.id === formData.clienteId) || null
+      : null;
 
   if (!mounted) return null;
 
+  // Validar se há dados necessários antes de renderizar
+  const hasRequiredData =
+    clientes &&
+    Array.isArray(clientes) &&
+    clientes.length > 0 &&
+    consultores &&
+    Array.isArray(consultores) &&
+    consultores.length > 0;
+
   const modalContent = (
     <AnimatePresence>
-      {isFormOpen && clientes.length > 0 && consultores.length > 0 && (
+      {isFormOpen && hasRequiredData && (
         <>
           {/* Overlay */}
           <motion.div

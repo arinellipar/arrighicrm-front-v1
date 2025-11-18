@@ -1,10 +1,10 @@
-// src/app/cadastro/page.tsx
+// src/app/cadastro-cnpj/page.tsx
 "use client";
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User,
+  Building2,
   Lock,
   Eye,
   EyeOff,
@@ -20,13 +20,13 @@ import { apiClient } from "@/lib/api";
 import Link from "next/link";
 
 interface FormData {
-  cpf: string;
+  cnpj: string;
   senha: string;
   confirmarSenha: string;
 }
 
 interface FormErrors {
-  cpf?: string;
+  cnpj?: string;
   senha?: string;
   confirmarSenha?: string;
   general?: string;
@@ -56,9 +56,9 @@ const passwordRequirements: PasswordRequirement[] = [
   },
 ];
 
-export default function CadastroPage() {
+export default function CadastroCNPJPage() {
   const [formData, setFormData] = useState<FormData>({
-    cpf: "",
+    cnpj: "",
     senha: "",
     confirmarSenha: "",
   });
@@ -69,38 +69,49 @@ export default function CadastroPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // Validação de CPF
-  const validateCPF = (cpf: string): boolean => {
-    const cleanCPF = cpf.replace(/\D/g, "");
+  // Validação de CNPJ
+  const validateCNPJ = (cnpj: string): boolean => {
+    const cleanCNPJ = cnpj.replace(/\D/g, "");
 
-    if (cleanCPF.length !== 11) return false;
-    if (/^(\d)\1{10}$/.test(cleanCPF)) return false;
+    if (cleanCNPJ.length !== 14) return false;
+    if (/^(\d)\1{13}$/.test(cleanCNPJ)) return false;
 
+    let length = cleanCNPJ.length - 2;
+    let numbers = cleanCNPJ.substring(0, length);
+    const digits = cleanCNPJ.substring(length);
     let sum = 0;
-    for (let i = 0; i < 9; i++) {
-      sum += parseInt(cleanCPF.charAt(i)) * (10 - i);
-    }
-    let remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cleanCPF.charAt(9))) return false;
+    let pos = length - 7;
 
-    sum = 0;
-    for (let i = 0; i < 10; i++) {
-      sum += parseInt(cleanCPF.charAt(i)) * (11 - i);
+    for (let i = length; i >= 1; i--) {
+      sum += parseInt(numbers.charAt(length - i)) * pos--;
+      if (pos < 2) pos = 9;
     }
-    remainder = (sum * 10) % 11;
-    if (remainder === 10 || remainder === 11) remainder = 0;
-    if (remainder !== parseInt(cleanCPF.charAt(10))) return false;
+
+    let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (result !== parseInt(digits.charAt(0))) return false;
+
+    length = length + 1;
+    numbers = cleanCNPJ.substring(0, length);
+    sum = 0;
+    pos = length - 7;
+
+    for (let i = length; i >= 1; i--) {
+      sum += parseInt(numbers.charAt(length - i)) * pos--;
+      if (pos < 2) pos = 9;
+    }
+
+    result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+    if (result !== parseInt(digits.charAt(1))) return false;
 
     return true;
   };
 
-  // Formatação de CPF
-  const formatCPF = (value: string): string => {
+  // Formatação de CNPJ
+  const formatCNPJ = (value: string): string => {
     const cleaned = value.replace(/\D/g, "");
-    const match = cleaned.match(/^(\d{3})(\d{3})(\d{3})(\d{2})$/);
+    const match = cleaned.match(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/);
     if (match) {
-      return `${match[1]}.${match[2]}.${match[3]}-${match[4]}`;
+      return `${match[1]}.${match[2]}.${match[3]}/${match[4]}-${match[5]}`;
     }
     return cleaned;
   };
@@ -110,12 +121,12 @@ export default function CadastroPage() {
     return passwordRequirements.every((req) => req.test(password));
   };
 
-  // Verificar CPF no banco de dados
-  const checkCPFExists = async (cpf: string): Promise<boolean> => {
+  // Verificar CNPJ no banco de dados
+  const checkCNPJExists = async (cnpj: string): Promise<boolean> => {
     try {
-      const cleanCPF = cpf.replace(/\D/g, "");
+      const cleanCNPJ = cnpj.replace(/\D/g, "");
       const response = await apiClient.get(
-        `/PessoaFisica/buscar-por-cpf/${cleanCPF}`
+        `/PessoaJuridica/buscar-por-cnpj/${cleanCNPJ}`
       );
       return !response.error && !!response.data;
     } catch (error) {
@@ -126,8 +137,8 @@ export default function CadastroPage() {
   // Handlers
   const handleInputChange = useCallback(
     (field: keyof FormData, value: string) => {
-      if (field === "cpf") {
-        value = formatCPF(value);
+      if (field === "cnpj") {
+        value = formatCNPJ(value);
       }
 
       setFormData((prev) => ({ ...prev, [field]: value }));
@@ -143,17 +154,17 @@ export default function CadastroPage() {
   const validateForm = async (): Promise<boolean> => {
     const newErrors: FormErrors = {};
 
-    // Validar CPF
-    if (!formData.cpf.trim()) {
-      newErrors.cpf = "CPF é obrigatório";
-    } else if (!validateCPF(formData.cpf)) {
-      newErrors.cpf = "CPF inválido";
+    // Validar CNPJ
+    if (!formData.cnpj.trim()) {
+      newErrors.cnpj = "CNPJ é obrigatório";
+    } else if (!validateCNPJ(formData.cnpj)) {
+      newErrors.cnpj = "CNPJ inválido";
     } else {
-      // Verificar se CPF já existe no sistema (para cadastro, não deve existir)
-      const cpfExists = await checkCPFExists(formData.cpf);
-      if (cpfExists) {
-        newErrors.cpf =
-          "CPF já cadastrado no sistema. Faça login ou recupere sua senha.";
+      // Verificar se CNPJ já existe no sistema (para cadastro, não deve existir)
+      const cnpjExists = await checkCNPJExists(formData.cnpj);
+      if (cnpjExists) {
+        newErrors.cnpj =
+          "CNPJ já cadastrado no sistema. Faça login ou recupere sua senha.";
       }
     }
 
@@ -188,17 +199,16 @@ export default function CadastroPage() {
         return;
       }
 
-      // Aqui você implementaria a criação do usuário
-      const cleanCPF = formData.cpf.replace(/\D/g, "");
+      const cleanCNPJ = formData.cnpj.replace(/\D/g, "");
 
       // Criar usuário usando o endpoint correto
       const response = await apiClient.post("/Usuario/create", {
-        Login: cleanCPF,
-        Email: `${cleanCPF}@temp.com`, // Email temporário, será atualizado depois
+        Login: cleanCNPJ,
+        Email: `${cleanCNPJ}@temp.com`, // Email temporário, será atualizado depois
         Senha: formData.senha,
-        TipoPessoa: "Fisica",
-        PessoaFisicaId: null, // Será criado automaticamente se necessário
-        PessoaJuridicaId: null,
+        TipoPessoa: "Juridica",
+        PessoaFisicaId: null,
+        PessoaJuridicaId: null, // Será criado automaticamente se necessário
         FilialId: null,
         ConsultorId: null,
         GrupoAcessoId: null, // Usará grupo padrão "Usuario"
@@ -272,11 +282,11 @@ export default function CadastroPage() {
             transition={{ delay: 0.2, type: "spring" }}
             className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
           >
-            <UserPlus className="w-8 h-8 text-primary-600" />
+            <Building2 className="w-8 h-8 text-primary-600" />
           </motion.div>
 
           <h1 className="text-3xl font-bold text-neutral-800 mb-2">
-            Criar Conta
+            Criar Conta Empresarial
           </h1>
 
           <p className="text-neutral-600">
@@ -301,38 +311,38 @@ export default function CadastroPage() {
             )}
           </AnimatePresence>
 
-          {/* CPF */}
+          {/* CNPJ */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-neutral-700">
-              CPF *
+              CNPJ *
             </label>
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+              <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
               <input
                 type="text"
-                value={formData.cpf}
-                onChange={(e) => handleInputChange("cpf", e.target.value)}
-                placeholder="000.000.000-00"
-                maxLength={14}
+                value={formData.cnpj}
+                onChange={(e) => handleInputChange("cnpj", e.target.value)}
+                placeholder="00.000.000/0000-00"
+                maxLength={18}
                 className={cn(
                   "w-full h-12 pl-12 pr-4 bg-white/80 backdrop-blur-sm rounded-xl",
                   "border-2 transition-all duration-300",
                   "focus:outline-none focus:ring-4",
                   "placeholder:text-neutral-400",
-                  errors.cpf
+                  errors.cnpj
                     ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
                     : "border-neutral-200 focus:border-primary-500 focus:ring-primary-500/20 hover:border-neutral-300"
                 )}
               />
             </div>
-            {errors.cpf && (
+            {errors.cnpj && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-sm text-red-600 flex items-center gap-1"
               >
                 <AlertCircle className="w-4 h-4" />
-                {errors.cpf}
+                {errors.cnpj}
               </motion.p>
             )}
           </div>

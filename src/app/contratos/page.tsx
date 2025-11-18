@@ -56,11 +56,24 @@ import { PermissionWrapper } from "@/components/permissions";
 import { format, isAfter, isBefore, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-function SituacaoBadge({ situacao }: { situacao: SituacaoContrato }) {
+function SituacaoBadge({
+  situacao,
+}: {
+  situacao: SituacaoContrato | undefined | null;
+}) {
+  // Validar se situação é válida
+  if (!situacao || typeof situacao !== "string") {
+    return <span className="text-xs text-gray-500">Sem situação</span>;
+  }
+
   const config = SituacaoContratoOptions.find((opt) => opt.value === situacao);
 
   if (!config) {
-    return <span className="text-xs text-gray-500">Desconhecido</span>;
+    return (
+      <span className="text-xs text-gray-500">
+        {situacao || "Desconhecido"}
+      </span>
+    );
   }
 
   return (
@@ -186,7 +199,17 @@ export default function ContratosPage() {
 
   // Filtrar contratos
   const contratosFiltrados = useMemo(() => {
+    // Verificar se contratos é válido
+    if (!contratos || !Array.isArray(contratos)) {
+      return [];
+    }
+
     return contratos.filter((contrato) => {
+      // Validar se contrato tem ID válido
+      if (!contrato || !contrato.id || isNaN(contrato.id)) {
+        return false;
+      }
+
       // Filtro de busca
       if (searchTerm) {
         const termo = searchTerm.toLowerCase();
@@ -237,7 +260,10 @@ export default function ContratosPage() {
         ];
 
         const encontrado = campos.some(
-          (campo) => campo && (campo.toLowerCase() || "").includes(termo)
+          (campo) =>
+            campo &&
+            typeof campo === "string" &&
+            campo.toLowerCase().includes(termo)
         );
 
         if (!encontrado) {
@@ -253,6 +279,8 @@ export default function ContratosPage() {
       // Filtro de consultor
       if (
         filtroConsultor !== "todos" &&
+        contrato.consultorId !== undefined &&
+        contrato.consultorId !== null &&
         contrato.consultorId !== filtroConsultor
       ) {
         return false;
@@ -319,6 +347,11 @@ export default function ContratosPage() {
 
   // Filtrar clientes na aba de clientes
   const clientesFiltrados = useMemo(() => {
+    // Validar se clientes é válido
+    if (!clientes || !Array.isArray(clientes)) {
+      return [];
+    }
+
     if (!searchTerm) return clientes;
 
     const termo = searchTerm.toLowerCase();
@@ -326,6 +359,11 @@ export default function ContratosPage() {
     console.log("🔍 Filtro clientes - Total de clientes:", clientes.length);
 
     const filtrados = clientes.filter((cliente) => {
+      // Validar se cliente é válido
+      if (!cliente || !cliente.id) {
+        return false;
+      }
+
       const nome = cliente.nome || cliente.razaoSocial || "";
       const email = cliente.email || "";
       const cpfCnpj = cliente.cpf || cliente.cnpj || "";
@@ -348,11 +386,13 @@ export default function ContratosPage() {
       }
 
       const match =
-        (nome?.toLowerCase() || "").includes(termo) ||
-        (email?.toLowerCase() || "").includes(termo) ||
-        (cpfCnpj?.toLowerCase() || "").includes(termo) ||
-        (telefone?.toLowerCase() || "").includes(termo) ||
-        (filial?.toLowerCase() || "").includes(termo);
+        (typeof nome === "string" && nome.toLowerCase().includes(termo)) ||
+        (typeof email === "string" && email.toLowerCase().includes(termo)) ||
+        (typeof cpfCnpj === "string" &&
+          cpfCnpj.toLowerCase().includes(termo)) ||
+        (typeof telefone === "string" &&
+          telefone.toLowerCase().includes(termo)) ||
+        (typeof filial === "string" && filial.toLowerCase().includes(termo));
 
       return match;
     });
@@ -363,21 +403,42 @@ export default function ContratosPage() {
 
   // Estatísticas
   const estatisticas = useMemo(() => {
+    // Validar se contratos é válido
+    if (!contratos || !Array.isArray(contratos)) {
+      return {
+        total: 0,
+        emNegociacao: 0,
+        fechados: 0,
+        valorTotal: 0,
+        valorNegociado: 0,
+        taxaConversao: "0",
+      };
+    }
+
     const total = contratos.length;
     // Atualizar para as novas situações
     const emNegociacao = contratos.filter(
-      (c) => c.situacao === "Contrato Enviado" || c.situacao === "Prospecto"
+      (c) =>
+        c &&
+        c.situacao &&
+        (c.situacao === "Contrato Enviado" || c.situacao === "Prospecto")
     ).length;
     const fechados = contratos.filter(
-      (c) => c.situacao === "Contrato Assinado" || c.situacao === "CLIENTE"
+      (c) =>
+        c &&
+        c.situacao &&
+        (c.situacao === "Contrato Assinado" || c.situacao === "CLIENTE")
     ).length;
     const valorTotal = contratos.reduce(
-      (acc, c) => acc + (c.valorDevido || 0),
+      (acc, c) => acc + (c && c.valorDevido ? Number(c.valorDevido) : 0),
       0
     );
     const valorNegociado = contratos
-      .filter((c) => c.valorNegociado)
-      .reduce((acc, c) => acc + (c.valorNegociado || 0), 0);
+      .filter((c) => c && c.valorNegociado)
+      .reduce(
+        (acc, c) => acc + (c.valorNegociado ? Number(c.valorNegociado) : 0),
+        0
+      );
 
     return {
       total,
@@ -393,10 +454,32 @@ export default function ContratosPage() {
     data: CreateContratoDTO | Partial<UpdateContratoDTO>
   ) => {
     try {
+      // Validar dados antes de enviar
+      if (!data.clienteId || data.clienteId === 0) {
+        alert("Erro: Cliente é obrigatório");
+        return;
+      }
+      if (!data.consultorId || data.consultorId === 0) {
+        alert("Erro: Consultor é obrigatório");
+        return;
+      }
+      if (!data.situacao) {
+        alert("Erro: Situação é obrigatória");
+        return;
+      }
+
       await createContrato(data as CreateContratoDTO);
       closeForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar contrato:", error);
+      // Mostrar erro ao usuário
+      const errorMessage =
+        error?.message ||
+        error?.response?.data?.message ||
+        error?.response?.data?.title ||
+        "Erro desconhecido ao criar contrato. Verifique os dados e tente novamente.";
+      alert(`Erro ao criar contrato: ${errorMessage}`);
+      // Não fechar o formulário em caso de erro para o usuário poder corrigir
     }
   };
 
@@ -453,11 +536,12 @@ export default function ContratosPage() {
     }
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | undefined | null) => {
+    const numValue = value && typeof value === "number" ? value : 0;
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(value);
+    }).format(numValue);
   };
 
   const formatDate = (date: string | null | undefined) => {
@@ -480,6 +564,14 @@ export default function ContratosPage() {
 
   // Funções para gerenciamento de boletos
   const handleViewBoletos = async (contrato: Contrato) => {
+    if (!contrato || !contrato.id || isNaN(contrato.id)) {
+      console.error(
+        "Erro: Contrato inválido para visualizar boletos",
+        contrato
+      );
+      alert("Erro: Contrato inválido");
+      return;
+    }
     setSelectedContrato(contrato);
     setShowBoletos(true);
     await fetchBoletosPorContrato(contrato.id);
@@ -488,7 +580,11 @@ export default function ContratosPage() {
   const handleCreateBoleto = async (data: any) => {
     try {
       await createBoleto(data);
-      if (selectedContrato) {
+      if (
+        selectedContrato &&
+        selectedContrato.id &&
+        !isNaN(selectedContrato.id)
+      ) {
         await fetchBoletosPorContrato(selectedContrato.id);
       }
     } catch (error) {
@@ -497,9 +593,17 @@ export default function ContratosPage() {
   };
 
   const handleSyncBoleto = async (boleto: Boleto) => {
+    if (!boleto || !boleto.id || isNaN(boleto.id)) {
+      console.error("Erro: Boleto inválido para sincronizar", boleto);
+      return;
+    }
     try {
       await syncBoleto(boleto.id);
-      if (selectedContrato) {
+      if (
+        selectedContrato &&
+        selectedContrato.id &&
+        !isNaN(selectedContrato.id)
+      ) {
         await fetchBoletosPorContrato(selectedContrato.id);
       }
     } catch (error) {
@@ -508,13 +612,23 @@ export default function ContratosPage() {
   };
 
   const handleDeleteBoleto = async (boleto: Boleto) => {
+    if (!boleto || !boleto.id || isNaN(boleto.id)) {
+      console.error("Erro: Boleto inválido para excluir", boleto);
+      alert("Erro: Boleto inválido");
+      return;
+    }
+
     if (!confirm(`Deseja realmente cancelar o boleto #${boleto.id}?`)) {
       return;
     }
 
     try {
       await deleteBoleto(boleto.id);
-      if (selectedContrato) {
+      if (
+        selectedContrato &&
+        selectedContrato.id &&
+        !isNaN(selectedContrato.id)
+      ) {
         await fetchBoletosPorContrato(selectedContrato.id);
       }
     } catch (error) {
@@ -523,6 +637,11 @@ export default function ContratosPage() {
   };
 
   const handleViewBoletoDetails = (boleto: Boleto) => {
+    if (!boleto || !boleto.id || isNaN(boleto.id)) {
+      console.error("Erro: Boleto inválido para visualizar detalhes", boleto);
+      alert("Erro: Boleto inválido");
+      return;
+    }
     setSelectedBoleto(boleto);
     setShowBoletoDetails(true);
   };
@@ -888,7 +1007,7 @@ export default function ContratosPage() {
                             Valor Devido
                           </p>
                           <p className="text-sm font-semibold text-neutral-900">
-                            {formatCurrency(contrato.valorDevido)}
+                            {formatCurrency(contrato.valorDevido || 0)}
                           </p>
                         </div>
                         {contrato.valorNegociado && (
@@ -1068,7 +1187,7 @@ export default function ContratosPage() {
                         <td className="px-4 py-3">
                           <div>
                             <p className="text-sm font-medium text-neutral-900">
-                              {formatCurrency(contrato.valorDevido)}
+                              {formatCurrency(contrato.valorDevido || 0)}
                             </p>
                             {contrato.valorNegociado && (
                               <p className="text-xs text-green-600">
@@ -1201,8 +1320,11 @@ export default function ContratosPage() {
                             </div>
                             <div className="text-xs text-primary-600 font-medium mt-1">
                               {(() => {
+                                if (!contratos || !Array.isArray(contratos)) {
+                                  return "Sem contratos";
+                                }
                                 const qtdContratos = contratos.filter(
-                                  (c) => c.clienteId === cliente.id
+                                  (c) => c && c.clienteId === cliente.id
                                 ).length;
                                 return qtdContratos > 0
                                   ? `${qtdContratos} contrato${
@@ -1422,32 +1544,42 @@ export default function ContratosPage() {
               )}
 
               {/* Lista de Boletos */}
-              {!loadingBoletos && boletos.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {boletos.map((boleto) => (
-                    <BoletoCard
-                      key={boleto.id}
-                      boleto={boleto}
-                      onViewDetails={handleViewBoletoDetails}
-                      onSync={handleSyncBoleto}
-                      onDelete={handleDeleteBoleto}
-                    />
-                  ))}
-                </div>
-              )}
+              {!loadingBoletos &&
+                boletos &&
+                Array.isArray(boletos) &&
+                boletos.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {boletos
+                      .filter(
+                        (boleto) => boleto && boleto.id && !isNaN(boleto.id)
+                      )
+                      .map((boleto) => (
+                        <BoletoCard
+                          key={boleto.id}
+                          boleto={boleto}
+                          onViewDetails={handleViewBoletoDetails}
+                          onSync={handleSyncBoleto}
+                          onDelete={handleDeleteBoleto}
+                        />
+                      ))}
+                  </div>
+                )}
 
               {/* Sem boletos */}
-              {!loadingBoletos && boletos.length === 0 && (
-                <div className="text-center py-12">
-                  <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg">
-                    Nenhum boleto encontrado
-                  </p>
-                  <p className="text-gray-400 mt-2">
-                    Este contrato ainda não possui boletos registrados
-                  </p>
-                </div>
-              )}
+              {!loadingBoletos &&
+                (!boletos ||
+                  !Array.isArray(boletos) ||
+                  boletos.length === 0) && (
+                  <div className="text-center py-12">
+                    <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg">
+                      Nenhum boleto encontrado
+                    </p>
+                    <p className="text-gray-400 mt-2">
+                      Este contrato ainda não possui boletos registrados
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
         </div>
