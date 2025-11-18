@@ -36,7 +36,6 @@ import {
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
 import { formatRelativeTime } from "@/lib/formatUtils";
 import { useClientes } from "@/hooks/useClientes";
-import { useActiveUsers } from "@/hooks/useActiveUsers";
 import { useSessoesAtivas } from "@/hooks/useSessoesAtivas";
 import { useEstatisticas } from "@/hooks/useEstatisticas";
 import { useAuth } from "@/contexts/AuthContext";
@@ -221,17 +220,15 @@ export default function ModernDashboard() {
   // Hook para dados de clientes
   const { clientes, loading: clientesLoading } = useClientes();
 
-  // Hook para usuários ativos/autenticados
-  const { activeSessions } = useActiveUsers();
-
   // Hook para sessões ativas em tempo real (incluindo usuários inativos)
-  // Apenas buscar se for administrador
+  // Apenas buscar se for administrador - não buscar nada se não for admin
+  const isAdmin = permissoes?.grupo === "Administrador";
   const {
     sessoes,
     count: sessoesCount,
     countOnline: sessoesOnline,
     loading: sessoesLoading,
-  } = useSessoesAtivas(permissoes?.grupo === "Administrador" ? true : false);
+  } = useSessoesAtivas(isAdmin ? true : false);
 
   // Hook para estatísticas e receita
   const {
@@ -263,7 +260,8 @@ export default function ModernDashboard() {
       ), // Estimativa de novos clientes
       revenue: receita?.ReceitaTotal || 0,
       revenueGrowth: receita?.CrescimentoMes || 0,
-      activeSessions: permissoes?.grupo === "Administrador" ? sessoesOnline : 0,
+      // Sessões ativas apenas para administradores
+      activeSessions: isAdmin ? sessoesOnline : 0,
       conversionRate: receita?.TaxaConversao || 0,
       totalOrders: dashboard?.Contratos?.TotalContratos || 0,
       orderGrowth: receita?.ContratosMesAtual || 0,
@@ -275,7 +273,7 @@ export default function ModernDashboard() {
       valorBoletosPendentes: receita?.ValorBoletosPendentes || 0,
       comissaoTotal: receita?.ComissaoTotal || 0,
     }),
-    [clientesAtivos, sessoesOnline, receita, dashboard, permissoes?.grupo]
+    [clientesAtivos, sessoesOnline, receita, dashboard, isAdmin]
   );
 
   const chartData = useMemo(
@@ -535,8 +533,9 @@ export default function ModernDashboard() {
                 prefix: "R$ ",
                 loading: estatisticasLoading,
               },
-              // Sessões Ativas - apenas para administradores
-              ...(permissoes?.grupo === "Administrador"
+              // Sessões Ativas - APENAS para administradores
+              // Não aparece para nenhum outro grupo de acesso
+              ...(isAdmin
                 ? [
                     {
                       title: "Sessões Ativas",

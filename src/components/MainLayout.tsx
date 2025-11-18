@@ -9,6 +9,7 @@ import { useClientes } from "@/hooks/useClientes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Loader2, Shield } from "lucide-react";
+import { useSessaoTracker } from "@/hooks/useSessaoTracker";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -19,6 +20,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const router = useRouter();
   const { isFormOpen } = useForm();
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+  // Hook para rastrear página atual na sessão
+  useSessaoTracker();
 
   // Hook para dados de clientes
   const { clientes, loading: clientesLoading } = useClientes();

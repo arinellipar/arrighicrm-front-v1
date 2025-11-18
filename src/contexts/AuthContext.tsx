@@ -67,10 +67,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Reset do contador de falhas
     heartbeatFailureCount.current = 0;
 
+    // Função para obter página atual
+    const getCurrentPage = () => {
+      if (typeof window !== "undefined") {
+        const pathname = window.location.pathname;
+        const cleanPath = pathname.replace(/^\/|\/$/g, "");
+        const routeMap: Record<string, string> = {
+          "": "Dashboard",
+          dashboard: "Dashboard",
+          contratos: "Contratos",
+          clientes: "Clientes",
+          usuarios: "Usuários",
+          consultores: "Consultores",
+          parceiros: "Parceiros",
+          boletos: "Boletos",
+          "cadastros/pessoa-fisica": "Cadastro - Pessoa Física",
+          "cadastros/pessoa-juridica": "Cadastro - Pessoa Jurídica",
+          cadastro: "Cadastro",
+          login: "Login",
+        };
+        return routeMap[cleanPath] || cleanPath.split("/").map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" - ");
+      }
+      return "";
+    };
+
     // Enviar heartbeat a cada 5 minutos
     heartbeatInterval.current = setInterval(async () => {
       try {
-        await apiClient.put(`/SessaoAtiva/atualizar/${userId}`, {});
+        const paginaAtual = getCurrentPage();
+        await apiClient.put(`/SessaoAtiva/atualizar/${userId}`, {
+          paginaAtual: paginaAtual,
+        });
         heartbeatFailureCount.current = 0; // Reset em caso de sucesso
       } catch (error) {
         heartbeatFailureCount.current++;

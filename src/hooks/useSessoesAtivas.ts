@@ -33,6 +33,7 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
   const fetchSessoes = async () => {
     // Apenas administradores podem buscar sessões
     if (!isAdmin) {
+      console.log("🔒 useSessoesAtivas: Usuário não é administrador, bloqueando acesso");
       setSessoes([]);
       setCount(0);
       setCountOnline(0);
@@ -43,12 +44,15 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
 
     try {
       setLoading(true);
+      console.log("🔍 useSessoesAtivas: Buscando sessões ativas...");
 
       // Se incluirInativos for true, busca o histórico completo
       const endpoint = incluirInativos
         ? "/SessaoAtiva/historico"
         : "/SessaoAtiva";
       const response = await apiClient.get<SessaoAtiva[]>(endpoint);
+
+      console.log("✅ useSessoesAtivas: Resposta recebida:", response.data?.length || 0, "sessões");
 
       if (response.data && Array.isArray(response.data)) {
         setSessoes(response.data);
@@ -108,6 +112,9 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
     // Apenas buscar se for administrador
     if (!isAdmin) {
       setLoading(false);
+      setSessoes([]);
+      setCount(0);
+      setCountOnline(0);
       return;
     }
 
@@ -115,14 +122,16 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
 
     // Atualizar a cada 30 segundos
     const interval = setInterval(() => {
-      fetchSessoes();
-      if (!countError && !incluirInativos) {
-        fetchCount();
+      if (isAdmin) {
+        fetchSessoes();
+        if (!countError && !incluirInativos) {
+          fetchCount();
+        }
       }
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [countError, incluirInativos, isAdmin]);
+  }, [countError, incluirInativos, isAdmin, permissoes?.grupo]);
 
   return {
     sessoes,
