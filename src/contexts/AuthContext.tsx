@@ -253,6 +253,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Registrar sessão ativa
         try {
+          // Obter página atual (geralmente Dashboard após login)
+          const getInitialPage = () => {
+            if (typeof window !== "undefined") {
+              const pathname = window.location.pathname;
+              const cleanPath = pathname.replace(/^\/|\/$/g, "");
+              const routeMap: Record<string, string> = {
+                "": "Dashboard",
+                dashboard: "Dashboard",
+                contratos: "Contratos",
+                clientes: "Clientes",
+                usuarios: "Usuários",
+                consultores: "Consultores",
+                parceiros: "Parceiros",
+                boletos: "Boletos",
+                "cadastros/pessoa-fisica": "Cadastro - Pessoa Física",
+                "cadastros/pessoa-juridica": "Cadastro - Pessoa Jurídica",
+                cadastro: "Cadastro",
+                login: "Login",
+              };
+              return routeMap[cleanPath] || cleanPath.split("/").map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(" - ");
+            }
+            return "Dashboard";
+          };
+
           await apiClient.post("/SessaoAtiva/registrar", {
             usuarioId: userData.usuarioId,
             nomeUsuario: userData.nome,
@@ -260,6 +284,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             perfil: userData.grupoAcesso,
             tokenSessao: token || "",
           });
+
+          // Atualizar página atual imediatamente após registro
+          setTimeout(async () => {
+            try {
+              const paginaAtual = getInitialPage();
+              await apiClient.put(`/SessaoAtiva/atualizar/${userData.usuarioId}`, {
+                paginaAtual: paginaAtual,
+              });
+            } catch (error) {
+              console.error("Erro ao atualizar página inicial:", error);
+            }
+          }, 500);
         } catch (error) {
           console.error("Erro ao registrar sessão:", error);
         }

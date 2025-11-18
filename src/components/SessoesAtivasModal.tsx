@@ -319,6 +319,23 @@ export function SessoesAtivasModal({
                               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                                 {estaOnline ? (
                                   <>
+                                    {/* Página Atual - Destaque especial para tempo real */}
+                                    <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200 col-span-full sm:col-span-2 lg:col-span-1">
+                                      <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                                      <div className="flex-1 min-w-0">
+                                        <span className="font-semibold text-blue-900 block">
+                                          Página Atual:
+                                        </span>
+                                        <span className="truncate block text-blue-700" title={sessao.paginaAtual || "Não informado"}>
+                                          {sessao.paginaAtual || "Não informado"}
+                                        </span>
+                                      </div>
+                                      <span className="flex items-center gap-1 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                                        Tempo real
+                                      </span>
+                                    </div>
+
                                     <div className="flex items-center gap-2 text-gray-700">
                                       <Clock className="w-4 h-4 text-green-600" />
                                       <span>
@@ -340,18 +357,6 @@ export function SessoesAtivasModal({
                                         )}
                                       </span>
                                     </div>
-
-                                    {sessao.paginaAtual && (
-                                      <div className="flex items-center gap-2 text-gray-700">
-                                        <MapPin className="w-4 h-4 text-blue-600" />
-                                        <span className="truncate" title={sessao.paginaAtual}>
-                                          <span className="font-medium">
-                                            Página:
-                                          </span>{" "}
-                                          {sessao.paginaAtual}
-                                        </span>
-                                      </div>
-                                    )}
 
                                     {sessao.enderecoIP && (
                                       <div className="flex items-center gap-2 text-gray-700">
@@ -423,7 +428,7 @@ export function SessoesAtivasModal({
                 </span>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Atualização automática a cada 30 segundos</span>
+                  <span>Atualização automática a cada 10 segundos (tempo real)</span>
                 </div>
               </div>
             </div>

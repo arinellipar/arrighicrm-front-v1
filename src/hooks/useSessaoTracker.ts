@@ -35,16 +35,19 @@ export function useSessaoTracker() {
         // Formatar o pathname para exibição amigável
         const paginaAtual = formatPathname(pathname);
 
+        console.log(`📍 useSessaoTracker: Atualizando página atual para "${paginaAtual}" (${pathname})`);
+
         await apiClient.put(`/SessaoAtiva/atualizar/${user.id}`, {
           paginaAtual: paginaAtual,
         });
 
+        console.log(`✅ useSessaoTracker: Página atual atualizada com sucesso`);
         lastPathname.current = pathname;
       } catch (error) {
-        console.error("Erro ao atualizar página atual da sessão:", error);
+        console.error("❌ useSessaoTracker: Erro ao atualizar página atual da sessão:", error);
         // Não bloquear a navegação em caso de erro
       }
-    }, 500); // Delay de 500ms
+    }, 300); // Delay reduzido para 300ms para atualização mais rápida
 
     return () => {
       if (updateTimeout.current) {
@@ -83,6 +86,8 @@ function formatPathname(pathname: string): string {
     "cadastros/pessoa-fisica": "Cadastro - Pessoa Física",
     "cadastros/pessoa-juridica": "Cadastro - Pessoa Jurídica",
     cadastro: "Cadastro",
+    "dashboard/financeiro": "Dashboard - Financeiro",
+    "dashboard/financeiro/mapas-faturamento": "Mapas de Faturamento",
     login: "Login",
   };
 
