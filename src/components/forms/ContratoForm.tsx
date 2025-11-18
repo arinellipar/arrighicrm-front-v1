@@ -129,6 +129,23 @@ export default function ContratoForm({
   const [comissaoText, setComissaoText] = useState<string>("");
   const [valorEntradaText, setValorEntradaText] = useState<string>("");
   const [valorParcelaText, setValorParcelaText] = useState<string>("");
+  // Estado para armazenar o nome do arquivo PDF (para exibição)
+  const [nomeArquivoPDF, setNomeArquivoPDF] = useState<string>("");
+
+  // Função para converter File para Base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remover o prefixo "data:application/pdf;base64," se existir
+        const base64 = result.includes(",") ? result.split(",")[1] : result;
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
   // Função para resetar completamente o formulário
   const resetForm = () => {
@@ -139,6 +156,7 @@ export default function ContratoForm({
     setComissaoText("");
     setValorEntradaText("");
     setValorParcelaText("");
+    setNomeArquivoPDF("");
     setErrors({});
     setHasParceiro(false);
   };
@@ -174,7 +192,6 @@ export default function ContratoForm({
         valorParcela: contrato.valorParcela,
         numeroParcelas: contrato.numeroParcelas,
         primeiroVencimento: contrato.primeiroVencimento,
-        anexoDocumento: contrato.anexoDocumento,
         pendencias: contrato.pendencias,
       });
       setFormData({
@@ -205,7 +222,8 @@ export default function ContratoForm({
         primeiroVencimento: contrato.primeiroVencimento
           ? contrato.primeiroVencimento.split("T")[0]
           : "",
-        anexoDocumento: contrato.anexoDocumento || "",
+        // Não definir anexoDocumento aqui - será preenchido apenas se houver novo arquivo selecionado
+        anexoDocumento: "",
         pendencias: contrato.pendencias || "",
       });
       setHasParceiro(!!contrato.parceiroId);
@@ -230,6 +248,13 @@ export default function ContratoForm({
       setComissaoText(comissaoFormatted);
       setValorEntradaText(valorEntradaFormatted);
       setValorParcelaText(valorParcelaFormatted);
+
+      // Se houver anexoDocumento existente (nome do arquivo), definir para exibição
+      // Não definir no formData pois não temos o arquivo original em Base64
+      // O backend manterá o arquivo existente se não enviarmos novo Base64
+      if (contrato.anexoDocumento) {
+        setNomeArquivoPDF(contrato.anexoDocumento);
+      }
 
       console.log("🔧 ContratoForm: FormData definido:", {
         clienteId: contrato.clienteId,
@@ -319,6 +344,7 @@ export default function ContratoForm({
       setComissaoText("");
       setValorEntradaText("");
       setValorParcelaText("");
+      setNomeArquivoPDF("");
 
       // Limpar erros
       setErrors({});
@@ -638,7 +664,9 @@ export default function ContratoForm({
         tipoServico: formData.tipoServico?.trim() || undefined,
         objetoContrato: formData.objetoContrato?.trim() || undefined,
         primeiroVencimento: formData.primeiroVencimento || undefined,
-        anexoDocumento: formData.anexoDocumento?.trim() || undefined,
+        // Enviar anexoDocumento apenas se houver um novo arquivo selecionado (Base64)
+        // Se não houver novo arquivo, não enviar (undefined) para manter o existente no backend
+        anexoDocumento: nomeArquivoPDF && formData.anexoDocumento ? formData.anexoDocumento : undefined,
         pendencias: formData.pendencias?.trim() || undefined,
         observacoes: formData.observacoes?.trim() || undefined,
         numeroParcelas: formData.numeroParcelas || undefined,
@@ -750,11 +778,32 @@ export default function ContratoForm({
           return;
         }
 
-        // Armazenar o nome do arquivo
-        setFormData((prev) => ({
-          ...prev,
-          anexoDocumento: file.name,
-        }));
+        // Armazenar o nome do arquivo para exibição
+        setNomeArquivoPDF(file.name);
+
+        // Converter arquivo para Base64
+        fileToBase64(file)
+          .then((base64) => {
+            setFormData((prev) => ({
+              ...prev,
+              anexoDocumento: base64,
+            }));
+            // Limpar erro se houver
+            if (errors.anexoDocumento) {
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.anexoDocumento;
+                return newErrors;
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao converter arquivo para Base64:", error);
+            setErrors((prev) => ({
+              ...prev,
+              anexoDocumento: "Erro ao processar arquivo. Tente novamente.",
+            }));
+          });
       }
       return;
     } else if (type === "number") {
@@ -1549,8 +1598,7 @@ export default function ContratoForm({
                               )}
                             >
                               <span className="text-neutral-500">
-                                {formData.anexoDocumento ||
-                                  "Nenhum arquivo escolhido"}
+                                {nomeArquivoPDF || "Nenhum arquivo escolhido"}
                               </span>
                               <span className="text-primary-600 font-medium text-xs bg-primary-50 px-3 py-1 rounded">
                                 Escolher Arquivo
