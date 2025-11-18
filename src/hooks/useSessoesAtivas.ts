@@ -13,6 +13,7 @@ export interface SessaoAtiva {
   ultimaAtividade: string;
   tempoOnline: string;
   enderecoIP: string | null;
+  paginaAtual?: string | null;
   estaOnline?: boolean;
   sessaoId?: number;
 }

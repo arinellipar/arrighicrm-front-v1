@@ -341,6 +341,18 @@ export function SessoesAtivasModal({
                                       </span>
                                     </div>
 
+                                    {sessao.paginaAtual && (
+                                      <div className="flex items-center gap-2 text-gray-700">
+                                        <MapPin className="w-4 h-4 text-blue-600" />
+                                        <span className="truncate" title={sessao.paginaAtual}>
+                                          <span className="font-medium">
+                                            Página:
+                                          </span>{" "}
+                                          {sessao.paginaAtual}
+                                        </span>
+                                      </div>
+                                    )}
+
                                     {sessao.enderecoIP && (
                                       <div className="flex items-center gap-2 text-gray-700">
                                         <MapPin className="w-4 h-4 text-green-600" />

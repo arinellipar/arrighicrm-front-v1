@@ -225,12 +225,13 @@ export default function ModernDashboard() {
   const { activeSessions } = useActiveUsers();
 
   // Hook para sessões ativas em tempo real (incluindo usuários inativos)
+  // Apenas buscar se for administrador
   const {
     sessoes,
     count: sessoesCount,
     countOnline: sessoesOnline,
     loading: sessoesLoading,
-  } = useSessoesAtivas(true);
+  } = useSessoesAtivas(permissoes?.grupo === "Administrador" ? true : false);
 
   // Hook para estatísticas e receita
   const {
@@ -262,7 +263,7 @@ export default function ModernDashboard() {
       ), // Estimativa de novos clientes
       revenue: receita?.ReceitaTotal || 0,
       revenueGrowth: receita?.CrescimentoMes || 0,
-      activeSessions: sessoesOnline,
+      activeSessions: permissoes?.grupo === "Administrador" ? sessoesOnline : 0,
       conversionRate: receita?.TaxaConversao || 0,
       totalOrders: dashboard?.Contratos?.TotalContratos || 0,
       orderGrowth: receita?.ContratosMesAtual || 0,
@@ -274,7 +275,7 @@ export default function ModernDashboard() {
       valorBoletosPendentes: receita?.ValorBoletosPendentes || 0,
       comissaoTotal: receita?.ComissaoTotal || 0,
     }),
-    [clientesAtivos, sessoesCount, receita, dashboard]
+    [clientesAtivos, sessoesOnline, receita, dashboard, permissoes?.grupo]
   );
 
   const chartData = useMemo(
@@ -961,14 +962,16 @@ export default function ModernDashboard() {
         </div>
       </div>
 
-      {/* Modal de Sessões Ativas */}
-      <SessoesAtivasModal
-        isOpen={sessoesModalOpen}
-        onClose={() => setSessoesModalOpen(false)}
-        sessoes={sessoes}
-        loading={sessoesLoading}
-        countOnline={sessoesOnline}
-      />
+      {/* Modal de Sessões Ativas - apenas para administradores */}
+      {permissoes?.grupo === "Administrador" && (
+        <SessoesAtivasModal
+          isOpen={sessoesModalOpen}
+          onClose={() => setSessoesModalOpen(false)}
+          sessoes={sessoes}
+          loading={sessoesLoading}
+          countOnline={sessoesOnline}
+        />
+      )}
     </div>
   );
 }
