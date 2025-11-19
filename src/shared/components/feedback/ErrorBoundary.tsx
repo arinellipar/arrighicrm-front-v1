@@ -7,12 +7,14 @@
 
 import { Component, ReactNode, ErrorInfo } from "react";
 import { Button } from "../ui/Button";
+import { datadogError } from "@/core/services/datadog-error.service";
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   resetKeys?: Array<string | number>;
+  componentName?: string;
 }
 
 interface State {
@@ -46,13 +48,17 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
+    // Enviar erro para Datadog
+    datadogError.captureComponentError(
+      error,
+      this.props.componentName || "UnknownComponent",
+      errorInfo.componentStack
+    );
+
     // Callback customizado
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
-
-    // Enviar para serviço de monitoramento (ex: Sentry)
-    // logErrorToService(error, errorInfo)
   }
 
   componentDidUpdate(prevProps: Props) {

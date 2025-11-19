@@ -15,6 +15,7 @@ import { UsuarioPermissoes } from "@/types/permissions";
 import { permissionService } from "@/services/permission.service";
 import { userService } from "@/services/user.service";
 import { useAuthCheck } from "@/hooks/useAuthCheck";
+import { datadogError } from "@/core/services/datadog-error.service";
 
 interface User {
   id: number;
@@ -164,6 +165,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         setUser(userData);
+
+        // Restaurar usuário no Datadog após recarregar página
+        datadogError.setUser(
+          userData.usuarioId || userData.id,
+          userData.nome,
+          userData.email
+        );
+        datadogError.addGlobalContext("grupoAcesso", userData.grupoAcesso);
+        datadogError.addGlobalContext("tipoPessoa", userData.tipoPessoa);
       }
     } catch (error) {
       console.error("Erro ao verificar autenticação:", error);
@@ -303,6 +313,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Iniciar heartbeat para manter sessão ativa
         startHeartbeat(userData.usuarioId);
 
+        // Rastrear usuário no Datadog
+        datadogError.setUser(
+          userData.usuarioId,
+          userData.nome,
+          userData.email
+        );
+
+        // Adicionar contexto adicional no Datadog
+        datadogError.addGlobalContext("grupoAcesso", userData.grupoAcesso);
+        datadogError.addGlobalContext("tipoPessoa", userData.tipoPessoa);
+
         // Invalidar cache de permissões antes de carregar
         permissionService.invalidateCache();
 
@@ -330,6 +351,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Parar heartbeat
     stopHeartbeat();
+
+    // Limpar usuário no Datadog
+    datadogError.clearUser();
+    datadogError.removeGlobalContext("grupoAcesso");
+    datadogError.removeGlobalContext("tipoPessoa");
 
     setUser(null);
     setPermissoes(null);

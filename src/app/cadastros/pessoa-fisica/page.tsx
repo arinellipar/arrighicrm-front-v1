@@ -16,11 +16,16 @@ import {
   Loader2,
   CheckCircle,
   XCircle,
+  Briefcase,
+  UserCheck,
+  Handshake,
+  Shield,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import PessoaFisicaForm from "@/components/forms/PessoaFisicaForm";
 import { Tooltip } from "@/components";
 import { usePessoaFisica } from "@/hooks/usePessoaFisica";
+import { usePessoaRoles } from "@/hooks/usePessoaRoles";
 import {
   PessoaFisica,
   CreatePessoaFisicaDTO,
@@ -65,6 +70,61 @@ function StatusBadge({
       )}
       {status === "ativo" ? "Ativo" : "Inativo"}
     </span>
+  );
+}
+
+function RoleBadge({
+  role,
+  isCompact = false,
+}: {
+  role: "cliente" | "consultor" | "parceiro" | "usuario";
+  isCompact?: boolean;
+}) {
+  const configs = {
+    cliente: {
+      label: "Cliente",
+      icon: Briefcase,
+      color: "bg-blue-100 text-blue-800 border-blue-200",
+    },
+    consultor: {
+      label: "Consultor",
+      icon: UserCheck,
+      color: "bg-purple-100 text-purple-800 border-purple-200",
+    },
+    parceiro: {
+      label: "Parceiro",
+      icon: Handshake,
+      color: "bg-orange-100 text-orange-800 border-orange-200",
+    },
+    usuario: {
+      label: "Usuário",
+      icon: Shield,
+      color: "bg-green-100 text-green-800 border-green-200",
+    },
+  };
+
+  const config = configs[role];
+  const Icon = config.icon;
+
+  return (
+    <Tooltip content={`Esta pessoa é ${config.label} no sistema`}>
+      <span
+        className={cn(
+          "inline-flex items-center rounded-full font-medium border",
+          isCompact
+            ? "px-1 py-0.5 text-[7px] sm:text-[8px]"
+            : "px-1.5 py-0.5 text-[8px] sm:text-[9px]",
+          config.color
+        )}
+      >
+        <Icon
+          className={
+            isCompact ? "w-2 h-2 mr-0.5" : "w-2 h-2 sm:w-2.5 sm:h-2.5 mr-0.5"
+          }
+        />
+        {config.label}
+      </span>
+    </Tooltip>
   );
 }
 
@@ -120,6 +180,7 @@ export default function PessoaFisicaPage() {
     deletePessoa,
     clearError,
   } = usePessoaFisica();
+  const { rolesMap, loading: rolesLoading, getRoles } = usePessoaRoles();
   const router = useRouter();
 
   const { openForm, closeForm } = useForm();
@@ -585,6 +646,30 @@ export default function PessoaFisicaPage() {
                                         </span>
                                       </Tooltip>
                                     </div>
+
+                                    {/* Tags de papéis no sistema */}
+                                    {(() => {
+                                      const roles = getRoles(pessoa.id);
+                                      if (!roles) return null;
+
+                                      return (
+                                        <div className="flex flex-wrap gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
+                                          {roles.isCliente && (
+                                            <RoleBadge role="cliente" isCompact={isTableCompact} />
+                                          )}
+                                          {roles.isConsultor && (
+                                            <RoleBadge role="consultor" isCompact={isTableCompact} />
+                                          )}
+                                          {roles.isParceiro && (
+                                            <RoleBadge role="parceiro" isCompact={isTableCompact} />
+                                          )}
+                                          {roles.isUsuario && (
+                                            <RoleBadge role="usuario" isCompact={isTableCompact} />
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
+
                                     <div
                                       className={`text-secondary-500 truncate hidden sm:block ${
                                         isTableCompact

@@ -5,7 +5,10 @@ import { FormProvider } from "@/contexts/FormContext";
 import { AtividadeProvider } from "@/contexts/AtividadeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { QueryProvider } from "@/core/providers/QueryProvider";
+import { DatadogProvider } from "@/core/providers/DatadogProvider";
 import ConditionalRouteGuard from "@/components/ConditionalRouteGuard";
+import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,15 +49,21 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${plusJakartaSans.variable} h-full antialiased`}
       >
-        <QueryProvider>
-          <AuthProvider>
-            <AtividadeProvider>
-              <FormProvider>
-                <ConditionalRouteGuard>{children}</ConditionalRouteGuard>
-              </FormProvider>
-            </AtividadeProvider>
-          </AuthProvider>
-        </QueryProvider>
+        <DatadogProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <AtividadeProvider>
+                <FormProvider>
+                  <ConditionalRouteGuard>
+                    <Analytics />
+                    {children}
+                  </ConditionalRouteGuard>
+                </FormProvider>
+              </AtividadeProvider>
+            </AuthProvider>
+          </QueryProvider>
+        </DatadogProvider>
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

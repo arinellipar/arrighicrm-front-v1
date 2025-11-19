@@ -134,12 +134,17 @@ export interface BoletoFilters {
 export const BoletoStatusOptions = [
   {
     value: "PENDENTE" as BoletoStatus,
-    label: "Cancelado",
+    label: "Pendente",
     color: "bg-gray-100 text-gray-800 border-gray-200",
   },
   {
     value: "REGISTRADO" as BoletoStatus,
     label: "Registrado",
+    color: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  {
+    value: "ATIVO" as BoletoStatus,
+    label: "Ativo",
     color: "bg-blue-100 text-blue-800 border-blue-200",
   },
   {
@@ -159,8 +164,8 @@ export const BoletoStatusOptions = [
   },
   {
     value: "CANCELADO" as BoletoStatus,
-    label: "Cancelado (Banco)",
-    color: "bg-red-100 text-red-800 border-red-200",
+    label: "Cancelado",
+    color: "bg-gray-300 text-gray-800 border-gray-400",
   },
   {
     value: "ERRO" as BoletoStatus,

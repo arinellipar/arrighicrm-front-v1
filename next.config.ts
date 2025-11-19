@@ -17,9 +17,9 @@ export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "fradema-tax-consulting-4p",
+  org: "fradema-tax-consulting-fc",
 
-  project: "javascript-nextjs",
+  project: "crm-arrighi-front",
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

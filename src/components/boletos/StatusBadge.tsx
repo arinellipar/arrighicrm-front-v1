@@ -38,15 +38,15 @@ export function StatusBadge({
         };
       case "CANCELADO":
         return {
-          color: "bg-red-100 text-red-800 border-red-300",
+          color: "bg-gray-300 text-gray-800 border-gray-400",
           icon: "❌",
-          text: "Cancelado (Banco)",
+          text: "Cancelado",
         };
       case "PENDENTE":
         return {
           color: "bg-gray-100 text-gray-800 border-gray-300",
           icon: "📝",
-          text: "Cancelado",
+          text: "Pendente",
         };
       default:
         return {

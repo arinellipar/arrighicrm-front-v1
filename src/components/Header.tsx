@@ -17,6 +17,7 @@ import {
   FileText,
   CreditCard,
   TrendingUp,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -98,6 +99,13 @@ const menuItems: MenuGroup[] = [
         icon: <UserCheck className="w-4 h-4" />,
         badge: "3",
         requiredModule: "Usuario",
+        requiredAction: "Visualizar",
+      },
+      {
+        label: "Histórico de Clientes",
+        href: "/gestao/historico-clientes",
+        icon: <History className="w-4 h-4" />,
+        requiredModule: "Cliente",
         requiredAction: "Visualizar",
       },
     ],

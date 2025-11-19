@@ -1,7 +1,9 @@
 /**
  * Serviço de rastreamento de erros
- * Pode ser integrado com Sentry, LogRocket, etc.
+ * Integrado com Datadog RUM
  */
+
+import { datadogError } from "./datadog-error.service";
 
 export interface ErrorContext {
   userId?: number;
@@ -64,10 +66,11 @@ export class ErrorTrackingService {
       console.error("🔴 Error captured:", errorInfo, context);
     }
 
-    // Em produção, enviar para serviço de tracking
-    if (this.isProduction) {
-      this.sendToTrackingService(errorInfo, context);
-    }
+    // Enviar para Datadog
+    datadogError.captureError(
+      error instanceof Error ? error : new Error(errorInfo.message),
+      context
+    );
 
     // Salvar no localStorage para debug
     this.saveToLocalStorage(errorInfo, context);
@@ -91,17 +94,6 @@ export class ErrorTrackingService {
       message: String(error),
       timestamp: new Date().toISOString(),
     };
-  }
-
-  /**
-   * Enviar para serviço de tracking (Sentry, LogRocket, etc.)
-   */
-  private sendToTrackingService(errorInfo: any, context?: ErrorContext) {
-    // TODO: Integrar com Sentry ou outro serviço
-    // Exemplo:
-    // Sentry.captureException(errorInfo, { contexts: context });
-
-    console.log("📤 Would send to tracking service:", errorInfo, context);
   }
 
   /**

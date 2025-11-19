@@ -1,5 +1,5 @@
 "use client";
-// BUILD: 2025-11-17T06:00:00 - Status PENDENTE exibido como CANCELADO
+// BUILD: 2025-11-19T00:00:00 - Corrigido: Status ATIVO e CANCELADO agora são tratados corretamente
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,14 +72,23 @@ export default function MapasFaturamentoPage() {
         const diffTime = hoje.getTime() - vencimento.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        // Determinar status
+        // Determinar status baseado no status do boleto e data de vencimento
         let status: Fatura["status"] = "PENDENTE";
-        if (boleto.status === "LIQUIDADO") {
+
+        if (boleto.status === "LIQUIDADO" || boleto.status === "BAIXADO") {
           status = "LIQUIDADO";
+        } else if (boleto.status === "CANCELADO") {
+          status = "CANCELADO";
+        } else if (boleto.status === "ATIVO") {
+          // Boleto ativo: verificar se está vencido
+          status = diffDays > 0 ? "VENCIDO" : "REGISTRADO";
         } else if (boleto.status === "REGISTRADO") {
+          // Boleto registrado: verificar se está vencido
           status = diffDays > 0 ? "VENCIDO" : "REGISTRADO";
         } else if (boleto.status === "VENCIDO") {
           status = "VENCIDO";
+        } else if (boleto.status === "PENDENTE") {
+          status = "PENDENTE";
         }
 
         return {
