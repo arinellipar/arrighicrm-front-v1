@@ -59,18 +59,29 @@ export function SessoesAtivasModal({
       return "0m";
     }
 
-    // Se vier no formato hh:mm:ss, converter para formato legível
+    // Se vier no formato HH:mm:ss, converter para formato legível
     const parts = tempo.split(":");
     if (parts.length === 3) {
-      const hours = parseInt(parts[0]);
-      const minutes = parseInt(parts[1]);
+      const hours = parseInt(parts[0], 10);
+      const minutes = parseInt(parts[1], 10);
+      const seconds = parseInt(parts[2], 10);
 
-      if (hours > 0) {
+      // Se tiver mais de 24 horas, mostrar em dias
+      if (hours >= 24) {
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+        if (remainingHours > 0) {
+          return `${days}d ${remainingHours}h`;
+        }
+        return `${days}d`;
+      } else if (hours > 0) {
         return `${hours}h ${minutes}m`;
       } else if (minutes > 0) {
         return `${minutes}m`;
+      } else if (seconds > 0) {
+        return `${seconds}s`;
       } else {
-        return "< 1m";
+        return "< 1s";
       }
     }
 

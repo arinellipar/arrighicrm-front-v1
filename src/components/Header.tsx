@@ -102,8 +102,8 @@ const menuItems: MenuGroup[] = [
         requiredAction: "Visualizar",
       },
       {
-        label: "Histórico de Clientes",
-        href: "/gestao/historico-clientes",
+        label: "Histórico do Cliente",
+        href: "/gestao/historico-cliente",
         icon: <History className="w-4 h-4" />,
         requiredModule: "Cliente",
         requiredAction: "Visualizar",
