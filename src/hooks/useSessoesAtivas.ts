@@ -33,7 +33,9 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
   const fetchSessoes = async () => {
     // Apenas administradores podem buscar sessões
     if (!isAdmin) {
-      console.log("🔒 useSessoesAtivas: Usuário não é administrador, bloqueando acesso");
+      console.log(
+        "🔒 useSessoesAtivas: Usuário não é administrador, bloqueando acesso"
+      );
       setSessoes([]);
       setCount(0);
       setCountOnline(0);
@@ -45,33 +47,62 @@ export function useSessoesAtivas(incluirInativos: boolean = false) {
     try {
       setLoading(true);
       console.log("🔍 useSessoesAtivas: Buscando sessões ativas...");
+      console.log("🔍 useSessoesAtivas: incluirInativos =", incluirInativos);
 
-      // Se incluirInativos for true, busca o histórico completo
-      const endpoint = incluirInativos
-        ? "/SessaoAtiva/historico"
-        : "/SessaoAtiva";
-      const response = await apiClient.get<SessaoAtiva[]>(endpoint);
+      const baseEndpoint = "/SessaoAtiva";
+      const historicoEndpoint = "/SessaoAtiva/historico";
 
-      console.log("✅ useSessoesAtivas: Resposta recebida:", response.data?.length || 0, "sessões");
+      // Usar endpoint de histórico para incluir usuários offline
+      let endpoint = incluirInativos ? historicoEndpoint : baseEndpoint;
+      console.log("🔍 useSessoesAtivas: Endpoint =", endpoint);
+      let response = await apiClient.get<SessaoAtiva[]>(endpoint);
+
+      const historicoFalhou =
+        incluirInativos &&
+        (response.error ||
+          (response.status ?? 0) >= 400 ||
+          !Array.isArray(response.data));
+
+      if (historicoFalhou) {
+        console.warn(
+          "⚠️ useSessoesAtivas: Falha ao carregar histórico completo, fazendo fallback para sessões ativas.",
+          {
+            status: response.status,
+            error: response.error,
+          }
+        );
+        endpoint = baseEndpoint;
+        response = await apiClient.get<SessaoAtiva[]>(endpoint);
+        setError(
+          "Histórico indisponível temporariamente. Mostrando apenas usuários online."
+        );
+      } else {
+        setError(null);
+      }
+
+      console.log(
+        "✅ useSessoesAtivas: Resposta recebida:",
+        response.data?.length || 0,
+        "sessões"
+      );
 
       if (response.data && Array.isArray(response.data)) {
         setSessoes(response.data);
 
-        if (incluirInativos) {
+        if (incluirInativos && endpoint === historicoEndpoint) {
           // Contar usuários online e total
           const online = response.data.filter((s) => s.estaOnline).length;
           setCountOnline(online);
           setCount(response.data.length);
         } else {
           setCount(response.data.length);
-          setCountOnline(response.data.length);
+          setCountOnline(response.data.filter((s) => s.estaOnline).length);
         }
       } else {
         setSessoes([]);
         setCount(0);
         setCountOnline(0);
       }
-      setError(null);
     } catch (err) {
       console.error("Erro ao buscar sessões:", err);
       setError("Erro ao carregar sessões");
