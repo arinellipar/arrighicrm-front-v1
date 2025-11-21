@@ -223,12 +223,15 @@ export default function ModernDashboard() {
   // Hook para sessões ativas em tempo real (incluindo histórico de todos os usuários)
   // Apenas buscar se for administrador - não buscar nada se não for admin
   const isAdmin = permissoes?.grupo === "Administrador";
+  // ⚠️ Importante: manter false (ou sem argumento) até que o endpoint
+  // /SessaoAtiva/historico esteja estabilizado no backend. O uso de `true`
+  // causa 500 e quebra o dashboard em produção (vide CORRIGIR_ERRO_HISTORICO.md).
   const {
     sessoes,
     count: sessoesCount,
     countOnline: sessoesOnline,
     loading: sessoesLoading,
-  } = useSessoesAtivas(true); // true = busca histórico completo (todos os usuários)
+  } = useSessoesAtivas(false);
 
   // Hook para estatísticas e receita
   const {

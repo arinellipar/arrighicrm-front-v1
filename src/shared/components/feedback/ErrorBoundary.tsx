@@ -52,7 +52,7 @@ export class ErrorBoundary extends Component<Props, State> {
     datadogError.captureComponentError(
       error,
       this.props.componentName || "UnknownComponent",
-      errorInfo.componentStack
+      errorInfo.componentStack ?? undefined
     );
 
     // Callback customizado
