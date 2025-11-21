@@ -111,9 +111,14 @@ export default function BoletosPage() {
   };
 
   const handleDownloadPdf = async (boleto: Boleto) => {
-    if (boleto.status !== "REGISTRADO") {
+    // Permitir download para boletos REGISTRADOS, ATIVO e VENCIDO (não pagos)
+    if (
+      boleto.status === "LIQUIDADO" ||
+      boleto.status === "BAIXADO" ||
+      boleto.status === "CANCELADO"
+    ) {
       alert(
-        "⚠️ Apenas boletos REGISTRADOS (não pagos) podem ter o PDF baixado.\n\nBoletos pagos não estão mais disponíveis na API do Santander."
+        "⚠️ Apenas boletos não pagos podem ter o PDF baixado.\n\nBoletos pagos ou cancelados não estão mais disponíveis na API do Santander."
       );
       return;
     }
@@ -900,6 +905,7 @@ export default function BoletosPage() {
                               <Eye className="w-4 h-4" />
                             </button>
                             {(boleto.status === "REGISTRADO" ||
+                              boleto.status === "ATIVO" ||
                               boleto.status === "VENCIDO") && (
                               <>
                                 <button
