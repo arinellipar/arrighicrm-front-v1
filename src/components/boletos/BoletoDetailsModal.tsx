@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Copy, CheckCircle, AlertCircle } from "lucide-react";
 import { consultarStatusBoleto, BoletoStatus } from "@/services/boletoService";
 import { StatusBadge } from "./StatusBadge";
@@ -17,12 +17,40 @@ export function BoletoDetailsModal({
 }: BoletoDetailsModalProps) {
   const [status, setStatus] = useState<BoletoStatus | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const formatCurrency = (value?: number) => {
+    if (typeof value !== "number") return "—";
+    return value.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    });
+  };
+
+  const formatDate = (value?: string) => {
+    if (!value) return "—";
+    try {
+      return new Date(value).toLocaleDateString("pt-BR");
+    } catch {
+      return "—";
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
       carregarStatus();
     }
   }, [isOpen, boletoId]);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const carregarStatus = async () => {
     setLoading(true);
@@ -37,10 +65,52 @@ export function BoletoDetailsModal({
     }
   };
 
-  const copiarParaClipboard = (texto: string, tipo: string) => {
+  const copiarParaClipboard = (texto?: string, campo?: string) => {
+    if (!texto) return;
     navigator.clipboard.writeText(texto);
-    alert(`${tipo} copiado para área de transferência!`);
+    if (campo) {
+      setCopiedField(campo);
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => setCopiedField(null), 2000);
+    }
   };
+
+  const qrCodeImage =
+    status?.qrCodeUrl ||
+    (status?.qrCodePix
+      ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+          status.qrCodePix
+        )}`
+      : null);
+
+  const resumoFinanceiro = [
+    { label: "Valor nominal", value: formatCurrency(status?.nominalValue) },
+    { label: "Valor pago", value: formatCurrency(status?.paidValue) },
+    { label: "Descontos", value: formatCurrency(status?.discountValue) },
+    { label: "Multa", value: formatCurrency(status?.fineValue) },
+    { label: "Juros", value: formatCurrency(status?.interestValue) },
+    { label: "Vencimento", value: formatDate(status?.dueDate) },
+    { label: "Emissão", value: formatDate(status?.issueDate) },
+    { label: "Entrada Santander", value: formatDate(status?.entryDate) },
+    { label: "Pagamento", value: formatDate(status?.settlementDate) },
+  ];
+
+  const identificadoresTecnicos = [
+    { label: "NSU Code", value: status?.nsuCode, id: "nsuCode" },
+    { label: "Nosso Número", value: status?.bankNumber, id: "bankNumber" },
+    {
+      label: "Código do Convênio",
+      value: status?.beneficiaryCode,
+      id: "beneficiaryCode",
+    },
+    { label: "Client Number", value: status?.clientNumber, id: "clientNumber" },
+  ];
+
+  const ultimaAtualizacao = status?.consultaRealizadaEm
+    ? formatDate(status.consultaRealizadaEm)
+    : formatDate(status?.entryDate);
 
   if (!isOpen) return null;
 
@@ -87,212 +157,289 @@ export function BoletoDetailsModal({
               </div>
             ) : status ? (
               <div className="space-y-6">
-                {/* Status Atual */}
-                <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
-                  <h3 className="font-bold text-lg mb-3 text-neutral-50">
-                    📊 Status Atual
-                  </h3>
-                  <StatusBadge
-                    status={status.status}
-                    statusDescription={status.statusDescription}
-                    size="lg"
-                  />
-                  <p className="text-sm text-neutral-400 mt-3">
-                    {status.statusDescription}
-                  </p>
-                </div>
-
-                {/* Informações de Pagamento (se pago) */}
-                {status.paidValue && (
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="bg-gradient-to-br from-green-500/10 to-green-600/10 p-6 rounded-xl border-2 border-green-500/30 shadow-lg"
-                  >
-                    <h3 className="font-bold text-lg mb-4 text-green-400 flex items-center gap-2">
-                      <CheckCircle className="w-6 h-6" />
-                      Informações de Pagamento
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-green-400 font-medium">
-                          Valor Pago
-                        </p>
-                        <p className="text-2xl font-bold text-green-300">
-                          R$ {status.paidValue.toFixed(2)}
-                        </p>
-                      </div>
-                      {status.settlementDate && (
-                        <div>
-                          <p className="text-sm text-green-400 font-medium">
-                            Data de Pagamento
-                          </p>
-                          <p className="text-xl font-bold text-green-300">
-                            {new Date(status.settlementDate).toLocaleDateString(
-                              "pt-BR"
-                            )}
-                          </p>
-                        </div>
-                      )}
+                <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30">
+                  <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="space-y-2">
+                      <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
+                        Dados do boleto
+                      </p>
+                      <h3 className="text-2xl lg:text-3xl font-semibold text-neutral-50">
+                        {status.payer?.name || `Boleto #${boletoId}`}
+                      </h3>
+                      <p className="text-sm text-neutral-400">
+                        {status.payer?.documentNumber || "Documento não informado"}
+                      </p>
                     </div>
-                  </motion.div>
-                )}
-
-                {/* Informações Básicas */}
-                <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
-                  <h3 className="font-bold text-lg mb-4 text-neutral-100">
-                    📋 Informações Básicas
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex flex-col gap-3 w-full lg:max-w-sm">
+                      <StatusBadge
+                        status={status.status}
+                        statusDescription={status.statusDescription}
+                        size="lg"
+                      />
+                      <p className="text-sm text-neutral-400">
+                        {status.statusDescription}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        Última atualização: {ultimaAtualizacao}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 text-sm">
                     <div>
-                      <p className="text-neutral-400 font-medium">Valor Nominal</p>
-                      <p className="text-lg font-bold text-neutral-50">
-                        R$ {status.nominalValue?.toFixed(2)}
+                      <p className="text-neutral-400 uppercase text-xs tracking-wide">
+                        NSU Code
+                      </p>
+                      <p className="font-mono text-lg text-gold-400">
+                        {status.nsuCode ?? "—"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-neutral-400 font-medium">Vencimento</p>
-                      <p className="text-lg font-bold text-neutral-50">
-                        {status.dueDate
-                          ? new Date(status.dueDate).toLocaleDateString(
-                              "pt-BR"
-                            )
-                          : "-"}
+                      <p className="text-neutral-400 uppercase text-xs tracking-wide">
+                        Nosso Número
                       </p>
-                    </div>
-                    <div>
-                      <p className="text-neutral-400 font-medium">Nosso Número</p>
-                      <p className="font-mono text-neutral-50 font-semibold">
-                        {status.bankNumber}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-neutral-400 font-medium">
-                        Código do Convênio
-                      </p>
-                      <p className="font-mono text-neutral-50 font-semibold">
-                        {status.beneficiaryCode}
+                      <p className="font-mono text-lg text-neutral-50">
+                        {status.bankNumber ?? "—"}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Dados do Pagador */}
-                {status.payer && (
-                  <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
-                    <h3 className="font-bold text-lg mb-4 text-neutral-50">
-                      👤 Dados do Pagador
+                <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30">
+                  <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
+                    <h3 className="text-xl font-semibold text-neutral-50">
+                      Resumo financeiro
                     </h3>
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <p className="text-neutral-400 font-medium">Nome</p>
-                        <p className="text-neutral-50 font-semibold">
-                          {status.payer.name}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-neutral-400 font-medium">Documento</p>
-                        <p className="font-mono text-neutral-50 font-semibold">
-                          {status.payer.documentNumber}
-                        </p>
-                      </div>
-                    </div>
+                    <span className="text-xs text-neutral-500 uppercase">
+                      Consulta Santander: {ultimaAtualizacao}
+                    </span>
                   </div>
-                )}
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {resumoFinanceiro.map((stat) => (
+                      <div
+                        key={stat.label}
+                        className="bg-neutral-950/40 border border-neutral-800 rounded-xl p-4"
+                      >
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          {stat.label}
+                        </p>
+                        <p className="text-lg font-semibold text-neutral-50 mt-1">
+                          {stat.value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                {/* PIX com QR Code Visual */}
-                {status.qrCodePix && (
-                  <div className="bg-gradient-to-br from-gold-500/10 to-gold-600/10 p-6 rounded-xl border-2 border-gold-500/30 shadow-lg">
-                    <h3 className="font-bold text-lg mb-4 text-gold-400 flex items-center gap-2">
-                      💳 Pagamento via PIX
+                <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30 space-y-6">
+                  <div>
+                    <h3 className="text-xl font-semibold text-neutral-50">
+                      Dados Santander
                     </h3>
+                    <p className="text-sm text-neutral-400">
+                      Utilize as informações oficiais para pagamento e conferência
+                      no banco.
+                    </p>
+                  </div>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <CopyableValue
+                      label="Código de barras"
+                      value={status.barCode}
+                      copyId="barCode"
+                      onCopy={copiarParaClipboard}
+                      isCopied={copiedField === "barCode"}
+                    />
+                    <CopyableValue
+                      label="Linha digitável"
+                      value={status.digitableLine}
+                      copyId="digitableLine"
+                      onCopy={copiarParaClipboard}
+                      isCopied={copiedField === "digitableLine"}
+                    />
+                  </div>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {identificadoresTecnicos.map((campo) => (
+                      <CopyableValue
+                        key={campo.id}
+                        label={campo.label}
+                        value={campo.value}
+                        copyId={campo.id}
+                        onCopy={copiarParaClipboard}
+                        isCopied={copiedField === campo.id}
+                      />
+                    ))}
+                  </div>
+                </div>
 
-                    {/* QR Code Visual */}
-                    <div className="flex flex-col items-center mb-4">
-                      <div className="bg-white p-4 rounded-xl shadow-lg">
-                        <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(status.qrCodePix)}`}
-                          alt="QR Code PIX"
-                          className="w-48 h-48"
+                {(status.qrCodePix || qrCodeImage) && (
+                  <div className="bg-gradient-to-br from-gold-500/10 to-gold-600/10 border border-gold-500/30 rounded-2xl p-6 shadow-lg shadow-gold-500/20 space-y-6">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <h3 className="text-xl font-semibold text-gold-300">
+                        Pagamento via PIX Santander
+                      </h3>
+                      <span className="text-xs text-neutral-700 uppercase">
+                        QR Code oficial retornado pela API Santander
+                      </span>
+                    </div>
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      <div className="flex flex-col items-center justify-center bg-white rounded-2xl shadow-2xl p-4 w-full lg:max-w-xs">
+                        {qrCodeImage ? (
+                          <img
+                            src={qrCodeImage}
+                            alt="QR Code PIX Santander"
+                            className="w-48 h-48"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <p className="text-sm text-neutral-500 text-center">
+                            QR Code não disponível para este boleto
+                          </p>
+                        )}
+                        <p className="text-xs text-neutral-500 mt-3 flex items-center gap-1">
+                          Abra o app do seu banco e escaneie o QR Code
+                        </p>
+                      </div>
+                      <div className="flex-1 space-y-4">
+                        <CopyableValue
+                          label="Código PIX (copia e cola)"
+                          value={status.qrCodePix}
+                          copyId="pixCode"
+                          onCopy={copiarParaClipboard}
+                          isCopied={copiedField === "pixCode"}
+                          helperText="Cole diretamente no app do seu banco para pagar este boleto."
+                        />
+                        <CopyableValue
+                          label="Link oficial do QR Code"
+                          value={status.qrCodeUrl}
+                          copyId="pixUrl"
+                          onCopy={copiarParaClipboard}
+                          isCopied={copiedField === "pixUrl"}
+                          helperText="URL fornecida pela API Santander contendo a imagem oficial do QR."
                         />
                       </div>
-                      <p className="text-sm text-neutral-400 mt-3">
-                        Escaneie com seu app de pagamento
-                      </p>
                     </div>
+                  </div>
+                )}
 
-                    {/* Código PIX Copia e Cola */}
-                    <div className="bg-neutral-800/50 p-3 rounded-lg border border-neutral-700 mb-3">
-                      <p className="text-xs text-neutral-400 mb-2">Código PIX Copia e Cola:</p>
-                      <p className="font-mono text-xs text-neutral-200 break-all max-h-20 overflow-y-auto">
-                        {status.qrCodePix}
-                      </p>
+                {status.payer && (
+                  <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30 space-y-4">
+                    <h3 className="text-xl font-semibold text-neutral-50">
+                      Dados do pagador
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          Nome
+                        </p>
+                        <p className="text-neutral-50 font-semibold">
+                          {status.payer.name || "Não informado"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          Documento
+                        </p>
+                        <p className="font-mono text-neutral-100">
+                          {status.payer.documentNumber || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          Endereço
+                        </p>
+                        <p className="text-neutral-50">
+                          {status.payer.address || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          Bairro
+                        </p>
+                        <p className="text-neutral-50">
+                          {status.payer.neighborhood || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          Cidade / UF
+                        </p>
+                        <p className="text-neutral-50">
+                          {[status.payer.city, status.payer.state]
+                            .filter(Boolean)
+                            .join(" / ") || "—"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-neutral-500">
+                          CEP
+                        </p>
+                        <p className="text-neutral-50">
+                          {status.payer.zipCode || "—"}
+                        </p>
+                      </div>
                     </div>
-
-                    <button
-                      onClick={() =>
-                        copiarParaClipboard(status.qrCodePix!, "Código PIX")
-                      }
-                      className="w-full px-4 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 shadow-lg shadow-gold-500/20"
-                    >
-                      <Copy className="w-5 h-5" />
-                      Copiar Código PIX
-                    </button>
                   </div>
                 )}
 
-                {/* Linha Digitável */}
-                {status.digitableLine && (
-                  <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
-                    <h3 className="font-bold text-lg mb-3 text-neutral-50 flex items-center gap-2">
-                      🔢 Linha Digitável
+                {status.settlements && status.settlements.length > 0 && (
+                  <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30 space-y-4">
+                    <h3 className="text-xl font-semibold text-neutral-50">
+                      Liquidações registradas
                     </h3>
-                    <p className="font-mono text-sm bg-neutral-900 p-3 rounded border border-neutral-700 break-all mb-3 text-neutral-100">
-                      {status.digitableLine}
-                    </p>
-                    <button
-                      onClick={() =>
-                        copiarParaClipboard(
-                          status.digitableLine!,
-                          "Linha digitável"
-                        )
-                      }
-                      className="w-full px-4 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 shadow-lg shadow-gold-500/20"
-                    >
-                      <Copy className="w-5 h-5" />
-                      Copiar
-                    </button>
+                    <div className="space-y-3">
+                      {status.settlements.map((settlement, index) => (
+                        <div
+                          key={`${settlement.settlementDate}-${index}`}
+                          className="bg-neutral-950/40 border border-neutral-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                        >
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-neutral-500">
+                              Data
+                            </p>
+                            <p className="text-neutral-50">
+                              {formatDate(settlement.settlementDate)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-neutral-500">
+                              Origem
+                            </p>
+                            <p className="text-neutral-50">
+                              {settlement.settlementOrigin || "—"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs uppercase tracking-wide text-neutral-500">
+                              Valor
+                            </p>
+                            <p className="text-neutral-50 font-semibold">
+                              {formatCurrency(settlement.settlementValue)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
-                {/* Código de Barras */}
-                {status.barCode && (
-                  <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
-                    <h3 className="font-bold text-lg mb-3 text-neutral-50">
-                      📊 Código de Barras
+                {status.messages && status.messages.length > 0 && (
+                  <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30">
+                    <h3 className="text-xl font-semibold text-neutral-50 mb-3">
+                      Mensagens do Santander
                     </h3>
-                    <p className="font-mono text-sm bg-neutral-900 p-3 rounded border border-neutral-700 break-all text-neutral-100 mb-3">
-                      {status.barCode}
-                    </p>
-                    <button
-                      onClick={() =>
-                        copiarParaClipboard(status.barCode!, "Código de barras")
-                      }
-                      className="w-full px-4 py-3 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 border border-neutral-600"
-                    >
-                      <Copy className="w-5 h-5" />
-                      Copiar Código
-                    </button>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-neutral-300">
+                      {status.messages.map((message, index) => (
+                        <li key={`mensagem-${index}`}>{message}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
 
-                {/* Botão Atualizar */}
                 <button
                   onClick={carregarStatus}
                   disabled={loading}
                   className="w-full px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg shadow-gold-500/20 hover:shadow-gold-500/30"
                 >
-                  🔄 Atualizar Status
+                  🔄 Atualizar status na API Santander
                 </button>
               </div>
             ) : (
@@ -317,5 +464,73 @@ export function BoletoDetailsModal({
         </motion.div>
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+interface CopyableValueProps {
+  label: string;
+  value?: string | number | null;
+  copyId: string;
+  onCopy: (value?: string, fieldId?: string) => void;
+  isCopied: boolean;
+  helperText?: string;
+  mono?: boolean;
+}
+
+function CopyableValue({
+  label,
+  value,
+  copyId,
+  onCopy,
+  isCopied,
+  helperText,
+  mono = true,
+}: CopyableValueProps) {
+  if (
+    value === undefined ||
+    value === null ||
+    (typeof value === "string" && value.trim() === "")
+  ) {
+    return null;
+  }
+
+  const textValue = String(value);
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm text-neutral-400 font-medium">{label}</p>
+      <div className="flex items-center gap-3 bg-neutral-950/60 border border-neutral-800 rounded-xl p-3">
+        <p
+          className={`flex-1 break-all ${
+            mono ? "font-mono text-sm" : "text-base font-semibold"
+          } text-neutral-50`}
+        >
+          {textValue}
+        </p>
+        <button
+          onClick={() => onCopy(textValue, copyId)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${
+            isCopied
+              ? "bg-emerald-600/20 text-emerald-300 border border-emerald-400/40"
+              : "bg-gradient-to-r from-gold-500 to-gold-600 text-neutral-950 shadow-gold-500/30"
+          }`}
+        >
+          {isCopied ? (
+            <>
+              <CheckCircle className="w-4 h-4" />
+              Copiado
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              Copiar
+            </>
+          )}
+        </button>
+      </div>
+      {helperText && (
+        <p className="text-xs text-neutral-500">{helperText}</p>
+      )}
+    </div>
   );
 }

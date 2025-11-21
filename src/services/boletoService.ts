@@ -1,22 +1,61 @@
 import { apiClient } from "@/core/api/client";
 
+export interface BoletoPayer {
+  name?: string;
+  documentType?: string;
+  documentNumber?: string;
+  address?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+}
+
+export interface SettlementInfo {
+  settlementType?: string;
+  settlementDate?: string;
+  settlementValue?: number;
+  settlementOrigin?: string;
+  bankCode?: string;
+  bankBranch?: string;
+}
+
+export interface RegistryInfo {
+  registryDate?: string;
+  registryNumber?: string;
+  notaryOffice?: string;
+  registryCost?: number;
+}
+
 export interface BoletoStatus {
   status: string;
   statusDescription: string;
   beneficiaryCode?: string;
   bankNumber?: string;
+  clientNumber?: string;
+  nsuCode?: string;
+  nsuDate?: string;
   dueDate?: string;
+  issueDate?: string;
+  entryDate?: string;
+  settlementDate?: string;
   nominalValue?: number;
   paidValue?: number;
-  settlementDate?: string;
-  payer?: {
-    name?: string;
-    documentType?: string;
-    documentNumber?: string;
-  };
+  discountValue?: number;
+  fineValue?: number;
+  interestValue?: number;
+  documentKind?: string;
+  paidValueCurrency?: string;
   qrCodePix?: string;
+  qrCodeUrl?: string;
   barCode?: string;
   digitableLine?: string;
+  payer?: BoletoPayer;
+  messages?: string[];
+  settlements?: SettlementInfo[];
+  registryInfo?: RegistryInfo;
+  consultaRealizadaEm?: string;
+  tipoConsulta?: string;
 }
 
 export interface BoletoAtualizado {
