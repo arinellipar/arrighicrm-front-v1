@@ -317,10 +317,10 @@ export default function PessoaFisicaPage() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-neutral-50 mb-2">
                 Acesso Negado
               </h3>
-              <p className="text-gray-500">
+              <p className="text-neutral-400">
                 Você não tem permissão para acessar pessoas físicas.
               </p>
             </div>
@@ -368,7 +368,7 @@ export default function PessoaFisicaPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full"
+            className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-neutral-800 w-full"
           >
             <div className="flex flex-col md:flex-row gap-2 sm:gap-3 lg:gap-4 w-full">
               <div className="flex-1 relative">
@@ -433,7 +433,7 @@ export default function PessoaFisicaPage() {
             transition={{ delay: 0.2 }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 w-full"
           >
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
+            <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-neutral-800 w-full">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
@@ -449,7 +449,7 @@ export default function PessoaFisicaPage() {
               </div>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
+            <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-neutral-800 w-full">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
@@ -465,7 +465,7 @@ export default function PessoaFisicaPage() {
               </div>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full">
+            <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-neutral-800 w-full">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
@@ -492,7 +492,7 @@ export default function PessoaFisicaPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden w-full"
+              className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg border border-neutral-800 overflow-hidden w-full"
             >
               <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-secondary-200/50">
                 <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-secondary-900">
@@ -755,7 +755,7 @@ export default function PessoaFisicaPage() {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-secondary-700 bg-white border border-secondary-300 rounded-lg hover:bg-secondary-50 transition-colors duration-200"
+                        className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-neutral-300 bg-neutral-800 border border-neutral-700 rounded-lg hover:bg-neutral-700 hover:border-gold-500/50 transition-colors duration-200"
                       >
                         Anterior
                       </motion.button>
@@ -810,7 +810,7 @@ export default function PessoaFisicaPage() {
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
-                    className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+                    className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full shadow-xl border border-neutral-800"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="flex items-center space-x-3 mb-4">

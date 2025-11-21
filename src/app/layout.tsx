@@ -9,6 +9,7 @@ import { DatadogProvider } from "@/core/providers/DatadogProvider";
 import ConditionalRouteGuard from "@/components/ConditionalRouteGuard";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
+import ThemeRegistry from "@/components/ThemeRegistry";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,8 +56,10 @@ export default function RootLayout({
               <AtividadeProvider>
                 <FormProvider>
                   <ConditionalRouteGuard>
-                    <Analytics />
-                    {children}
+                    <ThemeRegistry>
+                      <Analytics />
+                      {children}
+                    </ThemeRegistry>
                   </ConditionalRouteGuard>
                 </FormProvider>
               </AtividadeProvider>

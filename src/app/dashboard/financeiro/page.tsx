@@ -95,7 +95,7 @@ export default function DashboardFinanceiroPage() {
           background: gradient,
         }}
       />
-      <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl p-6 h-full">
+      <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl p-6 h-full">
         <div className="flex items-start justify-between mb-4">
           <div
             className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}
@@ -153,7 +153,7 @@ export default function DashboardFinanceiroPage() {
       <div
         className={`absolute inset-0 ${bgColor} opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 rounded-2xl`}
       />
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-gray-100 hover:border-gray-200 transition-all duration-300">
+      <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 border border-neutral-800 hover:border-neutral-700 transition-all duration-300">
         <div className="flex flex-col items-center">
           <div
             className={`w-14 h-14 ${bgColor} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}
@@ -252,7 +252,7 @@ export default function DashboardFinanceiroPage() {
               whileTap={{ scale: 0.95 }}
               onClick={loadDashboard}
               disabled={refreshing}
-              className="group flex items-center gap-2 px-5 py-3 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+              className="group flex items-center gap-2 px-5 py-3 bg-white hover:bg-gray-50 border border-neutral-700 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
             >
               <RefreshCw
                 className={`w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors ${
@@ -312,7 +312,7 @@ export default function DashboardFinanceiroPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-white/80 backdrop-blur-xl rounded-3xl border border-gray-100 shadow-xl p-8 mb-10"
+            className="bg-white/80 backdrop-blur-xl rounded-3xl border border-neutral-800 shadow-xl p-8 mb-10"
           >
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
@@ -428,7 +428,7 @@ export default function DashboardFinanceiroPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.9 }}
-              className="bg-white/80 backdrop-blur-xl rounded-3xl border border-gray-100 shadow-xl p-8"
+              className="bg-white/80 backdrop-blur-xl rounded-3xl border border-neutral-800 shadow-xl p-8"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -495,7 +495,7 @@ export default function DashboardFinanceiroPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 1 }}
-              className="bg-white/80 backdrop-blur-xl rounded-3xl border border-gray-100 shadow-xl p-8"
+              className="bg-white/80 backdrop-blur-xl rounded-3xl border border-neutral-800 shadow-xl p-8"
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">

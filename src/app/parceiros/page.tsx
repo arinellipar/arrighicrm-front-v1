@@ -274,7 +274,7 @@ export default function ParceirosPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-sm border border-secondary-200/50"
+          className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 shadow-sm border border-neutral-800"
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
@@ -363,7 +363,7 @@ export default function ParceirosPage() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-secondary-200/50">
+          <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
@@ -379,7 +379,7 @@ export default function ParceirosPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-secondary-200/50">
+          <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
@@ -395,7 +395,7 @@ export default function ParceirosPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-secondary-200/50">
+          <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
@@ -411,7 +411,7 @@ export default function ParceirosPage() {
             </div>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-secondary-200/50">
+          <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-secondary-600 text-sm font-medium">
@@ -438,9 +438,9 @@ export default function ParceirosPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden"
+            className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-sm border border-neutral-800 overflow-hidden"
           >
-            <div className="px-6 py-4 border-b border-secondary-200/50 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-secondary-900">
                 Lista de Parceiros ({filteredParceiros.length} registros)
               </h3>
@@ -633,7 +633,7 @@ export default function ParceirosPage() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.05 * index }}
-                    className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 border border-secondary-200/50"
+                    className="bg-neutral-900/95 backdrop-blur-xl rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 border border-neutral-800"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center">
@@ -743,7 +743,7 @@ export default function ParceirosPage() {
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+                className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full shadow-xl"
               >
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="p-2 bg-red-100 rounded-full">

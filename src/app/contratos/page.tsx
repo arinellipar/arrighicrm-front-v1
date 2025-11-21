@@ -666,7 +666,7 @@ export default function ContratosPage() {
     <MainLayout>
       <div className="space-y-6">
         {/* Header com Estatísticas */}
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 p-6">
+        <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-sm border border-neutral-200/60 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-neutral-900">
@@ -690,115 +690,105 @@ export default function ContratosPage() {
             </motion.button>
           </div>
 
-          {/* Cards de Estatísticas */}
+          {/* Cards de Estatísticas - Estilo Premium Dashboard */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200"
+              className="bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-blue-600">
-                    Total de Contratos
-                  </p>
-                  <p className="text-2xl font-bold text-blue-900 mt-1">
-                    {estatisticas.total}
-                  </p>
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30">
+                  <FileText className="w-6 h-6 text-gold-400" />
                 </div>
-                <FileText className="w-8 h-8 text-blue-500 opacity-50" />
               </div>
+              <p className="text-neutral-400 text-sm mb-1">Total de Contratos</p>
+              <p className="text-3xl font-bold text-neutral-50">
+                {estatisticas.total}
+              </p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 rounded-xl border border-yellow-200"
+              className="bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-yellow-600">
-                    Em Andamento
-                  </p>
-                  <p className="text-2xl font-bold text-yellow-900 mt-1">
-                    {estatisticas.emNegociacao}
-                  </p>
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30">
+                  <Clock className="w-6 h-6 text-gold-400" />
                 </div>
-                <Clock className="w-8 h-8 text-yellow-500 opacity-50" />
               </div>
+              <p className="text-neutral-400 text-sm mb-1">Em Andamento</p>
+              <p className="text-3xl font-bold text-neutral-50">
+                {estatisticas.emNegociacao}
+              </p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border border-green-200"
+              className="bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-green-600">
-                    Concluídos
-                  </p>
-                  <p className="text-2xl font-bold text-green-900 mt-1">
-                    {estatisticas.fechados}
-                  </p>
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30">
+                  <CheckCircle className="w-6 h-6 text-gold-400" />
                 </div>
-                <CheckCircle className="w-8 h-8 text-green-500 opacity-50" />
               </div>
+              <p className="text-neutral-400 text-sm mb-1">Concluídos</p>
+              <p className="text-3xl font-bold text-neutral-50">
+                {estatisticas.fechados}
+              </p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200"
+              className="bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-purple-600">
-                    Valor Total
-                  </p>
-                  <p className="text-lg font-bold text-purple-900 mt-1">
-                    {formatCurrency(estatisticas.valorTotal)}
-                  </p>
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30">
+                  <DollarSign className="w-6 h-6 text-gold-400" />
                 </div>
-                <DollarSign className="w-8 h-8 text-purple-500 opacity-50" />
               </div>
+              <p className="text-neutral-400 text-sm mb-1">Valor Total</p>
+              <p className="text-2xl font-bold text-neutral-50">
+                {formatCurrency(estatisticas.valorTotal)}
+              </p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl border border-indigo-200"
+              className="bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-indigo-600">
-                    Taxa de Conversão
-                  </p>
-                  <p className="text-2xl font-bold text-indigo-900 mt-1">
-                    {estatisticas.taxaConversao}%
-                  </p>
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30">
+                  <TrendingUp className="w-6 h-6 text-gold-400" />
                 </div>
-                <TrendingUp className="w-8 h-8 text-indigo-500 opacity-50" />
               </div>
+              <p className="text-neutral-400 text-sm mb-1">Taxa de Conversão</p>
+              <p className="text-3xl font-bold text-neutral-50">
+                {estatisticas.taxaConversao}%
+              </p>
             </motion.div>
           </div>
         </div>
 
-        {/* Tabs Contratos / Clientes */}
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 p-2">
+        {/* Tabs Contratos / Clientes - Estilo Premium */}
+        <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-lg border border-neutral-800 p-2">
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab("contratos")}
               className={cn(
-                "flex-1 px-4 py-2 rounded-lg text-sm font-medium",
+                "flex-1 px-6 py-3 rounded-lg text-sm font-medium transition-all",
                 activeTab === "contratos"
-                  ? "bg-primary-100 text-primary-700"
-                  : "text-neutral-600 hover:bg-neutral-50"
+                  ? "bg-gradient-to-r from-gold-500 to-gold-600 text-neutral-950 shadow-lg shadow-gold-500/20"
+                  : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200"
               )}
             >
               Contratos
@@ -806,10 +796,10 @@ export default function ContratosPage() {
             <button
               onClick={() => setActiveTab("clientes")}
               className={cn(
-                "flex-1 px-4 py-2 rounded-lg text-sm font-medium",
+                "flex-1 px-6 py-3 rounded-lg text-sm font-medium transition-all",
                 activeTab === "clientes"
-                  ? "bg-primary-100 text-primary-700"
-                  : "text-neutral-600 hover:bg-neutral-50"
+                  ? "bg-gradient-to-r from-gold-500 to-gold-600 text-neutral-950 shadow-lg shadow-gold-500/20"
+                  : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200"
               )}
             >
               Clientes
@@ -818,7 +808,7 @@ export default function ContratosPage() {
         </div>
 
         {/* Filtros e Busca */}
-        <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 p-4">
+        <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-sm border border-neutral-200/60 p-4">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Busca */}
             <div className="flex-1">
@@ -961,7 +951,7 @@ export default function ContratosPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-white rounded-xl shadow-sm border border-neutral-200/60 hover:shadow-lg transition-all duration-300 overflow-hidden group"
+                    className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-sm border border-neutral-200/60 hover:shadow-lg transition-all duration-300 overflow-hidden group"
                   >
                     {/* Header do Card */}
                     <div className="p-4 border-b border-neutral-100">
@@ -1134,7 +1124,7 @@ export default function ContratosPage() {
             </div>
           ) : (
             /* View de Tabela */
-            <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
+            <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-neutral-50 border-b border-neutral-200">
@@ -1277,7 +1267,7 @@ export default function ContratosPage() {
         {activeTab === "clientes" && (
           <>
             {clientesFiltrados.length > 0 ? (
-              <div className="bg-white rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
+              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-sm border border-neutral-200/60 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead className="bg-neutral-50 border-b border-neutral-200">
@@ -1374,7 +1364,7 @@ export default function ContratosPage() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-white rounded-xl shadow-sm border border-neutral-200/60 p-12 text-center"
+                className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-sm border border-neutral-200/60 p-12 text-center"
               >
                 <Users className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-neutral-900 mb-2">
@@ -1402,7 +1392,7 @@ export default function ContratosPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white rounded-xl shadow-sm border border-neutral-200/60 p-12 text-center"
+            className="bg-neutral-900/95 backdrop-blur-xl rounded-xl shadow-sm border border-neutral-200/60 p-12 text-center"
           >
             <FileText className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-neutral-900 mb-2">
@@ -1495,9 +1485,9 @@ export default function ContratosPage() {
       {/* Modal de Boletos do Contrato */}
       {showBoletos && selectedContrato && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-neutral-900/95 backdrop-blur-xl rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center justify-between p-6 border-b border-neutral-700">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
                   Boletos do Contrato #{selectedContrato.id}

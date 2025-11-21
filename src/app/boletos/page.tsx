@@ -318,10 +318,10 @@ export default function BoletosPage() {
             className="text-center"
           >
             <div className="relative">
-              <RefreshCw className="w-12 h-12 animate-spin text-blue-600 mx-auto" />
-              <div className="absolute inset-0 blur-xl bg-blue-400/30 animate-pulse" />
+              <RefreshCw className="w-12 h-12 animate-spin text-gold-400 mx-auto" />
+              <div className="absolute inset-0 blur-xl bg-gold-500/30 animate-pulse" />
             </div>
-            <p className="mt-4 text-gray-600 font-medium">
+            <p className="mt-4 text-neutral-400 font-medium">
               Carregando boletos...
             </p>
           </motion.div>
@@ -332,7 +332,7 @@ export default function BoletosPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <motion.div
@@ -342,15 +342,15 @@ export default function BoletosPage() {
           >
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl shadow-lg">
-                  <Receipt className="w-8 h-8 text-white" />
+                <div className="p-3 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl shadow-lg shadow-gold-500/30">
+                  <Receipt className="w-8 h-8 text-neutral-950" />
                 </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-green-900 to-emerald-900 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold text-gradient-gold">
                   Boletos
                 </h1>
-                <Sparkles className="w-6 h-6 text-yellow-500 animate-pulse" />
+                <Sparkles className="w-6 h-6 text-gold-400 animate-pulse" />
               </div>
-              <p className="text-gray-600 ml-14">
+              <p className="text-neutral-400 ml-14">
                 Gerencie todos os boletos bancários do sistema
               </p>
             </div>
@@ -359,14 +359,14 @@ export default function BoletosPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => fetchBoletos()}
-                className="group flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
+                className="group flex items-center gap-2 px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md"
               >
                 <RefreshCw
-                  className={`w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors ${
+                  className={`w-5 h-5 text-neutral-300 group-hover:text-gold-400 transition-colors ${
                     loading ? "animate-spin" : ""
                   }`}
                 />
-                <span className="font-medium text-gray-700 group-hover:text-gray-900">
+                <span className="font-medium text-neutral-200 group-hover:text-neutral-50">
                   Atualizar
                 </span>
               </motion.button>
@@ -379,7 +379,7 @@ export default function BoletosPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowNewBoletoModal(true)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-xl font-medium shadow-lg shadow-gold-500/20 hover:shadow-gold-500/30 transition-all duration-300"
               >
                 <Plus className="w-5 h-5" />
                 Novo Boleto
@@ -387,44 +387,38 @@ export default function BoletosPage() {
             </div>
           </motion.div>
 
-          {/* Estatísticas Rápidas */}
+          {/* Estatísticas Rápidas - Estilo Premium Dashboard */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
             {[
               {
                 label: "Total",
                 value: stats.total,
                 icon: FileText,
-                color: "from-blue-500 to-blue-600",
               },
               {
                 label: "Valor Total",
                 value: formatCurrency(stats.totalValue),
                 icon: DollarSign,
-                color: "from-green-500 to-emerald-600",
               },
               {
                 label: "Cancelados",
                 value: stats.pendentes,
                 icon: Clock,
-                color: "from-gray-500 to-gray-600",
               },
               {
                 label: "Registrados",
                 value: stats.registrados,
                 icon: CreditCard,
-                color: "from-purple-500 to-pink-600",
               },
               {
                 label: "Pagos",
                 value: stats.liquidados,
                 icon: CheckCircle,
-                color: "from-emerald-500 to-green-600",
               },
               {
                 label: "Vencidos",
                 value: stats.vencidos,
                 icon: AlertTriangle,
-                color: "from-red-500 to-pink-600",
               },
             ].map((stat, index) => (
               <motion.div
@@ -432,22 +426,17 @@ export default function BoletosPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="relative group"
+                className="bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all"
               >
-                <div
-                  className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-10 blur-xl transition-opacity duration-500 rounded-xl`}
-                />
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-gray-100 p-4 hover:shadow-lg transition-all duration-300">
-                  <div
-                    className={`w-10 h-10 bg-gradient-to-br ${stat.color} rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    <stat.icon className="w-5 h-5 text-white" />
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30">
+                    <stat.icon className="w-6 h-6 text-gold-400" />
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-gray-600">{stat.label}</p>
                 </div>
+                <p className="text-neutral-400 text-sm mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold text-neutral-50">
+                  {stat.value}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -457,18 +446,18 @@ export default function BoletosPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-100 shadow-xl p-6 mb-8"
+            className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-neutral-800 shadow-xl p-6 mb-8"
           >
             <div className="flex flex-col lg:flex-row gap-4">
               {/* Busca */}
               <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-500 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Buscar por ID, NSU, cliente ou contrato..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-12 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200 text-neutral-100 placeholder-neutral-500"
                 />
               </div>
 
@@ -480,14 +469,14 @@ export default function BoletosPage() {
                     onClick={() =>
                       setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                     }
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
                   >
-                    <ArrowUpDown className="w-5 h-5 text-gray-600" />
+                    <ArrowUpDown className="w-5 h-5 text-neutral-400" />
                   </button>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500 text-neutral-200"
                   >
                     <option value="date">Data</option>
                     <option value="value">Valor</option>
@@ -496,15 +485,21 @@ export default function BoletosPage() {
                 </div>
 
                 {/* View Mode */}
-                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <div className="flex items-center bg-neutral-800 rounded-lg p-1 border border-neutral-700">
                   <button
                     onClick={() => setViewMode("grid")}
                     className={`p-2 rounded ${
-                      viewMode === "grid" ? "bg-white shadow-sm" : ""
+                      viewMode === "grid"
+                        ? "bg-gold-500 shadow-lg shadow-gold-500/20"
+                        : ""
                     } transition-all duration-200`}
                   >
                     <svg
-                      className="w-5 h-5 text-gray-600"
+                      className={`w-5 h-5 ${
+                        viewMode === "grid"
+                          ? "text-neutral-950"
+                          : "text-neutral-400"
+                      }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -518,11 +513,17 @@ export default function BoletosPage() {
                   <button
                     onClick={() => setViewMode("list")}
                     className={`p-2 rounded ${
-                      viewMode === "list" ? "bg-white shadow-sm" : ""
+                      viewMode === "list"
+                        ? "bg-gold-500 shadow-lg shadow-gold-500/20"
+                        : ""
                     } transition-all duration-200`}
                   >
                     <svg
-                      className="w-5 h-5 text-gray-600"
+                      className={`w-5 h-5 ${
+                        viewMode === "list"
+                          ? "text-neutral-950"
+                          : "text-neutral-400"
+                      }`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -537,12 +538,12 @@ export default function BoletosPage() {
                 {/* Filtros */}
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg transition-colors"
                 >
-                  <Filter className="w-5 h-5 text-gray-600" />
-                  <span className="font-medium text-gray-700">Filtros</span>
+                  <Filter className="w-5 h-5 text-neutral-400" />
+                  <span className="font-medium text-neutral-200">Filtros</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-600 transition-transform ${
+                    className={`w-4 h-4 text-neutral-400 transition-transform ${
                       showFilters ? "rotate-180" : ""
                     }`}
                   />
@@ -560,9 +561,9 @@ export default function BoletosPage() {
                   transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6 pt-6 border-t border-gray-200">
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-6 pt-6 border-t border-neutral-700">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Status
                       </label>
                       <select
@@ -570,7 +571,7 @@ export default function BoletosPage() {
                         onChange={(e) =>
                           handleFilterChange("status", e.target.value)
                         }
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       >
                         <option value="">Todos</option>
                         <option value="PENDENTE">Cancelado</option>
@@ -582,7 +583,7 @@ export default function BoletosPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Data Inicial
                       </label>
                       <input
@@ -591,12 +592,12 @@ export default function BoletosPage() {
                         onChange={(e) =>
                           handleFilterChange("dataInicio", e.target.value)
                         }
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Data Final
                       </label>
                       <input
@@ -605,7 +606,7 @@ export default function BoletosPage() {
                         onChange={(e) =>
                           handleFilterChange("dataFim", e.target.value)
                         }
-                        className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full px-3 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
 
@@ -618,7 +619,7 @@ export default function BoletosPage() {
                       </button>
                       <button
                         onClick={clearFilters}
-                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors"
+                        className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg font-medium transition-colors"
                       >
                         Limpar
                       </button>
@@ -644,28 +645,32 @@ export default function BoletosPage() {
                     className="relative group h-full"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-500 rounded-2xl" />
-                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col">
+                    <div className="bg-neutral-900/95 backdrop-blur-sm rounded-2xl border border-neutral-800 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden h-full flex flex-col">
                       {/* Header do Card */}
-                      <div className="p-5 border-b border-gray-100">
+                      <div className="p-5 border-b border-neutral-800">
                         <div className="flex items-start justify-between mb-3">
                           <div>
-                            <p className="text-sm text-gray-500 mb-1">
+                            <p className="text-sm text-neutral-500 mb-1">
                               Boleto #{boleto.id}
                             </p>
-                            <h3 className="font-semibold text-gray-900 text-lg">
+                            <h3 className="font-semibold text-neutral-50 text-lg">
                               {boleto.payerName}
                             </h3>
                           </div>
                           <div className="flex flex-col items-end gap-1">
                             <StatusBadge status={boleto.status} />
                             {isVencido(boleto) && (
-                              <span className="text-xs font-bold text-red-600">
-                                {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''} de atraso
+                              <span className="text-xs font-bold text-red-400">
+                                {calcularDiasAtraso(boleto.dueDate)} dia
+                                {calcularDiasAtraso(boleto.dueDate)! > 1
+                                  ? "s"
+                                  : ""}{" "}
+                                de atraso
                               </span>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2 text-sm text-neutral-400">
                           <Building className="w-4 h-4" />
                           <span>
                             {boleto.contrato?.clienteNome || "Sem contrato"}
@@ -677,19 +682,25 @@ export default function BoletosPage() {
                       <div className="p-5 space-y-4 flex-1">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-gray-500">Valor</p>
+                            <p className="text-sm text-neutral-500">Valor</p>
                             <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                               {formatCurrency(boleto.nominalValue)}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm text-gray-500">Vencimento</p>
-                            <p className="text-lg font-semibold text-gray-900">
+                            <p className="text-sm text-neutral-500">
+                              Vencimento
+                            </p>
+                            <p className="text-lg font-semibold text-neutral-50">
                               {formatDate(boleto.dueDate)}
                             </p>
                             {isVencido(boleto) && (
-                              <p className="text-xs font-bold text-red-600 mt-1">
-                                Vencido há {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''}
+                              <p className="text-xs font-bold text-red-400 mt-1">
+                                Vencido há {calcularDiasAtraso(boleto.dueDate)}{" "}
+                                dia
+                                {calcularDiasAtraso(boleto.dueDate)! > 1
+                                  ? "s"
+                                  : ""}
                               </p>
                             )}
                           </div>
@@ -699,29 +710,33 @@ export default function BoletosPage() {
                         {isVencido(boleto) && (
                           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                             <div className="flex items-center gap-2">
-                              <AlertTriangle className="w-4 h-4 text-red-600" />
+                              <AlertTriangle className="w-4 h-4 text-red-400" />
                               <p className="text-sm font-semibold text-red-800">
-                                Boleto vencido há {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''}
+                                Boleto vencido há{" "}
+                                {calcularDiasAtraso(boleto.dueDate)} dia
+                                {calcularDiasAtraso(boleto.dueDate)! > 1
+                                  ? "s"
+                                  : ""}
                               </p>
                             </div>
                           </div>
                         )}
 
                         {/* NSU - sempre mostra com altura fixa */}
-                        <div className="p-3 bg-gray-50 rounded-lg min-h-[60px]">
-                          <p className="text-xs text-gray-500 mb-1">NSU</p>
-                          <p className="font-mono text-sm text-gray-700">
+                        <div className="p-3 bg-neutral-800/50 rounded-lg min-h-[60px]">
+                          <p className="text-xs text-neutral-500 mb-1">NSU</p>
+                          <p className="font-mono text-sm text-neutral-300">
                             {boleto.nsuCode || "N/A"}
                           </p>
                         </div>
                       </div>
 
                       {/* Ações */}
-                      <div className="p-4 bg-gray-50 border-t border-gray-100 mt-auto">
+                      <div className="p-4 bg-neutral-800/50 border-t border-neutral-800 mt-auto">
                         <div className="flex items-center gap-2 flex-wrap">
                           <button
                             onClick={() => handleViewDetails(boleto)}
-                            className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-blue-50 text-blue-600 rounded-lg transition-colors font-medium text-sm"
+                            className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-gold-500/20 text-gold-400 rounded-lg transition-colors font-medium text-sm"
                           >
                             <Eye className="w-4 h-4" />
                             Detalhes
@@ -733,7 +748,7 @@ export default function BoletosPage() {
                               <button
                                 onClick={() => handleDownloadPdf(boleto)}
                                 disabled={downloadingPdfId === boleto.id}
-                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-red-500/20 text-red-400 rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Baixar PDF oficial do Santander"
                               >
                                 {downloadingPdfId === boleto.id ? (
@@ -748,7 +763,7 @@ export default function BoletosPage() {
                               <button
                                 onClick={() => handleSync(boleto)}
                                 disabled={syncingId === boleto.id}
-                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-green-50 text-green-600 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
+                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-green-500/20 text-green-400 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
                               >
                                 <RefreshCw
                                   className={`w-4 h-4 ${
@@ -766,7 +781,7 @@ export default function BoletosPage() {
                               <button
                                 onClick={() => handleDelete(boleto)}
                                 disabled={deletingId === boleto.id}
-                                className="p-2 bg-white hover:bg-red-50 text-red-600 rounded-lg transition-colors disabled:opacity-50"
+                                className="p-2 bg-white hover:bg-red-500/20 text-red-400 rounded-lg transition-colors disabled:opacity-50"
                                 title="Cancelar boleto"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -784,45 +799,45 @@ export default function BoletosPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-100 shadow-xl overflow-hidden"
+              className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl border border-neutral-800 shadow-xl overflow-hidden"
             >
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-neutral-800/50 border-b border-neutral-700">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         ID / NSU
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Cliente / Contrato
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Valor
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Vencimento
                       </th>
-                      <th className="px-6 py-4 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-center text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-neutral-800">
                     {sortedBoletos.map((boleto) => (
                       <tr
                         key={boleto.id}
-                        className="hover:bg-gray-50 transition-colors"
+                        className="hover:bg-neutral-800/50 transition-colors"
                       >
                         <td className="px-6 py-4">
                           <div>
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-neutral-50">
                               #{boleto.id}
                             </p>
                             {boleto.nsuCode && (
-                              <p className="text-xs text-gray-500 font-mono">
+                              <p className="text-xs text-neutral-500 font-mono">
                                 {boleto.nsuCode}
                               </p>
                             )}
@@ -830,10 +845,10 @@ export default function BoletosPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div>
-                            <p className="font-medium text-gray-900">
+                            <p className="font-medium text-neutral-50">
                               {boleto.payerName}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-neutral-500">
                               {boleto.contrato?.clienteNome || "Sem contrato"}
                             </p>
                           </div>
@@ -842,25 +857,33 @@ export default function BoletosPage() {
                           <div className="flex flex-col gap-1">
                             <StatusBadge status={boleto.status} />
                             {isVencido(boleto) && (
-                              <span className="text-xs font-bold text-red-600">
-                                {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''} de atraso
+                              <span className="text-xs font-bold text-red-400">
+                                {calcularDiasAtraso(boleto.dueDate)} dia
+                                {calcularDiasAtraso(boleto.dueDate)! > 1
+                                  ? "s"
+                                  : ""}{" "}
+                                de atraso
                               </span>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="font-semibold text-gray-900">
+                          <p className="font-semibold text-neutral-50">
                             {formatCurrency(boleto.nominalValue)}
                           </p>
                         </td>
                         <td className="px-6 py-4">
                           <div>
-                            <p className="text-gray-700">
+                            <p className="text-neutral-300">
                               {formatDate(boleto.dueDate)}
                             </p>
                             {isVencido(boleto) && (
-                              <p className="text-xs font-bold text-red-600 mt-1">
-                                ⚠️ Vencido há {calcularDiasAtraso(boleto.dueDate)} dia{calcularDiasAtraso(boleto.dueDate)! > 1 ? 's' : ''}
+                              <p className="text-xs font-bold text-red-400 mt-1">
+                                ⚠️ Vencido há{" "}
+                                {calcularDiasAtraso(boleto.dueDate)} dia
+                                {calcularDiasAtraso(boleto.dueDate)! > 1
+                                  ? "s"
+                                  : ""}
                               </p>
                             )}
                           </div>
@@ -869,7 +892,7 @@ export default function BoletosPage() {
                           <div className="flex items-center justify-center gap-1">
                             <button
                               onClick={() => handleViewDetails(boleto)}
-                              className="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors"
+                              className="p-1.5 hover:bg-gold-500/20 text-gold-400 rounded transition-colors"
                               title="Ver detalhes"
                             >
                               <Eye className="w-4 h-4" />
@@ -880,7 +903,7 @@ export default function BoletosPage() {
                                 <button
                                   onClick={() => handleDownloadPdf(boleto)}
                                   disabled={downloadingPdfId === boleto.id}
-                                  className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="p-1.5 hover:bg-red-500/20 text-red-400 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                   title={
                                     downloadingPdfId === boleto.id
                                       ? "Baixando PDF..."
@@ -896,7 +919,7 @@ export default function BoletosPage() {
                                 <button
                                   onClick={() => handleSync(boleto)}
                                   disabled={syncingId === boleto.id}
-                                  className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors disabled:opacity-50"
+                                  className="p-1.5 hover:bg-green-500/20 text-green-400 rounded transition-colors disabled:opacity-50"
                                   title="Sincronizar"
                                 >
                                   <RefreshCw
@@ -914,7 +937,7 @@ export default function BoletosPage() {
                                 <button
                                   onClick={() => handleDelete(boleto)}
                                   disabled={deletingId === boleto.id}
-                                  className="p-1.5 hover:bg-red-50 text-red-600 rounded transition-colors disabled:opacity-50"
+                                  className="p-1.5 hover:bg-red-500/20 text-red-400 rounded transition-colors disabled:opacity-50"
                                   title="Cancelar boleto"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -952,12 +975,12 @@ export default function BoletosPage() {
                   className="absolute inset-0 bg-green-400/20 blur-3xl rounded-full"
                 />
               </div>
-              <p className="text-2xl font-bold text-gray-700 mb-2">
+              <p className="text-2xl font-bold text-neutral-300 mb-2">
                 {searchTerm || Object.keys(filters).length > 0
                   ? "Nenhum boleto encontrado"
                   : "Nenhum boleto cadastrado"}
               </p>
-              <p className="text-gray-500 max-w-md mx-auto mb-6">
+              <p className="text-neutral-500 max-w-md mx-auto mb-6">
                 {searchTerm || Object.keys(filters).length > 0
                   ? "Tente ajustar os filtros ou termos de busca"
                   : "Comece criando seu primeiro boleto bancário"}
@@ -965,7 +988,7 @@ export default function BoletosPage() {
               {(searchTerm || Object.keys(filters).length > 0) && (
                 <button
                   onClick={clearFilters}
-                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors"
+                  className="px-6 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-xl font-medium transition-colors"
                 >
                   Limpar Filtros
                 </button>
@@ -988,7 +1011,7 @@ export default function BoletosPage() {
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+                  className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
                 >
                   {/* Header */}
                   <div className="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-t-2xl">
@@ -1014,13 +1037,13 @@ export default function BoletosPage() {
                   <div className="p-6 space-y-6">
                     {/* Status e Valor */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-gray-50 rounded-xl p-4">
-                        <p className="text-sm text-gray-600 mb-2">Status</p>
+                      <div className="bg-neutral-800/50 rounded-xl p-4">
+                        <p className="text-sm text-neutral-400 mb-2">Status</p>
                         <StatusBadge status={selectedBoleto.status} />
                       </div>
-                      <div className="bg-gray-50 rounded-xl p-4">
-                        <p className="text-sm text-gray-600 mb-2">Valor</p>
-                        <p className="text-2xl font-bold text-green-600">
+                      <div className="bg-neutral-800/50 rounded-xl p-4">
+                        <p className="text-sm text-neutral-400 mb-2">Valor</p>
+                        <p className="text-2xl font-bold text-green-400">
                           {formatCurrency(selectedBoleto.nominalValue)}
                         </p>
                       </div>
@@ -1034,10 +1057,10 @@ export default function BoletosPage() {
                             <CreditCard className="w-6 h-6 text-white" />
                           </div>
                           <div>
-                            <h3 className="text-xl font-bold text-gray-900">
+                            <h3 className="text-xl font-bold text-neutral-50">
                               Informações Santander
                             </h3>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-neutral-400">
                               Dados para pagamento
                             </p>
                           </div>
@@ -1047,15 +1070,15 @@ export default function BoletosPage() {
                           {/* Coluna 1: Códigos */}
                           <div className="lg:col-span-2 space-y-4">
                             {selectedBoleto.barCode && (
-                              <div className="bg-white rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
+                              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                  <p className="text-sm font-semibold text-gray-700">
+                                  <p className="text-sm font-semibold text-neutral-300">
                                     Código de Barras
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="font-mono text-sm text-gray-900 flex-1 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                  <p className="font-mono text-sm text-neutral-50 flex-1 bg-neutral-800/50 p-3 rounded-lg border border-neutral-700">
                                     {selectedBoleto.barCode}
                                   </p>
                                   <button
@@ -1069,7 +1092,7 @@ export default function BoletosPage() {
                                     title="Copiar código"
                                   >
                                     <svg
-                                      className="w-5 h-5 text-red-600"
+                                      className="w-5 h-5 text-red-400"
                                       fill="none"
                                       viewBox="0 0 24 24"
                                       stroke="currentColor"
@@ -1087,15 +1110,15 @@ export default function BoletosPage() {
                             )}
 
                             {selectedBoleto.digitableLine && (
-                              <div className="bg-white rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
+                              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                  <p className="text-sm font-semibold text-gray-700">
+                                  <p className="text-sm font-semibold text-neutral-300">
                                     Linha Digitável
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="font-mono text-sm text-gray-900 flex-1 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                  <p className="font-mono text-sm text-neutral-50 flex-1 bg-neutral-800/50 p-3 rounded-lg border border-neutral-700">
                                     {selectedBoleto.digitableLine}
                                   </p>
                                   <button
@@ -1127,15 +1150,15 @@ export default function BoletosPage() {
                             )}
 
                             {selectedBoleto.qrCodePix && (
-                              <div className="bg-white rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
+                              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl p-4 border border-red-200 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-2">
                                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                  <p className="text-sm font-semibold text-gray-700">
+                                  <p className="text-sm font-semibold text-neutral-300">
                                     Código PIX Copia e Cola
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="font-mono text-xs text-gray-900 flex-1 bg-gray-50 p-3 rounded-lg border border-gray-200 break-all max-h-24 overflow-y-auto">
+                                  <p className="font-mono text-xs text-neutral-50 flex-1 bg-neutral-800/50 p-3 rounded-lg border border-neutral-700 break-all max-h-24 overflow-y-auto">
                                     {selectedBoleto.qrCodePix}
                                   </p>
                                   <button
@@ -1149,7 +1172,7 @@ export default function BoletosPage() {
                                     title="Copiar código PIX"
                                   >
                                     <svg
-                                      className="w-5 h-5 text-green-600"
+                                      className="w-5 h-5 text-green-400"
                                       fill="none"
                                       viewBox="0 0 24 24"
                                       stroke="currentColor"
@@ -1170,7 +1193,7 @@ export default function BoletosPage() {
                           {/* Coluna 2: QR Code */}
                           {selectedBoleto.qrCodePix && (
                             <div className="flex flex-col items-center justify-center">
-                              <div className="bg-white rounded-2xl p-6 border-2 border-red-300 shadow-xl">
+                              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 border-2 border-red-300 shadow-xl">
                                 <div className="relative">
                                   <img
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
@@ -1190,7 +1213,7 @@ export default function BoletosPage() {
                                   />
                                   <div className="hidden flex-col items-center justify-center w-56 h-56 bg-red-50 border-2 border-red-200 rounded-xl">
                                     <AlertTriangle className="w-12 h-12 text-red-500 mb-2" />
-                                    <p className="text-red-600 text-sm font-medium text-center px-4">
+                                    <p className="text-red-400 text-sm font-medium text-center px-4">
                                       QR Code indisponível
                                     </p>
                                   </div>
@@ -1207,7 +1230,7 @@ export default function BoletosPage() {
                                     </svg>
                                     Pague com PIX
                                   </div>
-                                  <p className="text-xs text-gray-500 mt-2">
+                                  <p className="text-xs text-neutral-500 mt-2">
                                     Escaneie com seu app
                                   </p>
                                 </div>
@@ -1219,53 +1242,55 @@ export default function BoletosPage() {
                     )}
 
                     {/* Dados do Boleto */}
-                    <div className="bg-gray-50 rounded-xl p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4">
+                    <div className="bg-neutral-800/50 rounded-xl p-6">
+                      <h3 className="text-lg font-bold text-neutral-50 mb-4">
                         Dados do Boleto
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-gray-600">NSU Code</p>
-                          <p className="font-mono text-gray-900">
+                          <p className="text-sm text-neutral-400">NSU Code</p>
+                          <p className="font-mono text-neutral-50">
                             {selectedBoleto.nsuCode || "N/A"}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600">Nosso Número</p>
-                          <p className="font-mono text-gray-900">
+                          <p className="text-sm text-neutral-400">
+                            Nosso Número
+                          </p>
+                          <p className="font-mono text-neutral-50">
                             {selectedBoleto.bankNumber || "N/A"}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-neutral-400">
                             Código do Convênio
                           </p>
-                          <p className="font-mono text-gray-900">
+                          <p className="font-mono text-neutral-50">
                             {selectedBoleto.covenantCode || "N/A"}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-neutral-400">
                             Data de Vencimento
                           </p>
-                          <p className="text-gray-900">
+                          <p className="text-neutral-50">
                             {formatDate(selectedBoleto.dueDate)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-neutral-400">
                             Data de Emissão
                           </p>
-                          <p className="text-gray-900">
+                          <p className="text-neutral-50">
                             {formatDate(selectedBoleto.issueDate)}
                           </p>
                         </div>
                         {selectedBoleto.entryDate && (
                           <div>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-neutral-400">
                               Data de Entrada
                             </p>
-                            <p className="text-gray-900">
+                            <p className="text-neutral-50">
                               {formatDate(selectedBoleto.entryDate)}
                             </p>
                           </div>
@@ -1274,31 +1299,31 @@ export default function BoletosPage() {
                     </div>
 
                     {/* Dados do Pagador */}
-                    <div className="bg-gray-50 rounded-xl p-6">
-                      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <div className="bg-neutral-800/50 rounded-xl p-6">
+                      <h3 className="text-lg font-bold text-neutral-50 mb-4 flex items-center gap-2">
                         <User className="w-5 h-5" />
                         Dados do Pagador
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-gray-600">Nome</p>
-                          <p className="text-gray-900">
+                          <p className="text-sm text-neutral-400">Nome</p>
+                          <p className="text-neutral-50">
                             {selectedBoleto.payerName}
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600">Documento</p>
-                          <p className="font-mono text-gray-900">
+                          <p className="text-sm text-neutral-400">Documento</p>
+                          <p className="font-mono text-neutral-50">
                             {selectedBoleto.payerDocumentNumber}
                           </p>
                         </div>
                         <div className="md:col-span-2">
-                          <p className="text-sm text-gray-600">Endereço</p>
-                          <p className="text-gray-900">
+                          <p className="text-sm text-neutral-400">Endereço</p>
+                          <p className="text-neutral-50">
                             {selectedBoleto.payerAddress},{" "}
                             {selectedBoleto.payerNeighborhood}
                           </p>
-                          <p className="text-gray-900">
+                          <p className="text-neutral-50">
                             {selectedBoleto.payerCity} -{" "}
                             {selectedBoleto.payerState} - CEP:{" "}
                             {selectedBoleto.payerZipCode}
@@ -1309,23 +1334,23 @@ export default function BoletosPage() {
 
                     {/* Contrato */}
                     {selectedBoleto.contrato && (
-                      <div className="bg-gray-50 rounded-xl p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <div className="bg-neutral-800/50 rounded-xl p-6">
+                        <h3 className="text-lg font-bold text-neutral-50 mb-4 flex items-center gap-2">
                           <FileText className="w-5 h-5" />
                           Contrato
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <p className="text-sm text-gray-600">Cliente</p>
-                            <p className="text-gray-900">
+                            <p className="text-sm text-neutral-400">Cliente</p>
+                            <p className="text-neutral-50">
                               {selectedBoleto.contrato.clienteNome}
                             </p>
                           </div>
                           <div>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-neutral-400">
                               Número do Contrato
                             </p>
-                            <p className="font-mono text-gray-900">
+                            <p className="font-mono text-neutral-50">
                               {selectedBoleto.contrato.numeroContrato}
                             </p>
                           </div>
@@ -1335,7 +1360,7 @@ export default function BoletosPage() {
                   </div>
 
                   {/* Footer com Ações */}
-                  <div className="sticky bottom-0 bg-gray-50 p-6 rounded-b-2xl border-t border-gray-200">
+                  <div className="sticky bottom-0 bg-neutral-800/50 p-6 rounded-b-2xl border-t border-neutral-700">
                     <div className="flex items-center gap-3 flex-wrap">
                       {(selectedBoleto.status === "REGISTRADO" ||
                         selectedBoleto.status === "VENCIDO") && (
@@ -1384,7 +1409,7 @@ export default function BoletosPage() {
                       )}
                       <button
                         onClick={closeDetailsModal}
-                        className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-medium transition-colors"
+                        className="px-6 py-3 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-xl font-medium transition-colors border border-neutral-600"
                       >
                         Fechar
                       </button>
@@ -1403,16 +1428,16 @@ export default function BoletosPage() {
               className="fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-xl p-4 shadow-lg max-w-md z-40"
             >
               <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-red-800 font-medium">
                     Erro ao carregar boletos
                   </p>
-                  <p className="text-red-600 text-sm mt-1">{error}</p>
+                  <p className="text-red-400 text-sm mt-1">{error}</p>
                 </div>
                 <button
                   onClick={clearError}
-                  className="text-red-600 hover:text-red-800 hover:bg-red-100 p-1 rounded-lg transition-colors"
+                  className="text-red-400 hover:text-red-800 hover:bg-red-100 p-1 rounded-lg transition-colors"
                 >
                   <XCircle className="w-5 h-5" />
                 </button>
@@ -1481,7 +1506,7 @@ export default function BoletosPage() {
                   {/* Barra de progresso indeterminada */}
                   <div className="mt-3 w-full bg-white/20 rounded-full h-1 overflow-hidden">
                     <motion.div
-                      className="h-full bg-white rounded-full"
+                      className="h-full bg-neutral-900/95 backdrop-blur-xl rounded-full"
                       animate={{ x: ["-100%", "100%"] }}
                       transition={{
                         duration: 1.5,

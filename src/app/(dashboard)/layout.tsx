@@ -34,9 +34,9 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-neutral-950">
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-64 bg-white border-r border-neutral-200">
+      <aside className="fixed inset-y-0 left-0 w-64 bg-neutral-900 border-r border-neutral-800">
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center px-6 border-b border-neutral-200">

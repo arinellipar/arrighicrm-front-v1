@@ -222,33 +222,39 @@ export default function CadastroPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl opacity-30" />
+        </div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-3xl shadow-premium-lg p-8 w-full max-w-md text-center"
+          className="bg-neutral-900/95 backdrop-blur-xl rounded-3xl shadow-xl border border-neutral-800 p-8 w-full max-w-md text-center relative z-10"
         >
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
-            className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+            className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/30"
           >
-            <CheckCircle2 className="w-10 h-10 text-green-600" />
+            <CheckCircle2 className="w-10 h-10 text-green-400" />
           </motion.div>
 
-          <h1 className="text-2xl font-bold text-neutral-800 mb-4">
+          <h1 className="text-2xl font-bold text-neutral-50 mb-4">
             Cadastro Realizado!
           </h1>
 
-          <p className="text-neutral-600 mb-8">
+          <p className="text-neutral-400 mb-8">
             Sua conta foi criada com sucesso. Você já pode fazer login no
             sistema.
           </p>
 
           <Link
             href="/"
-            className="inline-flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-xl font-medium transition-colors"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 px-6 py-3 rounded-xl font-medium transition-colors shadow-lg shadow-gold-500/20"
           >
             Fazer Login
           </Link>
@@ -258,11 +264,18 @@ export default function CadastroPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-600/10 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-premium-lg p-8 w-full max-w-md"
+        className="bg-neutral-900/95 backdrop-blur-xl rounded-3xl shadow-xl border border-neutral-800 p-8 w-full max-w-md relative z-10"
       >
         {/* Header */}
         <div className="text-center mb-8">
@@ -270,16 +283,16 @@ export default function CadastroPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring" }}
-            className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
+            className="w-16 h-16 bg-gold-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-gold-500/30"
           >
-            <UserPlus className="w-8 h-8 text-primary-600" />
+            <UserPlus className="w-8 h-8 text-gold-400" />
           </motion.div>
 
-          <h1 className="text-3xl font-bold text-neutral-800 mb-2">
+          <h1 className="text-3xl font-bold text-neutral-50 mb-2">
             Criar Conta
           </h1>
 
-          <p className="text-neutral-600">
+          <p className="text-neutral-400">
             Preencha os dados abaixo para criar sua conta
           </p>
         </div>
@@ -293,21 +306,21 @@ export default function CadastroPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3"
+                className="bg-red-500/20 border border-red-500/30 rounded-xl p-4 flex items-center gap-3"
               >
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                <p className="text-sm text-red-700">{errors.general}</p>
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-300">{errors.general}</p>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* CPF */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-neutral-700">
+            <label className="block text-sm font-medium text-neutral-300">
               CPF *
             </label>
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
               <input
                 type="text"
                 value={formData.cpf}
@@ -315,13 +328,13 @@ export default function CadastroPage() {
                 placeholder="000.000.000-00"
                 maxLength={14}
                 className={cn(
-                  "w-full h-12 pl-12 pr-4 bg-white/80 backdrop-blur-sm rounded-xl",
+                  "w-full h-12 pl-12 pr-4 bg-neutral-800/50 backdrop-blur-sm rounded-xl text-neutral-100",
                   "border-2 transition-all duration-300",
                   "focus:outline-none focus:ring-4",
-                  "placeholder:text-neutral-400",
+                  "placeholder:text-neutral-500",
                   errors.cpf
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-neutral-200 focus:border-primary-500 focus:ring-primary-500/20 hover:border-neutral-300"
+                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 focus:border-gold-500 focus:ring-gold-500/20 hover:border-neutral-600"
                 )}
               />
             </div>
@@ -329,7 +342,7 @@ export default function CadastroPage() {
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-600 flex items-center gap-1"
+                className="text-sm text-red-400 flex items-center gap-1"
               >
                 <AlertCircle className="w-4 h-4" />
                 {errors.cpf}
@@ -339,30 +352,30 @@ export default function CadastroPage() {
 
           {/* Senha */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-neutral-700">
+            <label className="block text-sm font-medium text-neutral-300">
               Senha *
             </label>
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
               <input
                 type={showPassword ? "text" : "password"}
                 value={formData.senha}
                 onChange={(e) => handleInputChange("senha", e.target.value)}
                 placeholder="Digite sua senha"
                 className={cn(
-                  "w-full h-12 pl-12 pr-12 bg-white/80 backdrop-blur-sm rounded-xl",
+                  "w-full h-12 pl-12 pr-12 bg-neutral-800/50 backdrop-blur-sm rounded-xl text-neutral-100",
                   "border-2 transition-all duration-300",
                   "focus:outline-none focus:ring-4",
-                  "placeholder:text-neutral-400",
+                  "placeholder:text-neutral-500",
                   errors.senha
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-neutral-200 focus:border-primary-500 focus:ring-primary-500/20 hover:border-neutral-300"
+                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 focus:border-gold-500 focus:ring-gold-500/20 hover:border-neutral-600"
                 )}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-gold-400 transition-colors"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -386,13 +399,13 @@ export default function CadastroPage() {
                       key={req.id}
                       className={cn(
                         "flex items-center gap-2 text-sm transition-colors",
-                        isValid ? "text-green-600" : "text-neutral-500"
+                        isValid ? "text-green-400" : "text-neutral-500"
                       )}
                     >
                       <CheckCircle2
                         className={cn(
                           "w-4 h-4 transition-colors",
-                          isValid ? "text-green-500" : "text-neutral-300"
+                          isValid ? "text-green-400" : "text-neutral-600"
                         )}
                       />
                       {req.label}
@@ -406,7 +419,7 @@ export default function CadastroPage() {
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-600 flex items-center gap-1"
+                className="text-sm text-red-400 flex items-center gap-1"
               >
                 <AlertCircle className="w-4 h-4" />
                 {errors.senha}
@@ -416,11 +429,11 @@ export default function CadastroPage() {
 
           {/* Confirmar Senha */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-neutral-700">
+            <label className="block text-sm font-medium text-neutral-300">
               Confirmar Senha *
             </label>
             <div className="relative">
-              <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+              <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 value={formData.confirmarSenha}
@@ -429,19 +442,19 @@ export default function CadastroPage() {
                 }
                 placeholder="Confirme sua senha"
                 className={cn(
-                  "w-full h-12 pl-12 pr-12 bg-white/80 backdrop-blur-sm rounded-xl",
+                  "w-full h-12 pl-12 pr-12 bg-neutral-800/50 backdrop-blur-sm rounded-xl text-neutral-100",
                   "border-2 transition-all duration-300",
                   "focus:outline-none focus:ring-4",
-                  "placeholder:text-neutral-400",
+                  "placeholder:text-neutral-500",
                   errors.confirmarSenha
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-neutral-200 focus:border-primary-500 focus:ring-primary-500/20 hover:border-neutral-300"
+                    ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 focus:border-gold-500 focus:ring-gold-500/20 hover:border-neutral-600"
                 )}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-gold-400 transition-colors"
               >
                 {showConfirmPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -454,7 +467,7 @@ export default function CadastroPage() {
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-600 flex items-center gap-1"
+                className="text-sm text-red-400 flex items-center gap-1"
               >
                 <AlertCircle className="w-4 h-4" />
                 {errors.confirmarSenha}
@@ -471,10 +484,10 @@ export default function CadastroPage() {
               whileTap={{ scale: 0.98 }}
               className={cn(
                 "w-full h-12 rounded-xl font-medium transition-all duration-300",
-                "focus:outline-none focus:ring-4 focus:ring-primary-500/20",
+                "focus:outline-none focus:ring-4 focus:ring-gold-500/20",
                 loading
-                  ? "bg-neutral-300 cursor-not-allowed"
-                  : "bg-primary-500 hover:bg-primary-600 text-white shadow-md hover:shadow-lg"
+                  ? "bg-neutral-700 cursor-not-allowed text-neutral-500"
+                  : "bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 shadow-lg shadow-gold-500/20 hover:shadow-gold-500/30"
               )}
             >
               {loading ? (
@@ -489,7 +502,7 @@ export default function CadastroPage() {
 
             <Link
               href="/"
-              className="w-full h-12 rounded-xl border-2 border-neutral-200 hover:border-neutral-300 text-neutral-700 font-medium transition-colors flex items-center justify-center gap-2"
+              className="w-full h-12 rounded-xl border-2 border-neutral-700 hover:border-gold-500/50 text-neutral-300 hover:text-gold-400 font-medium transition-colors flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-5 h-5" />
               Voltar ao Login

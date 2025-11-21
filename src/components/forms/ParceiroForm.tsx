@@ -221,7 +221,7 @@ export default function ParceiroForm({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl shadow-xl max-w-4xl mx-auto"
+        className="bg-neutral-900/95 rounded-2xl shadow-xl max-w-4xl mx-auto"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-secondary-200/50">
@@ -533,7 +533,7 @@ export default function ParceiroForm({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+            className="bg-neutral-900/95 rounded-2xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
           >
             <div className="flex items-center justify-between p-6 border-b border-secondary-200/50">
               <h3 className="text-lg font-semibold text-secondary-900">

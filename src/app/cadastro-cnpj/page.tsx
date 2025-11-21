@@ -236,7 +236,7 @@ export default function CadastroCNPJPage() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-3xl shadow-premium-lg p-8 w-full max-w-md text-center"
+          className="bg-neutral-900/95 backdrop-blur-xl rounded-3xl shadow-premium-lg p-8 w-full max-w-md text-center"
         >
           <motion.div
             initial={{ scale: 0 }}
@@ -272,7 +272,7 @@ export default function CadastroCNPJPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-3xl shadow-premium-lg p-8 w-full max-w-md"
+        className="bg-neutral-900/95 backdrop-blur-xl rounded-3xl shadow-premium-lg p-8 w-full max-w-md"
       >
         {/* Header */}
         <div className="text-center mb-8">
@@ -325,7 +325,7 @@ export default function CadastroCNPJPage() {
                 placeholder="00.000.000/0000-00"
                 maxLength={18}
                 className={cn(
-                  "w-full h-12 pl-12 pr-4 bg-white/80 backdrop-blur-sm rounded-xl",
+                  "w-full h-12 pl-12 pr-4 bg-neutral-900/95 backdrop-blur-xl rounded-xl",
                   "border-2 transition-all duration-300",
                   "focus:outline-none focus:ring-4",
                   "placeholder:text-neutral-400",
@@ -360,7 +360,7 @@ export default function CadastroCNPJPage() {
                 onChange={(e) => handleInputChange("senha", e.target.value)}
                 placeholder="Digite sua senha"
                 className={cn(
-                  "w-full h-12 pl-12 pr-12 bg-white/80 backdrop-blur-sm rounded-xl",
+                  "w-full h-12 pl-12 pr-12 bg-neutral-900/95 backdrop-blur-xl rounded-xl",
                   "border-2 transition-all duration-300",
                   "focus:outline-none focus:ring-4",
                   "placeholder:text-neutral-400",
@@ -439,7 +439,7 @@ export default function CadastroCNPJPage() {
                 }
                 placeholder="Confirme sua senha"
                 className={cn(
-                  "w-full h-12 pl-12 pr-12 bg-white/80 backdrop-blur-sm rounded-xl",
+                  "w-full h-12 pl-12 pr-12 bg-neutral-900/95 backdrop-blur-xl rounded-xl",
                   "border-2 transition-all duration-300",
                   "focus:outline-none focus:ring-4",
                   "placeholder:text-neutral-400",

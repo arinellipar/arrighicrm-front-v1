@@ -131,13 +131,13 @@ export function BoletoForm({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999] p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-neutral-900/95 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Novo Boleto</h2>
+        <div className="flex items-center justify-between p-6 border-b border-neutral-700">
+          <h2 className="text-2xl font-bold text-neutral-50">Novo Boleto</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-neutral-300 transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -147,13 +147,13 @@ export function BoletoForm({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Campos Obrigatórios */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-neutral-50">
               Informações Obrigatórias
             </h3>
 
             {/* Contrato */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-neutral-200 mb-1">
                 Contrato *
               </label>
               <select
@@ -161,7 +161,7 @@ export function BoletoForm({
                 onChange={(e) =>
                   handleInputChange("contratoId", parseInt(e.target.value))
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               >
                 <option value={0}>Selecione um contrato</option>
@@ -180,7 +180,7 @@ export function BoletoForm({
             {/* Valor e Vencimento */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-neutral-200 mb-1">
                   Valor Nominal (R$) *
                 </label>
                 <input
@@ -194,14 +194,14 @@ export function BoletoForm({
                       parseFloat(e.target.value) || 0
                     )
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="0,00"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-neutral-200 mb-1">
                   Data de Vencimento *
                 </label>
                 <input
@@ -209,7 +209,7 @@ export function BoletoForm({
                   value={formData.dueDate}
                   onChange={(e) => handleInputChange("dueDate", e.target.value)}
                   min={new Date().toISOString().split("T")[0]}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
               </div>
@@ -217,7 +217,7 @@ export function BoletoForm({
 
             {/* Seu Número */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-neutral-200 mb-1">
                 Seu Número (Opcional)
               </label>
               <input
@@ -226,7 +226,7 @@ export function BoletoForm({
                 onChange={(e) =>
                   handleInputChange("clientNumber", e.target.value)
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Número de referência do cliente"
                 maxLength={15}
               />
@@ -234,7 +234,7 @@ export function BoletoForm({
           </div>
 
           {/* Toggle para campos avançados */}
-          <div className="border-t border-gray-200 pt-4">
+          <div className="border-t border-neutral-700 pt-4">
             <button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
@@ -251,15 +251,15 @@ export function BoletoForm({
 
           {/* Campos Avançados */}
           {showAdvanced && (
-            <div className="space-y-6 border-t border-gray-200 pt-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="space-y-6 border-t border-neutral-700 pt-4">
+              <h3 className="text-lg font-semibold text-neutral-50">
                 Opções Avançadas
               </h3>
 
               {/* Multa e Juros */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-200 mb-1">
                     Percentual de Multa (%)
                   </label>
                   <input
@@ -274,13 +274,13 @@ export function BoletoForm({
                         parseFloat(e.target.value) || undefined
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="2,00"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-200 mb-1">
                     Dias para Multa
                   </label>
                   <input
@@ -294,13 +294,13 @@ export function BoletoForm({
                         parseInt(e.target.value) || undefined
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="1"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-200 mb-1">
                     Percentual de Juros (%)
                   </label>
                   <input
@@ -315,7 +315,7 @@ export function BoletoForm({
                         parseFloat(e.target.value) || undefined
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0,33"
                   />
                 </div>
@@ -324,7 +324,7 @@ export function BoletoForm({
               {/* Abatimento e Baixa */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-200 mb-1">
                     Valor de Abatimento (R$)
                   </label>
                   <input
@@ -338,13 +338,13 @@ export function BoletoForm({
                         parseFloat(e.target.value) || undefined
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="0,00"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-200 mb-1">
                     Dias para Baixa
                   </label>
                   <input
@@ -358,7 +358,7 @@ export function BoletoForm({
                         parseInt(e.target.value) || undefined
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="60"
                   />
                 </div>
@@ -366,7 +366,7 @@ export function BoletoForm({
 
               {/* Mensagens */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-neutral-200 mb-2">
                   Mensagens (até 4 mensagens de 40 caracteres cada)
                 </label>
                 <div className="flex gap-2 mb-2">
@@ -377,7 +377,7 @@ export function BoletoForm({
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addMessage())
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="flex-1 px-3 py-2 border border-neutral-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Digite uma mensagem"
                     maxLength={40}
                   />
@@ -398,7 +398,7 @@ export function BoletoForm({
                     {formData.messages.map((message, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between bg-gray-50 p-2 rounded"
+                        className="flex items-center justify-between bg-neutral-800/50 p-2 rounded"
                       >
                         <span className="text-sm">{message}</span>
                         <button
@@ -417,11 +417,11 @@ export function BoletoForm({
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-neutral-700">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-neutral-600 rounded-lg hover:bg-neutral-800/50 transition-colors"
               disabled={loading}
             >
               Cancelar

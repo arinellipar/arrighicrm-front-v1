@@ -13,45 +13,38 @@ export function StatusBadge({
     switch (status.toUpperCase()) {
       case "LIQUIDADO":
         return {
-          color: "bg-green-100 text-green-800 border-green-300",
-          icon: "✅",
+          color: "bg-green-500/20 text-green-400 border-green-500/30",
           text: "Pago",
         };
       case "BAIXADO":
         return {
-          color: "bg-green-100 text-green-800 border-green-300",
-          icon: "💰",
+          color: "bg-green-500/20 text-green-400 border-green-500/30",
           text: "Pago (PIX)",
         };
       case "ATIVO":
       case "REGISTRADO":
         return {
-          color: "bg-blue-100 text-blue-800 border-blue-300",
-          icon: "📄",
+          color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
           text: "Ativo",
         };
       case "VENCIDO":
         return {
-          color: "bg-yellow-100 text-yellow-800 border-yellow-300",
-          icon: "⏳",
+          color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
           text: "Vencido",
         };
       case "CANCELADO":
         return {
-          color: "bg-gray-300 text-gray-800 border-gray-400",
-          icon: "❌",
+          color: "bg-neutral-700 text-neutral-300 border-neutral-600",
           text: "Cancelado",
         };
       case "PENDENTE":
         return {
-          color: "bg-gray-100 text-gray-800 border-gray-300",
-          icon: "📝",
+          color: "bg-neutral-700 text-neutral-300 border-neutral-600",
           text: "Pendente",
         };
       default:
         return {
-          color: "bg-gray-100 text-gray-800 border-gray-300",
-          icon: "❓",
+          color: "bg-neutral-700 text-neutral-300 border-neutral-600",
           text: status,
         };
     }
@@ -67,11 +60,10 @@ export function StatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full font-medium border ${config.color} ${sizeClasses[size]}`}
+      className={`inline-flex items-center justify-center rounded-full font-medium border ${config.color} ${sizeClasses[size]}`}
       title={statusDescription || config.text}
     >
-      <span>{config.icon}</span>
-      <span>{config.text}</span>
+      {config.text}
     </span>
   );
 }

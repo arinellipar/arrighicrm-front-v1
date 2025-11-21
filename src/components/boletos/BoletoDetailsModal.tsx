@@ -57,7 +57,7 @@ export function BoletoDetailsModal({
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -83,13 +83,13 @@ export function BoletoDetailsModal({
                 >
                   ⏳
                 </motion.div>
-                <p className="text-gray-600">Carregando detalhes...</p>
+                <p className="text-neutral-400">Carregando detalhes...</p>
               </div>
             ) : status ? (
               <div className="space-y-6">
                 {/* Status Atual */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200">
-                  <h3 className="font-bold text-lg mb-3 text-gray-800">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-neutral-700">
+                  <h3 className="font-bold text-lg mb-3 text-neutral-100">
                     📊 Status Atual
                   </h3>
                   <StatusBadge
@@ -97,7 +97,7 @@ export function BoletoDetailsModal({
                     statusDescription={status.statusDescription}
                     size="lg"
                   />
-                  <p className="text-sm text-gray-600 mt-3">
+                  <p className="text-sm text-neutral-400 mt-3">
                     {status.statusDescription}
                   </p>
                 </div>
@@ -139,20 +139,20 @@ export function BoletoDetailsModal({
                 )}
 
                 {/* Informações Básicas */}
-                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                  <h3 className="font-bold text-lg mb-4 text-gray-800">
+                <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
+                  <h3 className="font-bold text-lg mb-4 text-neutral-100">
                     📋 Informações Básicas
                   </h3>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-600 font-medium">Valor Nominal</p>
-                      <p className="text-lg font-bold text-gray-900">
+                      <p className="text-neutral-400 font-medium">Valor Nominal</p>
+                      <p className="text-lg font-bold text-neutral-50">
                         R$ {status.nominalValue?.toFixed(2)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600 font-medium">Vencimento</p>
-                      <p className="text-lg font-bold text-gray-900">
+                      <p className="text-neutral-400 font-medium">Vencimento</p>
+                      <p className="text-lg font-bold text-neutral-50">
                         {status.dueDate
                           ? new Date(status.dueDate).toLocaleDateString(
                               "pt-BR"
@@ -161,16 +161,16 @@ export function BoletoDetailsModal({
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600 font-medium">Nosso Número</p>
-                      <p className="font-mono text-gray-900 font-semibold">
+                      <p className="text-neutral-400 font-medium">Nosso Número</p>
+                      <p className="font-mono text-neutral-50 font-semibold">
                         {status.bankNumber}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600 font-medium">
+                      <p className="text-neutral-400 font-medium">
                         Código do Convênio
                       </p>
-                      <p className="font-mono text-gray-900 font-semibold">
+                      <p className="font-mono text-neutral-50 font-semibold">
                         {status.beneficiaryCode}
                       </p>
                     </div>
@@ -186,13 +186,13 @@ export function BoletoDetailsModal({
                     <div className="space-y-3 text-sm">
                       <div>
                         <p className="text-blue-700 font-medium">Nome</p>
-                        <p className="text-gray-900 font-semibold">
+                        <p className="text-neutral-50 font-semibold">
                           {status.payer.name}
                         </p>
                       </div>
                       <div>
                         <p className="text-blue-700 font-medium">Documento</p>
-                        <p className="font-mono text-gray-900 font-semibold">
+                        <p className="font-mono text-neutral-50 font-semibold">
                           {status.payer.documentNumber}
                         </p>
                       </div>
@@ -224,7 +224,7 @@ export function BoletoDetailsModal({
                     <h3 className="font-bold text-lg mb-3 text-blue-800 flex items-center gap-2">
                       🔢 Linha Digitável
                     </h3>
-                    <p className="font-mono text-sm bg-white p-3 rounded border border-blue-200 break-all mb-3 text-gray-800">
+                    <p className="font-mono text-sm bg-white p-3 rounded border border-blue-200 break-all mb-3 text-neutral-100">
                       {status.digitableLine}
                     </p>
                     <button
@@ -244,11 +244,11 @@ export function BoletoDetailsModal({
 
                 {/* Código de Barras */}
                 {status.barCode && (
-                  <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                    <h3 className="font-bold text-lg mb-3 text-gray-800">
+                  <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
+                    <h3 className="font-bold text-lg mb-3 text-neutral-100">
                       📊 Código de Barras
                     </h3>
-                    <p className="font-mono text-sm bg-white p-3 rounded border border-gray-200 break-all text-gray-800">
+                    <p className="font-mono text-sm bg-white p-3 rounded border border-neutral-700 break-all text-neutral-100">
                       {status.barCode}
                     </p>
                   </div>
@@ -274,7 +274,7 @@ export function BoletoDetailsModal({
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-gray-50 p-4 rounded-b-2xl border-t border-gray-200">
+          <div className="sticky bottom-0 bg-neutral-800/50 p-4 rounded-b-2xl border-t border-neutral-700">
             <button
               onClick={onClose}
               className="w-full px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-semibold"

@@ -4,53 +4,69 @@
 
 @layer base {
   :root {
-    /* Cores corporativas refinadas */
-    --primary-50: 239 246 255;
-    --primary-100: 219 234 254;
-    --primary-200: 191 219 254;
-    --primary-300: 147 197 253;
-    --primary-400: 96 165 250;
-    --primary-500: 59 130 246;
-    --primary-600: 37 99 235;
-    --primary-700: 29 78 216;
-    --primary-800: 30 64 175;
-    --primary-900: 30 58 138;
-    --primary-950: 23 37 84;
+    /* Paleta Futurista CRM Tributário: Preto, Cinza Escuro e Dourado */
 
-    /* Dourado executivo */
-    --gold-50: 254 252 232;
-    --gold-100: 254 249 195;
-    --gold-200: 254 240 138;
-    --gold-300: 253 224 71;
-    --gold-400: 250 204 21;
-    --gold-500: 234 179 8;
-    --gold-600: 202 138 4;
-    --gold-700: 161 98 7;
-    --gold-800: 133 77 14;
-    --gold-900: 113 63 18;
+    /* Dourado Premium */
+    --primary-50: 255 251 240;
+    --primary-100: 255 245 214;
+    --primary-200: 255 235 173;
+    --primary-300: 255 225 132;
+    --primary-400: 255 215 91;
+    --primary-500: 212 175 55; /* Dourado rico */
+    --primary-600: 184 148 31;
+    --primary-700: 156 122 21;
+    --primary-800: 128 96 13;
+    --primary-900: 100 70 7;
+    --primary-950: 72 48 3;
 
-    /* Neutros refinados */
-    --neutral-50: 250 250 250;
-    --neutral-100: 245 245 245;
-    --neutral-200: 229 229 229;
-    --neutral-300: 212 212 212;
-    --neutral-400: 163 163 163;
-    --neutral-500: 115 115 115;
-    --neutral-600: 82 82 82;
-    --neutral-700: 64 64 64;
-    --neutral-800: 38 38 38;
-    --neutral-900: 23 23 23;
-    --neutral-950: 10 10 10;
+    /* Dourado (alias) */
+    --gold-50: 255 251 240;
+    --gold-100: 255 245 214;
+    --gold-200: 255 235 173;
+    --gold-300: 255 225 132;
+    --gold-400: 255 215 91;
+    --gold-500: 212 175 55;
+    --gold-600: 184 148 31;
+    --gold-700: 156 122 21;
+    --gold-800: 128 96 13;
+    --gold-900: 100 70 7;
 
-    /* Configurações base */
-    --background: 255 255 255;
-    --foreground: 23 37 84;
-    --card: 255 255 255;
-    --card-foreground: 23 37 84;
-    --border: 229 229 229;
-    --input: 245 245 245;
-    --ring: 59 130 246;
+    /* Escala de Cinzas (Preto → Cinza Escuro) */
+    --neutral-50: 245 245 245;
+    --neutral-100: 232 232 232;
+    --neutral-200: 209 209 209;
+    --neutral-300: 176 176 176;
+    --neutral-400: 136 136 136;
+    --neutral-500: 107 107 107;
+    --neutral-600: 80 80 80;
+    --neutral-700: 58 58 58;   /* Cinza escuro */
+    --neutral-800: 38 38 38;   /* Cinza muito escuro */
+    --neutral-900: 26 26 26;   /* Quase preto */
+    --neutral-950: 10 10 10;   /* Preto profundo */
+
+    /* Pretos */
+    --dark-50: 26 26 26;
+    --dark-100: 38 38 38;
+    --dark-200: 58 58 58;
+    --dark-300: 80 80 80;
+    --dark-400: 107 107 107;
+
+    /* Configurações base - Tema Escuro Futurista */
+    --background: 10 10 10;      /* Preto profundo */
+    --foreground: 245 245 245;   /* Texto claro */
+    --card: 26 26 26;            /* Cards em cinza muito escuro */
+    --card-foreground: 245 245 245;
+    --border: 58 58 58;          /* Bordas em cinza escuro */
+    --input: 38 38 38;           /* Inputs em cinza muito escuro */
+    --ring: 212 175 55;          /* Focus ring dourado */
     --radius: 0.75rem;
+
+    /* Acentos especiais */
+    --accent-gold: 212 175 55;
+    --accent-gold-light: 255 215 91;
+    --accent-gold-dark: 156 122 21;
+    --accent-silver: 192 192 192;
+    --accent-bronze: 205 127 50;
   }
 
   * {
@@ -58,17 +74,19 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-neutral-950 text-neutral-50;
     font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.016em;
+    background: linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%);
   }
 
   html {
     scroll-behavior: smooth;
     font-size: 16px;
+    background: #0A0A0A;
   }
 }
 
@@ -84,50 +102,96 @@ h6 {
   letter-spacing: -0.02em;
 }
 
-/* Card executivo */
+/* Card Premium Futurista */
 .executive-card {
-  @apply bg-white rounded-2xl border border-neutral-200/60;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(249, 250, 251, 0.4));
+  @apply bg-neutral-900 rounded-2xl border border-neutral-800;
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(38, 38, 38, 0.9) 100%);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.03),
-    0 1px 2px 0 rgba(0, 0, 0, 0.05),
-    0 4px 8px -2px rgba(0, 0, 0, 0.08),
-    0 12px 24px -4px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(8px);
+    0 0 0 1px rgba(212, 175, 55, 0.1),
+    0 4px 12px 0 rgba(0, 0, 0, 0.5),
+    0 8px 24px -4px rgba(0, 0, 0, 0.4),
+    0 0 20px -8px rgba(212, 175, 55, 0.15);
+  backdrop-filter: blur(12px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.executive-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .executive-card:hover {
+  @apply border-gold-500/30;
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.05),
-    0 2px 4px 0 rgba(0, 0, 0, 0.08),
-    0 8px 16px -4px rgba(0, 0, 0, 0.12),
-    0 20px 32px -8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+    0 0 0 1px rgba(212, 175, 55, 0.3),
+    0 8px 20px 0 rgba(0, 0, 0, 0.6),
+    0 12px 32px -4px rgba(0, 0, 0, 0.5),
+    0 0 40px -8px rgba(212, 175, 55, 0.3);
+  transform: translateY(-4px);
 }
 
-/* Scrollbar executiva */
+.executive-card:hover::before {
+  opacity: 1;
+}
+
+/* Scrollbar Premium Futurista */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-neutral-100;
+  @apply bg-neutral-900;
   border-radius: 10px;
+  border: 1px solid rgb(58, 58, 58);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-neutral-400;
+  @apply bg-neutral-700;
   border-radius: 10px;
-  border: 2px solid rgb(245, 245, 245);
+  border: 2px solid rgb(26, 26, 26);
+  background: linear-gradient(180deg, #505050 0%, #3A3A3A 100%);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-neutral-500;
+  @apply bg-gold-600;
+  background: linear-gradient(180deg, #D4AF37 0%, #B8941F 100%);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
 
-/* Focus styles corporativos */
+/* Focus styles Premium */
 *:focus-visible {
-  @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white;
+  @apply outline-none ring-2 ring-gold-500 ring-offset-2 ring-offset-neutral-950;
+}
+
+/* Gradient Text Utility */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #FFD75B 0%, #D4AF37 50%, #9C7A15 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow Effects */
+.glow-gold {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.glow-gold-lg {
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.4);
+}
+
+/* Premium Border */
+.border-premium {
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.05);
 }

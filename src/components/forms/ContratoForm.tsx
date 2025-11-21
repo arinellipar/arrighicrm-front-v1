@@ -930,7 +930,7 @@ export default function ContratoForm({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 flex items-center justify-center z-[99999] p-4"
           >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden">
+            <div className="bg-neutral-900/95 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden">
               {/* Header */}
               <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
                 <div className="flex items-center justify-between">
@@ -1151,7 +1151,7 @@ export default function ContratoForm({
                           onChange={(e) =>
                             handleParceiroCheckboxChange(e.target.checked)
                           }
-                          className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 focus:ring-2"
+                          className="w-4 h-4 text-primary-600 bg-neutral-800 border-neutral-600 rounded focus:ring-primary-500 focus:ring-2"
                         />
                         <span className="text-sm font-medium text-neutral-700">
                           Há parceiro neste contrato?

@@ -406,7 +406,7 @@ export default function ClienteForm({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-auto"
+      className="bg-neutral-900/95 rounded-2xl shadow-xl max-w-4xl w-full mx-auto"
     >
       <div className="flex items-center justify-between p-6 border-b border-secondary-200">
         <div className="flex items-center space-x-3">
@@ -1162,7 +1162,7 @@ export default function ClienteForm({
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
               {loadingFiliais ? (
-                <div className="w-full px-4 py-3 border border-secondary-300 rounded-xl bg-gray-50 flex items-center justify-center">
+                <div className="w-full px-4 py-3 border border-secondary-300 rounded-xl bg-neutral-800/50 flex items-center justify-center">
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   Carregando filiais...
                 </div>
@@ -1310,7 +1310,7 @@ export default function ClienteForm({
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="fixed inset-0 flex items-center justify-center z-50 p-4"
             >
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+              <div className="bg-neutral-900/95 rounded-2xl shadow-2xl w-full max-w-md">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4 rounded-t-2xl">
                   <div className="flex items-center justify-between">
@@ -1337,10 +1337,10 @@ export default function ClienteForm({
                     <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
                       <AlertCircle className="w-8 h-8 text-orange-600" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-lg font-semibold text-neutral-50 mb-2">
                       Cliente já cadastrado no sistema
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-neutral-300">
                       A pessoa{" "}
                       <strong>
                         {formData.tipo === "fisica"
@@ -1393,7 +1393,7 @@ export default function ClienteForm({
                     </button>
                     <button
                       onClick={() => setShowDuplicateModal(false)}
-                      className="w-full px-4 py-3 text-gray-600 hover:text-gray-800 transition-colors font-medium"
+                      className="w-full px-4 py-3 text-neutral-300 hover:text-neutral-100 transition-colors font-medium"
                     >
                       Fechar
                     </button>

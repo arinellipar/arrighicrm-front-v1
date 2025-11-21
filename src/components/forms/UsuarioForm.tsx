@@ -180,7 +180,7 @@ const InputField = memo(
                   onBlur={() => setIsFocused(false)}
                   disabled={disabled}
                   className={cn(
-                    "w-full h-14 px-4 bg-white/80 backdrop-blur-sm rounded-2xl",
+                    "w-full h-14 px-4 bg-neutral-900/95 backdrop-blur-sm rounded-2xl",
                     "border-2 transition-all duration-300",
                     "focus:outline-none focus:ring-4",
                     icon && "pl-12",
@@ -213,7 +213,7 @@ const InputField = memo(
                   placeholder={type === "date" ? "" : placeholder}
                   disabled={disabled}
                   className={cn(
-                    "w-full h-14 px-4 bg-white/80 backdrop-blur-sm rounded-2xl",
+                    "w-full h-14 px-4 bg-neutral-900/95 backdrop-blur-sm rounded-2xl",
                     "border-2 transition-all duration-300",
                     "focus:outline-none focus:ring-4",
                     "placeholder:text-transparent",

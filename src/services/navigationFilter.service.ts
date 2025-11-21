@@ -216,6 +216,11 @@ class NavigationFilterService {
       );
     }
 
+    // Helper function para verificar se a rota corresponde
+    const matchesRoute = (allowedRoute: string) => {
+      return route === allowedRoute || route.startsWith(allowedRoute + "/");
+    };
+
     // Se o grupo é "Consultores", permitir apenas rotas específicas
     if (userPermissions.grupo === "Consultores") {
       const consultorRoutes = [
@@ -226,7 +231,7 @@ class NavigationFilterService {
         "/clientes",
         "/contratos",
       ];
-      return consultorRoutes.includes(route);
+      return consultorRoutes.some(matchesRoute);
     }
 
     // Se o grupo é "Administrativo de Filial", apenas visualização de módulos específicos
@@ -238,13 +243,13 @@ class NavigationFilterService {
         "/clientes",
         "/contratos",
       ];
-      return administrativoRoutes.includes(route);
+      return administrativoRoutes.some(matchesRoute);
     }
 
     // Se o grupo é "Gestor de Filial", acesso total exceto usuários
     if (userPermissions.grupo === "Gestor de Filial") {
       // Bloquear apenas a rota de usuários
-      if (route === "/usuarios") {
+      if (route.startsWith("/usuarios")) {
         return false;
       }
       // Permitir todas as outras rotas (será filtrado por filial no backend)
@@ -254,7 +259,7 @@ class NavigationFilterService {
     // Se o grupo é "Faturamento", acesso total exceto usuários (todas as filiais)
     if (userPermissions.grupo === "Faturamento") {
       // Bloquear apenas a rota de usuários
-      if (route === "/usuarios") {
+      if (route.startsWith("/usuarios")) {
         return false;
       }
       // Permitir todas as outras rotas (acesso global, todas as filiais)
@@ -267,7 +272,7 @@ class NavigationFilterService {
       userPermissions.grupo === "Cobrança/Financeiro"
     ) {
       // Bloquear apenas a rota de usuários
-      if (route === "/usuarios") {
+      if (route.startsWith("/usuarios")) {
         return false;
       }
       // Permitir todas as outras rotas (apenas visualização, todas as filiais)
@@ -284,16 +289,19 @@ class NavigationFilterService {
       "/usuarios": "Usuario_Visualizar",
       "/parceiros": "Parceiro_Visualizar",
       "/boletos": "Boleto_Visualizar",
-      "/dashboard/financeiro": "Boleto_Visualizar", // Assumindo que precisa ver boletos
+      "/dashboard/financeiro": "Boleto_Visualizar",
+      "/gestao": "Cliente_Visualizar", // Gestão geralmente precisa de Cliente_Visualizar
     };
 
-    const requiredPermission = routePermissions[route];
-    if (!requiredPermission) {
-      // Se não está mapeado, permitir (ex: dashboard principal)
-      return true;
+    // Verificar se a rota corresponde a alguma rota base
+    for (const [baseRoute, permission] of Object.entries(routePermissions)) {
+      if (matchesRoute(baseRoute)) {
+        return userPermissions.permissoes.includes(permission);
+      }
     }
 
-    return userPermissions.permissoes.includes(requiredPermission);
+    // Se não está mapeado, permitir (ex: dashboard principal)
+    return true;
   }
 
   /**

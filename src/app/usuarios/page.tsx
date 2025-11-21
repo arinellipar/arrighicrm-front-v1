@@ -90,7 +90,7 @@ function TipoPessoaBadge({
       case "juridica":
         return "bg-purple-100 text-purple-800 border border-purple-200";
       default:
-        return "bg-gray-100 text-gray-800 border border-gray-200";
+        return "bg-gray-100 text-gray-800 border border-neutral-700";
     }
   };
 
@@ -138,7 +138,7 @@ function GrupoAcessoBadge({
         return "bg-yellow-100 text-yellow-800 border border-yellow-200 shadow-sm";
       case "usuario":
       case "usuário":
-        return "bg-gray-100 text-gray-800 border border-gray-200 shadow-sm";
+        return "bg-gray-100 text-gray-800 border border-neutral-700 shadow-sm";
       default:
         return "bg-neutral-100 text-neutral-800 border border-neutral-200 shadow-sm";
     }
@@ -500,7 +500,7 @@ export default function UsuariosPage() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="bg-gray-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between"
+                  className="bg-gray-50 border border-neutral-700 rounded-xl p-3 flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-3">
                     <span className="text-sm font-medium text-gray-800">
@@ -566,7 +566,7 @@ export default function UsuariosPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-secondary-200/50 w-full"
+              className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-sm border border-neutral-800 w-full"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 w-full">
                 <div className="sm:col-span-2 relative">
@@ -620,7 +620,7 @@ export default function UsuariosPage() {
               transition={{ delay: 0.2 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-neutral-800">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-secondary-600 text-xs sm:text-sm font-medium">
@@ -636,7 +636,7 @@ export default function UsuariosPage() {
                 </div>
               </div>
 
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-neutral-800">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-secondary-600 text-xs sm:text-sm font-medium">
@@ -652,7 +652,7 @@ export default function UsuariosPage() {
                 </div>
               </div>
 
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-neutral-800">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-secondary-600 text-xs sm:text-sm font-medium">
@@ -668,7 +668,7 @@ export default function UsuariosPage() {
                 </div>
               </div>
 
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-secondary-200/50">
+              <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-2.5 sm:p-3 lg:p-4 shadow-sm border border-neutral-800">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-secondary-600 text-xs sm:text-sm font-medium">
@@ -695,9 +695,9 @@ export default function UsuariosPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-secondary-200/50 overflow-hidden w-full"
+                className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-sm border border-neutral-800 overflow-hidden w-full"
               >
-                <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-secondary-200/50">
+                <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-neutral-800">
                   <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-secondary-900">
                     Lista de Usuários ({filteredUsuarios.length} registros)
                   </h3>
@@ -1069,7 +1069,7 @@ export default function UsuariosPage() {
 
                 {/* Paginação */}
                 {filteredUsuarios.length > 0 && (
-                  <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
+                  <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-neutral-800">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
                       <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
                         Mostrando {filteredUsuarios.length} de {usuarios.length}{" "}
@@ -1133,7 +1133,7 @@ export default function UsuariosPage() {
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
-                    className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+                    className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full shadow-xl"
                   >
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="p-2 bg-red-100 rounded-full">
