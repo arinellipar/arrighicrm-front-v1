@@ -85,29 +85,6 @@ export function BoletoDetailsModal({
         )}`
       : null);
 
-  const resumoFinanceiro = [
-    { label: "Valor nominal", value: formatCurrency(status?.nominalValue) },
-    { label: "Valor pago", value: formatCurrency(status?.paidValue) },
-    { label: "Descontos", value: formatCurrency(status?.discountValue) },
-    { label: "Multa", value: formatCurrency(status?.fineValue) },
-    { label: "Juros", value: formatCurrency(status?.interestValue) },
-    { label: "Vencimento", value: formatDate(status?.dueDate) },
-    { label: "Emissão", value: formatDate(status?.issueDate) },
-    { label: "Entrada Santander", value: formatDate(status?.entryDate) },
-    { label: "Pagamento", value: formatDate(status?.settlementDate) },
-  ];
-
-  const identificadoresTecnicos = [
-    { label: "NSU Code", value: status?.nsuCode, id: "nsuCode" },
-    { label: "Nosso Número", value: status?.bankNumber, id: "bankNumber" },
-    {
-      label: "Código do Convênio",
-      value: status?.beneficiaryCode,
-      id: "beneficiaryCode",
-    },
-    { label: "Client Number", value: status?.clientNumber, id: "clientNumber" },
-  ];
-
   const ultimaAtualizacao = status?.consultaRealizadaEm
     ? formatDate(status.consultaRealizadaEm)
     : formatDate(status?.entryDate);
@@ -157,289 +134,127 @@ export function BoletoDetailsModal({
               </div>
             ) : status ? (
               <div className="space-y-6">
-                <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30">
+                <div className="bg-gradient-to-br from-emerald-500/20 via-emerald-600/10 to-neutral-950 border border-emerald-400/50 rounded-3xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.45)] text-neutral-50">
                   <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="space-y-2">
-                      <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
-                        Dados do boleto
+                    <div className="space-y-3">
+                      <p className="text-xs uppercase tracking-[0.35em] text-emerald-200">
+                        Integração oficial Santander API
                       </p>
-                      <h3 className="text-2xl lg:text-3xl font-semibold text-neutral-50">
-                        {status.payer?.name || `Boleto #${boletoId}`}
-                      </h3>
-                      <p className="text-sm text-neutral-400">
-                        {status.payer?.documentNumber || "Documento não informado"}
+                      <div>
+                        <h3 className="text-3xl font-semibold">
+                          {status.payer?.name || `Boleto #${boletoId}`}
+                        </h3>
+                        <p className="text-sm text-emerald-200 mt-1">
+                          {status.payer?.documentNumber || "Documento não informado"}
+                        </p>
+                      </div>
+                      <p className="text-sm text-neutral-300 leading-relaxed max-w-2xl">
+                        Todos os dados abaixo são consultados em tempo real diretamente
+                        da Santander API em produção. Utilize este QR Code ou os códigos
+                        oficiais para pagamento e reconciliação segura.
+                      </p>
+                      <p className="text-xs text-emerald-200/80 uppercase">
+                        Última atualização: {ultimaAtualizacao}
                       </p>
                     </div>
-                    <div className="flex flex-col gap-3 w-full lg:max-w-sm">
+                    <div className="flex flex-col gap-3 w-full lg:max-w-xs">
                       <StatusBadge
                         status={status.status}
                         statusDescription={status.statusDescription}
                         size="lg"
                       />
-                      <p className="text-sm text-neutral-400">
-                        {status.statusDescription}
-                      </p>
-                      <p className="text-xs text-neutral-500">
-                        Última atualização: {ultimaAtualizacao}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 text-sm">
-                    <div>
-                      <p className="text-neutral-400 uppercase text-xs tracking-wide">
-                        NSU Code
-                      </p>
-                      <p className="font-mono text-lg text-gold-400">
-                        {status.nsuCode ?? "—"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-neutral-400 uppercase text-xs tracking-wide">
-                        Nosso Número
-                      </p>
-                      <p className="font-mono text-lg text-neutral-50">
-                        {status.bankNumber ?? "—"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30">
-                  <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-                    <h3 className="text-xl font-semibold text-neutral-50">
-                      Resumo financeiro
-                    </h3>
-                    <span className="text-xs text-neutral-500 uppercase">
-                      Consulta Santander: {ultimaAtualizacao}
-                    </span>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {resumoFinanceiro.map((stat) => (
-                      <div
-                        key={stat.label}
-                        className="bg-neutral-950/40 border border-neutral-800 rounded-xl p-4"
-                      >
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          {stat.label}
+                      <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                        <p className="text-xs uppercase tracking-wide text-neutral-400">
+                          Valor nominal
                         </p>
-                        <p className="text-lg font-semibold text-neutral-50 mt-1">
-                          {stat.value}
+                        <p className="text-2xl font-semibold text-white">
+                          {formatCurrency(status.nominalValue)}
+                        </p>
+                        <p className="text-sm text-neutral-400 mt-2">
+                          Vencimento: {formatDate(status.dueDate)}
                         </p>
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30 space-y-6">
-                  <div>
-                    <h3 className="text-xl font-semibold text-neutral-50">
-                      Dados Santander
-                    </h3>
-                    <p className="text-sm text-neutral-400">
-                      Utilize as informações oficiais para pagamento e conferência
-                      no banco.
-                    </p>
-                  </div>
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <CopyableValue
-                      label="Código de barras"
-                      value={status.barCode}
-                      copyId="barCode"
-                      onCopy={copiarParaClipboard}
-                      isCopied={copiedField === "barCode"}
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-8">
+                    <InfoBadge label="NSU Code" value={status.nsuCode || "—"} />
+                    <InfoBadge
+                      label="Nosso Número"
+                      value={status.bankNumber || "—"}
                     />
-                    <CopyableValue
-                      label="Linha digitável"
-                      value={status.digitableLine}
-                      copyId="digitableLine"
-                      onCopy={copiarParaClipboard}
-                      isCopied={copiedField === "digitableLine"}
+                    <InfoBadge
+                      label="Convênio"
+                      value={status.beneficiaryCode || "—"}
+                    />
+                    <InfoBadge
+                      label="Client Number"
+                      value={status.clientNumber || "—"}
                     />
                   </div>
-                  <div className="grid gap-6 md:grid-cols-2">
-                    {identificadoresTecnicos.map((campo) => (
+
+                  <div className="mt-8 grid gap-8 lg:grid-cols-2">
+                    <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center justify-center">
+                      {qrCodeImage ? (
+                        <img
+                          src={qrCodeImage}
+                          alt="QR Code PIX Santander"
+                          className="w-56 h-56"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <p className="text-neutral-600 text-center">
+                          QR Code não disponível para este boleto
+                        </p>
+                      )}
+                      <p className="text-sm text-neutral-500 mt-4 flex items-center gap-2">
+                        <span role="img" aria-label="celular">
+                          📱
+                        </span>
+                        Abra o app do seu banco e escaneie o QR Code para pagar
+                      </p>
+                    </div>
+                    <div className="space-y-4">
                       <CopyableValue
-                        key={campo.id}
-                        label={campo.label}
-                        value={campo.value}
-                        copyId={campo.id}
+                        label="Linha digitável"
+                        value={status.digitableLine}
+                        copyId="digitableLine"
                         onCopy={copiarParaClipboard}
-                        isCopied={copiedField === campo.id}
+                        isCopied={copiedField === "digitableLine"}
                       />
-                    ))}
+                      <CopyableValue
+                        label="Código de barras"
+                        value={status.barCode}
+                        copyId="barCode"
+                        onCopy={copiarParaClipboard}
+                        isCopied={copiedField === "barCode"}
+                      />
+                      <CopyableValue
+                        label="Código PIX (copia e cola)"
+                        value={status.qrCodePix}
+                        copyId="pixCode"
+                        onCopy={copiarParaClipboard}
+                        isCopied={copiedField === "pixCode"}
+                        helperText="Cole diretamente no app do banco para pagar via PIX."
+                      />
+                      <CopyableValue
+                        label="Link oficial do QR Code"
+                        value={status.qrCodeUrl}
+                        copyId="pixUrl"
+                        onCopy={copiarParaClipboard}
+                        isCopied={copiedField === "pixUrl"}
+                        helperText="Imagem hospedada pela Santander API."
+                      />
+                    </div>
                   </div>
                 </div>
-
-                {(status.qrCodePix || qrCodeImage) && (
-                  <div className="bg-gradient-to-br from-gold-500/10 to-gold-600/10 border border-gold-500/30 rounded-2xl p-6 shadow-lg shadow-gold-500/20 space-y-6">
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                      <h3 className="text-xl font-semibold text-gold-300">
-                        Pagamento via PIX Santander
-                      </h3>
-                      <span className="text-xs text-neutral-700 uppercase">
-                        QR Code oficial retornado pela API Santander
-                      </span>
-                    </div>
-                    <div className="flex flex-col lg:flex-row gap-6">
-                      <div className="flex flex-col items-center justify-center bg-white rounded-2xl shadow-2xl p-4 w-full lg:max-w-xs">
-                        {qrCodeImage ? (
-                          <img
-                            src={qrCodeImage}
-                            alt="QR Code PIX Santander"
-                            className="w-48 h-48"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <p className="text-sm text-neutral-500 text-center">
-                            QR Code não disponível para este boleto
-                          </p>
-                        )}
-                        <p className="text-xs text-neutral-500 mt-3 flex items-center gap-1">
-                          Abra o app do seu banco e escaneie o QR Code
-                        </p>
-                      </div>
-                      <div className="flex-1 space-y-4">
-                        <CopyableValue
-                          label="Código PIX (copia e cola)"
-                          value={status.qrCodePix}
-                          copyId="pixCode"
-                          onCopy={copiarParaClipboard}
-                          isCopied={copiedField === "pixCode"}
-                          helperText="Cole diretamente no app do seu banco para pagar este boleto."
-                        />
-                        <CopyableValue
-                          label="Link oficial do QR Code"
-                          value={status.qrCodeUrl}
-                          copyId="pixUrl"
-                          onCopy={copiarParaClipboard}
-                          isCopied={copiedField === "pixUrl"}
-                          helperText="URL fornecida pela API Santander contendo a imagem oficial do QR."
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {status.payer && (
-                  <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30 space-y-4">
-                    <h3 className="text-xl font-semibold text-neutral-50">
-                      Dados do pagador
-                    </h3>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          Nome
-                        </p>
-                        <p className="text-neutral-50 font-semibold">
-                          {status.payer.name || "Não informado"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          Documento
-                        </p>
-                        <p className="font-mono text-neutral-100">
-                          {status.payer.documentNumber || "—"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          Endereço
-                        </p>
-                        <p className="text-neutral-50">
-                          {status.payer.address || "—"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          Bairro
-                        </p>
-                        <p className="text-neutral-50">
-                          {status.payer.neighborhood || "—"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          Cidade / UF
-                        </p>
-                        <p className="text-neutral-50">
-                          {[status.payer.city, status.payer.state]
-                            .filter(Boolean)
-                            .join(" / ") || "—"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-wide text-neutral-500">
-                          CEP
-                        </p>
-                        <p className="text-neutral-50">
-                          {status.payer.zipCode || "—"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {status.settlements && status.settlements.length > 0 && (
-                  <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30 space-y-4">
-                    <h3 className="text-xl font-semibold text-neutral-50">
-                      Liquidações registradas
-                    </h3>
-                    <div className="space-y-3">
-                      {status.settlements.map((settlement, index) => (
-                        <div
-                          key={`${settlement.settlementDate}-${index}`}
-                          className="bg-neutral-950/40 border border-neutral-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-                        >
-                          <div>
-                            <p className="text-xs uppercase tracking-wide text-neutral-500">
-                              Data
-                            </p>
-                            <p className="text-neutral-50">
-                              {formatDate(settlement.settlementDate)}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs uppercase tracking-wide text-neutral-500">
-                              Origem
-                            </p>
-                            <p className="text-neutral-50">
-                              {settlement.settlementOrigin || "—"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs uppercase tracking-wide text-neutral-500">
-                              Valor
-                            </p>
-                            <p className="text-neutral-50 font-semibold">
-                              {formatCurrency(settlement.settlementValue)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {status.messages && status.messages.length > 0 && (
-                  <div className="bg-neutral-900/70 border border-neutral-800 rounded-2xl p-6 shadow-lg shadow-black/30">
-                    <h3 className="text-xl font-semibold text-neutral-50 mb-3">
-                      Mensagens do Santander
-                    </h3>
-                    <ul className="list-disc list-inside space-y-2 text-sm text-neutral-300">
-                      {status.messages.map((message, index) => (
-                        <li key={`mensagem-${index}`}>{message}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
 
                 <button
                   onClick={carregarStatus}
                   disabled={loading}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg shadow-gold-500/20 hover:shadow-gold-500/30"
+                  className="w-full px-6 py-3 bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-500 hover:to-emerald-600 text-neutral-950 rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/40"
                 >
-                  🔄 Atualizar status na API Santander
+                  🔄 Atualizar status direto da Santander API
                 </button>
               </div>
             ) : (
@@ -531,6 +346,22 @@ function CopyableValue({
       {helperText && (
         <p className="text-xs text-neutral-500">{helperText}</p>
       )}
+    </div>
+  );
+}
+
+interface InfoBadgeProps {
+  label: string;
+  value: string;
+}
+
+function InfoBadge({ label, value }: InfoBadgeProps) {
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+      <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
+        {label}
+      </p>
+      <p className="mt-2 font-mono text-lg text-white break-all">{value}</p>
     </div>
   );
 }
