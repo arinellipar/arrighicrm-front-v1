@@ -61,13 +61,13 @@ export function BoletoDetailsModal({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-2xl flex justify-between items-center">
+          <div className="sticky top-0 bg-gradient-to-r from-gold-500 to-gold-600 text-neutral-950 p-6 rounded-t-2xl flex justify-between items-center">
             <h2 className="text-2xl font-bold">
-              📄 Detalhes do Boleto #{boletoId}
+              Detalhes do Boleto #{boletoId}
             </h2>
             <button
               onClick={onClose}
-              className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+              className="text-neutral-950 hover:bg-black/20 rounded-full p-2 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -88,8 +88,8 @@ export function BoletoDetailsModal({
             ) : status ? (
               <div className="space-y-6">
                 {/* Status Atual */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-neutral-700">
-                  <h3 className="font-bold text-lg mb-3 text-neutral-100">
+                <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
+                  <h3 className="font-bold text-lg mb-3 text-neutral-50">
                     📊 Status Atual
                   </h3>
                   <StatusBadge
@@ -107,27 +107,27 @@ export function BoletoDetailsModal({
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-300 shadow-lg"
+                    className="bg-gradient-to-br from-green-500/10 to-green-600/10 p-6 rounded-xl border-2 border-green-500/30 shadow-lg"
                   >
-                    <h3 className="font-bold text-lg mb-4 text-green-800 flex items-center gap-2">
+                    <h3 className="font-bold text-lg mb-4 text-green-400 flex items-center gap-2">
                       <CheckCircle className="w-6 h-6" />
-                      ✅ Informações de Pagamento
+                      Informações de Pagamento
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-green-700 font-medium">
+                        <p className="text-sm text-green-400 font-medium">
                           Valor Pago
                         </p>
-                        <p className="text-2xl font-bold text-green-900">
+                        <p className="text-2xl font-bold text-green-300">
                           R$ {status.paidValue.toFixed(2)}
                         </p>
                       </div>
                       {status.settlementDate && (
                         <div>
-                          <p className="text-sm text-green-700 font-medium">
+                          <p className="text-sm text-green-400 font-medium">
                             Data de Pagamento
                           </p>
-                          <p className="text-xl font-bold text-green-900">
+                          <p className="text-xl font-bold text-green-300">
                             {new Date(status.settlementDate).toLocaleDateString(
                               "pt-BR"
                             )}
@@ -179,19 +179,19 @@ export function BoletoDetailsModal({
 
                 {/* Dados do Pagador */}
                 {status.payer && (
-                  <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                    <h3 className="font-bold text-lg mb-4 text-blue-800">
+                  <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
+                    <h3 className="font-bold text-lg mb-4 text-neutral-50">
                       👤 Dados do Pagador
                     </h3>
                     <div className="space-y-3 text-sm">
                       <div>
-                        <p className="text-blue-700 font-medium">Nome</p>
+                        <p className="text-neutral-400 font-medium">Nome</p>
                         <p className="text-neutral-50 font-semibold">
                           {status.payer.name}
                         </p>
                       </div>
                       <div>
-                        <p className="text-blue-700 font-medium">Documento</p>
+                        <p className="text-neutral-400 font-medium">Documento</p>
                         <p className="font-mono text-neutral-50 font-semibold">
                           {status.payer.documentNumber}
                         </p>
@@ -200,31 +200,54 @@ export function BoletoDetailsModal({
                   </div>
                 )}
 
-                {/* PIX */}
+                {/* PIX com QR Code Visual */}
                 {status.qrCodePix && (
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border-2 border-purple-300">
-                    <h3 className="font-bold text-lg mb-4 text-purple-800 flex items-center gap-2">
+                  <div className="bg-gradient-to-br from-gold-500/10 to-gold-600/10 p-6 rounded-xl border-2 border-gold-500/30 shadow-lg">
+                    <h3 className="font-bold text-lg mb-4 text-gold-400 flex items-center gap-2">
                       💳 Pagamento via PIX
                     </h3>
+
+                    {/* QR Code Visual */}
+                    <div className="flex flex-col items-center mb-4">
+                      <div className="bg-white p-4 rounded-xl shadow-lg">
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(status.qrCodePix)}`}
+                          alt="QR Code PIX"
+                          className="w-48 h-48"
+                        />
+                      </div>
+                      <p className="text-sm text-neutral-400 mt-3">
+                        Escaneie com seu app de pagamento
+                      </p>
+                    </div>
+
+                    {/* Código PIX Copia e Cola */}
+                    <div className="bg-neutral-800/50 p-3 rounded-lg border border-neutral-700 mb-3">
+                      <p className="text-xs text-neutral-400 mb-2">Código PIX Copia e Cola:</p>
+                      <p className="font-mono text-xs text-neutral-200 break-all max-h-20 overflow-y-auto">
+                        {status.qrCodePix}
+                      </p>
+                    </div>
+
                     <button
                       onClick={() =>
                         copiarParaClipboard(status.qrCodePix!, "Código PIX")
                       }
-                      className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                      className="w-full px-4 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 shadow-lg shadow-gold-500/20"
                     >
                       <Copy className="w-5 h-5" />
-                      📋 Copiar Código PIX
+                      Copiar Código PIX
                     </button>
                   </div>
                 )}
 
                 {/* Linha Digitável */}
                 {status.digitableLine && (
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-300">
-                    <h3 className="font-bold text-lg mb-3 text-blue-800 flex items-center gap-2">
+                  <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
+                    <h3 className="font-bold text-lg mb-3 text-neutral-50 flex items-center gap-2">
                       🔢 Linha Digitável
                     </h3>
-                    <p className="font-mono text-sm bg-white p-3 rounded border border-blue-200 break-all mb-3 text-neutral-100">
+                    <p className="font-mono text-sm bg-neutral-900 p-3 rounded border border-neutral-700 break-all mb-3 text-neutral-100">
                       {status.digitableLine}
                     </p>
                     <button
@@ -234,10 +257,10 @@ export function BoletoDetailsModal({
                           "Linha digitável"
                         )
                       }
-                      className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center gap-2"
+                      className="w-full px-4 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 shadow-lg shadow-gold-500/20"
                     >
                       <Copy className="w-5 h-5" />
-                      📋 Copiar
+                      Copiar
                     </button>
                   </div>
                 )}
@@ -245,12 +268,21 @@ export function BoletoDetailsModal({
                 {/* Código de Barras */}
                 {status.barCode && (
                   <div className="bg-neutral-800/50 p-6 rounded-xl border border-neutral-700">
-                    <h3 className="font-bold text-lg mb-3 text-neutral-100">
+                    <h3 className="font-bold text-lg mb-3 text-neutral-50">
                       📊 Código de Barras
                     </h3>
-                    <p className="font-mono text-sm bg-white p-3 rounded border border-neutral-700 break-all text-neutral-100">
+                    <p className="font-mono text-sm bg-neutral-900 p-3 rounded border border-neutral-700 break-all text-neutral-100 mb-3">
                       {status.barCode}
                     </p>
+                    <button
+                      onClick={() =>
+                        copiarParaClipboard(status.barCode!, "Código de barras")
+                      }
+                      className="w-full px-4 py-3 bg-neutral-700 hover:bg-neutral-600 text-neutral-200 rounded-lg transition-colors font-semibold flex items-center justify-center gap-2 border border-neutral-600"
+                    >
+                      <Copy className="w-5 h-5" />
+                      Copiar Código
+                    </button>
                   </div>
                 )}
 
@@ -258,15 +290,15 @@ export function BoletoDetailsModal({
                 <button
                   onClick={carregarStatus}
                   disabled={loading}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 transition-all font-semibold shadow-lg hover:shadow-xl"
+                  className="w-full px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-lg disabled:opacity-50 transition-all font-semibold shadow-lg shadow-gold-500/20 hover:shadow-gold-500/30"
                 >
                   🔄 Atualizar Status
                 </button>
               </div>
             ) : (
               <div className="text-center py-12">
-                <AlertCircle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <p className="text-gray-500 text-lg">
+                <AlertCircle className="w-16 h-16 mx-auto text-neutral-600 mb-4" />
+                <p className="text-neutral-400 text-lg">
                   Nenhum dado disponível
                 </p>
               </div>
@@ -277,7 +309,7 @@ export function BoletoDetailsModal({
           <div className="sticky bottom-0 bg-neutral-800/50 p-4 rounded-b-2xl border-t border-neutral-700">
             <button
               onClick={onClose}
-              className="w-full px-6 py-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+              className="w-full px-6 py-3 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors font-semibold text-neutral-200 border border-neutral-600"
             >
               Fechar
             </button>
