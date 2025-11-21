@@ -8,6 +8,10 @@ interface ContratoCompleto {
   id: number;
   numeroContrato: string;
   valorNegociado?: number;
+  valorDevido?: number;
+  valorEntrada?: number;
+  valorParcela?: number;
+  numeroParcelas?: number;
   cliente?: {
     pessoaFisica?: {
       nome?: string;
@@ -83,7 +87,15 @@ export function NovoBoletoModal({
 
       if (response.ok) {
         const data = await response.json();
-        console.log("📄 Contratos carregados:", data);
+        console.log("📄 Contratos carregados:", data.length, "contratos");
+        console.log("📄 Primeiro contrato:", data[0]);
+        console.log("📄 Valores do primeiro contrato:", {
+          valorNegociado: data[0]?.valorNegociado,
+          valorDevido: data[0]?.valorDevido,
+          valorEntrada: data[0]?.valorEntrada,
+          valorParcela: data[0]?.valorParcela,
+          numeroParcelas: data[0]?.numeroParcelas,
+        });
         setContratosRaw(data);
       }
     } catch (error) {
@@ -103,12 +115,22 @@ export function NovoBoletoModal({
       c.cliente?.pessoaJuridica?.cnpj ||
       "Sem documento";
 
+    // Calcular valor total do contrato
+    // Prioridade: ValorNegociado > ValorDevido > (ValorEntrada + ValorParcela * NumeroParcelas)
+    let valorTotal = c.valorNegociado || c.valorDevido;
+
+    if (!valorTotal && c.valorEntrada && c.valorParcela && c.numeroParcelas) {
+      valorTotal = c.valorEntrada + c.valorParcela * c.numeroParcelas;
+    } else if (!valorTotal && c.valorParcela && c.numeroParcelas) {
+      valorTotal = c.valorParcela * c.numeroParcelas;
+    }
+
     return {
       id: c.id,
       numeroContrato: c.numeroContrato || `CONT-${c.id}`,
       clienteNome,
       clienteDocumento,
-      valorNegociado: c.valorNegociado,
+      valorNegociado: valorTotal,
     };
   });
 
@@ -300,14 +322,25 @@ export function NovoBoletoModal({
                           <div
                             key={contrato.id}
                             onClick={() => {
+                              console.log("🔍 Contrato selecionado:", contrato);
+                              console.log(
+                                "🔍 Valor negociado:",
+                                contrato.valorNegociado
+                              );
                               setSelectedContrato(contrato);
                               setShowContratoDropdown(false);
                               setSearchTerm("");
                               // Preencher automaticamente o valor negociado do contrato
                               if (contrato.valorNegociado) {
+                                console.log(
+                                  "✅ Preenchendo valor:",
+                                  contrato.valorNegociado.toFixed(2)
+                                );
                                 setValorNominal(
                                   contrato.valorNegociado.toFixed(2)
                                 );
+                              } else {
+                                console.log("⚠️ Contrato sem valor negociado");
                               }
                             }}
                             className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-0"
