@@ -220,7 +220,7 @@ export default function ModernDashboard() {
   // Hook para dados de clientes
   const { clientes, loading: clientesLoading } = useClientes();
 
-  // Hook para sessões ativas em tempo real (incluindo usuários inativos)
+  // Hook para sessões ativas em tempo real (incluindo histórico de todos os usuários)
   // Apenas buscar se for administrador - não buscar nada se não for admin
   const isAdmin = permissoes?.grupo === "Administrador";
   const {
@@ -228,7 +228,7 @@ export default function ModernDashboard() {
     count: sessoesCount,
     countOnline: sessoesOnline,
     loading: sessoesLoading,
-  } = useSessoesAtivas(isAdmin ? true : false);
+  } = useSessoesAtivas(true); // true = busca histórico completo (todos os usuários)
 
   // Hook para estatísticas e receita
   const {

@@ -7,6 +7,7 @@ import { X, Search, ChevronDown, Plus, Minus } from "lucide-react";
 interface ContratoCompleto {
   id: number;
   numeroContrato: string;
+  valorNegociado?: number;
   cliente?: {
     pessoaFisica?: {
       nome?: string;
@@ -24,6 +25,7 @@ interface ContratoDisplay {
   numeroContrato: string;
   clienteNome: string;
   clienteDocumento: string;
+  valorNegociado?: number;
 }
 
 interface NovoBoletoModalProps {
@@ -39,9 +41,8 @@ export function NovoBoletoModal({
 }: NovoBoletoModalProps) {
   const [contratosRaw, setContratosRaw] = useState<ContratoCompleto[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedContrato, setSelectedContrato] = useState<ContratoDisplay | null>(
-    null
-  );
+  const [selectedContrato, setSelectedContrato] =
+    useState<ContratoDisplay | null>(null);
   const [showContratoDropdown, setShowContratoDropdown] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -107,6 +108,7 @@ export function NovoBoletoModal({
       numeroContrato: c.numeroContrato || `CONT-${c.id}`,
       clienteNome,
       clienteDocumento,
+      valorNegociado: c.valorNegociado,
     };
   });
 
@@ -301,18 +303,41 @@ export function NovoBoletoModal({
                               setSelectedContrato(contrato);
                               setShowContratoDropdown(false);
                               setSearchTerm("");
+                              // Preencher automaticamente o valor negociado do contrato
+                              if (contrato.valorNegociado) {
+                                setValorNominal(
+                                  contrato.valorNegociado.toFixed(2)
+                                );
+                              }
                             }}
                             className="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-0"
                           >
-                            <p className="font-medium text-gray-900">
-                              {contrato.numeroContrato}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {contrato.clienteNome}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {contrato.clienteDocumento}
-                            </p>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <p className="font-medium text-gray-900">
+                                  {contrato.numeroContrato}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {contrato.clienteNome}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {contrato.clienteDocumento}
+                                </p>
+                              </div>
+                              {contrato.valorNegociado && (
+                                <div className="ml-3 text-right">
+                                  <p className="text-xs text-gray-500">
+                                    Valor Total
+                                  </p>
+                                  <p className="text-sm font-semibold text-green-600">
+                                    {new Intl.NumberFormat("pt-BR", {
+                                      style: "currency",
+                                      currency: "BRL",
+                                    }).format(contrato.valorNegociado)}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         ))}
                         {filteredContratos.length === 0 && (
@@ -341,6 +366,11 @@ export function NovoBoletoModal({
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
+                  {selectedContrato && selectedContrato.valorNegociado && (
+                    <p className="mt-1 text-xs text-green-600">
+                      ✓ Valor preenchido automaticamente do contrato
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
