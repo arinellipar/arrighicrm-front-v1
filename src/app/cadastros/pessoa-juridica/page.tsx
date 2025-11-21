@@ -46,8 +46,8 @@ function StatusBadge({
           ? "px-1 py-0.5 text-[8px] sm:text-[9px]"
           : "px-1 sm:px-1.5 py-0.5 text-[9px] sm:text-xs",
         status === "ativo"
-          ? "bg-green-100 text-green-800 border border-green-200"
-          : "bg-red-100 text-red-800 border border-red-200"
+          ? "bg-green-500/20 text-green-400 border border-green-500/30"
+          : "bg-red-500/20 text-red-400 border border-red-500/30"
       )}
     >
       {status === "ativo" ? (
@@ -71,7 +71,7 @@ function StatusBadge({
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center py-12">
-      <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+      <Loader2 className="w-8 h-8 animate-spin text-gold-400" />
     </div>
   );
 }
@@ -298,10 +298,10 @@ export default function PessoaJuridicaPage() {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-neutral-50 mb-2">
                 Acesso Negado
               </h3>
-              <p className="text-gray-500">
+              <p className="text-neutral-400">
                 Você não tem permissão para acessar pessoas jurídicas.
               </p>
             </div>
@@ -325,7 +325,7 @@ export default function PessoaJuridicaPage() {
                 <h1 className="text-base sm:text-lg lg:text-xl font-bold gradient-text">
                   Pessoas Jurídicas
                 </h1>
-                <p className="text-[10px] sm:text-xs text-secondary-600">
+                <p className="text-[10px] sm:text-xs text-neutral-300">
                   Gerenciar cadastros de empresas e organizações
                 </p>
               </div>
@@ -375,13 +375,13 @@ export default function PessoaJuridicaPage() {
           >
             <div className="flex flex-col md:flex-row gap-2 sm:gap-3 lg:gap-4 w-full">
               <div className="flex-1 relative">
-                <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+                <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-gold-500 w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
                 <input
                   type="text"
                   placeholder="Buscar por razão social, CNPJ ou email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-secondary-50 border border-secondary-200 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+                  className="w-full pl-7 sm:pl-8 lg:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 lg:py-3 bg-neutral-800/50 border border-neutral-700 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
                 />
                 {selectedCompanyId && (
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
@@ -397,7 +397,7 @@ export default function PessoaJuridicaPage() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleViewCompany}
                   disabled={!selectedCompanyId}
-                  className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-secondary-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+                  className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-secondary-100 hover:bg-secondary-200 disabled:bg-neutral-800/50 disabled:text-gold-500 text-neutral-200 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
                   title="Visualizar empresa selecionada"
                 >
                   <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
@@ -408,7 +408,7 @@ export default function PessoaJuridicaPage() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleEditSelected}
                   disabled={!selectedCompanyId}
-                  className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-accent-100 hover:bg-accent-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-accent-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+                  className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-accent-100 hover:bg-accent-200 disabled:bg-neutral-800/50 disabled:text-gold-500 text-accent-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
                   title="Editar empresa selecionada"
                 >
                   <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
@@ -419,7 +419,7 @@ export default function PessoaJuridicaPage() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleDeleteSelected}
                   disabled={!selectedCompanyId}
-                  className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-red-100 hover:bg-red-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-red-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
+                  className="btn-mobile flex items-center justify-center space-x-1 sm:space-x-2 px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 lg:py-3 bg-red-100 hover:bg-red-200 disabled:bg-neutral-800/50 disabled:text-gold-500 text-red-700 rounded-lg sm:rounded-xl font-medium transition-all duration-200 text-[11px] sm:text-xs lg:text-sm"
                   title="Excluir empresa selecionada"
                 >
                   <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
@@ -439,10 +439,10 @@ export default function PessoaJuridicaPage() {
             <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-neutral-800 w-full">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
+                  <p className="text-[11px] sm:text-xs lg:text-sm text-neutral-300 font-medium">
                     Total de Empresas
                   </p>
-                  <p className="text-base sm:text-lg lg:text-xl font-bold text-secondary-900">
+                  <p className="text-base sm:text-lg lg:text-xl font-bold text-neutral-50">
                     {stats.total}
                   </p>
                 </div>
@@ -455,7 +455,7 @@ export default function PessoaJuridicaPage() {
             <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-neutral-800 w-full">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
+                  <p className="text-[11px] sm:text-xs lg:text-sm text-neutral-300 font-medium">
                     Empresas Ativas
                   </p>
                   <p className="text-base sm:text-lg lg:text-xl font-bold text-green-600">
@@ -471,7 +471,7 @@ export default function PessoaJuridicaPage() {
             <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-neutral-800 w-full">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] sm:text-xs lg:text-sm text-secondary-600 font-medium">
+                  <p className="text-[11px] sm:text-xs lg:text-sm text-neutral-300 font-medium">
                     Novas este mês
                   </p>
                   <p className="text-base sm:text-lg lg:text-xl font-bold text-accent-600">
@@ -497,8 +497,8 @@ export default function PessoaJuridicaPage() {
               transition={{ delay: 0.3 }}
               className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg border border-neutral-800 overflow-hidden w-full"
             >
-              <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-secondary-200/50">
-                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-secondary-900">
+              <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 border-b border-neutral-700/50">
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-neutral-50">
                   Lista de Empresas ({filteredPessoas.length} registros)
                 </h3>
               </div>
@@ -506,12 +506,12 @@ export default function PessoaJuridicaPage() {
               {filteredPessoas.length === 0 ? (
                 <div className="text-center py-12">
                   <Building2 className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-secondary-900 mb-2">
+                  <h3 className="text-lg font-semibold text-neutral-50 mb-2">
                     {searchTerm
                       ? "Nenhum resultado encontrado"
                       : "Nenhuma empresa cadastrada"}
                   </h3>
-                  <p className="text-secondary-600">
+                  <p className="text-neutral-300">
                     {searchTerm
                       ? "Tente ajustar o termo de busca"
                       : responsaveisTecnicos.length === 0
@@ -540,10 +540,10 @@ export default function PessoaJuridicaPage() {
                           isTableCompact ? "table-compact" : ""
                         }`}
                       >
-                        <thead className="bg-secondary-50/50">
+                        <thead className="bg-neutral-800/50/50">
                           <tr>
                             <th
-                              className={`px-6 sm:px-7 lg:px-8 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider ${
+                              className={`px-6 sm:px-7 lg:px-8 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-neutral-400 uppercase tracking-wider ${
                                 isTableCompact
                                   ? "text-[9px] sm:text-[10px]"
                                   : "text-[10px] sm:text-xs"
@@ -552,7 +552,7 @@ export default function PessoaJuridicaPage() {
                               Empresa
                             </th>
                             <th
-                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell ${
                                 isTableCompact
                                   ? "text-[9px] sm:text-[10px]"
                                   : "text-[10px] sm:text-xs"
@@ -561,7 +561,7 @@ export default function PessoaJuridicaPage() {
                               CNPJ
                             </th>
                             <th
-                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell ${
                                 isTableCompact
                                   ? "text-[9px] sm:text-[10px]"
                                   : "text-[10px] sm:text-xs"
@@ -570,7 +570,7 @@ export default function PessoaJuridicaPage() {
                               Responsável Técnico
                             </th>
                             <th
-                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 -mr-5 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              className={`px-6 sm:px-7 lg:px-8 pr-0 sm:pr-0 lg:pr-0 -mr-5 py-2 sm:py-2.5 lg:py-3 text-left font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell ${
                                 isTableCompact
                                   ? "text-[9px] sm:text-[10px]"
                                   : "text-[10px] sm:text-xs"
@@ -579,7 +579,7 @@ export default function PessoaJuridicaPage() {
                               Contato
                             </th>
                             <th
-                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 mr-5 -ml-10 text-left font-medium text-secondary-500 uppercase tracking-wider hidden sm:table-cell ${
+                              className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 mr-5 -ml-10 text-left font-medium text-neutral-400 uppercase tracking-wider hidden sm:table-cell ${
                                 isTableCompact
                                   ? "text-[9px] sm:text-[10px]"
                                   : "text-[10px] sm:text-xs"
@@ -605,7 +605,7 @@ export default function PessoaJuridicaPage() {
                               className={`transition-colors duration-200 cursor-pointer ${
                                 selectedCompanyId === pessoa.id
                                   ? "bg-secondary-200 hover:bg-secondary-200 border-l-4 border-accent-500"
-                                  : "hover:bg-secondary-50/50"
+                                  : "hover:bg-neutral-800/50/50"
                               }`}
                             >
                               <td
@@ -639,7 +639,7 @@ export default function PessoaJuridicaPage() {
                                   </div>
                                   <div className="min-w-0 flex-1">
                                     <div
-                                      className={`font-medium text-secondary-900 ${
+                                      className={`font-medium text-neutral-50 ${
                                         isTableCompact
                                           ? "text-[10px] sm:text-[11px]"
                                           : "text-[11px] sm:text-xs lg:text-sm"
@@ -656,7 +656,7 @@ export default function PessoaJuridicaPage() {
                                     </div>
                                     {pessoa.nomeFantasia && (
                                       <div
-                                        className={`text-secondary-500 truncate hidden sm:block ${
+                                        className={`text-neutral-400 truncate hidden sm:block ${
                                           isTableCompact
                                             ? "text-[9px] sm:text-[10px]"
                                             : "text-[10px] sm:text-xs"
@@ -670,7 +670,7 @@ export default function PessoaJuridicaPage() {
                                 </div>
                               </td>
                               <td
-                                className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-secondary-600 hidden sm:table-cell ${
+                                className={`px-4 sm:px-5 lg:px-6 py-2 sm:py-2.5 lg:py-3 whitespace-nowrap text-neutral-300 hidden sm:table-cell ${
                                   isTableCompact
                                     ? "text-[9px] sm:text-[10px] py-1 sm:py-1.5"
                                     : "text-[10px] sm:text-xs lg:text-sm"
@@ -684,7 +684,7 @@ export default function PessoaJuridicaPage() {
                                 }`}
                               >
                                 <div
-                                  className={`text-secondary-900 ${
+                                  className={`text-neutral-50 ${
                                     isTableCompact
                                       ? "text-[9px] sm:text-[10px]"
                                       : "text-[10px] sm:text-xs lg:text-sm"
@@ -693,7 +693,7 @@ export default function PessoaJuridicaPage() {
                                   {pessoa.responsavelTecnico?.nome || "N/A"}
                                 </div>
                                 <div
-                                  className={`text-secondary-500 ${
+                                  className={`text-neutral-400 ${
                                     isTableCompact
                                       ? "text-[9px] sm:text-[10px]"
                                       : "text-[10px] sm:text-xs lg:text-sm"
@@ -708,7 +708,7 @@ export default function PessoaJuridicaPage() {
                                 }`}
                               >
                                 <div
-                                  className={`text-secondary-900 ${
+                                  className={`text-neutral-50 ${
                                     isTableCompact
                                       ? "text-[9px] sm:text-[10px]"
                                       : "text-[10px] sm:text-xs lg:text-sm"
@@ -717,7 +717,7 @@ export default function PessoaJuridicaPage() {
                                   {pessoa.email}
                                 </div>
                                 <div
-                                  className={`text-secondary-500 ${
+                                  className={`text-neutral-400 ${
                                     isTableCompact
                                       ? "text-[9px] sm:text-[10px]"
                                       : "text-[10px] sm:text-xs lg:text-sm"
@@ -747,9 +747,9 @@ export default function PessoaJuridicaPage() {
 
               {/* Paginação */}
               {filteredPessoas.length > 0 && (
-                <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-secondary-50/30 border-t border-secondary-200/50">
+                <div className="px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-4 bg-neutral-800/50/30 border-t border-neutral-700/50">
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-0">
-                    <div className="text-xs sm:text-sm text-secondary-500 text-center sm:text-left">
+                    <div className="text-xs sm:text-sm text-neutral-400 text-center sm:text-left">
                       Mostrando {filteredPessoas.length} de {pessoas.length}{" "}
                       registros
                     </div>
@@ -764,7 +764,7 @@ export default function PessoaJuridicaPage() {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 transition-colors duration-200"
+                        className="btn-mobile px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-gold-500 border border-transparent rounded-lg hover:bg-gold-600 transition-colors duration-200"
                       >
                         Próximo
                       </motion.button>
@@ -810,17 +810,17 @@ export default function PessoaJuridicaPage() {
                   initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.95, opacity: 0 }}
-                  className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+                  className="bg-neutral-900/95 rounded-2xl p-6 max-w-md w-full shadow-xl"
                 >
                   <div className="flex items-center space-x-3 mb-4">
                     <div className="p-2 bg-red-100 rounded-full">
                       <AlertCircle className="w-6 h-6 text-red-600" />
                     </div>
-                    <h3 className="text-lg font-semibold text-secondary-900">
+                    <h3 className="text-lg font-semibold text-neutral-50">
                       Confirmar Exclusão
                     </h3>
                   </div>
-                  <p className="text-secondary-600 mb-6">
+                  <p className="text-neutral-300 mb-6">
                     Tem certeza que deseja excluir esta empresa? Esta ação não
                     pode ser desfeita.
                   </p>
@@ -829,7 +829,7 @@ export default function PessoaJuridicaPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setShowDeleteConfirm(null)}
-                      className="px-4 py-2 text-secondary-700 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium transition-colors duration-200"
+                      className="px-4 py-2 text-neutral-200 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium transition-colors duration-200"
                     >
                       Cancelar
                     </motion.button>

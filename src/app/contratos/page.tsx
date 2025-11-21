@@ -215,19 +215,23 @@ export default function ContratosPage() {
         const termo = searchTerm.toLowerCase();
 
         // Buscar em múltiplos campos para maior flexibilidade
+        // Validar que cliente existe antes de acessar propriedades
         const clienteNome =
-          contrato.cliente?.pessoaFisica?.nome ||
-          contrato.cliente?.pessoaJuridica?.razaoSocial ||
-          "";
-        const consultorNome = contrato.consultor?.pessoaFisica?.nome || "";
+          (contrato.cliente && (
+            contrato.cliente.pessoaFisica?.nome ||
+            contrato.cliente.pessoaJuridica?.razaoSocial
+          )) || "";
+        const consultorNome = (contrato.consultor && contrato.consultor.pessoaFisica?.nome) || "";
         const clienteEmail =
-          contrato.cliente?.pessoaFisica?.emailEmpresarial ||
-          contrato.cliente?.pessoaJuridica?.email ||
-          "";
+          (contrato.cliente && (
+            contrato.cliente.pessoaFisica?.emailEmpresarial ||
+            contrato.cliente.pessoaJuridica?.email
+          )) || "";
         const clienteCpfCnpj =
-          contrato.cliente?.pessoaFisica?.cpf ||
-          contrato.cliente?.pessoaJuridica?.cnpj ||
-          "";
+          (contrato.cliente && (
+            contrato.cliente.pessoaFisica?.cpf ||
+            contrato.cliente.pessoaJuridica?.cnpj
+          )) || "";
         const numeroPasta = contrato.numeroPasta || "";
         const tipoServico = contrato.tipoServico || "";
         const situacao = contrato.situacao || "";

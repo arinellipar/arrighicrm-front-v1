@@ -169,6 +169,15 @@ export function useContratos() {
 
         // Depois, adicionar contratos da sessão (podem sobrescrever os da API)
         for (const sc of prev.sessionContratos) {
+          // Validar que o contrato existe e não é null/undefined
+          if (!sc || typeof sc !== 'object') {
+            console.error(
+              "🔧 useContratos: Contrato da sessão inválido (null/undefined):",
+              sc
+            );
+            continue;
+          }
+
           // Validar ID do contrato da sessão
           if (!sc.id || sc.id === undefined || sc.id === null || isNaN(sc.id)) {
             console.error(
@@ -178,10 +187,19 @@ export function useContratos() {
             continue;
           }
 
-          // Validar se o contrato tem dados básicos
-          if (!sc.clienteId || !sc.consultorId) {
+          // Validar se o contrato tem dados básicos (clienteId é obrigatório)
+          if (!sc.clienteId || sc.clienteId === undefined || sc.clienteId === null || isNaN(sc.clienteId)) {
             console.warn(
-              "🔧 useContratos: Contrato da sessão com dados incompletos, removendo:",
+              "🔧 useContratos: Contrato da sessão sem clienteId válido, removendo:",
+              sc
+            );
+            continue;
+          }
+
+          // Consultor pode ser opcional em alguns casos, mas vamos validar se existe
+          if (sc.consultorId !== undefined && sc.consultorId !== null && isNaN(sc.consultorId)) {
+            console.warn(
+              "🔧 useContratos: Contrato da sessão com consultorId inválido, removendo:",
               sc
             );
             continue;
@@ -321,10 +339,21 @@ export function useContratos() {
             }
           }
 
+          // Validar que contratoLocal tem um ID válido antes de adicionar
+          if (!contratoLocal || !contratoLocal.id || isNaN(contratoLocal.id)) {
+            console.error(
+              "🔧 createContrato: Erro - contratoLocal inválido ou sem ID:",
+              contratoLocal
+            );
+            throw new Error(
+              "Erro ao criar contrato: não foi possível criar contrato local"
+            );
+          }
+
           setState((prev) => ({
             ...prev,
-            contratos: [...prev.contratos, contratoLocal],
-            sessionContratos: [...prev.sessionContratos, contratoLocal],
+            contratos: [...prev.contratos.filter((c) => c && c.id), contratoLocal],
+            sessionContratos: [...prev.sessionContratos.filter((c) => c && c.id), contratoLocal],
             creating: false,
           }));
 
@@ -414,13 +443,24 @@ export function useContratos() {
           novoContrato
         );
 
+        // Validar que novoContrato existe e tem um ID válido
+        if (!novoContrato || !novoContrato.id || isNaN(novoContrato.id)) {
+          console.error(
+            "🔧 createContrato: Erro - novoContrato inválido ou sem ID:",
+            novoContrato
+          );
+          throw new Error(
+            "Erro ao criar contrato: resposta inválida do servidor"
+          );
+        }
+
         setState((prev) => {
           const newContratos = [
-            ...prev.contratos.filter((c) => c.id !== novoContrato.id),
+            ...prev.contratos.filter((c) => c && c.id && c.id !== novoContrato.id),
             novoContrato,
           ];
           const newSessionContratos = [
-            ...prev.sessionContratos.filter((c) => c.id !== novoContrato.id),
+            ...prev.sessionContratos.filter((c) => c && c.id && c.id !== novoContrato.id),
             novoContrato,
           ];
 

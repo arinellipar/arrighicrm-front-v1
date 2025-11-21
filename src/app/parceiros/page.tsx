@@ -55,7 +55,7 @@ function isAdvogado(email: string | undefined): boolean {
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center py-12">
-      <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+      <Loader2 className="w-8 h-8 animate-spin text-gold-400" />
     </div>
   );
 }
@@ -252,7 +252,7 @@ export default function ParceirosPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold gradient-text">Parceiros</h1>
-              <p className="text-sm text-secondary-600">
+              <p className="text-sm text-neutral-300">
                 Gerenciar parceiros e responsáveis técnicos
               </p>
             </div>
@@ -278,13 +278,13 @@ export default function ParceirosPage() {
         >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gold-500 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Buscar por nome, OAB ou email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
               />
               {selectedParceiroId && (
                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
@@ -298,7 +298,7 @@ export default function ParceirosPage() {
             <select
               value={filterFilial}
               onChange={(e) => setFilterFilial(e.target.value)}
-              className="px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+              className="px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
             >
               <option value="">Todas as filiais</option>
               {filiais.map((filial: string) => (
@@ -311,7 +311,7 @@ export default function ParceirosPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+              className="px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
             >
               <option value="">Todos os status</option>
               <option value="ativo">Ativo</option>
@@ -324,7 +324,7 @@ export default function ParceirosPage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleViewParceiro}
                 disabled={!selectedParceiroId}
-                className="flex items-center justify-center space-x-2 px-4 py-3 bg-secondary-100 hover:bg-secondary-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-secondary-700 rounded-xl font-medium transition-all duration-200"
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-secondary-100 hover:bg-secondary-200 disabled:bg-neutral-800/50 disabled:text-gold-500 text-neutral-200 rounded-xl font-medium transition-all duration-200"
                 title="Visualizar parceiro selecionado"
               >
                 <Eye className="w-4 h-4" />
@@ -335,7 +335,7 @@ export default function ParceirosPage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleEditSelected}
                 disabled={!selectedParceiroId}
-                className="flex items-center justify-center space-x-2 px-4 py-3 bg-accent-100 hover:bg-accent-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-accent-700 rounded-xl font-medium transition-all duration-200"
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-accent-100 hover:bg-accent-200 disabled:bg-neutral-800/50 disabled:text-gold-500 text-accent-700 rounded-xl font-medium transition-all duration-200"
                 title="Editar parceiro selecionado"
               >
                 <Edit className="w-4 h-4" />
@@ -346,7 +346,7 @@ export default function ParceirosPage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleDeleteSelected}
                 disabled={!selectedParceiroId}
-                className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-100 hover:bg-red-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-red-700 rounded-xl font-medium transition-all duration-200"
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-100 hover:bg-red-200 disabled:bg-neutral-800/50 disabled:text-gold-500 text-red-700 rounded-xl font-medium transition-all duration-200"
                 title="Excluir parceiro selecionado"
               >
                 <Trash2 className="w-4 h-4" />
@@ -366,10 +366,10 @@ export default function ParceirosPage() {
           <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-neutral-300 text-sm font-medium">
                   Total de Parceiros
                 </p>
-                <p className="text-2xl font-bold text-secondary-900">
+                <p className="text-2xl font-bold text-neutral-50">
                   {stats.total}
                 </p>
               </div>
@@ -382,7 +382,7 @@ export default function ParceirosPage() {
           <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-neutral-300 text-sm font-medium">
                   Parceiros Ativos
                 </p>
                 <p className="text-2xl font-bold text-green-600">
@@ -398,7 +398,7 @@ export default function ParceirosPage() {
           <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-neutral-300 text-sm font-medium">
                   Com OAB
                 </p>
                 <p className="text-2xl font-bold text-blue-600">
@@ -414,7 +414,7 @@ export default function ParceirosPage() {
           <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-4 shadow-sm border border-neutral-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-secondary-600 text-sm font-medium">
+                <p className="text-neutral-300 text-sm font-medium">
                   Filiais
                 </p>
                 <p className="text-2xl font-bold text-orange-600">
@@ -441,7 +441,7 @@ export default function ParceirosPage() {
             className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-sm border border-neutral-800 overflow-hidden"
           >
             <div className="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-secondary-900">
+              <h3 className="text-lg font-semibold text-neutral-50">
                 Lista de Parceiros ({filteredParceiros.length} registros)
               </h3>
               <div className="flex items-center space-x-2">
@@ -450,8 +450,8 @@ export default function ParceirosPage() {
                   className={cn(
                     "p-2 rounded-lg transition-colors",
                     viewMode === "list"
-                      ? "bg-primary-100 text-primary-600"
-                      : "text-secondary-400 hover:text-secondary-600"
+                      ? "bg-gold-500/20 text-gold-400"
+                      : "text-gold-500 hover:text-neutral-300"
                   )}
                 >
                   <svg
@@ -473,8 +473,8 @@ export default function ParceirosPage() {
                   className={cn(
                     "p-2 rounded-lg transition-colors",
                     viewMode === "grid"
-                      ? "bg-primary-100 text-primary-600"
-                      : "text-secondary-400 hover:text-secondary-600"
+                      ? "bg-gold-500/20 text-gold-400"
+                      : "text-gold-500 hover:text-neutral-300"
                   )}
                 >
                   <svg
@@ -497,12 +497,12 @@ export default function ParceirosPage() {
             {filteredParceiros.length === 0 ? (
               <div className="text-center py-12">
                 <Scale className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-secondary-900 mb-2">
+                <h3 className="text-lg font-semibold text-neutral-50 mb-2">
                   {searchTerm || filterFilial || filterStatus
                     ? "Nenhum resultado encontrado"
                     : "Nenhum parceiro cadastrado"}
                 </h3>
-                <p className="text-secondary-600">
+                <p className="text-neutral-300">
                   {searchTerm || filterFilial || filterStatus
                     ? "Tente ajustar os filtros de busca"
                     : "Clique em 'Novo Parceiro' para começar"}
@@ -511,27 +511,27 @@ export default function ParceirosPage() {
             ) : viewMode === "list" ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-secondary-50/50">
+                  <thead className="bg-neutral-800/50/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Parceiro
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         OAB
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         CPF
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Filial
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Contato
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase tracking-wider">
                         Cadastro
                       </th>
                     </tr>
@@ -554,7 +554,7 @@ export default function ParceirosPage() {
                             "transition-colors duration-200 cursor-pointer",
                             selectedParceiroId === parceiro.id
                               ? "bg-secondary-200 hover:bg-secondary-200 border-l-4 border-accent-500"
-                              : "hover:bg-secondary-50/50"
+                              : "hover:bg-neutral-800/50/50"
                           )}
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -568,7 +568,7 @@ export default function ParceirosPage() {
                               </div>
                               <div className="ml-4">
                                 <div className="flex items-center gap-2">
-                                  <div className="text-sm font-medium text-secondary-900">
+                                  <div className="text-sm font-medium text-neutral-50">
                                     <Tooltip
                                       content={
                                         parceiro.pessoaFisica?.nome ||
@@ -589,7 +589,7 @@ export default function ParceirosPage() {
                                       parceiro.pessoaFisica?.emailEmpresarial
                                   ) && <AdvogadoBadge />}
                                 </div>
-                                <div className="text-sm text-secondary-500">
+                                <div className="text-sm text-neutral-400">
                                   {parceiro.email ||
                                     parceiro.pessoaFisica?.emailEmpresarial ||
                                     "N/A"}
@@ -597,17 +597,17 @@ export default function ParceirosPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">
                             {parceiro.oab || "N/A"}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">
                             {parceiro.pessoaFisica?.cpf || "N/A"}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">
                             {parceiro.filial?.nome || "N/A"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-secondary-900">
+                            <div className="text-sm text-neutral-50">
                               {parceiro.telefone ||
                                 parceiro.pessoaFisica?.telefone1 ||
                                 "N/A"}
@@ -616,7 +616,7 @@ export default function ParceirosPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <StatusBadge ativo={parceiro.ativo} />
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">
                             {formatDate(parceiro.dataCadastro)}
                           </td>
                         </motion.tr>
@@ -644,7 +644,7 @@ export default function ParceirosPage() {
                         </div>
                         <div className="ml-3">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-lg font-semibold text-secondary-900">
+                            <h4 className="text-lg font-semibold text-neutral-50">
                               <Tooltip
                                 content={
                                   parceiro.pessoaFisica?.nome ||
@@ -669,7 +669,7 @@ export default function ParceirosPage() {
                               </div>
                             )}
                           </div>
-                          <p className="text-sm text-secondary-500">
+                          <p className="text-sm text-neutral-400">
                             {parceiro.oab || "Sem OAB"}
                           </p>
                         </div>
@@ -678,26 +678,26 @@ export default function ParceirosPage() {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center text-sm text-secondary-600">
+                      <div className="flex items-center text-sm text-neutral-300">
                         <Mail className="w-4 h-4 mr-2" />
                         {parceiro.email ||
                           parceiro.pessoaFisica?.emailEmpresarial ||
                           "N/A"}
                       </div>
-                      <div className="flex items-center text-sm text-secondary-600">
+                      <div className="flex items-center text-sm text-neutral-300">
                         <Phone className="w-4 h-4 mr-2" />
                         {parceiro.telefone ||
                           parceiro.pessoaFisica?.telefone1 ||
                           "N/A"}
                       </div>
-                      <div className="flex items-center text-sm text-secondary-600">
+                      <div className="flex items-center text-sm text-neutral-300">
                         <Building className="w-4 h-4 mr-2" />
                         {parceiro.filial?.nome || "Filial não informada"}
                       </div>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-secondary-200">
-                      <div className="text-xs text-secondary-500">
+                    <div className="mt-4 pt-4 border-t border-neutral-700">
+                      <div className="text-xs text-neutral-400">
                         Cadastrado em {formatDate(parceiro.dataCadastro)}
                       </div>
                     </div>
@@ -749,11 +749,11 @@ export default function ParceirosPage() {
                   <div className="p-2 bg-red-100 rounded-full">
                     <AlertCircle className="w-6 h-6 text-red-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-secondary-900">
+                  <h3 className="text-lg font-semibold text-neutral-50">
                     Confirmar Exclusão
                   </h3>
                 </div>
-                <p className="text-secondary-600 mb-6">
+                <p className="text-neutral-300 mb-6">
                   Tem certeza que deseja excluir este parceiro? Esta ação não
                   pode ser desfeita.
                 </p>
@@ -762,7 +762,7 @@ export default function ParceirosPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowDeleteConfirm(null)}
-                    className="px-4 py-2 text-secondary-700 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium transition-colors duration-200"
+                    className="px-4 py-2 text-neutral-200 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium transition-colors duration-200"
                   >
                     Cancelar
                   </motion.button>
