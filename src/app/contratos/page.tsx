@@ -137,6 +137,9 @@ export default function ContratosPage() {
   const [filtroProximoContato, setFiltroProximoContato] = useState<
     "hoje" | "semana" | "mes" | "todos"
   >("todos");
+  const [filtroDataContrato, setFiltroDataContrato] = useState<
+    "hoje" | "semana" | "mes" | "ano" | "todos"
+  >("todos");
   const [selectedContrato, setSelectedContrato] = useState<Contrato | null>(
     null
   );
@@ -339,6 +342,55 @@ export default function ContratosPage() {
         }
       }
 
+      // Filtro por data de cadastro do contrato
+      if (filtroDataContrato !== "todos") {
+        if (!contrato.dataCadastro) {
+          return false;
+        }
+
+        try {
+          const dataCadastro = parseISO(contrato.dataCadastro);
+          const hoje = new Date();
+          hoje.setHours(0, 0, 0, 0);
+
+          switch (filtroDataContrato) {
+            case "hoje":
+              const amanha = new Date(hoje);
+              amanha.setDate(amanha.getDate() + 1);
+              if (
+                !isAfter(dataCadastro, hoje) ||
+                !isBefore(dataCadastro, amanha)
+              ) {
+                return false;
+              }
+              break;
+            case "semana":
+              const semanaAtras = new Date(hoje);
+              semanaAtras.setDate(semanaAtras.getDate() - 7);
+              if (!isAfter(dataCadastro, semanaAtras)) {
+                return false;
+              }
+              break;
+            case "mes":
+              const mesAtras = new Date(hoje);
+              mesAtras.setMonth(mesAtras.getMonth() - 1);
+              if (!isAfter(dataCadastro, mesAtras)) {
+                return false;
+              }
+              break;
+            case "ano":
+              const anoAtras = new Date(hoje);
+              anoAtras.setFullYear(anoAtras.getFullYear() - 1);
+              if (!isAfter(dataCadastro, anoAtras)) {
+                return false;
+              }
+              break;
+          }
+        } catch {
+          return false;
+        }
+      }
+
       return true;
     });
   }, [
@@ -347,6 +399,7 @@ export default function ContratosPage() {
     filtroSituacao,
     filtroConsultor,
     filtroProximoContato,
+    filtroDataContrato,
   ]);
 
   // Filtrar clientes na aba de clientes
@@ -891,6 +944,27 @@ export default function ContratosPage() {
                 <option value="mes">Vence este Mês</option>
               </select>
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
+            </div>
+
+            {/* Filtro por Data de Contrato */}
+            <div className="relative">
+              <select
+                value={filtroDataContrato}
+                onChange={(e) =>
+                  setFiltroDataContrato(
+                    e.target.value as "hoje" | "semana" | "mes" | "ano" | "todos"
+                  )
+                }
+                className="appearance-none pl-10 pr-10 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all cursor-pointer"
+              >
+                <option value="todos">Todas as Datas</option>
+                <option value="hoje">Criados Hoje</option>
+                <option value="semana">Últimos 7 dias</option>
+                <option value="mes">Último Mês</option>
+                <option value="ano">Último Ano</option>
+              </select>
+              <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
             </div>
 
