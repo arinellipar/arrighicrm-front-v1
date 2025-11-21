@@ -560,19 +560,19 @@ export default function ModernDashboard() {
                     },
                   ]
                 : [
-                    {
-                      title: "Taxa de Conversão",
-                      value: estatisticasLoading ? 0 : stats.conversionRate,
-                      change: `${stats.conversionRate > 0 ? "+" : ""}${
-                        stats.conversionRate
-                      }%`,
-                      changeType: stats.conversionRate >= 0 ? "positive" : "negative",
-                      icon: Target,
-                      color: "from-orange-500 to-red-500",
-                      bgColor: "from-orange-500/20 to-red-500/20",
-                      suffix: "%",
-                      loading: estatisticasLoading,
-                    },
+              {
+                title: "Taxa de Conversão",
+                value: estatisticasLoading ? 0 : stats.conversionRate,
+                change: `${stats.conversionRate > 0 ? "+" : ""}${
+                  stats.conversionRate
+                }%`,
+                changeType: stats.conversionRate >= 0 ? "positive" : "negative",
+                icon: Target,
+                color: "from-orange-500 to-red-500",
+                bgColor: "from-orange-500/20 to-red-500/20",
+                suffix: "%",
+                loading: estatisticasLoading,
+              },
                   ]),
               {
                 title: "Receita do Mês",

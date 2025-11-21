@@ -300,8 +300,8 @@ class NavigationFilterService {
       }
     }
 
-    // Se não está mapeado, permitir (ex: dashboard principal)
-    return true;
+      // Se não está mapeado, permitir (ex: dashboard principal)
+      return true;
   }
 
   /**
