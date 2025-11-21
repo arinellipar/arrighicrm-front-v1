@@ -77,13 +77,11 @@ export function BoletoDetailsModal({
     }
   };
 
-  const qrCodeImage =
-    status?.qrCodeUrl ||
-    (status?.qrCodePix
-      ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-          status.qrCodePix
-        )}`
-      : null);
+  const qrCodeImage = status?.qrCodePix
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+        status.qrCodePix
+      )}`
+    : status?.qrCodeUrl || null;
 
   const ultimaAtualizacao = status?.consultaRealizadaEm
     ? formatDate(status.consultaRealizadaEm)
@@ -196,12 +194,24 @@ export function BoletoDetailsModal({
                   <div className="mt-8 grid gap-8 lg:grid-cols-2">
                     <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center justify-center">
                       {qrCodeImage ? (
-                        <img
-                          src={qrCodeImage}
-                          alt="QR Code PIX Santander"
-                          className="w-56 h-56"
-                          loading="lazy"
-                        />
+                        <>
+                          <img
+                            src={qrCodeImage}
+                            alt="QR Code PIX Santander"
+                            className="w-56 h-56"
+                            loading="lazy"
+                          />
+                          {status.qrCodeUrl && (
+                            <a
+                              href={status.qrCodeUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-900"
+                            >
+                              Ver imagem oficial hospedada pela Santander
+                            </a>
+                          )}
+                        </>
                       ) : (
                         <p className="text-neutral-600 text-center">
                           QR Code não disponível para este boleto
@@ -245,6 +255,26 @@ export function BoletoDetailsModal({
                         isCopied={copiedField === "pixUrl"}
                         helperText="Imagem hospedada pela Santander API."
                       />
+                      {status.barCode && (
+                        <div className="bg-neutral-950/60 border border-neutral-800 rounded-2xl p-4">
+                          <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
+                            Código do boleto (código de barras completo)
+                          </p>
+                          <p className="mt-3 font-mono text-sm text-neutral-100 break-all">
+                            {status.barCode}
+                          </p>
+                        </div>
+                      )}
+                      {status.qrCodePix && (
+                        <div className="bg-neutral-950/60 border border-neutral-800 rounded-2xl p-4">
+                          <p className="text-xs uppercase tracking-[0.3em] text-neutral-500">
+                            Código PIX completo
+                          </p>
+                          <p className="mt-3 font-mono text-sm text-neutral-100 break-all max-h-32 overflow-y-auto pr-2">
+                            {status.qrCodePix}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
