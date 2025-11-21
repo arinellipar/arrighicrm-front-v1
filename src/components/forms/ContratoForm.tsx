@@ -981,7 +981,7 @@ export default function ContratoForm({
                           type="button"
                           onClick={() => setShowClientePicker(true)}
                           className={cn(
-                            "w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border rounded-lg text-sm",
+                            "w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 text-neutral-700",
                             "hover:bg-neutral-50 transition-colors",
                             errors.clienteId
                               ? "border-red-300 bg-red-50"
@@ -1069,7 +1069,7 @@ export default function ContratoForm({
                           value={formData.consultorId}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.consultorId
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -1173,7 +1173,7 @@ export default function ContratoForm({
                                 parseInt(e.target.value) || 0
                               )
                             }
-                            className="w-full px-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            className="w-full px-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                           >
                             <option value="">
                               {loadingParceiros
@@ -1210,7 +1210,7 @@ export default function ContratoForm({
                         value={formData.situacao}
                         onChange={handleInputChange}
                         className={cn(
-                          "w-full px-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                          "w-full px-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                           errors.situacao
                             ? "border-red-300 bg-red-50"
                             : "border-neutral-200"
@@ -1241,7 +1241,7 @@ export default function ContratoForm({
                           name="numeroPasta"
                           value={formData.numeroPasta}
                           onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                           placeholder="P-2025-001"
                         />
                       </div>
@@ -1260,7 +1260,7 @@ export default function ContratoForm({
                           name="tipoServico"
                           value={formData.tipoServico}
                           onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                         >
                           <option value="">Selecione o tipo de serviço</option>
                           {TipoServicoOptions.map((option) => (
@@ -1283,7 +1283,7 @@ export default function ContratoForm({
                           name="dataFechamentoContrato"
                           value={formData.dataFechamentoContrato}
                           onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                         />
                       </div>
                     </div>
@@ -1301,7 +1301,7 @@ export default function ContratoForm({
                         value={formData.objetoContrato}
                         onChange={handleInputChange}
                         rows={3}
-                        className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                        className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
                         placeholder="Descreva o objeto do contrato..."
                       />
                     </div>
@@ -1321,7 +1321,7 @@ export default function ContratoForm({
                           value={formData.dataUltimoContato}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.dataUltimoContato
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -1348,7 +1348,7 @@ export default function ContratoForm({
                           value={formData.dataProximoContato}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.dataProximoContato
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -1381,7 +1381,7 @@ export default function ContratoForm({
                           onChange={handleInputChange}
                           onBlur={() => handleCurrencyBlur("valorDevido")}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.valorDevido
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -1412,7 +1412,7 @@ export default function ContratoForm({
                           onChange={handleInputChange}
                           onBlur={() => handleCurrencyBlur("valorNegociado")}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                             errors.valorNegociado
                               ? "border-red-300 bg-red-50"
                               : "border-neutral-200"
@@ -1452,7 +1452,7 @@ export default function ContratoForm({
                             onChange={handleInputChange}
                             onBlur={() => handleCurrencyBlur("valorEntrada")}
                             className={cn(
-                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                               errors.valorEntrada
                                 ? "border-red-300 bg-red-50"
                                 : "border-neutral-200"
@@ -1483,7 +1483,7 @@ export default function ContratoForm({
                             onChange={handleInputChange}
                             onBlur={() => handleCurrencyBlur("valorParcela")}
                             className={cn(
-                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                               errors.valorParcela
                                 ? "border-red-300 bg-red-50"
                                 : "border-neutral-200"
@@ -1512,7 +1512,7 @@ export default function ContratoForm({
                             name="numeroParcelas"
                             value={formData.numeroParcelas || ""}
                             onChange={handleInputChange}
-                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                             placeholder="12"
                             min="1"
                           />
@@ -1530,7 +1530,7 @@ export default function ContratoForm({
                             name="primeiroVencimento"
                             value={formData.primeiroVencimento}
                             onChange={handleInputChange}
-                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                           />
                         </div>
                       </div>
@@ -1548,7 +1548,7 @@ export default function ContratoForm({
                             onChange={handleInputChange}
                             onBlur={() => handleCurrencyBlur("comissao")}
                             className={cn(
-                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
                               errors.comissao
                                 ? "border-red-300 bg-red-50"
                                 : "border-neutral-200"
@@ -1591,7 +1591,7 @@ export default function ContratoForm({
                             />
                             <div
                               className={cn(
-                                "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm flex items-center justify-between",
+                                "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 flex items-center justify-between",
                                 errors.anexoDocumento
                                   ? "border-red-300 bg-red-50"
                                   : "border-neutral-200"
@@ -1629,7 +1629,7 @@ export default function ContratoForm({
                             value={formData.pendencias}
                             onChange={handleInputChange}
                             rows={3}
-                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
                             placeholder="Descreva pendências existentes..."
                           />
                         </div>
@@ -1667,7 +1667,7 @@ export default function ContratoForm({
                           errors.observacoes
                             ? "border-red-300"
                             : "border-neutral-200"
-                        } rounded-lg text-sm focus:outline-none focus:ring-2 ${
+                        } rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 ${
                           errors.observacoes
                             ? "focus:ring-red-500"
                             : "focus:ring-primary-500"
