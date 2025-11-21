@@ -36,10 +36,10 @@ function TipoClienteBadge({ tipo }: { tipo: "fisica" | "juridica" }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border",
         tipo === "fisica"
-          ? "bg-blue-100 text-blue-800"
-          : "bg-purple-100 text-purple-800"
+          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+          : "bg-purple-500/20 text-purple-400 border-purple-500/30"
       )}
     >
       {tipo === "fisica" ? (
@@ -64,26 +64,30 @@ function StatusClienteBadge({
 }) {
   const statusConfig = {
     ativo: {
-      bg: "bg-green-100",
-      text: "text-green-800",
+      bg: "bg-green-500/20",
+      text: "text-green-400",
+      border: "border-green-500/30",
       icon: CheckCircle,
       label: "Ativo",
     },
     inativo: {
-      bg: "bg-red-100",
-      text: "text-red-800",
+      bg: "bg-red-500/20",
+      text: "text-red-400",
+      border: "border-red-500/30",
       icon: XCircle,
       label: "Inativo",
     },
     prospecto: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-800",
+      bg: "bg-yellow-500/20",
+      text: "text-yellow-400",
+      border: "border-yellow-500/30",
       icon: Clock,
       label: "Prospecto",
     },
     arquivado: {
-      bg: "bg-gray-100",
-      text: "text-gray-800",
+      bg: "bg-neutral-500/20",
+      text: "text-neutral-400",
+      border: "border-neutral-500/30",
       icon: FileText,
       label: "Arquivado",
     },
@@ -95,9 +99,10 @@ function StatusClienteBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border",
         config.bg,
-        config.text
+        config.text,
+        config.border
       )}
     >
       <Icon className="w-3 h-3 mr-1" />
@@ -108,7 +113,7 @@ function StatusClienteBadge({
 
 function SegmentoBadge({ segmento }: { segmento: string }) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-100 text-indigo-800">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
       {segmento}
     </span>
   );
@@ -133,18 +138,18 @@ function ErrorMessage({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-red-50 border border-red-200 rounded-xl p-6 text-center"
+      className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center"
     >
-      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-red-900 mb-2">
+      <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+      <h3 className="text-lg font-semibold text-red-400 mb-2">
         Erro ao carregar dados
       </h3>
-      <p className="text-red-700 mb-4">{message}</p>
+      <p className="text-red-300 mb-4">{message}</p>
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={onRetry}
-        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
+        className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-lg font-medium transition-colors duration-200"
       >
         Tentar novamente
       </motion.button>
@@ -367,7 +372,7 @@ export default function ClientesPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleOpenForm}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200"
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-neutral-950 rounded-xl font-medium shadow-lg shadow-gold-500/20 transition-all duration-200"
             >
               <Plus className="w-5 h-5" />
               <span>Novo Cliente</span>
@@ -387,8 +392,8 @@ export default function ClientesPage() {
                 className={cn(
                   "flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-medium transition-all duration-200",
                   selectedTab === "todos"
-                    ? "bg-primary-100 text-primary-700"
-                    : "text-secondary-600 hover:bg-secondary-50"
+                    ? "bg-gold-500/20 text-gold-400 border border-gold-500/30 shadow-lg shadow-gold-500/10"
+                    : "text-neutral-400 hover:bg-neutral-800/50 border border-transparent"
                 )}
               >
                 <Users className="w-5 h-5" />
@@ -399,8 +404,8 @@ export default function ClientesPage() {
                 className={cn(
                   "flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-medium transition-all duration-200",
                   selectedTab === "fisica"
-                    ? "bg-primary-100 text-primary-700"
-                    : "text-secondary-600 hover:bg-secondary-50"
+                    ? "bg-gold-500/20 text-gold-400 border border-gold-500/30 shadow-lg shadow-gold-500/10"
+                    : "text-neutral-400 hover:bg-neutral-800/50 border border-transparent"
                 )}
               >
                 <Users className="w-5 h-5" />
@@ -411,8 +416,8 @@ export default function ClientesPage() {
                 className={cn(
                   "flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-medium transition-all duration-200",
                   selectedTab === "juridica"
-                    ? "bg-primary-100 text-primary-700"
-                    : "text-secondary-600 hover:bg-secondary-50"
+                    ? "bg-gold-500/20 text-gold-400 border border-gold-500/30 shadow-lg shadow-gold-500/10"
+                    : "text-neutral-400 hover:bg-neutral-800/50 border border-transparent"
                 )}
               >
                 <Building2 className="w-5 h-5" />
@@ -430,17 +435,17 @@ export default function ClientesPage() {
           >
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Buscar por nome, CPF/CNPJ ou email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 placeholder-neutral-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
                 />
                 {selectedClienteId && (
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                    <div className="bg-accent-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                    <div className="bg-gold-500 text-neutral-950 rounded-full w-5 h-5 flex items-center justify-center">
                       <span className="text-xs font-bold">✓</span>
                     </div>
                   </div>
@@ -450,7 +455,7 @@ export default function ClientesPage() {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="px-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Todos os status</option>
                 <option value="ativo">Ativo</option>
@@ -462,7 +467,7 @@ export default function ClientesPage() {
               <select
                 value={filterSegmento}
                 onChange={(e) => setFilterSegmento(e.target.value)}
-                className="px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="px-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all duration-200"
               >
                 <option value="">Todos os segmentos</option>
                 {segmentos.map((seg: string | undefined) => (
@@ -478,7 +483,7 @@ export default function ClientesPage() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleViewSelected}
                   disabled={!selectedClienteId}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-blue-100 hover:bg-blue-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-blue-700 rounded-xl font-medium transition-all duration-200"
+                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-blue-500/20 hover:bg-blue-500/30 disabled:bg-neutral-800/50 disabled:text-neutral-600 text-blue-400 rounded-xl font-medium transition-all duration-200 border border-blue-500/30 disabled:border-neutral-700"
                   title="Visualizar cliente selecionado"
                 >
                   <Eye className="w-4 h-4" />
@@ -489,7 +494,7 @@ export default function ClientesPage() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleEditSelected}
                   disabled={!selectedClienteId}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-100 hover:bg-green-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-green-700 rounded-xl font-medium transition-all duration-200"
+                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-500/20 hover:bg-green-500/30 disabled:bg-neutral-800/50 disabled:text-neutral-600 text-green-400 rounded-xl font-medium transition-all duration-200 border border-green-500/30 disabled:border-neutral-700"
                   title="Editar cliente selecionado"
                 >
                   <Edit className="w-4 h-4" />
@@ -500,7 +505,7 @@ export default function ClientesPage() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handleDeleteSelected}
                   disabled={!selectedClienteId}
-                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-100 hover:bg-red-200 disabled:bg-secondary-50 disabled:text-secondary-400 text-red-700 rounded-xl font-medium transition-all duration-200"
+                  className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-500/20 hover:bg-red-500/30 disabled:bg-neutral-800/50 disabled:text-neutral-600 text-red-400 rounded-xl font-medium transition-all duration-200 border border-red-500/30 disabled:border-neutral-700"
                   title="Excluir cliente selecionado"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -612,10 +617,10 @@ export default function ClientesPage() {
                   <button
                     onClick={() => setViewMode("list")}
                     className={cn(
-                      "p-2 rounded-lg transition-colors",
+                      "p-2 rounded-lg transition-colors border",
                       viewMode === "list"
-                        ? "bg-primary-100 text-primary-600"
-                        : "text-secondary-400 hover:text-secondary-600"
+                        ? "bg-gold-500/20 text-gold-400 border-gold-500/30"
+                        : "text-neutral-400 hover:text-neutral-300 border-neutral-700 hover:bg-neutral-800/50"
                     )}
                   >
                     <svg
@@ -635,10 +640,10 @@ export default function ClientesPage() {
                   <button
                     onClick={() => setViewMode("grid")}
                     className={cn(
-                      "p-2 rounded-lg transition-colors",
+                      "p-2 rounded-lg transition-colors border",
                       viewMode === "grid"
-                        ? "bg-primary-100 text-primary-600"
-                        : "text-secondary-400 hover:text-secondary-600"
+                        ? "bg-gold-500/20 text-gold-400 border-gold-500/30"
+                        : "text-neutral-400 hover:text-neutral-300 border-neutral-700 hover:bg-neutral-800/50"
                     )}
                   >
                     <svg
@@ -947,7 +952,7 @@ export default function ClientesPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setShowDeleteConfirm(null)}
-                      className="px-4 py-2 text-secondary-700 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium transition-colors duration-200"
+                      className="px-4 py-2 text-neutral-300 bg-neutral-800/50 hover:bg-neutral-700 border border-neutral-700 rounded-lg font-medium transition-colors duration-200"
                     >
                       Cancelar
                     </motion.button>
@@ -956,7 +961,7 @@ export default function ClientesPage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleDelete(showDeleteConfirm)}
                       disabled={deleting}
-                      className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200 disabled:opacity-50"
+                      className="flex items-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50"
                     >
                       {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
                       <span>{deleting ? "Excluindo..." : "Excluir"}</span>

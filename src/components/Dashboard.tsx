@@ -544,7 +544,7 @@ export default function ModernDashboard() {
                 loading: estatisticasLoading,
               },
               // Sessões Ativas - APENAS para administradores
-              // Não aparece para nenhum outro grupo de acesso
+              // Taxa de Conversão - para todos os outros grupos
               ...(isAdmin
                 ? [
                     {
@@ -559,20 +559,21 @@ export default function ModernDashboard() {
                       onClick: () => setSessoesModalOpen(true),
                     },
                   ]
-                : []),
-              {
-                title: "Taxa de Conversão",
-                value: estatisticasLoading ? 0 : stats.conversionRate,
-                change: `${stats.conversionRate > 0 ? "+" : ""}${
-                  stats.conversionRate
-                }%`,
-                changeType: stats.conversionRate >= 0 ? "positive" : "negative",
-                icon: Target,
-                color: "from-orange-500 to-red-500",
-                bgColor: "from-orange-500/20 to-red-500/20",
-                suffix: "%",
-                loading: estatisticasLoading,
-              },
+                : [
+                    {
+                      title: "Taxa de Conversão",
+                      value: estatisticasLoading ? 0 : stats.conversionRate,
+                      change: `${stats.conversionRate > 0 ? "+" : ""}${
+                        stats.conversionRate
+                      }%`,
+                      changeType: stats.conversionRate >= 0 ? "positive" : "negative",
+                      icon: Target,
+                      color: "from-orange-500 to-red-500",
+                      bgColor: "from-orange-500/20 to-red-500/20",
+                      suffix: "%",
+                      loading: estatisticasLoading,
+                    },
+                  ]),
               {
                 title: "Receita do Mês",
                 value: estatisticasLoading ? 0 : stats.receitaMesAtual,
