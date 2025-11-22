@@ -342,13 +342,22 @@ export default function UsuariosPage() {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingUsuario(null);
+    setSelectedUsuarioId(null);
     clearError();
     closeForm();
   };
 
-  // Funções de seleção (padrão das outras telas)
   const handleSelectUsuario = (usuarioId: number) => {
     setSelectedUsuarioId(selectedUsuarioId === usuarioId ? null : usuarioId);
+  };
+
+  const handleViewSelected = () => {
+    if (selectedUsuarioId) {
+      const usuario = usuarios.find((u) => u.id === selectedUsuarioId);
+      if (usuario) {
+        alert(`Visualizando: ${usuario.login}`);
+      }
+    }
   };
 
   const handleEditSelected = () => {
@@ -363,6 +372,12 @@ export default function UsuariosPage() {
   const handleDeleteSelected = () => {
     if (selectedUsuarioId) {
       setShowDeleteConfirm(selectedUsuarioId);
+    }
+  };
+
+  const handleResetPasswordSelected = () => {
+    if (selectedUsuarioId) {
+      setShowResetConfirm(selectedUsuarioId);
     }
   };
 
@@ -395,12 +410,6 @@ export default function UsuariosPage() {
       alert("Erro ao enviar email de reset de senha");
     } finally {
       setResettingPassword(false);
-    }
-  };
-
-  const handleResetPasswordSelected = () => {
-    if (selectedUsuarioId) {
-      setShowResetConfirm(selectedUsuarioId);
     }
   };
 
@@ -672,6 +681,83 @@ export default function UsuariosPage() {
               </div>
             </motion.div>
 
+            {/* Barra de Ações quando usuário selecionado */}
+            <AnimatePresence>
+              {selectedUsuarioId && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-neutral-900/95 backdrop-blur-xl rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 shadow-lg border border-gold-500/30 w-full"
+                >
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-gold-500/20 rounded-lg">
+                        <CheckCircle className="w-5 h-5 text-gold-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-neutral-100">
+                          Usuário Selecionado
+                        </p>
+                        <p className="text-xs text-neutral-400">
+                          {usuarios.find((u) => u.id === selectedUsuarioId)?.login}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleViewSelected}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-xl font-medium transition-all duration-200 border border-blue-500/30"
+                        title="Visualizar usuário selecionado"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>Visualizar</span>
+                      </motion.button>
+                      <PermissionWrapper modulo="Usuario" acao="Editar">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleEditSelected}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 rounded-xl font-medium transition-all duration-200 border border-orange-500/30"
+                          title="Editar usuário selecionado"
+                        >
+                          <Edit className="w-4 h-4" />
+                          <span>Editar</span>
+                        </motion.button>
+                      </PermissionWrapper>
+                      <PermissionWrapper modulo="Usuario" acao="Editar">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleResetPasswordSelected}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-xl font-medium transition-all duration-200 border border-amber-500/30"
+                          title="Reset de senha"
+                        >
+                          <KeyRound className="w-4 h-4" />
+                          <span>Reset Senha</span>
+                        </motion.button>
+                      </PermissionWrapper>
+                      <PermissionWrapper modulo="Usuario" acao="Excluir">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleDeleteSelected}
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-xl font-medium transition-all duration-200 border border-red-500/30"
+                          title="Excluir usuário selecionado"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span>Excluir</span>
+                        </motion.button>
+                      </PermissionWrapper>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Estatísticas */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -898,9 +984,9 @@ export default function UsuariosPage() {
                                   setShowForm(true);
                                   openForm();
                                 }}
-                                className={`hover:bg-secondary-50/50 transition-colors duration-200 cursor-pointer ${
+                                className={`hover:bg-neutral-800/50 transition-colors duration-200 cursor-pointer ${
                                   selectedUsuarioId === usuario.id
-                                    ? "bg-gray-100"
+                                    ? "bg-gold-500/10 border-l-4 border-gold-500"
                                     : ""
                                 }`}
                               >
