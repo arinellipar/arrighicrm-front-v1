@@ -110,16 +110,31 @@ export default function CadastroPage() {
     return passwordRequirements.every((req) => req.test(password));
   };
 
-  // Verificar CPF no banco de dados
-  const checkCPFExists = async (cpf: string): Promise<boolean> => {
+  // Verificar CPF no banco de dados (verifica se já tem USUÁRIO com esse CPF)
+  const checkCPFExists = async (cpf: string): Promise<{ exists: boolean; message?: string }> => {
     try {
       const cleanCPF = cpf.replace(/\D/g, "");
-      const response = await apiClient.get(
-        `/PessoaFisica/buscar-por-cpf/${cleanCPF}`
-      );
-      return !response.error && !!response.data;
+      const response = await apiClient.get<{
+        disponivel: boolean;
+        motivo: string;
+        mensagem: string;
+      }>(`/Usuario/verificar-cpf-disponivel/${cleanCPF}`);
+
+      if (response.error || !response.data) {
+        return { exists: false };
+      }
+
+      // Se não está disponível, significa que já existe usuário
+      if (!response.data.disponivel) {
+        return {
+          exists: true,
+          message: response.data.mensagem
+        };
+      }
+
+      return { exists: false };
     } catch (error) {
-      return false;
+      return { exists: false };
     }
   };
 
@@ -149,11 +164,10 @@ export default function CadastroPage() {
     } else if (!validateCPF(formData.cpf)) {
       newErrors.cpf = "CPF inválido";
     } else {
-      // Verificar se CPF já existe no sistema (para cadastro, não deve existir)
-      const cpfExists = await checkCPFExists(formData.cpf);
-      if (cpfExists) {
-        newErrors.cpf =
-          "CPF já cadastrado no sistema. Faça login ou recupere sua senha.";
+      // Verificar se CPF já tem USUÁRIO cadastrado no sistema
+      const cpfCheck = await checkCPFExists(formData.cpf);
+      if (cpfCheck.exists) {
+        newErrors.cpf = cpfCheck.message || "CPF já cadastrado no sistema. Faça login ou recupere sua senha.";
       }
     }
 
