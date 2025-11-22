@@ -25,6 +25,8 @@ import {
   UserCog,
   Eye as EyeIcon,
   DollarSign,
+  KeyRound,
+  Mail,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import UsuarioForm from "@/components/forms/UsuarioForm";
@@ -251,6 +253,11 @@ export default function UsuariosPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
     null
   );
+  const [showResetConfirm, setShowResetConfirm] = useState<number | null>(
+    null
+  );
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState<string | null>(null);
   const [pessoasFisicas, setPessoasFisicas] = useState<PessoaFisicaOption[]>(
     []
   );
@@ -355,6 +362,43 @@ export default function UsuariosPage() {
   const handleDeleteSelected = () => {
     if (selectedUsuarioId) {
       setShowDeleteConfirm(selectedUsuarioId);
+    }
+  };
+
+  const handleResetPassword = async (usuarioId: number) => {
+    setResettingPassword(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/PasswordReset/admin-reset/${usuarioId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const usuario = usuarios.find((u) => u.id === usuarioId);
+        const email = usuario?.email || "";
+        setResetSuccess(email);
+        setShowResetConfirm(null);
+        setTimeout(() => setResetSuccess(null), 5000);
+      } else {
+        const error = await response.json();
+        alert(error.message || "Erro ao enviar email de reset de senha");
+      }
+    } catch (error) {
+      console.error("Erro ao resetar senha:", error);
+      alert("Erro ao enviar email de reset de senha");
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
+  const handleResetPasswordSelected = () => {
+    if (selectedUsuarioId) {
+      setShowResetConfirm(selectedUsuarioId);
     }
   };
 
@@ -525,6 +569,19 @@ export default function UsuariosPage() {
                       >
                         <Edit className="w-3 h-3" />
                         <span>Editar</span>
+                      </motion.button>
+                    </PermissionWrapper>
+
+                    <PermissionWrapper modulo="Usuario" acao="Editar">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleResetPasswordSelected}
+                        className="flex items-center space-x-1 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-medium transition-colors"
+                        title="Enviar email de reset de senha"
+                      >
+                        <KeyRound className="w-3 h-3" />
+                        <span>Reset Senha</span>
                       </motion.button>
                     </PermissionWrapper>
 
@@ -1035,6 +1092,26 @@ export default function UsuariosPage() {
                                     </PermissionWrapper>
                                     <PermissionWrapper
                                       modulo="Usuario"
+                                      acao="Editar"
+                                    >
+                                      <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => setShowResetConfirm(usuario.id)}
+                                        className="p-1 sm:p-1.5 text-secondary-400 hover:text-amber-600 transition-colors duration-200"
+                                        title="Reset de senha"
+                                      >
+                                        <KeyRound
+                                          className={
+                                            isTableCompact
+                                              ? "w-2 h-2 sm:w-2.5 sm:h-2.5"
+                                              : "w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5"
+                                          }
+                                        />
+                                      </motion.button>
+                                    </PermissionWrapper>
+                                    <PermissionWrapper
+                                      modulo="Usuario"
                                       acao="Excluir"
                                     >
                                       <motion.button
@@ -1133,17 +1210,17 @@ export default function UsuariosPage() {
                     initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
-                    className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full shadow-xl"
+                    className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full shadow-xl border border-neutral-700/50"
                   >
                     <div className="flex items-center space-x-3 mb-4">
-                      <div className="p-2 bg-red-100 rounded-full">
-                        <AlertCircle className="w-6 h-6 text-red-600" />
+                      <div className="p-2 bg-red-500/20 rounded-full">
+                        <AlertCircle className="w-6 h-6 text-red-400" />
                       </div>
-                      <h3 className="text-lg font-semibold text-secondary-900">
+                      <h3 className="text-lg font-semibold text-neutral-100">
                         Confirmar Exclusão
                       </h3>
                     </div>
-                    <p className="text-secondary-600 mb-6">
+                    <p className="text-neutral-300 mb-6">
                       Tem certeza que deseja excluir este usuário? Esta ação não
                       pode ser desfeita.
                     </p>
@@ -1152,7 +1229,7 @@ export default function UsuariosPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setShowDeleteConfirm(null)}
-                        className="px-4 py-2 text-secondary-700 bg-secondary-100 hover:bg-secondary-200 rounded-lg font-medium transition-colors duration-200"
+                        className="px-4 py-2 text-neutral-300 bg-neutral-800 hover:bg-neutral-700 rounded-lg font-medium transition-colors duration-200 border border-neutral-700"
                       >
                         Cancelar
                       </motion.button>
@@ -1170,6 +1247,86 @@ export default function UsuariosPage() {
                       </motion.button>
                     </div>
                   </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Modal de Confirmação de Reset de Senha */}
+            <AnimatePresence>
+              {showResetConfirm !== null && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                >
+                  <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 max-w-md w-full shadow-xl border border-neutral-700/50"
+                  >
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="p-2 bg-amber-500/20 rounded-full">
+                        <KeyRound className="w-6 h-6 text-amber-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-neutral-100">
+                        Reset de Senha
+                      </h3>
+                    </div>
+                    <p className="text-neutral-300 mb-6">
+                      Um email será enviado para{" "}
+                      <strong className="text-amber-400">
+                        {usuarios.find((u) => u.id === showResetConfirm)?.email}
+                      </strong>{" "}
+                      com instruções para redefinir a senha.
+                    </p>
+                    <div className="flex justify-end space-x-3">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setShowResetConfirm(null)}
+                        className="px-4 py-2 text-neutral-300 bg-neutral-800 hover:bg-neutral-700 rounded-lg font-medium transition-colors duration-200 border border-neutral-700"
+                      >
+                        Cancelar
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleResetPassword(showResetConfirm)}
+                        disabled={resettingPassword}
+                        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-neutral-900 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50"
+                      >
+                        {resettingPassword && (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        )}
+                        <Mail className="w-4 h-4" />
+                        <span>Enviar Email</span>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Toast de Sucesso */}
+            <AnimatePresence>
+              {resetSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 50 }}
+                  className="fixed bottom-4 right-4 z-50"
+                >
+                  <div className="bg-green-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3 border border-green-500">
+                    <CheckCircle className="w-6 h-6" />
+                    <div>
+                      <p className="font-semibold">Email enviado com sucesso!</p>
+                      <p className="text-sm opacity-90">
+                        Instruções enviadas para {resetSuccess}
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
