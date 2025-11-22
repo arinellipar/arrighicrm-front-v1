@@ -34,6 +34,7 @@ import { useUsuario } from "@/hooks/useUsuario";
 import { Usuario, PessoaFisicaOption, PessoaJuridicaOption } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
+import { getApiUrl } from "../../../env.config";
 // import { TableNavigation } from "@/components/TableNavigation"; // Removido - não necessário
 import { PermissionWrapper } from "@/components/permissions";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -368,8 +369,9 @@ export default function UsuariosPage() {
   const handleResetPassword = async (usuarioId: number) => {
     setResettingPassword(true);
     try {
+      const apiUrl = getApiUrl();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/PasswordReset/admin-reset/${usuarioId}`,
+        `${apiUrl}/PasswordReset/admin-reset/${usuarioId}`,
         {
           method: "POST",
           headers: {
