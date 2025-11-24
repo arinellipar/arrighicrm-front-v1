@@ -255,31 +255,35 @@ export function NovoBoletoModal({
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-neutral-900/95 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-neutral-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-neutral-700 p-6 rounded-t-2xl flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-neutral-50">Novo Boleto</h2>
+          <div className="sticky top-0 bg-gradient-to-r from-amber-400 to-amber-600 p-6 rounded-t-2xl flex items-center justify-between z-10">
+            <div>
+              <h2 className="text-2xl font-bold text-neutral-950">Novo Boleto</h2>
+              <p className="text-sm text-neutral-800 mt-1">Criar novo boleto para cobrança</p>
+            </div>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"
+              className="p-2 hover:bg-black/20 rounded-lg transition-colors"
             >
-              <X className="w-6 h-6 text-neutral-400" />
+              <X className="w-6 h-6 text-neutral-950" />
             </button>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-neutral-50 mb-4">
+              <h3 className="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                 Informações Obrigatórias
               </h3>
 
               {/* Contrato */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-neutral-200 mb-2">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Contrato *{" "}
-                  <span className="text-neutral-400 font-normal">
+                  <span className="text-neutral-500 font-normal">
                     (busque por número, cliente ou CPF/CNPJ)
                   </span>
                 </label>
@@ -288,13 +292,13 @@ export function NovoBoletoModal({
                     onClick={() =>
                       setShowContratoDropdown(!showContratoDropdown)
                     }
-                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer flex items-center justify-between"
+                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 cursor-pointer flex items-center justify-between hover:bg-neutral-800/70 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <Search className="w-5 h-5 text-gray-400" />
+                      <Search className="w-5 h-5 text-neutral-500" />
                       <span
                         className={
-                          selectedContrato ? "text-neutral-50" : "text-gray-400"
+                          selectedContrato ? "text-neutral-100" : "text-neutral-500"
                         }
                       >
                         {selectedContrato
@@ -302,18 +306,18 @@ export function NovoBoletoModal({
                           : "Digite para buscar..."}
                       </span>
                     </div>
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                    <ChevronDown className="w-5 h-5 text-neutral-500" />
                   </div>
 
                   {showContratoDropdown && (
-                    <div className="absolute z-10 w-full mt-2 bg-white border border-neutral-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-2 bg-neutral-900/95 backdrop-blur-xl border border-neutral-700 rounded-lg shadow-2xl shadow-black/50 max-h-60 overflow-y-auto">
                       <div className="p-2">
                         <input
                           type="text"
                           placeholder="Buscar..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="w-full px-3 py-2 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 bg-neutral-800/50 border border-neutral-700 text-neutral-100 placeholder-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
                           autoFocus
                         />
                       </div>
@@ -343,26 +347,26 @@ export function NovoBoletoModal({
                                 console.log("⚠️ Contrato sem valor negociado");
                               }
                             }}
-                            className="px-4 py-3 hover:bg-neutral-800 cursor-pointer border-b border-neutral-800 last:border-0"
+                            className="px-4 py-3 hover:bg-neutral-800/50 cursor-pointer border-b border-neutral-800 last:border-0 transition-colors"
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
-                                <p className="font-medium text-neutral-50">
+                                <p className="font-medium text-neutral-100">
                                   {contrato.numeroContrato}
                                 </p>
-                                <p className="text-sm text-neutral-300">
+                                <p className="text-sm text-neutral-400">
                                   {contrato.clienteNome}
                                 </p>
-                                <p className="text-xs text-neutral-400">
+                                <p className="text-xs text-neutral-500">
                                   {contrato.clienteDocumento}
                                 </p>
                               </div>
                               {contrato.valorNegociado && (
                                 <div className="ml-3 text-right">
-                                  <p className="text-xs text-neutral-400">
+                                  <p className="text-xs text-neutral-500">
                                     Valor Total
                                   </p>
-                                  <p className="text-sm font-semibold text-green-600">
+                                  <p className="text-sm font-semibold text-amber-400">
                                     {new Intl.NumberFormat("pt-BR", {
                                       style: "currency",
                                       currency: "BRL",
@@ -374,7 +378,7 @@ export function NovoBoletoModal({
                           </div>
                         ))}
                         {filteredContratos.length === 0 && (
-                          <p className="px-4 py-3 text-neutral-400 text-center">
+                          <p className="px-4 py-3 text-neutral-500 text-center">
                             Nenhum contrato encontrado
                           </p>
                         )}
@@ -387,7 +391,7 @@ export function NovoBoletoModal({
               {/* Valor e Data */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-neutral-200 mb-2">
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">
                     Valor Nominal (R$) *
                   </label>
                   <input
@@ -396,24 +400,24 @@ export function NovoBoletoModal({
                     value={valorNominal}
                     onChange={(e) => setValorNominal(e.target.value)}
                     placeholder="0,00"
-                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 placeholder-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
                     required
                   />
                   {selectedContrato && selectedContrato.valorNegociado && (
-                    <p className="mt-1 text-xs text-green-600">
+                    <p className="mt-1 text-xs text-amber-400">
                       ✓ Valor preenchido automaticamente do contrato
                     </p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-neutral-200 mb-2">
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">
                     Data de Vencimento *
                   </label>
                   <input
                     type="date"
                     value={dataVencimento}
                     onChange={(e) => setDataVencimento(e.target.value)}
-                    className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50"
                     required
                   />
                 </div>
@@ -421,7 +425,7 @@ export function NovoBoletoModal({
 
               {/* Seu Número */}
               <div className="mt-4">
-                <label className="block text-sm font-medium text-neutral-200 mb-2">
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
                   Seu Número (Opcional)
                 </label>
                 <input
@@ -429,7 +433,7 @@ export function NovoBoletoModal({
                   value={clientNumber}
                   onChange={(e) => setClientNumber(e.target.value)}
                   placeholder="Número de referência do cliente"
-                  className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 placeholder-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
                 />
               </div>
             </div>
@@ -439,7 +443,7 @@ export function NovoBoletoModal({
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                className="flex items-center gap-2 text-amber-400 hover:text-amber-300 font-medium transition-colors"
               >
                 <Plus
                   className={`w-5 h-5 transition-transform ${
@@ -450,10 +454,10 @@ export function NovoBoletoModal({
               </button>
 
               {showAdvanced && (
-                <div className="mt-4 space-y-4 p-4 bg-neutral-800/50 rounded-lg">
+                <div className="mt-4 space-y-4 p-4 bg-neutral-800/30 border border-neutral-700/50 rounded-lg">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-neutral-200 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Multa (%)
                       </label>
                       <input
@@ -462,11 +466,11 @@ export function NovoBoletoModal({
                         value={finePercentage}
                         onChange={(e) => setFinePercentage(e.target.value)}
                         placeholder="2.00"
-                        className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 placeholder-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-neutral-200 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Juros (% ao mês)
                       </label>
                       <input
@@ -475,14 +479,14 @@ export function NovoBoletoModal({
                         value={interestPercentage}
                         onChange={(e) => setInterestPercentage(e.target.value)}
                         placeholder="1.00"
-                        className="w-full px-4 py-3 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-100 placeholder-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
                       />
                     </div>
                   </div>
 
                   {/* Mensagens */}
                   <div>
-                    <label className="block text-sm font-medium text-neutral-200 mb-2">
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">
                       Mensagens no Boleto
                     </label>
                     {messages.map((msg, index) => (
@@ -493,13 +497,13 @@ export function NovoBoletoModal({
                           onChange={(e) => updateMessage(index, e.target.value)}
                           placeholder={`Mensagem ${index + 1}`}
                           maxLength={80}
-                          className="flex-1 px-4 py-2 border border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 px-4 py-2 bg-neutral-800/50 border border-neutral-700 text-neutral-100 placeholder-neutral-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
                         />
                         {messages.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeMessage(index)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                           >
                             <Minus className="w-5 h-5" />
                           </button>
@@ -510,7 +514,7 @@ export function NovoBoletoModal({
                       <button
                         type="button"
                         onClick={addMessage}
-                        className="text-sm text-blue-600 hover:text-blue-700"
+                        className="text-sm text-amber-400 hover:text-amber-300 transition-colors"
                       >
                         + Adicionar mensagem
                       </button>
@@ -522,8 +526,8 @@ export function NovoBoletoModal({
 
             {/* Error */}
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-800 text-sm">{error}</p>
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+                <p className="text-red-400 text-sm">{error}</p>
               </div>
             )}
 
@@ -532,14 +536,14 @@ export function NovoBoletoModal({
               <button
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-6 py-3 border border-neutral-600 text-neutral-200 rounded-lg font-medium hover:bg-neutral-800/50 transition-colors"
+                className="flex-1 px-6 py-3 bg-neutral-800/50 border border-neutral-700 text-neutral-300 rounded-lg font-medium hover:bg-neutral-800/70 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-neutral-900 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Criando..." : "Criar Boleto"}
               </button>
