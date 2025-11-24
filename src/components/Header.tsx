@@ -162,21 +162,21 @@ export default function Header() {
       {/* Main header */}
       <div className="bg-neutral-950/95 backdrop-blur-xl shadow-lg shadow-black/20 relative z-50">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-20">
             {/* Logo Section */}
             <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-3 group">
+              <Link href="/" className="flex items-center space-x-4 group">
                 <motion.div whileHover={{ rotate: 10 }} className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl blur-md opacity-50 group-hover:opacity-70 transition-opacity" />
                   <div className="relative p-2.5 bg-gradient-to-br from-gold-500 to-gold-600 rounded-xl shadow-lg shadow-gold-500/30">
-                    <Scale className="w-6 h-6 text-neutral-950" />
+                    <Scale className="w-8 h-8 text-neutral-950" />
                   </div>
                 </motion.div>
                 <div>
-                  <h1 className="text-xl font-bold text-gradient-gold">
+                  <h1 className="text-3xl font-bold text-gradient-gold">
                     Arrighi
                   </h1>
-                  <p className="text-xs text-neutral-400 font-medium -mt-0.5">
+                  <p className="text-base text-neutral-400 font-medium -mt-0.5">
                     CRM TRIBUTÁRIO
                   </p>
                 </div>

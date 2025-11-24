@@ -63,14 +63,14 @@ function SituacaoBadge({
 }) {
   // Validar se situação é válida
   if (!situacao || typeof situacao !== "string") {
-    return <span className="text-xs text-gray-500">Sem situação</span>;
+    return <span className="text-xs text-neutral-500">Sem situação</span>;
   }
 
   const config = SituacaoContratoOptions.find((opt) => opt.value === situacao);
 
   if (!config) {
     return (
-      <span className="text-xs text-gray-500">
+      <span className="text-xs text-neutral-500">
         {situacao || "Desconhecido"}
       </span>
     );

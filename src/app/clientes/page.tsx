@@ -609,8 +609,8 @@ export default function ClientesPage() {
               transition={{ delay: 0.3 }}
               className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-lg border border-neutral-800 overflow-hidden"
             >
-              <div className="px-6 py-4 border-b border-secondary-200/50 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-secondary-900">
+              <div className="px-6 py-4 border-b border-neutral-800 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-neutral-100">
                   Lista de Clientes ({filteredClientes.length} registros)
                 </h3>
                 <div className="flex items-center space-x-2">
@@ -665,13 +665,13 @@ export default function ClientesPage() {
 
               {filteredClientes.length === 0 ? (
                 <div className="text-center py-12">
-                  <UserPlus className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-secondary-900 mb-2">
+                  <UserPlus className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-neutral-200 mb-2">
                     {searchTerm || filterStatus || filterSegmento
                       ? "Nenhum resultado encontrado"
                       : "Nenhum cliente cadastrado"}
                   </h3>
-                  <p className="text-secondary-600">
+                  <p className="text-neutral-400">
                     {searchTerm || filterStatus || filterSegmento
                       ? "Tente ajustar os filtros de busca"
                       : "Clique em 'Novo Cliente' para começar"}
@@ -810,15 +810,16 @@ export default function ClientesPage() {
                       transition={{ delay: 0.05 * index }}
                       onClick={() => handleSelectCliente(cliente.id)}
                       className={cn(
-                        "bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 border border-secondary-200/50 cursor-pointer",
+                        "bg-neutral-900/95 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-neutral-800 cursor-pointer transition-all duration-200",
+                        "hover:border-gold-500/30 hover:shadow-xl hover:shadow-gold-500/10",
                         selectedClienteId === cliente.id
-                          ? "border-accent-500 bg-accent-50"
+                          ? "border-gold-500/50 bg-gold-500/10 shadow-gold-500/20"
                           : ""
                       )}
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center">
-                          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                          <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/30">
                             <span className="text-lg font-bold text-white">
                               {(
                                 cliente.nome ||
@@ -828,7 +829,7 @@ export default function ClientesPage() {
                             </span>
                           </div>
                           <div className="ml-3">
-                            <h4 className="text-lg font-semibold text-secondary-900">
+                            <h4 className="text-lg font-semibold text-neutral-100">
                               <Tooltip
                                 content={
                                   cliente.nome || cliente.razaoSocial || ""
@@ -842,7 +843,9 @@ export default function ClientesPage() {
                                 </span>
                               </Tooltip>
                             </h4>
-                            <TipoClienteBadge tipo={cliente.tipo || "fisica"} />
+                            <div className="mt-1">
+                              <TipoClienteBadge tipo={cliente.tipo || "fisica"} />
+                            </div>
                           </div>
                         </div>
                         <StatusClienteBadge
@@ -857,34 +860,34 @@ export default function ClientesPage() {
                       </div>
 
                       <div className="space-y-3">
-                        <div className="flex items-center text-sm text-secondary-600">
-                          <Mail className="w-4 h-4 mr-2" />
-                          {cliente.email || "N/A"}
+                        <div className="flex items-center text-sm text-neutral-300">
+                          <Mail className="w-4 h-4 mr-2 text-neutral-400" />
+                          <span className="truncate">{cliente.email || "N/A"}</span>
                         </div>
-                        <div className="flex items-center text-sm text-secondary-600">
-                          <Phone className="w-4 h-4 mr-2" />
-                          {cliente.telefone1 || "N/A"}
+                        <div className="flex items-center text-sm text-neutral-300">
+                          <Phone className="w-4 h-4 mr-2 text-neutral-400" />
+                          <span>{cliente.telefone1 || "N/A"}</span>
                         </div>
-                        <div className="flex items-center text-sm text-secondary-600">
+                        <div className="flex items-center text-sm text-neutral-300">
                           {cliente.tipo === "fisica" ? (
                             <>
-                              <FileText className="w-4 h-4 mr-2" />
-                              CPF: {cliente.cpf}
+                              <FileText className="w-4 h-4 mr-2 text-neutral-400" />
+                              <span>CPF: {cliente.cpf}</span>
                             </>
                           ) : (
                             <>
-                              <Building2 className="w-4 h-4 mr-2" />
-                              CNPJ: {cliente.cnpj}
+                              <Building2 className="w-4 h-4 mr-2 text-neutral-400" />
+                              <span>CNPJ: {cliente.cnpj}</span>
                             </>
                           )}
                         </div>
-                        <div className="flex items-center text-sm text-secondary-600">
-                          <Building2 className="w-4 h-4 mr-2" />
-                          Filial: {cliente.filial?.nome || "Não informada"}
+                        <div className="flex items-center text-sm text-neutral-300">
+                          <Building2 className="w-4 h-4 mr-2 text-neutral-400" />
+                          <span>Filial: {cliente.filial?.nome || "Não informada"}</span>
                         </div>
                       </div>
 
-                      <div className="mt-4 pt-4 border-t border-secondary-200">
+                      <div className="mt-4 pt-4 border-t border-neutral-800">
                         {cliente.segmento && (
                           <div className="mb-3">
                             <SegmentoBadge segmento={cliente.segmento} />

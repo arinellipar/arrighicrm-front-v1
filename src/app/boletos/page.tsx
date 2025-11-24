@@ -743,7 +743,7 @@ export default function BoletosPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <button
                             onClick={() => handleViewDetails(boleto)}
-                            className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-gold-500/20 text-gold-400 rounded-lg transition-colors font-medium text-sm"
+                            className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-800/50 hover:bg-amber-500/20 border border-neutral-700 hover:border-amber-500/30 text-amber-400 rounded-lg transition-colors font-medium text-sm"
                           >
                             <Eye className="w-4 h-4" />
                             Detalhes
@@ -755,7 +755,7 @@ export default function BoletosPage() {
                               <button
                                 onClick={() => handleDownloadPdf(boleto)}
                                 disabled={downloadingPdfId === boleto.id}
-                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-red-500/20 text-red-400 rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-800/50 hover:bg-red-500/20 border border-neutral-700 hover:border-red-500/30 text-red-400 rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Baixar PDF oficial do Santander"
                               >
                                 {downloadingPdfId === boleto.id ? (
@@ -770,7 +770,7 @@ export default function BoletosPage() {
                               <button
                                 onClick={() => handleSync(boleto)}
                                 disabled={syncingId === boleto.id}
-                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-green-500/20 text-green-400 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
+                                className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 px-3 py-2 bg-neutral-800/50 hover:bg-green-500/20 border border-neutral-700 hover:border-green-500/30 text-green-400 rounded-lg transition-colors font-medium text-sm disabled:opacity-50"
                               >
                                 <RefreshCw
                                   className={`w-4 h-4 ${
@@ -788,7 +788,7 @@ export default function BoletosPage() {
                               <button
                                 onClick={() => handleDelete(boleto)}
                                 disabled={deletingId === boleto.id}
-                                className="p-2 bg-white hover:bg-red-500/20 text-red-400 rounded-lg transition-colors disabled:opacity-50"
+                                className="p-2 bg-neutral-800/50 hover:bg-red-500/20 border border-neutral-700 hover:border-red-500/30 text-red-400 rounded-lg transition-colors disabled:opacity-50"
                                 title="Cancelar boleto"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -969,7 +969,7 @@ export default function BoletosPage() {
               className="text-center py-20"
             >
               <div className="relative inline-block">
-                <Receipt className="w-24 h-24 text-gray-200 mx-auto mb-6" />
+                <Receipt className="w-24 h-24 text-neutral-300 mx-auto mb-6" />
                 <motion.div
                   animate={{
                     scale: [1, 1.2, 1],
@@ -1040,7 +1040,7 @@ export default function BoletosPage() {
                 exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
                 className="fixed bottom-8 right-8 z-50"
               >
-                <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl shadow-2xl p-6 min-w-[320px]">
+                <div className="bg-neutral-900/95 backdrop-blur-xl border border-neutral-800 text-neutral-100 rounded-2xl shadow-2xl p-6 min-w-[320px]">
                   <div className="flex items-center gap-4">
                     {/* Ícone Animado */}
                     <div className="relative">
@@ -1051,9 +1051,9 @@ export default function BoletosPage() {
                           repeat: Infinity,
                           ease: "linear",
                         }}
-                        className="w-12 h-12 rounded-full border-4 border-white/30 border-t-white flex items-center justify-center"
+                        className="w-12 h-12 rounded-full border-4 border-amber-500/30 border-t-amber-500 flex items-center justify-center"
                       >
-                        <Download className="w-6 h-6" />
+                        <Download className="w-6 h-6 text-amber-400" />
                       </motion.div>
                       <motion.div
                         animate={{
@@ -1065,24 +1065,24 @@ export default function BoletosPage() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                        className="absolute inset-0 bg-white/20 rounded-full blur-md"
+                        className="absolute inset-0 bg-amber-500/20 rounded-full blur-md"
                       />
                     </div>
 
                     {/* Texto */}
                     <div className="flex-1">
-                      <p className="font-bold text-lg mb-1">Baixando PDF...</p>
-                      <p className="text-white/90 text-sm">
+                      <p className="font-bold text-lg mb-1 text-neutral-100">Baixando PDF...</p>
+                      <p className="text-neutral-300 text-sm">
                         Boleto #{downloadingPdfId}
                       </p>
-                      <p className="text-white/70 text-xs mt-1 truncate max-w-[200px]">
+                      <p className="text-neutral-400 text-xs mt-1 truncate max-w-[200px]">
                         {downloadingPdfName}
                       </p>
                     </div>
 
                     {/* Animação de Progresso */}
                     <motion.div
-                      className="absolute bottom-0 left-0 h-1 bg-white/40 rounded-full"
+                      className="absolute bottom-0 left-0 h-1 bg-amber-500/40 rounded-full"
                       initial={{ width: "0%" }}
                       animate={{ width: "100%" }}
                       transition={{ duration: 3, ease: "easeInOut" }}
@@ -1090,7 +1090,7 @@ export default function BoletosPage() {
                   </div>
 
                   {/* Barra de progresso indeterminada */}
-                  <div className="mt-3 w-full bg-white/20 rounded-full h-1 overflow-hidden">
+                  <div className="mt-3 w-full bg-neutral-800/50 rounded-full h-1 overflow-hidden">
                     <motion.div
                       className="h-full bg-neutral-900/95 backdrop-blur-xl rounded-full"
                       animate={{ x: ["-100%", "100%"] }}

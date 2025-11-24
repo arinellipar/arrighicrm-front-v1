@@ -53,7 +53,7 @@ function SituacaoBadge({ situacao }: { situacao: SituacaoContrato }) {
   const config = SituacaoContratoOptions.find((opt) => opt.value === situacao);
 
   if (!config) {
-    return <span className="text-xs text-gray-500">Desconhecido</span>;
+    return <span className="text-xs text-neutral-500">Desconhecido</span>;
   }
 
   return (

@@ -930,23 +930,28 @@ export default function ContratoForm({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 flex items-center justify-center z-[99999] p-4"
           >
-            <div className="bg-neutral-900/95 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden">
+            <div className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-neutral-800 w-full max-w-5xl max-h-[95vh] overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
+              <div className="px-6 py-4 border-b border-neutral-800">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg">
-                      <FileText className="w-5 h-5 text-white" />
+                    <div className="p-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg">
+                      <FileText className="w-5 h-5 text-neutral-900" />
                     </div>
-                    <h2 className="text-xl font-bold text-white">
-                      {contrato ? "Editar Contrato" : "Novo Contrato"}
-                    </h2>
+                    <div>
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
+                        {contrato ? "Editar Contrato" : "Novo Contrato"}
+                      </h2>
+                      <p className="text-sm text-neutral-400">
+                        {contrato ? "Atualize as informações do contrato" : "Preencha os dados para criar um novo contrato"}
+                      </p>
+                    </div>
                   </div>
                   <button
                     onClick={onCancel}
-                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                    className="p-2 text-neutral-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors border border-transparent hover:border-red-500/30"
                   >
-                    <X className="w-5 h-5 text-white" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -958,11 +963,11 @@ export default function ContratoForm({
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+                    className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6"
                   >
                     <div className="flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-red-600" />
-                      <p className="text-sm text-red-700 font-medium">
+                      <AlertCircle className="w-4 h-4 text-red-400" />
+                      <p className="text-sm text-red-300 font-medium">
                         {errors.general}
                       </p>
                     </div>
@@ -973,7 +978,7 @@ export default function ContratoForm({
                   {/* Cliente e Consultor */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Cliente *
                       </label>
                       <div className="space-y-2">
@@ -981,11 +986,11 @@ export default function ContratoForm({
                           type="button"
                           onClick={() => setShowClientePicker(true)}
                           className={cn(
-                            "w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 text-neutral-700",
-                            "hover:bg-neutral-50 transition-colors",
+                            "w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100",
+                            "hover:bg-neutral-800/50 transition-colors",
                             errors.clienteId
-                              ? "border-red-300 bg-red-50"
-                              : "border-neutral-200"
+                              ? "border-red-500 bg-red-500/10"
+                              : "border-neutral-700 hover:border-neutral-600"
                           )}
                         >
                           <Users className="w-4 h-4 text-neutral-500" />
@@ -995,13 +1000,13 @@ export default function ContratoForm({
                             : "Selecionar cliente (duplo clique)"}
                         </button>
                         {selectedCliente && (
-                          <div className="rounded-lg border border-neutral-200 p-4 bg-neutral-50 text-xs text-neutral-700">
+                          <div className="rounded-lg border border-green-500/30 p-4 bg-green-500/10 text-xs text-green-200">
                             <div className="space-y-3">
                               <div>
-                                <span className="font-medium text-neutral-800">
+                                <span className="font-medium text-green-300">
                                   Email:{" "}
                                 </span>
-                                <span className="text-neutral-600">
+                                <span className="text-green-200">
                                   {selectedCliente.pessoaFisica
                                     ?.emailEmpresarial ||
                                     selectedCliente.pessoaJuridica?.email ||
@@ -1009,17 +1014,17 @@ export default function ContratoForm({
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium text-neutral-800">
+                                <span className="font-medium text-green-300">
                                   CPF/CNPJ:{" "}
                                 </span>
-                                <span className="text-neutral-600">
+                                <span className="text-green-200">
                                   {selectedCliente.pessoaFisica?.cpf ||
                                     selectedCliente.pessoaJuridica?.cnpj ||
                                     "—"}
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium text-neutral-800">
+                                <span className="font-medium text-green-300">
                                   Telefones:{" "}
                                 </span>
                                 <div className="mt-1 space-y-1">
@@ -1037,12 +1042,12 @@ export default function ContratoForm({
                                     .map((telefone, index) => (
                                       <div
                                         key={index}
-                                        className="text-neutral-600"
+                                        className="text-green-200"
                                       >
                                         {telefone}
                                       </div>
                                     )) || (
-                                    <span className="text-neutral-600">—</span>
+                                    <span className="text-green-200">—</span>
                                   )}
                                 </div>
                               </div>
@@ -1051,7 +1056,7 @@ export default function ContratoForm({
                         )}
                       </div>
                       {errors.clienteId && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {errors.clienteId}
                         </p>
@@ -1059,23 +1064,24 @@ export default function ContratoForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Consultor *
                       </label>
                       <div className="relative">
-                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                         <select
                           name="consultorId"
                           value={formData.consultorId}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                             errors.consultorId
-                              ? "border-red-300 bg-red-50"
-                              : "border-neutral-200"
+                              ? "border-red-500 bg-red-500/10"
+                              : "border-neutral-700",
+                            "[&>option]:bg-neutral-900 [&>option]:text-neutral-200"
                           )}
                         >
-                          <option value={0}>
+                          <option value={0} className="text-neutral-500">
                             {consultoresOrdenados.length === 0
                               ? "Carregando consultores..."
                               : "Selecione um consultor"}
@@ -1085,6 +1091,7 @@ export default function ContratoForm({
                               key={consultor.id}
                               value={consultor.id}
                               disabled={!consultor.ativo}
+                              className="bg-neutral-900 text-neutral-200"
                             >
                               {consultor.pessoaFisica?.nome || consultor.nome} -{" "}
                               {consultor.filial?.nome || "Filial não informada"}
@@ -1094,7 +1101,7 @@ export default function ContratoForm({
                         </select>
                       </div>
                       {errors.consultorId && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {errors.consultorId}
                         </p>
@@ -1123,14 +1130,14 @@ export default function ContratoForm({
                               (c) => c.id === consultorAtivo.consultorId
                             );
                             return (
-                              <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <p className="text-xs text-blue-800 font-medium">
+                              <div className="mt-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                                <p className="text-xs text-amber-300 font-medium">
                                   ℹ️ Consultor atual:{" "}
                                   {consultor?.pessoaFisica?.nome ||
                                     consultor?.nome ||
                                     "Consultor"}
                                 </p>
-                                <p className="text-xs text-blue-600 mt-1">
+                                <p className="text-xs text-amber-400 mt-1">
                                   Este cliente já possui um consultor ativo.
                                   Novos contratos serão atribuídos ao mesmo
                                   consultor.
@@ -1151,9 +1158,9 @@ export default function ContratoForm({
                           onChange={(e) =>
                             handleParceiroCheckboxChange(e.target.checked)
                           }
-                          className="w-4 h-4 text-primary-600 bg-neutral-800 border-neutral-600 rounded focus:ring-primary-500 focus:ring-2"
+                          className="w-4 h-4 text-amber-500 bg-neutral-800 border-neutral-600 rounded focus:ring-amber-500 focus:ring-2"
                         />
-                        <span className="text-sm font-medium text-neutral-700">
+                        <span className="text-sm font-medium text-neutral-300">
                           Há parceiro neste contrato?
                         </span>
                       </label>
@@ -1162,7 +1169,7 @@ export default function ContratoForm({
                     {/* Seletor de Parceiro */}
                     {hasParceiro && (
                       <div className="mt-4">
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Parceiro
                         </label>
                         <div className="relative">
@@ -1173,9 +1180,9 @@ export default function ContratoForm({
                                 parseInt(e.target.value) || 0
                               )
                             }
-                            className="w-full px-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            className="w-full px-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all [&>option]:bg-neutral-900 [&>option]:text-neutral-200"
                           >
-                            <option value="">
+                            <option value="" className="text-neutral-500">
                               {loadingParceiros
                                 ? "Carregando parceiros..."
                                 : errorParceiros
@@ -1185,7 +1192,7 @@ export default function ContratoForm({
                                 : "Selecione um parceiro"}
                             </option>
                             {parceiros.map((parceiro) => (
-                              <option key={parceiro.id} value={parceiro.id}>
+                              <option key={parceiro.id} value={parceiro.id} className="bg-neutral-900 text-neutral-200">
                                 {parceiro.pessoaFisica?.nome ||
                                   "Nome não informado"}{" "}
                                 -{" "}
@@ -1202,7 +1209,7 @@ export default function ContratoForm({
                   {/* Situação e Dados Básicos */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Situação *
                       </label>
                       <select
@@ -1210,20 +1217,21 @@ export default function ContratoForm({
                         value={formData.situacao}
                         onChange={handleInputChange}
                         className={cn(
-                          "w-full px-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                          "w-full px-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                           errors.situacao
-                            ? "border-red-300 bg-red-50"
-                            : "border-neutral-200"
+                            ? "border-red-500 bg-red-500/10"
+                            : "border-neutral-700",
+                          "[&>option]:bg-neutral-900 [&>option]:text-neutral-200"
                         )}
                       >
                         {SituacaoContratoOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
+                          <option key={option.value} value={option.value} className="bg-neutral-900 text-neutral-200">
                             {option.label}
                           </option>
                         ))}
                       </select>
                       {errors.situacao && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {errors.situacao}
                         </p>
@@ -1231,17 +1239,17 @@ export default function ContratoForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Número da Pasta
                       </label>
                       <div className="relative">
-                        <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <FolderOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                         <input
                           type="text"
                           name="numeroPasta"
                           value={formData.numeroPasta}
                           onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          className="w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all"
                           placeholder="P-2025-001"
                         />
                       </div>
@@ -1251,20 +1259,20 @@ export default function ContratoForm({
                   {/* Tipo de Serviço e Data de Fechamento */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Tipo de Serviço
                       </label>
                       <div className="relative">
-                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                         <select
                           name="tipoServico"
                           value={formData.tipoServico}
                           onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          className="w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all [&>option]:bg-neutral-900 [&>option]:text-neutral-200"
                         >
-                          <option value="">Selecione o tipo de serviço</option>
+                          <option value="" className="text-neutral-500">Selecione o tipo de serviço</option>
                           {TipoServicoOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
+                            <option key={option.value} value={option.value} className="bg-neutral-900 text-neutral-200">
                               {option.label}
                             </option>
                           ))}
@@ -1273,17 +1281,17 @@ export default function ContratoForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Data de Fechamento do Contrato
                       </label>
                       <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                         <input
                           type="date"
                           name="dataFechamentoContrato"
                           value={formData.dataFechamentoContrato}
                           onChange={handleInputChange}
-                          className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          className="w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all"
                         />
                       </div>
                     </div>
@@ -1291,17 +1299,17 @@ export default function ContratoForm({
 
                   {/* Objeto do Contrato */}
                   <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">
                       Objeto do Contrato
                     </label>
                     <div className="relative">
-                      <Target className="absolute left-3 top-3 w-4 h-4 text-neutral-400" />
+                      <Target className="absolute left-3 top-3 w-4 h-4 text-neutral-500" />
                       <textarea
                         name="objetoContrato"
                         value={formData.objetoContrato}
                         onChange={handleInputChange}
                         rows={3}
-                        className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                        className="w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all resize-none"
                         placeholder="Descreva o objeto do contrato..."
                       />
                     </div>
@@ -1310,26 +1318,26 @@ export default function ContratoForm({
                   {/* Datas */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Data Último Contato *
                       </label>
                       <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                         <input
                           type="date"
                           name="dataUltimoContato"
                           value={formData.dataUltimoContato}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                             errors.dataUltimoContato
-                              ? "border-red-300 bg-red-50"
-                              : "border-neutral-200"
+                              ? "border-red-500 bg-red-500/10"
+                              : "border-neutral-700"
                           )}
                         />
                       </div>
                       {errors.dataUltimoContato && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {errors.dataUltimoContato}
                         </p>
@@ -1337,26 +1345,26 @@ export default function ContratoForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Data Próximo Contato *
                       </label>
                       <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                         <input
                           type="date"
                           name="dataProximoContato"
                           value={formData.dataProximoContato}
                           onChange={handleInputChange}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                             errors.dataProximoContato
-                              ? "border-red-300 bg-red-50"
-                              : "border-neutral-200"
+                              ? "border-red-500 bg-red-500/10"
+                              : "border-neutral-700"
                           )}
                         />
                       </div>
                       {errors.dataProximoContato && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {errors.dataProximoContato}
                         </p>
@@ -1367,11 +1375,11 @@ export default function ContratoForm({
                   {/* Valores Principais */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Valor Devido *
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-400">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-500">
                           R$
                         </span>
                         <input
@@ -1381,16 +1389,16 @@ export default function ContratoForm({
                           onChange={handleInputChange}
                           onBlur={() => handleCurrencyBlur("valorDevido")}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                             errors.valorDevido
-                              ? "border-red-300 bg-red-50"
-                              : "border-neutral-200"
+                              ? "border-red-500 bg-red-500/10"
+                              : "border-neutral-700"
                           )}
                           placeholder="0,00"
                         />
                       </div>
                       {errors.valorDevido && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {errors.valorDevido}
                         </p>
@@ -1398,11 +1406,11 @@ export default function ContratoForm({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      <label className="block text-sm font-medium text-neutral-300 mb-2">
                         Valor Negociado
                       </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-400">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-500">
                           R$
                         </span>
                         <input
@@ -1412,16 +1420,16 @@ export default function ContratoForm({
                           onChange={handleInputChange}
                           onBlur={() => handleCurrencyBlur("valorNegociado")}
                           className={cn(
-                            "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                            "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                             errors.valorNegociado
-                              ? "border-red-300 bg-red-50"
-                              : "border-neutral-200"
+                              ? "border-red-500 bg-red-500/10"
+                              : "border-neutral-700"
                           )}
                           placeholder="0,00"
                         />
                       </div>
                       {errors.valorNegociado && (
-                        <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                        <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {errors.valorNegociado}
                         </p>
@@ -1430,19 +1438,19 @@ export default function ContratoForm({
                   </div>
 
                   {/* Dados de Pagamento */}
-                  <div className="border-t border-neutral-200 pt-6">
-                    <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-primary-600" />
+                  <div className="border-t border-neutral-800 pt-6">
+                    <h4 className="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-amber-400" />
                       Dados de Pagamento
                     </h4>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Valor de Entrada
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-400">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-500">
                             R$
                           </span>
                           <input
@@ -1452,16 +1460,16 @@ export default function ContratoForm({
                             onChange={handleInputChange}
                             onBlur={() => handleCurrencyBlur("valorEntrada")}
                             className={cn(
-                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                               errors.valorEntrada
-                                ? "border-red-300 bg-red-50"
-                                : "border-neutral-200"
+                                ? "border-red-500 bg-red-500/10"
+                                : "border-neutral-700"
                             )}
                             placeholder="0,00"
                           />
                         </div>
                         {errors.valorEntrada && (
-                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
                             {errors.valorEntrada}
                           </p>
@@ -1469,11 +1477,11 @@ export default function ContratoForm({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Valor da Parcela
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-400">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-neutral-500">
                             R$
                           </span>
                           <input
@@ -1483,16 +1491,16 @@ export default function ContratoForm({
                             onChange={handleInputChange}
                             onBlur={() => handleCurrencyBlur("valorParcela")}
                             className={cn(
-                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                               errors.valorParcela
-                                ? "border-red-300 bg-red-50"
-                                : "border-neutral-200"
+                                ? "border-red-500 bg-red-500/10"
+                                : "border-neutral-700"
                             )}
                             placeholder="0,00"
                           />
                         </div>
                         {errors.valorParcela && (
-                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
                             {errors.valorParcela}
                           </p>
@@ -1502,17 +1510,17 @@ export default function ContratoForm({
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Número de Parcelas
                         </label>
                         <div className="relative">
-                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                           <input
                             type="number"
                             name="numeroParcelas"
                             value={formData.numeroParcelas || ""}
                             onChange={handleInputChange}
-                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all"
                             placeholder="12"
                             min="1"
                           />
@@ -1520,27 +1528,27 @@ export default function ContratoForm({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Primeiro Vencimento
                         </label>
                         <div className="relative">
-                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                           <input
                             type="date"
                             name="primeiroVencimento"
                             value={formData.primeiroVencimento}
                             onChange={handleInputChange}
-                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            className="w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Comissão (%)
                         </label>
                         <div className="relative">
-                          <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                          <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                           <input
                             type="text"
                             name="comissao"
@@ -1548,16 +1556,16 @@ export default function ContratoForm({
                             onChange={handleInputChange}
                             onBlur={() => handleCurrencyBlur("comissao")}
                             className={cn(
-                              "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all",
+                              "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all",
                               errors.comissao
-                                ? "border-red-300 bg-red-50"
-                                : "border-neutral-200"
+                                ? "border-red-500 bg-red-500/10"
+                                : "border-neutral-700"
                             )}
                             placeholder="15,00"
                           />
                         </div>
                         {errors.comissao && (
-                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
                             {errors.comissao}
                           </p>
@@ -1567,19 +1575,19 @@ export default function ContratoForm({
                   </div>
 
                   {/* Outros Campos */}
-                  <div className="border-t border-neutral-200 pt-6">
-                    <h4 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-                      <Paperclip className="w-5 h-5 text-primary-600" />
+                  <div className="border-t border-neutral-800 pt-6">
+                    <h4 className="text-lg font-semibold text-neutral-100 mb-4 flex items-center gap-2">
+                      <Paperclip className="w-5 h-5 text-amber-400" />
                       Outros Campos
                     </h4>
 
                     <div className="grid grid-cols-1 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Anexo de Documento (PDF)
                         </label>
                         <div className="relative">
-                          <Paperclip className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 z-30" />
+                          <Paperclip className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 z-30" />
                           <div className="relative overflow-visible">
                             <input
                               type="file"
@@ -1591,45 +1599,45 @@ export default function ContratoForm({
                             />
                             <div
                               className={cn(
-                                "w-full pl-12 pr-4 py-2.5 bg-white border rounded-lg text-sm text-neutral-700 flex items-center justify-between",
+                                "w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border rounded-lg text-sm text-neutral-100 flex items-center justify-between",
                                 errors.anexoDocumento
-                                  ? "border-red-300 bg-red-50"
-                                  : "border-neutral-200"
+                                  ? "border-red-500 bg-red-500/10"
+                                  : "border-neutral-700"
                               )}
                             >
-                              <span className="text-neutral-500">
+                              <span className="text-neutral-400">
                                 {nomeArquivoPDF || "Nenhum arquivo escolhido"}
                               </span>
-                              <span className="text-primary-600 font-medium text-xs bg-primary-50 px-3 py-1 rounded">
+                              <span className="text-amber-400 font-medium text-xs bg-amber-500/20 px-3 py-1 rounded border border-amber-500/30">
                                 Escolher Arquivo
                               </span>
                             </div>
                           </div>
                         </div>
                         {errors.anexoDocumento && (
-                          <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
+                          <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
                             {errors.anexoDocumento}
                           </p>
                         )}
-                        <p className="mt-1 text-xs text-neutral-500">
+                        <p className="mt-1 text-xs text-neutral-400">
                           Selecione um arquivo PDF para anexar ao contrato (máx.
                           10MB)
                         </p>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        <label className="block text-sm font-medium text-neutral-300 mb-2">
                           Pendências
                         </label>
                         <div className="relative">
-                          <AlertTriangle className="absolute left-3 top-3 w-4 h-4 text-neutral-400" />
+                          <AlertTriangle className="absolute left-3 top-3 w-4 h-4 text-neutral-500" />
                           <textarea
                             name="pendencias"
                             value={formData.pendencias}
                             onChange={handleInputChange}
                             rows={3}
-                            className="w-full pl-12 pr-4 py-2.5 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-none"
+                            className="w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all resize-none"
                             placeholder="Descreva pendências existentes..."
                           />
                         </div>
@@ -1639,16 +1647,16 @@ export default function ContratoForm({
 
                   {/* Observações */}
                   <div>
-                    <label className="flex items-center justify-between text-sm font-medium text-neutral-700 mb-2">
+                    <label className="flex items-center justify-between text-sm font-medium text-neutral-300 mb-2">
                       <span>Observações</span>
                       <span
                         className={`text-xs ${
                           formData.observacoes &&
                           formData.observacoes.length > 1000
-                            ? "text-red-500 font-bold"
+                            ? "text-red-400 font-bold"
                             : formData.observacoes &&
                               formData.observacoes.length > 900
-                            ? "text-orange-500"
+                            ? "text-orange-400"
                             : "text-neutral-400"
                         }`}
                       >
@@ -1656,27 +1664,27 @@ export default function ContratoForm({
                       </span>
                     </label>
                     <div className="relative">
-                      <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-neutral-400" />
+                      <MessageSquare className="absolute left-3 top-3 w-4 h-4 text-neutral-500" />
                       <textarea
                         name="observacoes"
                         value={formData.observacoes}
                         onChange={handleInputChange}
                         rows={4}
                         maxLength={1000}
-                        className={`w-full pl-12 pr-4 py-2.5 bg-white border ${
+                        className={`w-full pl-12 pr-4 py-2.5 bg-neutral-900/50 border ${
                           errors.observacoes
-                            ? "border-red-300"
-                            : "border-neutral-200"
-                        } rounded-lg text-sm text-neutral-700 focus:outline-none focus:ring-2 ${
+                            ? "border-red-500"
+                            : "border-neutral-700"
+                        } rounded-lg text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:ring-2 ${
                           errors.observacoes
-                            ? "focus:ring-red-500"
-                            : "focus:ring-primary-500"
+                            ? "focus:ring-red-500/50"
+                            : "focus:ring-amber-500/50"
                         } focus:border-transparent transition-all resize-none`}
                         placeholder="Adicione observações sobre o contrato..."
                       />
                     </div>
                     {errors.observacoes && (
-                      <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                      <p className="mt-1 text-xs text-red-400 flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         {errors.observacoes}
                       </p>
@@ -1685,13 +1693,13 @@ export default function ContratoForm({
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 mt-6 pt-6 pb-20 border-t border-neutral-200">
+                <div className="flex items-center justify-end gap-3 mt-6 pt-6 pb-20 border-t border-neutral-800">
                   <motion.button
                     type="button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={onCancel}
-                    className="px-4 py-2 text-neutral-700 hover:bg-neutral-100 rounded-lg font-medium transition-colors"
+                    className="px-4 py-2 text-neutral-300 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 rounded-lg font-medium transition-colors"
                     disabled={submitting}
                   >
                     Cancelar
@@ -1701,7 +1709,7 @@ export default function ContratoForm({
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={submitting}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-neutral-900 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-amber-500/30"
                   >
                     {submitting ? (
                       <>

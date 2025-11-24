@@ -487,61 +487,61 @@ export interface UpdateParceiroDTO {
 }
 
 export const SituacaoContratoOptions = [
-  { value: "Leed", label: "Lead", color: "bg-blue-100 text-blue-800" },
+  { value: "Leed", label: "Lead", color: "bg-blue-500/20 text-blue-300 border border-blue-500/30" },
   {
     value: "Prospecto",
     label: "Prospecto",
-    color: "bg-indigo-100 text-indigo-800",
+    color: "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30",
   },
   {
     value: "Em Análise",
     label: "Em Análise",
-    color: "bg-purple-100 text-purple-800",
+    color: "bg-purple-500/20 text-purple-300 border border-purple-500/30",
   },
   {
     value: "Contrato Enviado",
     label: "Contrato Enviado",
-    color: "bg-yellow-100 text-yellow-800",
+    color: "bg-amber-500/20 text-amber-300 border border-amber-500/30",
   },
   {
     value: "Contrato Assinado",
     label: "Contrato Assinado",
-    color: "bg-green-100 text-green-800",
+    color: "bg-green-500/20 text-green-300 border border-green-500/30",
   },
   {
     value: "Retornar",
     label: "Retornar",
-    color: "bg-orange-100 text-orange-800",
+    color: "bg-orange-500/20 text-orange-300 border border-orange-500/30",
   },
   {
     value: "Sem Interesse",
     label: "Sem Interesse",
-    color: "bg-red-100 text-red-800",
+    color: "bg-red-500/20 text-red-300 border border-red-500/30",
   },
   {
     value: "RESCINDIDO",
     label: "Rescindido",
-    color: "bg-red-200 text-red-900",
+    color: "bg-red-500/30 text-red-200 border border-red-500/50",
   },
   {
     value: "RESCINDIDO COM DEBITO",
     label: "Rescindido c/ Débito",
-    color: "bg-red-300 text-red-900",
+    color: "bg-red-600/30 text-red-200 border border-red-600/50",
   },
   {
     value: "SUSPENSO",
     label: "Suspenso",
-    color: "bg-gray-100 text-gray-800",
+    color: "bg-neutral-500/20 text-neutral-300 border border-neutral-500/30",
   },
   {
     value: "SUSP. C/ DEBITO",
     label: "Suspensão c/ Débito",
-    color: "bg-gray-200 text-gray-900",
+    color: "bg-neutral-600/20 text-neutral-200 border border-neutral-600/30",
   },
   {
     value: "CLIENTE",
     label: "Cliente",
-    color: "bg-green-200 text-green-900",
+    color: "bg-green-500/30 text-green-200 border border-green-500/50",
   },
 ] as const;
 

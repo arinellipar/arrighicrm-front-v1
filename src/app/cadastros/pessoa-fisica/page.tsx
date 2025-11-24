@@ -20,6 +20,7 @@ import {
   UserCheck,
   Handshake,
   Shield,
+  Award,
 } from "lucide-react";
 import MainLayout from "@/components/MainLayout";
 import PessoaFisicaForm from "@/components/forms/PessoaFisicaForm";
@@ -126,6 +127,28 @@ function RoleBadge({
       </span>
     </Tooltip>
   );
+}
+
+function AdvogadoBadge({ isCompact = false }: { isCompact?: boolean }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full font-semibold bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-md border border-yellow-500/30",
+        isCompact
+          ? "px-2 py-0.5 text-[9px] sm:text-[10px]"
+          : "px-2.5 py-1 text-[10px] sm:text-xs"
+      )}
+    >
+      <Award
+        className={isCompact ? "w-2.5 h-2.5" : "w-3 h-3"}
+      />
+      Advogado
+    </span>
+  );
+}
+
+function isAdvogado(email: string | undefined): boolean {
+  return email?.toLowerCase().endsWith("@arrighiadvogados.com.br") || false;
 }
 
 function LoadingSpinner() {
@@ -630,21 +653,26 @@ export default function PessoaFisicaPage() {
                                     </span>
                                   </div>
                                   <div className="min-w-0 flex-1">
-                                    <div
-                                      className={`font-medium text-neutral-50 ${
-                                        isTableCompact
-                                          ? "text-[10px] sm:text-[11px]"
-                                          : "text-[11px] sm:text-xs lg:text-sm"
-                                      }`}
-                                    >
-                                      <Tooltip content={pessoa.nome}>
-                                        <span className="cursor-help">
-                                          {truncateText(
-                                            pessoa.nome,
-                                            isTableCompact ? 40 : 25
-                                          )}
-                                        </span>
-                                      </Tooltip>
+                                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                      <div
+                                        className={`font-medium text-neutral-50 ${
+                                          isTableCompact
+                                            ? "text-[10px] sm:text-[11px]"
+                                            : "text-[11px] sm:text-xs lg:text-sm"
+                                        }`}
+                                      >
+                                        <Tooltip content={pessoa.nome}>
+                                          <span className="cursor-help">
+                                            {truncateText(
+                                              pessoa.nome,
+                                              isTableCompact ? 40 : 25
+                                            )}
+                                          </span>
+                                        </Tooltip>
+                                      </div>
+                                      {isAdvogado(pessoa.emailEmpresarial) && (
+                                        <AdvogadoBadge isCompact={isTableCompact} />
+                                      )}
                                     </div>
 
                                     {/* Tags de papéis no sistema */}

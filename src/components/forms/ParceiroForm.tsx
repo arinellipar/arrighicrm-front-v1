@@ -221,19 +221,19 @@ export default function ParceiroForm({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-neutral-900/95 rounded-2xl shadow-xl max-w-4xl mx-auto"
+        className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-xl border border-neutral-800 max-w-4xl mx-auto"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-secondary-200/50">
+        <div className="flex items-center justify-between p-6 border-b border-neutral-800">
           <div className="flex items-center space-x-4">
-            <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl">
-              <Scale className="w-6 h-6 text-white" />
+            <div className="p-2 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl">
+              <Scale className="w-6 h-6 text-neutral-900" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-secondary-900">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">
                 {initialData ? "Editar Parceiro" : "Novo Parceiro"}
               </h2>
-              <p className="text-sm text-secondary-600">
+              <p className="text-sm text-neutral-400">
                 {initialData
                   ? "Atualize as informações do parceiro"
                   : "Preencha os dados para cadastrar um novo parceiro"}
@@ -246,7 +246,7 @@ export default function ParceiroForm({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onBackToList}
-                className="flex items-center space-x-2 px-4 py-2 text-secondary-600 hover:text-secondary-800 hover:bg-secondary-50 rounded-lg transition-all duration-200"
+                className="flex items-center space-x-2 px-4 py-2 text-neutral-300 hover:text-neutral-100 hover:bg-neutral-800 border border-neutral-700 rounded-lg transition-all duration-200"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Voltar à Lista</span>
@@ -256,7 +256,7 @@ export default function ParceiroForm({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onCancel}
-              className="p-2 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-lg transition-all duration-200"
+              className="p-2 text-neutral-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 border border-transparent hover:border-red-500/30"
             >
               <X className="w-5 h-5" />
             </motion.button>
@@ -267,7 +267,7 @@ export default function ParceiroForm({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Pessoa Física Selection */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-secondary-700">
+            <label className="block text-sm font-medium text-neutral-300">
               Pessoa Física *
             </label>
             <div className="relative">
@@ -275,23 +275,23 @@ export default function ParceiroForm({
                 type="button"
                 onClick={() => setShowPessoaFisicaSelector(true)}
                 className={cn(
-                  "w-full flex items-center justify-between px-4 py-3 bg-white border rounded-xl text-left transition-all duration-200",
+                  "w-full flex items-center justify-between px-4 py-3 bg-neutral-900/50 border rounded-xl text-left transition-all duration-200",
                   errors.pessoaFisicaId
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-secondary-200 hover:border-secondary-300 focus:border-primary-500 focus:ring-primary-500/20",
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 hover:border-neutral-600 focus:border-amber-500/50 focus:ring-amber-500/20",
                   selectedPessoaFisica
-                    ? "text-secondary-900"
-                    : "text-secondary-500"
+                    ? "text-neutral-100"
+                    : "text-neutral-500"
                 )}
               >
                 <div className="flex items-center space-x-3">
-                  <User className="w-5 h-5 text-secondary-400" />
+                  <User className="w-5 h-5 text-neutral-500" />
                   <span>{getSelectedPessoaFisicaDisplay()}</span>
                 </div>
-                <ChevronDown className="w-5 h-5 text-secondary-400" />
+                <ChevronDown className="w-5 h-5 text-neutral-500" />
               </button>
               {errors.pessoaFisicaId && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
+                <p className="mt-1 text-sm text-red-400 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.pessoaFisicaId}
                 </p>
@@ -301,7 +301,7 @@ export default function ParceiroForm({
 
           {/* Filial Selection */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-secondary-700">
+            <label className="block text-sm font-medium text-neutral-300">
               Filial *
             </label>
             <div className="relative">
@@ -311,23 +311,24 @@ export default function ParceiroForm({
                   handleInputChange("filialId", parseInt(e.target.value))
                 }
                 className={cn(
-                  "w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200",
+                  "w-full px-4 py-3 bg-neutral-900/50 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 text-neutral-100",
                   errors.filialId
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-secondary-200 focus:border-primary-500 focus:ring-primary-500/20"
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 focus:border-amber-500/50 focus:ring-amber-500/20",
+                  "[&>option]:bg-neutral-900 [&>option]:text-neutral-200"
                 )}
                 disabled={loadingFiliais}
               >
-                <option value={0}>Selecionar filial...</option>
+                <option value={0} className="text-neutral-500">Selecionar filial...</option>
                 {filiais.map((filial) => (
-                  <option key={filial.id} value={filial.id}>
+                  <option key={filial.id} value={filial.id} className="bg-neutral-900 text-neutral-200">
                     {filial.nome}
                   </option>
                 ))}
               </select>
-              <Building className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400 pointer-events-none" />
+              <Building className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-500 pointer-events-none" />
               {errors.filialId && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
+                <p className="mt-1 text-sm text-red-400 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.filialId}
                 </p>
@@ -337,7 +338,7 @@ export default function ParceiroForm({
 
           {/* OAB */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-secondary-700">
+            <label className="block text-sm font-medium text-neutral-300">
               OAB
             </label>
             <div className="relative">
@@ -348,15 +349,15 @@ export default function ParceiroForm({
                 placeholder="Ex: SP123456"
                 maxLength={20}
                 className={cn(
-                  "w-full pl-12 pr-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200",
+                  "w-full pl-12 pr-4 py-3 bg-neutral-900/50 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 text-neutral-100 placeholder:text-neutral-500",
                   errors.oab
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-secondary-200 focus:border-primary-500 focus:ring-primary-500/20"
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 focus:border-amber-500/50 focus:ring-amber-500/20"
                 )}
               />
-              <Award className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400" />
+              <Award className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-500" />
               {errors.oab && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
+                <p className="mt-1 text-sm text-red-400 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.oab}
                 </p>
@@ -366,7 +367,7 @@ export default function ParceiroForm({
 
           {/* Email */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-secondary-700">
+            <label className="block text-sm font-medium text-neutral-300">
               Email
             </label>
             <div className="relative">
@@ -376,14 +377,14 @@ export default function ParceiroForm({
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="exemplo@email.com"
                 className={cn(
-                  "w-full pl-12 pr-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200",
+                  "w-full pl-12 pr-4 py-3 bg-neutral-900/50 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 text-neutral-100 placeholder:text-neutral-500",
                   errors.email
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-secondary-200 focus:border-primary-500 focus:ring-primary-500/20"
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 focus:border-amber-500/50 focus:ring-amber-500/20"
                 )}
               />
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -396,7 +397,7 @@ export default function ParceiroForm({
                 />
               </svg>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
+                <p className="mt-1 text-sm text-red-400 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.email}
                 </p>
@@ -406,7 +407,7 @@ export default function ParceiroForm({
 
           {/* Telefone */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-secondary-700">
+            <label className="block text-sm font-medium text-neutral-300">
               Telefone
             </label>
 
@@ -417,14 +418,14 @@ export default function ParceiroForm({
                 onChange={(e) => handleInputChange("telefone", e.target.value)}
                 placeholder="(11) 99999-9999"
                 className={cn(
-                  "w-full pl-12 pr-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200",
+                  "w-full pl-12 pr-4 py-3 bg-neutral-900/50 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 text-neutral-100 placeholder:text-neutral-500",
                   errors.telefone
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                    : "border-secondary-200 focus:border-primary-500 focus:ring-primary-500/20"
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                    : "border-neutral-700 focus:border-amber-500/50 focus:ring-amber-500/20"
                 )}
               />
               <svg
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -437,7 +438,7 @@ export default function ParceiroForm({
                 />
               </svg>
               {errors.telefone && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
+                <p className="mt-1 text-sm text-red-400 flex items-center">
                   <AlertCircle className="w-4 h-4 mr-1" />
                   {errors.telefone}
                 </p>
@@ -447,37 +448,37 @@ export default function ParceiroForm({
 
           {/* Selected Pessoa Fisica Details */}
           {selectedPessoaFisica && (
-            <div className="bg-secondary-50 rounded-xl p-4 space-y-3">
-              <h4 className="font-medium text-secondary-900 flex items-center">
+            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 space-y-3">
+              <h4 className="font-medium text-green-300 flex items-center">
                 <User className="w-4 h-4 mr-2" />
                 Dados da Pessoa Física Selecionada
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium text-secondary-600">Nome:</span>
-                  <span className="ml-2 text-secondary-900">
+                  <span className="font-medium text-green-400">Nome:</span>
+                  <span className="ml-2 text-green-200">
                     {selectedPessoaFisica.nome}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-secondary-600">CPF:</span>
-                  <span className="ml-2 text-secondary-900">
+                  <span className="font-medium text-green-400">CPF:</span>
+                  <span className="ml-2 text-green-200">
                     {selectedPessoaFisica.cpf}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-secondary-600">Email:</span>
-                  <span className="ml-2 text-secondary-900">
+                  <span className="font-medium text-green-400">Email:</span>
+                  <span className="ml-2 text-green-200">
                     {formData.email ||
                       selectedPessoaFisica.emailEmpresarial ||
                       "Não informado"}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium text-secondary-600">
+                  <span className="font-medium text-green-400">
                     Telefone:
                   </span>
-                  <span className="ml-2 text-secondary-900">
+                  <span className="ml-2 text-green-200">
                     {formData.telefone ||
                       selectedPessoaFisica.telefone1 ||
                       "Não informado"}
@@ -488,13 +489,13 @@ export default function ParceiroForm({
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t border-secondary-200/50">
+          <div className="flex items-center justify-end space-x-4 pt-6 border-t border-neutral-800">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 text-secondary-700 bg-secondary-100 hover:bg-secondary-200 rounded-xl font-medium transition-all duration-200"
+              className="px-6 py-3 text-neutral-300 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700 rounded-xl font-medium transition-all duration-200"
             >
               Cancelar
             </motion.button>
@@ -503,7 +504,7 @@ export default function ParceiroForm({
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-neutral-900 rounded-xl font-medium shadow-lg shadow-amber-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -533,15 +534,15 @@ export default function ParceiroForm({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-neutral-900/95 rounded-2xl shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden"
+            className="bg-neutral-900/95 backdrop-blur-xl rounded-2xl shadow-xl border border-neutral-800 max-w-4xl w-full max-h-[80vh] overflow-hidden"
           >
-            <div className="flex items-center justify-between p-6 border-b border-secondary-200/50">
-              <h3 className="text-lg font-semibold text-secondary-900">
+            <div className="flex items-center justify-between p-6 border-b border-neutral-800">
+              <h3 className="text-lg font-semibold text-neutral-100">
                 Selecionar Pessoa Física
               </h3>
               <button
                 onClick={() => setShowPessoaFisicaSelector(false)}
-                className="p-2 text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 rounded-lg transition-all duration-200"
+                className="p-2 text-neutral-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-200 border border-transparent hover:border-red-500/30"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -551,13 +552,13 @@ export default function ParceiroForm({
               {/* Search Controls */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Buscar por nome, CPF ou email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="w-full pl-10 pr-4 py-3 bg-neutral-900/50 border border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all duration-200 text-neutral-100 placeholder:text-neutral-500"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -566,13 +567,13 @@ export default function ParceiroForm({
                     placeholder="Buscar por CPF"
                     value={cpfSearch}
                     onChange={(e) => setCpfSearch(e.target.value)}
-                    className="px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                    className="px-4 py-3 bg-neutral-900/50 border border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent transition-all duration-200 text-neutral-100 placeholder:text-neutral-500"
                   />
                   <button
                     type="button"
                     onClick={handleBuscarPorCpf}
                     disabled={cpfSearch.length < 11}
-                    className="px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-3 bg-amber-500 hover:bg-amber-600 text-neutral-900 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Buscar
                   </button>
@@ -585,7 +586,7 @@ export default function ParceiroForm({
                   <button
                     type="button"
                     onClick={onNavigateToPessoaFisica}
-                    className="flex items-center space-x-2 px-4 py-2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg font-medium transition-all duration-200"
+                    className="flex items-center space-x-2 px-4 py-2 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg font-medium transition-all duration-200 border border-transparent hover:border-amber-500/30"
                   >
                     <Users className="w-4 h-4" />
                     <span>Cadastrar Nova Pessoa Física</span>
@@ -595,47 +596,47 @@ export default function ParceiroForm({
             </div>
 
             {/* Pessoas List */}
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-96 overflow-y-auto bg-neutral-900/30">
               {loadingPessoas ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
                 </div>
               ) : filteredPessoasFisicas.length === 0 ? (
                 <div className="text-center py-12">
-                  <Users className="w-16 h-16 text-secondary-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-secondary-900 mb-2">
+                  <Users className="w-16 h-16 text-neutral-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-neutral-200 mb-2">
                     Nenhuma pessoa encontrada
                   </h3>
-                  <p className="text-secondary-600">
+                  <p className="text-neutral-400">
                     Tente ajustar os termos de busca
                   </p>
                 </div>
               ) : (
-                <div className="divide-y divide-secondary-200/50">
+                <div className="divide-y divide-neutral-700">
                   {filteredPessoasFisicas.map((pessoa) => (
                     <motion.button
                       key={pessoa.id}
-                      whileHover={{ backgroundColor: "#f8fafc" }}
+                      whileHover={{ backgroundColor: "rgba(38, 38, 38, 0.5)" }}
                       onClick={() => handlePessoaFisicaSelect(pessoa)}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-secondary-50 transition-all duration-200"
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-neutral-800/50 transition-all duration-200"
                     >
                       <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-bold text-white">
+                        <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-bold text-neutral-900">
                             {pessoa.nome.charAt(0)}
                           </span>
                         </div>
                         <div>
-                          <h4 className="font-medium text-secondary-900">
+                          <h4 className="font-medium text-neutral-100">
                             {pessoa.nome}
                           </h4>
-                          <div className="flex items-center space-x-4 text-sm text-secondary-600">
+                          <div className="flex items-center space-x-4 text-sm text-neutral-400">
                             <span>{pessoa.cpf}</span>
                             <span>{pessoa.emailEmpresarial}</span>
                           </div>
                         </div>
                       </div>
-                      <ChevronDown className="w-5 h-5 text-secondary-400 transform rotate-[-90deg]" />
+                      <ChevronDown className="w-5 h-5 text-neutral-500 transform rotate-[-90deg]" />
                     </motion.button>
                   ))}
                 </div>
