@@ -124,10 +124,26 @@ const AnimatedStat = memo(
       return () => clearInterval(timer);
     }, [value]);
 
+    // Formatação para valores monetários (quando há prefix "R$ ")
+    const formatValue = (val: number) => {
+      if (prefix === "R$ ") {
+        // Formatação monetária brasileira
+        return val.toLocaleString("pt-BR", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        });
+      }
+      // Formatação padrão com separadores de milhares
+      return val.toLocaleString("pt-BR", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+    };
+
     return (
       <span className="tabular-nums">
         {prefix}
-        {displayValue.toFixed(decimals)}
+        {formatValue(displayValue)}
         {suffix}
       </span>
     );
@@ -241,6 +257,15 @@ export default function ModernDashboard() {
     error: estatisticasError,
     refreshData: refreshEstatisticas,
   } = useEstatisticas();
+
+  // Atualizar receita automaticamente a cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshEstatisticas();
+    }, 30000); // 30 segundos
+
+    return () => clearInterval(interval);
+  }, [refreshEstatisticas]);
 
   // Cálculo de clientes ativos dinâmico
   const clientesAtivos = useMemo(() => {
