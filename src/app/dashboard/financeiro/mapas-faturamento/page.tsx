@@ -63,13 +63,17 @@ type FiltroStatus = "todos" | "pendente" | "vencido" | "liquidado";
 
 export default function MapasFaturamentoPage() {
   const { boletos, loading, fetchBoletos } = useBoletos();
-  const [empresasExpandidas, setEmpresasExpandidas] = useState<Set<string>>(new Set());
+  const [empresasExpandidas, setEmpresasExpandidas] = useState<Set<string>>(
+    new Set()
+  );
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<FiltroStatus>("todos");
   const [ordenacao, setOrdenacao] = useState<OrdenacaoTipo>("nome");
   const [ordemAscendente, setOrdemAscendente] = useState(true);
   const [mostrarDetalhes, setMostrarDetalhes] = useState(false);
-  const [boletoSelecionado, setBoletoSelecionado] = useState<Boleto | null>(null);
+  const [boletoSelecionado, setBoletoSelecionado] = useState<Boleto | null>(
+    null
+  );
 
   useEffect(() => {
     fetchBoletos();
@@ -82,7 +86,12 @@ export default function MapasFaturamentoPage() {
     const faturas: FaturaDetalhada[] = boletos.map((boleto) => {
       const hoje = new Date();
       const vencimento = new Date(boleto.dueDate);
-      const diasAtraso = Math.max(0, Math.floor((hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24)));
+      const diasAtraso = Math.max(
+        0,
+        Math.floor(
+          (hoje.getTime() - vencimento.getTime()) / (1000 * 60 * 60 * 24)
+        )
+      );
 
       let status: FaturaDetalhada["status"] = "PENDENTE";
       if (boleto.status === "LIQUIDADO" || boleto.status === "BAIXADO") {
@@ -98,8 +107,10 @@ export default function MapasFaturamentoPage() {
       return {
         id: boleto.id,
         boletoId: boleto.id,
-        clienteNome: boleto.contrato?.clienteNome || boleto.payerName || "Sem nome",
-        clienteDocumento: boleto.contrato?.clienteDocumento || boleto.payerDocumentNumber || "",
+        clienteNome:
+          boleto.contrato?.clienteNome || boleto.payerName || "Sem nome",
+        clienteDocumento:
+          boleto.contrato?.clienteDocumento || boleto.payerDocumentNumber || "",
         numeroContrato: boleto.contrato?.numeroContrato || "",
         valor: boleto.nominalValue,
         dataVencimento: boleto.dueDate,
@@ -168,7 +179,9 @@ export default function MapasFaturamentoPage() {
         (empresa) =>
           empresa.nome.toLowerCase().includes(termoBusca) ||
           empresa.documento.includes(termoBusca) ||
-          empresa.faturas.some((f) => f.numeroContrato.toLowerCase().includes(termoBusca))
+          empresa.faturas.some((f) =>
+            f.numeroContrato.toLowerCase().includes(termoBusca)
+          )
       );
     }
 
@@ -259,7 +272,10 @@ export default function MapasFaturamentoPage() {
       return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     }
     if (cleaned.length === 14) {
-      return cleaned.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+      return cleaned.replace(
+        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+        "$1.$2.$3/$4-$5"
+      );
     }
     return doc;
   };
@@ -327,7 +343,9 @@ export default function MapasFaturamentoPage() {
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
           <div className="text-center">
             <RefreshCw className="w-12 h-12 animate-spin text-gold-500 mx-auto mb-4" />
-            <p className="text-neutral-400">Carregando mapas de faturamento...</p>
+            <p className="text-neutral-400">
+              Carregando mapas de faturamento...
+            </p>
           </div>
         </div>
       </MainLayout>
@@ -356,7 +374,7 @@ export default function MapasFaturamentoPage() {
               </div>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={fetchBoletos}
+                  onClick={() => fetchBoletos()}
                   className="p-3 bg-neutral-800 hover:bg-neutral-700 rounded-xl transition-colors"
                   title="Atualizar dados"
                 >
@@ -471,7 +489,9 @@ export default function MapasFaturamentoPage() {
               <div className="flex flex-wrap gap-3">
                 <select
                   value={filtroStatus}
-                  onChange={(e) => setFiltroStatus(e.target.value as FiltroStatus)}
+                  onChange={(e) =>
+                    setFiltroStatus(e.target.value as FiltroStatus)
+                  }
                   className="px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 >
                   <option value="todos">Todos os Status</option>
@@ -482,7 +502,9 @@ export default function MapasFaturamentoPage() {
 
                 <select
                   value={ordenacao}
-                  onChange={(e) => setOrdenacao(e.target.value as OrdenacaoTipo)}
+                  onChange={(e) =>
+                    setOrdenacao(e.target.value as OrdenacaoTipo)
+                  }
                   className="px-4 py-3 bg-neutral-800/50 border border-neutral-700 rounded-xl text-neutral-100 focus:outline-none focus:ring-2 focus:ring-gold-500"
                 >
                   <option value="nome">Ordenar por Nome</option>
@@ -494,7 +516,9 @@ export default function MapasFaturamentoPage() {
                 <button
                   onClick={() => setOrdemAscendente(!ordemAscendente)}
                   className="p-3 bg-neutral-800/50 hover:bg-neutral-700 border border-neutral-700 rounded-xl transition-colors"
-                  title={ordemAscendente ? "Ordem crescente" : "Ordem decrescente"}
+                  title={
+                    ordemAscendente ? "Ordem crescente" : "Ordem decrescente"
+                  }
                 >
                   <ArrowUpDown className="w-5 h-5 text-neutral-300" />
                 </button>
@@ -522,7 +546,9 @@ export default function MapasFaturamentoPage() {
             {empresasFiltradas.length === 0 ? (
               <div className="bg-neutral-900/95 backdrop-blur-xl rounded-xl border border-neutral-800 p-12 text-center">
                 <Users className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
-                <p className="text-xl text-neutral-400 mb-2">Nenhuma empresa encontrada</p>
+                <p className="text-xl text-neutral-400 mb-2">
+                  Nenhuma empresa encontrada
+                </p>
                 <p className="text-sm text-neutral-500">
                   Tente ajustar os filtros ou realizar uma nova busca
                 </p>
@@ -530,9 +556,10 @@ export default function MapasFaturamentoPage() {
             ) : (
               empresasFiltradas.map((empresa, index) => {
                 const isExpanded = empresasExpandidas.has(empresa.id);
-                const taxaLiquidacao = empresa.totalBoletos > 0
-                  ? (empresa.boletosLiquidados / empresa.totalBoletos) * 100
-                  : 0;
+                const taxaLiquidacao =
+                  empresa.totalBoletos > 0
+                    ? (empresa.boletosLiquidados / empresa.totalBoletos) * 100
+                    : 0;
 
                 return (
                   <motion.div
@@ -565,7 +592,9 @@ export default function MapasFaturamentoPage() {
                               {empresa.nome}
                             </h3>
                             <p className="text-sm text-neutral-400">
-                              {formatDocument(empresa.documento)} • {empresa.totalBoletos} boleto{empresa.totalBoletos !== 1 ? "s" : ""}
+                              {formatDocument(empresa.documento)} •{" "}
+                              {empresa.totalBoletos} boleto
+                              {empresa.totalBoletos !== 1 ? "s" : ""}
                             </p>
                           </div>
                         </div>
@@ -575,24 +604,29 @@ export default function MapasFaturamentoPage() {
                           <div className="flex gap-3">
                             {empresa.boletosVencidos > 0 && (
                               <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-lg text-sm font-medium">
-                                {empresa.boletosVencidos} vencido{empresa.boletosVencidos !== 1 ? "s" : ""}
+                                {empresa.boletosVencidos} vencido
+                                {empresa.boletosVencidos !== 1 ? "s" : ""}
                               </span>
                             )}
                             {empresa.boletosPendentes > 0 && (
                               <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm font-medium">
-                                {empresa.boletosPendentes} pendente{empresa.boletosPendentes !== 1 ? "s" : ""}
+                                {empresa.boletosPendentes} pendente
+                                {empresa.boletosPendentes !== 1 ? "s" : ""}
                               </span>
                             )}
                             {empresa.boletosLiquidados > 0 && (
                               <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-lg text-sm font-medium">
-                                {empresa.boletosLiquidados} liquidado{empresa.boletosLiquidados !== 1 ? "s" : ""}
+                                {empresa.boletosLiquidados} liquidado
+                                {empresa.boletosLiquidados !== 1 ? "s" : ""}
                               </span>
                             )}
                           </div>
 
                           {/* Valor Total */}
                           <div className="text-right">
-                            <p className="text-sm text-neutral-400">Valor Total</p>
+                            <p className="text-sm text-neutral-400">
+                              Valor Total
+                            </p>
                             <p className="text-xl font-bold text-neutral-50">
                               {formatCurrency(empresa.valorTotal)}
                             </p>
@@ -603,7 +637,9 @@ export default function MapasFaturamentoPage() {
                       {/* Barra de Progresso */}
                       <div className="mt-4">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-neutral-400">Taxa de Liquidação</span>
+                          <span className="text-xs text-neutral-400">
+                            Taxa de Liquidação
+                          </span>
                           <span className="text-xs font-medium text-green-400">
                             {taxaLiquidacao.toFixed(1)}%
                           </span>
@@ -635,7 +671,9 @@ export default function MapasFaturamentoPage() {
                               <div className="bg-neutral-900/50 rounded-lg p-4">
                                 <div className="flex items-center gap-2 mb-2">
                                   <Receipt className="w-4 h-4 text-neutral-400" />
-                                  <span className="text-sm text-neutral-400">Pendente</span>
+                                  <span className="text-sm text-neutral-400">
+                                    Pendente
+                                  </span>
                                 </div>
                                 <p className="text-lg font-semibold text-yellow-400">
                                   {formatCurrency(empresa.valorPendente)}
@@ -644,7 +682,9 @@ export default function MapasFaturamentoPage() {
                               <div className="bg-neutral-900/50 rounded-lg p-4">
                                 <div className="flex items-center gap-2 mb-2">
                                   <AlertTriangle className="w-4 h-4 text-neutral-400" />
-                                  <span className="text-sm text-neutral-400">Vencido</span>
+                                  <span className="text-sm text-neutral-400">
+                                    Vencido
+                                  </span>
                                 </div>
                                 <p className="text-lg font-semibold text-red-400">
                                   {formatCurrency(empresa.valorVencido)}
@@ -653,7 +693,9 @@ export default function MapasFaturamentoPage() {
                               <div className="bg-neutral-900/50 rounded-lg p-4">
                                 <div className="flex items-center gap-2 mb-2">
                                   <CheckCircle className="w-4 h-4 text-neutral-400" />
-                                  <span className="text-sm text-neutral-400">Liquidado</span>
+                                  <span className="text-sm text-neutral-400">
+                                    Liquidado
+                                  </span>
                                 </div>
                                 <p className="text-lg font-semibold text-green-400">
                                   {formatCurrency(empresa.valorLiquidado)}
@@ -662,7 +704,9 @@ export default function MapasFaturamentoPage() {
                               <div className="bg-neutral-900/50 rounded-lg p-4">
                                 <div className="flex items-center gap-2 mb-2">
                                   <BarChart3 className="w-4 h-4 text-neutral-400" />
-                                  <span className="text-sm text-neutral-400">Total</span>
+                                  <span className="text-sm text-neutral-400">
+                                    Total
+                                  </span>
                                 </div>
                                 <p className="text-lg font-semibold text-gold-400">
                                   {formatCurrency(empresa.valorTotal)}
@@ -673,64 +717,81 @@ export default function MapasFaturamentoPage() {
                             {/* Lista de Boletos */}
                             <div className="space-y-3">
                               {empresa.faturas
-                                .sort((a, b) => new Date(a.dataVencimento).getTime() - new Date(b.dataVencimento).getTime())
+                                .sort(
+                                  (a, b) =>
+                                    new Date(a.dataVencimento).getTime() -
+                                    new Date(b.dataVencimento).getTime()
+                                )
                                 .map((fatura) => (
-                                <motion.div
-                                  key={fatura.id}
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  className="bg-neutral-900/70 rounded-lg p-4 flex items-center justify-between hover:bg-neutral-900 transition-colors"
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <div className="p-2 bg-neutral-800 rounded-lg">
-                                      <FileText className="w-4 h-4 text-neutral-400" />
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-medium text-neutral-200">
-                                        {fatura.numeroContrato || "Sem contrato"}
-                                      </p>
-                                      <div className="flex items-center gap-3 mt-1">
-                                        <span className="text-xs text-neutral-400">
-                                          Boleto #{fatura.boletoId}
-                                        </span>
-                                        <span className="text-xs text-neutral-500">•</span>
-                                        <span className="text-xs text-neutral-400 flex items-center gap-1">
-                                          <Calendar className="w-3 h-3" />
-                                          {formatDate(fatura.dataVencimento)}
-                                        </span>
-                                        {fatura.diasAtraso > 0 && (
-                                          <>
-                                            <span className="text-xs text-neutral-500">•</span>
-                                            <span className="text-xs text-red-400">
-                                              {fatura.diasAtraso} dia{fatura.diasAtraso !== 1 ? "s" : ""} atraso
-                                            </span>
-                                          </>
-                                        )}
+                                  <motion.div
+                                    key={fatura.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="bg-neutral-900/70 rounded-lg p-4 flex items-center justify-between hover:bg-neutral-900 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-4">
+                                      <div className="p-2 bg-neutral-800 rounded-lg">
+                                        <FileText className="w-4 h-4 text-neutral-400" />
+                                      </div>
+                                      <div>
+                                        <p className="text-sm font-medium text-neutral-200">
+                                          {fatura.numeroContrato ||
+                                            "Sem contrato"}
+                                        </p>
+                                        <div className="flex items-center gap-3 mt-1">
+                                          <span className="text-xs text-neutral-400">
+                                            Boleto #{fatura.boletoId}
+                                          </span>
+                                          <span className="text-xs text-neutral-500">
+                                            •
+                                          </span>
+                                          <span className="text-xs text-neutral-400 flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" />
+                                            {formatDate(fatura.dataVencimento)}
+                                          </span>
+                                          {fatura.diasAtraso > 0 && (
+                                            <>
+                                              <span className="text-xs text-neutral-500">
+                                                •
+                                              </span>
+                                              <span className="text-xs text-red-400">
+                                                {fatura.diasAtraso} dia
+                                                {fatura.diasAtraso !== 1
+                                                  ? "s"
+                                                  : ""}{" "}
+                                                atraso
+                                              </span>
+                                            </>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
 
-                                  <div className="flex items-center gap-4">
-                                    <span className={`px-3 py-1 rounded-lg text-xs font-medium border ${getStatusColor(fatura.status)}`}>
-                                      {getStatusLabel(fatura.status)}
-                                    </span>
-                                    <div className="text-right">
-                                      <p className="text-lg font-semibold text-neutral-50">
-                                        {formatCurrency(fatura.valor)}
-                                      </p>
+                                    <div className="flex items-center gap-4">
+                                      <span
+                                        className={`px-3 py-1 rounded-lg text-xs font-medium border ${getStatusColor(
+                                          fatura.status
+                                        )}`}
+                                      >
+                                        {getStatusLabel(fatura.status)}
+                                      </span>
+                                      <div className="text-right">
+                                        <p className="text-lg font-semibold text-neutral-50">
+                                          {formatCurrency(fatura.valor)}
+                                        </p>
+                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleVerDetalhes(fatura.boleto);
+                                        }}
+                                        className="p-2 hover:bg-gold-500/20 rounded-lg transition-colors"
+                                      >
+                                        <Eye className="w-4 h-4 text-gold-400" />
+                                      </button>
                                     </div>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleVerDetalhes(fatura.boleto);
-                                      }}
-                                      className="p-2 hover:bg-gold-500/20 rounded-lg transition-colors"
-                                    >
-                                      <Eye className="w-4 h-4 text-gold-400" />
-                                    </button>
-                                  </div>
-                                </motion.div>
-                              ))}
+                                  </motion.div>
+                                ))}
                             </div>
                           </div>
                         </motion.div>
@@ -790,14 +851,20 @@ export default function MapasFaturamentoPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-neutral-400 mb-1">Vencimento</p>
+                      <p className="text-sm text-neutral-400 mb-1">
+                        Vencimento
+                      </p>
                       <p className="text-lg font-medium text-neutral-100">
                         {formatDate(boletoSelecionado.dueDate)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-neutral-400 mb-1">Status</p>
-                      <span className={`inline-flex px-3 py-1 rounded-lg text-sm font-medium border ${getStatusColor(boletoSelecionado.status)}`}>
+                      <span
+                        className={`inline-flex px-3 py-1 rounded-lg text-sm font-medium border ${getStatusColor(
+                          boletoSelecionado.status
+                        )}`}
+                      >
                         {getStatusLabel(boletoSelecionado.status)}
                       </span>
                     </div>
@@ -810,13 +877,16 @@ export default function MapasFaturamentoPage() {
                     </h3>
                     <div className="space-y-2">
                       <p className="text-neutral-300">
-                        <span className="text-neutral-400">Nome:</span> {boletoSelecionado.payerName}
+                        <span className="text-neutral-400">Nome:</span>{" "}
+                        {boletoSelecionado.payerName}
                       </p>
                       <p className="text-neutral-300">
-                        <span className="text-neutral-400">Documento:</span> {formatDocument(boletoSelecionado.payerDocumentNumber)}
+                        <span className="text-neutral-400">Documento:</span>{" "}
+                        {formatDocument(boletoSelecionado.payerDocumentNumber)}
                       </p>
                       <p className="text-neutral-300">
-                        <span className="text-neutral-400">Endereço:</span> {boletoSelecionado.payerAddress}
+                        <span className="text-neutral-400">Endereço:</span>{" "}
+                        {boletoSelecionado.payerAddress}
                       </p>
                     </div>
                   </div>
