@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import error from "next/error";
 import { formatDate } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function BoletosPage() {
   const {
@@ -401,31 +402,37 @@ export default function BoletosPage() {
                 label: "Total",
                 value: stats.total,
                 icon: FileText,
+                isWide: false,
               },
               {
                 label: "Valor Total",
                 value: formatCurrency(stats.totalValue),
                 icon: DollarSign,
+                isWide: true,
               },
               {
                 label: "Cancelados",
                 value: stats.pendentes,
                 icon: Clock,
+                isWide: false,
               },
               {
                 label: "Registrados",
                 value: stats.registrados,
                 icon: CreditCard,
+                isWide: false,
               },
               {
                 label: "Pagos",
                 value: stats.liquidados,
                 icon: CheckCircle,
+                isWide: false,
               },
               {
                 label: "Vencidos",
                 value: stats.vencidos,
                 icon: AlertTriangle,
+                isWide: false,
               },
             ].map((stat, index) => (
               <motion.div
@@ -433,7 +440,10 @@ export default function BoletosPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all"
+                className={cn(
+                  "bg-neutral-900/95 backdrop-blur-xl p-6 rounded-xl border border-neutral-800 hover:border-gold-500/30 hover:shadow-lg hover:shadow-gold-500/10 transition-all",
+                  stat.isWide && "md:col-span-2 lg:col-span-2"
+                )}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30">
@@ -441,7 +451,10 @@ export default function BoletosPage() {
                   </div>
                 </div>
                 <p className="text-neutral-400 text-sm mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-neutral-50">
+                <p className={cn(
+                  "font-bold text-neutral-50 break-words",
+                  stat.isWide ? "text-2xl" : "text-3xl"
+                )}>
                   {stat.value}
                 </p>
               </motion.div>

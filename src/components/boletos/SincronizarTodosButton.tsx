@@ -35,7 +35,7 @@ export function SincronizarTodosButton({
         {syncing ? (
           <>Sincronizando todos os boletos...</>
         ) : (
-          <>🔄 Sincronizar Todos os Boletos</>
+          <>Sincronizar Todos os Boletos</>
         )}
       </button>
 
