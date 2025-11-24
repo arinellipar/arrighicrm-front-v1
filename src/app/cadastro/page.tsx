@@ -32,6 +32,14 @@ interface FormErrors {
   general?: string;
 }
 
+interface PessoaFisicaApiResponse {
+  id: number;
+  nome: string;
+  cpf: string;
+  emailEmpresarial?: string | null;
+  emailPessoal?: string | null;
+}
+
 interface PasswordRequirement {
   id: string;
   label: string;
@@ -68,6 +76,9 @@ export default function CadastroPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [, setPessoaFisicaInfo] = useState<PessoaFisicaApiResponse | null>(
+    null
+  );
 
   // Validação de CPF
   const validateCPF = (cpf: string): boolean => {
@@ -111,7 +122,9 @@ export default function CadastroPage() {
   };
 
   // Verificar CPF no banco de dados (verifica se já tem USUÁRIO com esse CPF)
-  const checkCPFExists = async (cpf: string): Promise<{ exists: boolean; message?: string }> => {
+  const checkCPFExists = async (
+    cpf: string
+  ): Promise<{ exists: boolean; message?: string }> => {
     try {
       const cleanCPF = cpf.replace(/\D/g, "");
       const response = await apiClient.get<{
@@ -128,7 +141,7 @@ export default function CadastroPage() {
       if (!response.data.disponivel) {
         return {
           exists: true,
-          message: response.data.mensagem
+          message: response.data.mensagem,
         };
       }
 
@@ -143,6 +156,7 @@ export default function CadastroPage() {
     (field: keyof FormData, value: string) => {
       if (field === "cpf") {
         value = formatCPF(value);
+        setPessoaFisicaInfo(null);
       }
 
       setFormData((prev) => ({ ...prev, [field]: value }));
@@ -155,8 +169,40 @@ export default function CadastroPage() {
     [errors]
   );
 
-  const validateForm = async (): Promise<boolean> => {
+  const fetchPessoaFisicaByCpf = async (
+    cpf: string
+  ): Promise<PessoaFisicaApiResponse | null> => {
+    try {
+      const cleanCPF = cpf.replace(/\D/g, "");
+      const response = await apiClient.get<PessoaFisicaApiResponse | undefined>(
+        `/PessoaFisica/buscar-por-cpf/${cleanCPF}`
+      );
+
+      if (response.error || !response.data) {
+        return null;
+      }
+
+      const pessoa = response.data;
+      return {
+        id: (pessoa as any).id ?? (pessoa as any).Id ?? pessoa.id,
+        nome: (pessoa as any).nome ?? (pessoa as any).Nome ?? "",
+        cpf: (pessoa as any).cpf ?? (pessoa as any).Cpf ?? cleanCPF,
+        emailEmpresarial:
+          (pessoa as any).emailEmpresarial ?? (pessoa as any).EmailEmpresarial,
+        emailPessoal:
+          (pessoa as any).emailPessoal ?? (pessoa as any).EmailPessoal,
+      };
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const validateForm = async (): Promise<{
+    isValid: boolean;
+    pessoaFisica?: PessoaFisicaApiResponse | null;
+  }> => {
     const newErrors: FormErrors = {};
+    let pessoaFisicaEncontrada: PessoaFisicaApiResponse | null = null;
 
     // Validar CPF
     if (!formData.cpf.trim()) {
@@ -167,7 +213,15 @@ export default function CadastroPage() {
       // Verificar se CPF já tem USUÁRIO cadastrado no sistema
       const cpfCheck = await checkCPFExists(formData.cpf);
       if (cpfCheck.exists) {
-        newErrors.cpf = cpfCheck.message || "CPF já cadastrado no sistema. Faça login ou recupere sua senha.";
+        newErrors.cpf =
+          cpfCheck.message ||
+          "CPF já cadastrado no sistema. Faça login ou recupere sua senha.";
+      } else {
+        pessoaFisicaEncontrada = await fetchPessoaFisicaByCpf(formData.cpf);
+        if (!pessoaFisicaEncontrada) {
+          newErrors.cpf =
+            "CPF não encontrado como Pessoa Física. Verifique se o cadastro existe no sistema.";
+        }
       }
     }
 
@@ -185,8 +239,12 @@ export default function CadastroPage() {
       newErrors.confirmarSenha = "Senhas não coincidem";
     }
 
+    setPessoaFisicaInfo(pessoaFisicaEncontrada);
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return {
+      isValid: Object.keys(newErrors).length === 0,
+      pessoaFisica: pessoaFisicaEncontrada,
+    };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -196,22 +254,32 @@ export default function CadastroPage() {
     setErrors({});
 
     try {
-      const isValid = await validateForm();
-      if (!isValid) {
+      const { isValid, pessoaFisica } = await validateForm();
+      if (!isValid || !pessoaFisica) {
+        if (isValid && !pessoaFisica) {
+          setErrors({
+            general:
+              "Não foi possível localizar os dados da Pessoa Física. Verifique o CPF ou contate o suporte.",
+          });
+        }
         setLoading(false);
         return;
       }
 
       // Aqui você implementaria a criação do usuário
       const cleanCPF = formData.cpf.replace(/\D/g, "");
+      const emailParaCadastro =
+        pessoaFisica.emailEmpresarial ||
+        pessoaFisica.emailPessoal ||
+        `${cleanCPF}@temp.com`;
 
       // Criar usuário usando o endpoint correto
       const response = await apiClient.post("/Usuario/create", {
         Login: cleanCPF,
-        Email: `${cleanCPF}@temp.com`, // Email temporário, será atualizado depois
+        Email: emailParaCadastro,
         Senha: formData.senha,
         TipoPessoa: "Fisica",
-        PessoaFisicaId: null, // Será criado automaticamente se necessário
+        PessoaFisicaId: pessoaFisica.id,
         PessoaJuridicaId: null,
         FilialId: null,
         ConsultorId: null,
@@ -282,8 +350,14 @@ export default function CadastroPage() {
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-600/10 rounded-full blur-3xl opacity-20 animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl opacity-30 animate-pulse"
+          style={{ animationDuration: "4s" }}
+        />
+        <div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-600/10 rounded-full blur-3xl opacity-20 animate-pulse"
+          style={{ animationDuration: "6s", animationDelay: "2s" }}
+        />
       </div>
 
       <motion.div
