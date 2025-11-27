@@ -53,7 +53,11 @@ import { motion } from "framer-motion";
 import { useEstatisticas } from "@/hooks/useEstatisticas";
 import { useClientes } from "@/hooks/useClientes";
 import { useSessoesAtivas } from "@/hooks/useSessoesAtivas";
+import { useRiscoInadimplencia } from "@/hooks/useRiscoInadimplencia";
+import { useForecast } from "@/hooks/useForecast";
 import { useAuth } from "@/contexts/AuthContext";
+import { RiscoInadimplenciaModal } from "./RiscoInadimplenciaModal";
+import { ForecastModal } from "./ForecastModal";
 
 // --- Styled Components (using sx prop for better performance in MUI v5+) ---
 
@@ -831,6 +835,322 @@ const SessoesAtivasCard = () => {
   );
 };
 
+// Card de Risco de Inadimplência
+const RiscoInadimplenciaCard = () => {
+  const theme = useTheme();
+  const { resumo, loading } = useRiscoInadimplencia();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const getRiskColor = (nivel: string) => {
+    switch (nivel) {
+      case "Alto":
+        return "#ef4444";
+      case "Médio":
+        return "#f59e0b";
+      case "Baixo":
+        return "#10b981";
+      default:
+        return "#6b7280";
+    }
+  };
+
+  return (
+    <>
+      <Paper
+        elevation={0}
+        onClick={() => setModalOpen(true)}
+        sx={{
+          p: 3,
+          height: "100%",
+          background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.action.hover} 100%)`,
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          borderRadius: 3,
+          position: "relative",
+          overflow: "hidden",
+          cursor: "pointer",
+          transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+          "&:hover": {
+            transform: "translateY(-5px)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: -20,
+            right: -20,
+            width: 100,
+            height: 100,
+            borderRadius: "50%",
+            background: "#ef4444",
+            opacity: 0.1,
+            filter: "blur(30px)",
+          }}
+        />
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="flex-start"
+        >
+          <Box sx={{ width: "100%" }}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
+              <Typography variant="subtitle2" color="text.secondary">
+                Risco Inadimplência
+              </Typography>
+              <Chip
+                label={
+                  loading
+                    ? "..."
+                    : `${resumo?.clientesAltoRisco || 0} alto risco`
+                }
+                size="small"
+                sx={{
+                  bgcolor: "rgba(239, 68, 68, 0.1)",
+                  color: "#ef4444",
+                  fontWeight: "bold",
+                  fontSize: "0.7rem",
+                }}
+              />
+            </Box>
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              sx={{ mb: 2, color: "#ef4444" }}
+            >
+              {loading ? "..." : resumo?.clientesAltoRisco || 0}
+            </Typography>
+
+            {/* Resumo de risco */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Circle sx={{ fontSize: 8, color: "#ef4444" }} />
+                  <Typography variant="caption" color="text.secondary">
+                    Alto Risco
+                  </Typography>
+                </Box>
+                <Typography variant="caption" fontWeight="bold" color="#ef4444">
+                  {resumo?.clientesAltoRisco || 0}
+                </Typography>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Circle sx={{ fontSize: 8, color: "#f59e0b" }} />
+                  <Typography variant="caption" color="text.secondary">
+                    Médio Risco
+                  </Typography>
+                </Box>
+                <Typography variant="caption" fontWeight="bold" color="#f59e0b">
+                  {resumo?.clientesMedioRisco || 0}
+                </Typography>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Circle sx={{ fontSize: 8, color: "#10b981" }} />
+                  <Typography variant="caption" color="text.secondary">
+                    Baixo Risco
+                  </Typography>
+                </Box>
+                <Typography variant="caption" fontWeight="bold" color="#10b981">
+                  {resumo?.clientesBaixoRisco || 0}
+                </Typography>
+              </Box>
+              {resumo?.valorTotalEmRisco && resumo.valorTotalEmRisco > 0 && (
+                <Box
+                  sx={{
+                    mt: 1,
+                    pt: 1,
+                    borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    Valor em risco:
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="#ef4444">
+                    R${" "}
+                    {resumo.valorTotalEmRisco.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </Box>
+      </Paper>
+
+      <RiscoInadimplenciaModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
+    </>
+  );
+};
+
+// Card de Previsão de Receita (Forecast)
+const ForecastCard = () => {
+  const theme = useTheme();
+  const { resumo, loading } = useForecast();
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const formatCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `R$ ${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `R$ ${(value / 1000).toFixed(1)}K`;
+    }
+    return `R$ ${value.toFixed(0)}`;
+  };
+
+  return (
+    <>
+      <Paper
+        elevation={0}
+        onClick={() => setModalOpen(true)}
+        sx={{
+          p: 3,
+          height: "100%",
+          background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.action.hover} 100%)`,
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          borderRadius: 3,
+          position: "relative",
+          overflow: "hidden",
+          cursor: "pointer",
+          transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+          "&:hover": {
+            transform: "translateY(-5px)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: -20,
+            right: -20,
+            width: 100,
+            height: 100,
+            borderRadius: "50%",
+            background: "#3b82f6",
+            opacity: 0.1,
+            filter: "blur(30px)",
+          }}
+        />
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="flex-start"
+        >
+          <Box sx={{ width: "100%" }}>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mb={2}
+            >
+              <Typography variant="subtitle2" color="text.secondary">
+                Previsão de Receita
+              </Typography>
+              <Chip
+                icon={<TrendingUp sx={{ fontSize: 12 }} />}
+                label="Forecast"
+                size="small"
+                sx={{
+                  bgcolor: "rgba(59, 130, 246, 0.1)",
+                  color: "#3b82f6",
+                  fontWeight: "bold",
+                  fontSize: "0.7rem",
+                }}
+              />
+            </Box>
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              sx={{ mb: 2, color: "#3b82f6" }}
+            >
+              {loading
+                ? "..."
+                : formatCurrency(resumo?.receitaEsperadaMesAtual || 0)}
+            </Typography>
+
+            {/* Resumo do forecast */}
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="caption" color="text.secondary">
+                  Este mês
+                </Typography>
+                <Typography variant="caption" fontWeight="bold" color="#10b981">
+                  {formatCurrency(resumo?.receitaEsperadaMesAtual || 0)}
+                </Typography>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="caption" color="text.secondary">
+                  Próximo mês
+                </Typography>
+                <Typography variant="caption" fontWeight="bold" color="#3b82f6">
+                  {formatCurrency(resumo?.receitaEsperadaProximoMes || 0)}
+                </Typography>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography variant="caption" color="text.secondary">
+                  Pipeline
+                </Typography>
+                <Typography variant="caption" fontWeight="bold" color="#8b5cf6">
+                  {formatCurrency(resumo?.receitaPipelineEstimada || 0)}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  mt: 1,
+                  pt: 1,
+                  borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+                }}
+              >
+                <Typography variant="caption" color="text.secondary">
+                  {resumo?.totalBoletosAVencer || 0} boletos a vencer
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Paper>
+
+      <ForecastModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+    </>
+  );
+};
+
 export default function DashboardMUI() {
   const theme = useTheme();
   const { receita, loading: statsLoading } = useEstatisticas();
@@ -1035,6 +1355,28 @@ export default function DashboardMUI() {
                 color="#8b5cf6"
               />
             )}
+          </motion.div>
+        </Grid>
+        {/* Card de Risco de Inadimplência */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            style={{ height: "100%" }}
+          >
+            <RiscoInadimplenciaCard />
+          </motion.div>
+        </Grid>
+        {/* Card de Previsão de Receita (Forecast) */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            style={{ height: "100%" }}
+          >
+            <ForecastCard />
           </motion.div>
         </Grid>
       </Grid>

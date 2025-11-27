@@ -32,14 +32,17 @@ import {
   Calendar,
   FileCheck,
   CreditCard,
+  AlertTriangle,
 } from "lucide-react";
 import { useAtividadeContext } from "@/contexts/AtividadeContext";
 import { formatRelativeTime } from "@/lib/formatUtils";
 import { useClientes } from "@/hooks/useClientes";
 import { useSessoesAtivas } from "@/hooks/useSessoesAtivas";
 import { useEstatisticas } from "@/hooks/useEstatisticas";
+import { useRiscoInadimplencia } from "@/hooks/useRiscoInadimplencia";
 import { useAuth } from "@/contexts/AuthContext";
 import { SessoesAtivasModal } from "./SessoesAtivasModal";
+import { RiscoInadimplenciaModal } from "./RiscoInadimplenciaModal";
 
 // Componente de Card Moderno com Glassmorphism - Otimizado com memo
 const GlassCard = memo(
@@ -229,6 +232,7 @@ export default function ModernDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
   const [refreshing, setRefreshing] = useState(false);
   const [sessoesModalOpen, setSessoesModalOpen] = useState(false);
+  const [riscoModalOpen, setRiscoModalOpen] = useState(false);
 
   // Contexto de atividades
   const { obterAtividadesRecentes } = useAtividadeContext();
@@ -257,6 +261,10 @@ export default function ModernDashboard() {
     error: estatisticasError,
     refreshData: refreshEstatisticas,
   } = useEstatisticas();
+
+  // Hook para análise de risco de inadimplência
+  const { resumo: resumoRisco, loading: riscoLoading } =
+    useRiscoInadimplencia();
 
   // Atualizar receita automaticamente a cada 30 segundos
   useEffect(() => {
@@ -350,12 +358,12 @@ export default function ModernDashboard() {
           <div
             className="absolute top-0 left-1/4 w-96 h-96 bg-gold-500/10
                        rounded-full blur-3xl opacity-30 animate-pulse"
-            style={{ animationDuration: '4s' }}
+            style={{ animationDuration: "4s" }}
           />
           <div
             className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-600/10
                        rounded-full blur-3xl opacity-20 animate-pulse"
-            style={{ animationDuration: '6s', animationDelay: '2s' }}
+            style={{ animationDuration: "6s", animationDelay: "2s" }}
           />
 
           {/* Accent Lines */}
@@ -387,12 +395,12 @@ export default function ModernDashboard() {
                       <Sparkles className="w-7 h-7 text-neutral-950" />
                     </div>
                     <div>
-                      <h1
-                        className="text-xl font-bold text-gradient-gold"
-                      >
+                      <h1 className="text-xl font-bold text-gradient-gold">
                         CRM Tributário
                       </h1>
-                      <p className="text-xs text-neutral-400">Enterprise Platform</p>
+                      <p className="text-xs text-neutral-400">
+                        Enterprise Platform
+                      </p>
                     </div>
                   </motion.div>
                   <button
@@ -427,7 +435,9 @@ export default function ModernDashboard() {
                           />
                           <span
                             className={`font-medium ${
-                              item.active ? "text-neutral-50" : "text-neutral-400"
+                              item.active
+                                ? "text-neutral-50"
+                                : "text-neutral-400"
                             }`}
                           >
                             {item.label}
@@ -508,7 +518,11 @@ export default function ModernDashboard() {
                 >
                   <RefreshCw
                     className={`w-5 h-5 text-neutral-300
-                                        ${refreshing ? "animate-spin text-gold-400" : ""}`}
+                                        ${
+                                          refreshing
+                                            ? "animate-spin text-gold-400"
+                                            : ""
+                                        }`}
                   />
                 </motion.button>
 
@@ -585,19 +599,20 @@ export default function ModernDashboard() {
                     },
                   ]
                 : [
-              {
-                title: "Taxa de Conversão",
-                value: estatisticasLoading ? 0 : stats.conversionRate,
-                change: `${stats.conversionRate > 0 ? "+" : ""}${
-                  stats.conversionRate
-                }%`,
-                changeType: stats.conversionRate >= 0 ? "positive" : "negative",
-                icon: Target,
-                color: "from-orange-500 to-red-500",
-                bgColor: "from-orange-500/20 to-red-500/20",
-                suffix: "%",
-                loading: estatisticasLoading,
-              },
+                    {
+                      title: "Taxa de Conversão",
+                      value: estatisticasLoading ? 0 : stats.conversionRate,
+                      change: `${stats.conversionRate > 0 ? "+" : ""}${
+                        stats.conversionRate
+                      }%`,
+                      changeType:
+                        stats.conversionRate >= 0 ? "positive" : "negative",
+                      icon: Target,
+                      color: "from-orange-500 to-red-500",
+                      bgColor: "from-orange-500/20 to-red-500/20",
+                      suffix: "%",
+                      loading: estatisticasLoading,
+                    },
                   ]),
               {
                 title: "Receita do Mês",
@@ -631,6 +646,23 @@ export default function ModernDashboard() {
                 prefix: "R$ ",
                 loading: estatisticasLoading,
               },
+              {
+                title: "Risco Inadimplência",
+                value: riscoLoading ? 0 : resumoRisco?.clientesAltoRisco || 0,
+                change: riscoLoading
+                  ? "Carregando..."
+                  : `${resumoRisco?.clientesMedioRisco || 0} médio risco`,
+                changeType:
+                  (resumoRisco?.clientesAltoRisco || 0) > 0
+                    ? "negative"
+                    : "positive",
+                icon: AlertTriangle,
+                color: "from-red-500 to-orange-500",
+                bgColor: "from-red-500/20 to-orange-500/20",
+                loading: riscoLoading,
+                clickable: true,
+                onClick: () => setRiscoModalOpen(true),
+              },
             ].map((stat, index) => (
               <GlassCard
                 key={stat.title}
@@ -646,9 +678,7 @@ export default function ModernDashboard() {
                   <div
                     className={`p-3 rounded-2xl bg-gradient-to-r from-gold-500/20 to-gold-600/20 border border-gold-500/30`}
                   >
-                    <stat.icon
-                      className="w-6 h-6 text-gold-400"
-                    />
+                    <stat.icon className="w-6 h-6 text-gold-400" />
                   </div>
                   <motion.div
                     whileHover={{ scale: 1.05 }}
@@ -691,7 +721,10 @@ export default function ModernDashboard() {
           <div className="px-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             {/* Main Chart */}
             <div className="lg:col-span-2">
-              <GlassCard delay={0.4} className="bg-neutral-900/95 border-neutral-800">
+              <GlassCard
+                delay={0.4}
+                className="bg-neutral-900/95 border-neutral-800"
+              >
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h3 className="text-xl font-bold text-neutral-50 mb-1">
@@ -974,6 +1007,12 @@ export default function ModernDashboard() {
           countOnline={sessoesOnline}
         />
       )}
+
+      {/* Modal de Análise de Risco de Inadimplência */}
+      <RiscoInadimplenciaModal
+        isOpen={riscoModalOpen}
+        onClose={() => setRiscoModalOpen(false)}
+      />
     </div>
   );
 }
