@@ -13,7 +13,6 @@ import {
   validateFullName,
   validateRG,
   validateCNH,
-  validateCodinome,
   sanitizeString,
   normalizeEmail,
 } from "../../utils/validators";
@@ -41,7 +40,6 @@ import {
   UpdatePessoaFisicaDTO,
   PessoaFisica,
   SexoOptions,
-  EstadoCivilOptions,
 } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { consultarCep, CepData } from "@/lib/cep";
@@ -59,10 +57,8 @@ interface FormData {
   nome: string;
   emailEmpresarial: string;
   emailPessoal: string;
-  codinome: string;
   sexo: string;
   dataNascimento: string;
-  estadoCivil: string;
   cpf: string;
   rg: string;
   cnh: string;
@@ -94,10 +90,8 @@ const initialFormData: FormData = {
   nome: "",
   emailEmpresarial: "",
   emailPessoal: "",
-  codinome: "",
   sexo: "",
   dataNascimento: "",
-  estadoCivil: "",
   cpf: "",
   rg: "",
   cnh: "",
@@ -207,7 +201,11 @@ const InputField = memo(
             >
               <option value="" className="text-neutral-500"></option>
               {options.map((option) => (
-                <option key={option.value} value={option.value} className="bg-neutral-900 text-neutral-200">
+                <option
+                  key={option.value}
+                  value={option.value}
+                  className="bg-neutral-900 text-neutral-200"
+                >
                   {option.label}
                 </option>
               ))}
@@ -322,10 +320,8 @@ export default function PessoaFisicaForm({
         nome: initialData.nome || "",
         emailEmpresarial: initialData.emailEmpresarial || "",
         emailPessoal: initialData.emailPessoal || "",
-        codinome: initialData.codinome || "",
         sexo: initialData.sexo || "",
         dataNascimento: initialData.dataNascimento || "",
-        estadoCivil: initialData.estadoCivil || "",
         cpf: initialData.cpf || "",
         rg: initialData.rg || "",
         cnh: initialData.cnh || "",
@@ -534,11 +530,6 @@ export default function PessoaFisicaForm({
       newErrors.sexo = "Sexo é obrigatório";
     }
 
-    // Estado civil
-    if (!formData.estadoCivil) {
-      newErrors.estadoCivil = "Estado civil é obrigatório";
-    }
-
     // Telefone principal
     if (!formData.telefone1.trim()) {
       newErrors.telefone1 = "Telefone principal é obrigatório";
@@ -552,10 +543,6 @@ export default function PessoaFisicaForm({
     }
 
     // Campos opcionais
-    if (!validateCodinome(formData.codinome)) {
-      newErrors.codinome = "Codinome não pode exceder 100 caracteres";
-    }
-
     if (!validateRG(formData.rg)) {
       newErrors.rg = "RG não pode exceder 20 caracteres";
     }
@@ -607,10 +594,8 @@ export default function PessoaFisicaForm({
       nome: formData.nome,
       emailEmpresarial: formData.emailEmpresarial,
       emailPessoal: formData.emailPessoal || undefined,
-      codinome: formData.codinome || undefined,
       sexo: formData.sexo,
       dataNascimento: dataNascimento,
-      estadoCivil: formData.estadoCivil,
       cpf: formData.cpf,
       rg: formData.rg || undefined,
       cnh: formData.cnh || undefined,
@@ -720,14 +705,6 @@ export default function PessoaFisicaForm({
               icon={<Mail className="w-5 h-5" />}
             />
             <InputField
-              label="Apelido/Codinome"
-              name="codinome"
-              value={formData.codinome}
-              onChange={(value) => handleFieldChange("codinome", value)}
-              error={errors.codinome}
-              icon={<User className="w-5 h-5" />}
-            />
-            <InputField
               label="Sexo"
               name="sexo"
               options={SexoOptions}
@@ -748,16 +725,6 @@ export default function PessoaFisicaForm({
               formatter={formatData}
               icon={<Calendar className="w-5 h-5" />}
               placeholder="dd/mm/aaaa"
-            />
-            <InputField
-              label="Estado Civil"
-              name="estadoCivil"
-              options={EstadoCivilOptions}
-              required
-              value={formData.estadoCivil}
-              onChange={(value) => handleFieldChange("estadoCivil", value)}
-              error={errors.estadoCivil}
-              icon={<User className="w-5 h-5" />}
             />
           </div>
         </FormSection>

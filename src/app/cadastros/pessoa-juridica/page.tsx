@@ -197,16 +197,25 @@ export default function PessoaJuridicaPage() {
     setSelectedCompanyId(null);
   }, [searchTerm]);
 
+  // Normalizar CNPJ removendo formatação para busca
+  const normalizeCNPJ = (cnpj: string) => cnpj.replace(/[.\-\/]/g, "");
+
   // Filtrar pessoas por termo de busca e ordenar alfabeticamente
   const filteredPessoas = pessoas
-    .filter(
-      (pessoa) =>
-        pessoa.razaoSocial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    .filter((pessoa) => {
+      const searchLower = searchTerm.toLowerCase();
+      const searchNormalized = normalizeCNPJ(searchTerm);
+      const cnpjNormalized = normalizeCNPJ(pessoa.cnpj);
+
+      return (
+        pessoa.razaoSocial.toLowerCase().includes(searchLower) ||
         pessoa.cnpj.includes(searchTerm) ||
-        pessoa.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cnpjNormalized.includes(searchNormalized) ||
+        pessoa.email.toLowerCase().includes(searchLower) ||
         (pessoa.nomeFantasia &&
-          pessoa.nomeFantasia.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+          pessoa.nomeFantasia.toLowerCase().includes(searchLower))
+      );
+    })
     .sort((a, b) => a.razaoSocial.localeCompare(b.razaoSocial, "pt-BR"));
 
   const handleCreateOrUpdate = async (data: any) => {
