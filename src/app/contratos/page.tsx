@@ -38,6 +38,7 @@ import { useContratos } from "@/hooks/useContratos";
 import { useClientes } from "@/hooks/useClientes";
 import { useConsultores } from "@/hooks/useConsultores";
 import { useBoletos } from "@/hooks/useBoletos";
+import { useFiliais } from "@/hooks/useFiliais";
 import {
   Contrato,
   CreateContratoDTO,
@@ -134,6 +135,7 @@ export default function ContratosPage() {
   const [filtroConsultor, setFiltroConsultor] = useState<number | "todos">(
     "todos"
   );
+  const [filtroFilial, setFiltroFilial] = useState<number | "todos">("todos");
   const [filtroProximoContato, setFiltroProximoContato] = useState<
     "hoje" | "semana" | "mes" | "todos"
   >("todos");
@@ -179,6 +181,7 @@ export default function ContratosPage() {
 
   const { clientes } = useClientes();
   const { consultores } = useConsultores();
+  const { filiais } = useFiliais();
   const {
     boletos,
     loading: loadingBoletos,
@@ -293,6 +296,17 @@ export default function ContratosPage() {
         return false;
       }
 
+      // Filtro de filial
+      if (filtroFilial !== "todos") {
+        const clienteFilialId =
+          contrato.cliente?.filialId ||
+          contrato.cliente?.filial?.id;
+
+        if (!clienteFilialId || clienteFilialId !== filtroFilial) {
+          return false;
+        }
+      }
+
       // Filtro de próximo contato
       if (filtroProximoContato !== "todos") {
         // Verificar se a data existe antes de fazer o parse
@@ -398,6 +412,7 @@ export default function ContratosPage() {
     searchTerm,
     filtroSituacao,
     filtroConsultor,
+    filtroFilial,
     filtroProximoContato,
     filtroDataContrato,
   ]);
@@ -904,7 +919,7 @@ export default function ContratosPage() {
             </div>
 
             {/* Filtro de Consultor */}
-            <div className="relative">
+            <div className="relative w-auto">
               <select
                 value={filtroConsultor}
                 onChange={(e) =>
@@ -914,9 +929,9 @@ export default function ContratosPage() {
                       : Number(e.target.value)
                   )
                 }
-                className="appearance-none pl-10 pr-10 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all cursor-pointer"
+                className="appearance-none pl-10 pr-10 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all cursor-pointer w-[160px]"
               >
-                <option value="todos">Todos os Consultores</option>
+                <option value="todos">Consultores</option>
                 {consultores.map((consultor) => (
                   <option key={consultor.id} value={consultor.id}>
                     {consultor.pessoaFisica?.nome || consultor.nome}
@@ -924,6 +939,30 @@ export default function ContratosPage() {
                 ))}
               </select>
               <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
+            </div>
+
+            {/* Filtro de Filial */}
+            <div className="relative w-auto">
+              <select
+                value={filtroFilial}
+                onChange={(e) =>
+                  setFiltroFilial(
+                    e.target.value === "todos"
+                      ? "todos"
+                      : Number(e.target.value)
+                  )
+                }
+                className="appearance-none pl-10 pr-10 py-2 bg-neutral-800/50 border border-neutral-700 rounded-lg text-sm text-neutral-100 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent transition-all cursor-pointer w-[140px]"
+              >
+                <option value="todos">Filiais</option>
+                {filiais.map((filial) => (
+                  <option key={filial.id} value={filial.id}>
+                    {filial.nome}
+                  </option>
+                ))}
+              </select>
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-500 pointer-events-none" />
             </div>
 
@@ -1481,6 +1520,7 @@ export default function ContratosPage() {
               {searchTerm ||
               filtroSituacao !== "todas" ||
               filtroConsultor !== "todos" ||
+              filtroFilial !== "todos" ||
               filtroProximoContato !== "todos"
                 ? "Tente ajustar os filtros para ver mais resultados"
                 : "Comece criando um novo contrato"}
@@ -1489,6 +1529,7 @@ export default function ContratosPage() {
               searchTerm ||
               filtroSituacao !== "todas" ||
               filtroConsultor !== "todos" ||
+              filtroFilial !== "todos" ||
               filtroProximoContato !== "todos"
             ) && (
               <div className="text-sm text-neutral-500 space-y-2">

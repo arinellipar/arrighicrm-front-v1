@@ -367,6 +367,7 @@ export type SituacaoContrato =
   | "Em Análise"
   | "Contrato Enviado"
   | "Contrato Assinado"
+  | "Quitado"
   | "Retornar"
   | "Sem Interesse"
   | "RESCINDIDO"
@@ -507,6 +508,11 @@ export const SituacaoContratoOptions = [
     value: "Contrato Assinado",
     label: "Contrato Assinado",
     color: "bg-green-500/20 text-green-300 border border-green-500/30",
+  },
+  {
+    value: "Quitado",
+    label: "Quitado",
+    color: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30",
   },
   {
     value: "Retornar",

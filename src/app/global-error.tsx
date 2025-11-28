@@ -1,20 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
 import NextError from "next/error";
-import { datadogError } from "@/core/services/datadog-error.service";
 
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
-  useEffect(() => {
-    // Capturar erro global no Datadog
-    datadogError.captureError(error, {
-      action: "global_error",
-      metadata: {
-        digest: error.digest,
-        errorType: "GLOBAL_ERROR",
-      },
-    });
-  }, [error]);
+  console.error("Global error:", error);
 
   return (
     <html>

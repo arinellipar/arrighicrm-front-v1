@@ -15,7 +15,7 @@ module.exports = {
         ring: "rgb(var(--ring))",
         background: "rgb(var(--background))",
         foreground: "rgb(var(--foreground))",
-        // Paleta Futurista CRM Tributário: Preto, Cinza Escuro e Dourado
+        // Paleta Futurista CRM Judiciário: Preto, Cinza Escuro e Dourado
         primary: {
           DEFAULT: "#D4AF37", // Dourado principal
           foreground: "#0A0A0A",

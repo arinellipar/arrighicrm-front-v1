@@ -114,7 +114,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <div className="flex items-center gap-6">
                 <span className="font-medium text-gold-400">Arrighi Advogados © 2025</span>
                 <span className="text-neutral-600">|</span>
-                <span>CRM Tributário v2.0</span>
+                <span>CRM Judiciário v2.0</span>
               </div>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">

@@ -96,6 +96,7 @@ export default function ContratoDetalhes({
         PROSPECTO: "Prospecto",
         "CONTRATO ENVIADO": "Contrato Enviado",
         "CONTRATO ASSINADO": "Contrato Assinado",
+        QUITADO: "Quitado",
         RETORNAR: "Retornar",
         "SEM INTERESSE": "Sem Interesse",
         RESCINDIDO: "RESCINDIDO",

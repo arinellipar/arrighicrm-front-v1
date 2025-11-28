@@ -396,7 +396,7 @@ export default function ModernDashboard() {
                     </div>
                     <div>
                       <h1 className="text-xl font-bold text-gradient-gold">
-                        CRM Tributário
+                        CRM Judiciário
                       </h1>
                       <p className="text-xs text-neutral-400">
                         Enterprise Platform
