@@ -596,6 +596,7 @@ export default function PessoaFisicaForm({
       emailPessoal: formData.emailPessoal || undefined,
       sexo: formData.sexo,
       dataNascimento: dataNascimento,
+      estadoCivil: formData.estadoCivil || "",
       cpf: formData.cpf,
       rg: formData.rg || undefined,
       cnh: formData.cnh || undefined,
