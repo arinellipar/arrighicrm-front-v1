@@ -9,6 +9,20 @@ Sentry.init({
   // Set sampling rate for profiling - this is relative to tracesSampleRate
   profilesSampleRate: 1.0,
 
+  // Configure replay session sample rate
+  replaysSessionSampleRate: 0.1,
+
+  // Configure replay sample rate for sessions with errors
+  replaysOnErrorSampleRate: 1.0,
+
+  // Integration configuration
+  integrations: [
+    Sentry.replayIntegration({
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
+
   // Environment configuration
   environment: process.env.NODE_ENV,
 
