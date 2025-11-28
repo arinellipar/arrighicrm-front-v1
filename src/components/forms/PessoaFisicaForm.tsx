@@ -59,6 +59,7 @@ interface FormData {
   emailPessoal: string;
   sexo: string;
   dataNascimento: string;
+  estadoCivil: string;
   cpf: string;
   rg: string;
   cnh: string;
@@ -92,6 +93,7 @@ const initialFormData: FormData = {
   emailPessoal: "",
   sexo: "",
   dataNascimento: "",
+  estadoCivil: "",
   cpf: "",
   rg: "",
   cnh: "",
@@ -322,6 +324,7 @@ export default function PessoaFisicaForm({
         emailPessoal: initialData.emailPessoal || "",
         sexo: initialData.sexo || "",
         dataNascimento: initialData.dataNascimento || "",
+        estadoCivil: initialData.estadoCivil || "",
         cpf: initialData.cpf || "",
         rg: initialData.rg || "",
         cnh: initialData.cnh || "",
