@@ -177,7 +177,7 @@ export default function Header() {
                     Arrighi
                   </h1>
                   <p className="text-base text-neutral-400 font-medium -mt-0.5">
-                    CRM TRIBUTÁRIO
+                    CRM JUDICIÁRIO
                   </p>
                 </div>
               </Link>
